@@ -40,25 +40,23 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AVLTree.cs" />
-    <Compile Include="ByteCountStream.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CommandFailedException.cs" />
     <Compile Include="Engine.cs" />
-    <Compile Include="EngineSettings.cs" />
     <Compile Include="FatalException.cs" />
-    <Compile Include="ILogCommand.cs" />
+    <Compile Include="ILogCommand.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="LogItem.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="Serializer.cs" />
-    <Compile Include="SnapshotAgent.cs" />
-    <Compile Include="SnapshotInfo.cs" />
+    <Compile Include="SnapshotInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Storage.cs" />
     <Compile Include="SynchronousLogWriter.cs" />
-    <Compile Include="Transaction.cs" />
-    <Compile Include="BinaryTree.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="License.txt" />

@@ -1,0 +1,33 @@
+﻿@model IEnumerable<TimeTracker.Core.Client>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table>
+    <tr>
+        <th></th>
+        <th>
+            Name
+        </th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { name = item.Name }) |
+            @Html.ActionLink("Delete", "Delete", new { name = item.Name })
+        </td>
+        <td>
+            @item.Name
+        </td>
+    </tr>
+}
+
+</table>
+

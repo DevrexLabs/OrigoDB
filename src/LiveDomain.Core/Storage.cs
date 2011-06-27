@@ -7,6 +7,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO.Compression;
+using System.Runtime.Serialization;
 
 namespace LiveDomain.Core
 {
@@ -34,6 +35,11 @@ namespace LiveDomain.Core
             try
             {
                 _logwriter.Write(new LogItem(command));
+            }
+            catch (SerializationException)
+            {
+                //The command cannot be serialized
+                throw;
             }
             catch (Exception ex)
             {

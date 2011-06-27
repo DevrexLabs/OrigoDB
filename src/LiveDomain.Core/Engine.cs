@@ -70,18 +70,25 @@ namespace LiveDomain.Core
         bool _isDisposed = false;
 
 
-
+        /// <summary>
+        /// Shuts down the server
+        /// </summary>
         public void Close()
         {
             if (!_isDisposed)
             {
                 EnterWriteLockOrDie();
                 //Forces close of the command log
-                _storage.Dispose();
                 _isDisposed = true;
             }
-
         }
+
+        private void DisposeImpl()
+        {
+            _storage.Dispose();
+            _model = null;
+        }
+
 
         /// <summary>
         /// Merge committed transactions with the current image on disk and empty the transaction log.
@@ -162,7 +169,7 @@ namespace LiveDomain.Core
             }
             catch (TimeoutException) { throw; }
             catch (CommandFailedException) { throw; }
-            catch (FatalException) { Dispose(); throw; }
+            catch (FatalException) { DisposeImpl(); throw; }
             catch (Exception ex) 
             {
                 RollBack();

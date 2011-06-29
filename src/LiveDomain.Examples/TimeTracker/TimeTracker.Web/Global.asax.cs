@@ -38,6 +38,7 @@ namespace TimeTracker.Web
             string path = HostingEnvironment.ApplicationPhysicalPath + "/App_Data/testDb";
             if (Directory.Exists(path) == false)
             {
+                _model = new TModel();
                 LiveDomain.Core.Engine.Create(path, _model);
             }
             _engine = LiveDomain.Core.Engine.Load<TModel>(path);

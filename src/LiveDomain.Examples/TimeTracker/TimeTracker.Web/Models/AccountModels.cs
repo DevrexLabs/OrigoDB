@@ -51,8 +51,9 @@ namespace TimeTracker.Web.Models
     public class RegisterModel
     {
         [Required]
-        [Display(Name = "User name")]
-        public string UserName { get; set; }
+        [DataType(DataType.Text)]
+        [Display(Name = "Full name")]
+        public string Name { get; set; }
 
         [Required]
         [DataType(DataType.EmailAddress)]
@@ -83,7 +84,7 @@ namespace TimeTracker.Web.Models
         int MinPasswordLength { get; }
 
         bool ValidateUser(string userName, string password);
-        MembershipCreateStatus CreateUser(string userName, string password, string email);
+        MembershipCreateStatus CreateUser(string password, string email);
         bool ChangePassword(string userName, string oldPassword, string newPassword);
     }
 
@@ -117,14 +118,13 @@ namespace TimeTracker.Web.Models
             return _provider.ValidateUser(userName, password);
         }
 
-        public MembershipCreateStatus CreateUser(string userName, string password, string email)
+        public MembershipCreateStatus CreateUser(string password, string email)
         {
-            if (String.IsNullOrEmpty(userName)) throw new ArgumentException("Value cannot be null or empty.", "userName");
             if (String.IsNullOrEmpty(password)) throw new ArgumentException("Value cannot be null or empty.", "password");
             if (String.IsNullOrEmpty(email)) throw new ArgumentException("Value cannot be null or empty.", "email");
 
             MembershipCreateStatus status;
-            _provider.CreateUser(userName, password, email, null, null, true, null, out status);
+            _provider.CreateUser(String.Empty, password, email, null, null, true, null, out status);
             return status;
         }
 

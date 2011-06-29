@@ -1,0 +1,22 @@
+﻿@model IEnumerable<TimeTracker.Core.Project>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Projects</h2>
+
+<p>
+    @Html.ValidationSummary(true)
+    @Html.ValidationMessage("validationMessage")
+</p>
+
+<p>
+    @Html.ActionLink("Add project", "Add")
+</p>
+
+@foreach (var item in Model) {
+    <div id="dataList">
+        @item.Name (<span id="actionLink">@Html.ActionLink("edit", "Edit", new { id = item.Id })</span>)
+    </div>
+}

@@ -67,6 +67,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\ClientController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ProjectController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -75,6 +76,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Images\home_nav.png" />
+    <Content Include="Content\Menu.css" />
+    <Content Include="Content\Screen.css" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -125,7 +129,9 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_LogOnPartial.cshtml" />
-    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Views\Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -138,11 +144,14 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Views\Client\Create.cshtml" />
-    <None Include="Views\Client\Delete.cshtml" />
-    <None Include="Views\Client\Details.cshtml" />
+    <Compile Include="Providers\TimeTrackerMembershipProvider.cs" />
+    <Compile Include="ViewModels\ProjectViewModel.cs" />
+    <None Include="Views\Client\Add.cshtml" />
     <None Include="Views\Client\Edit.cshtml" />
     <None Include="Views\Client\Index.cshtml" />
+    <None Include="Views\Project\Add.cshtml" />
+    <None Include="Views\Project\Edit.cshtml" />
+    <None Include="Views\Project\Index.cshtml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
@@ -159,7 +168,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>False</UseIIS>
+          <UseIIS>True</UseIIS>
           <AutoAssignPort>False</AutoAssignPort>
           <DevelopmentServerPort>50654</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>

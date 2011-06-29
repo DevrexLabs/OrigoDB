@@ -8,12 +8,13 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.Security;
 using TimeTracker.Web.Models;
+using TimeTracker.Core.Commands;
+using TimeTracker.Core;
 
 namespace TimeTracker.Web.Controllers
 {
     public class AccountController : Controller
     {
-
         public IFormsAuthenticationService FormsService { get; set; }
         public IMembershipService MembershipService { get; set; }
 
@@ -78,7 +79,6 @@ namespace TimeTracker.Web.Controllers
 
         public ActionResult Register()
         {
-            ViewBag.PasswordLength = MembershipService.MinPasswordLength;
             return View();
         }
 
@@ -88,17 +88,15 @@ namespace TimeTracker.Web.Controllers
             if (ModelState.IsValid)
             {
                 // Attempt to register the user
-                MembershipCreateStatus createStatus = MembershipService.CreateUser(model.UserName, model.Password, model.Email);
+                //MembershipCreateStatus createStatus = MembershipService.CreateUser(model.Password, model.Email);
+                AddUserCommand<TModel> command = new AddUserCommand<TModel>();
+                command.Email = model.Email;
+                command.Password = model.Password;
+                command.Name = model.Name;
+                MvcApplication.Engine.Execute(command);
 
-                if (createStatus == MembershipCreateStatus.Success)
-                {
-                    FormsService.SignIn(model.UserName, false /* createPersistentCookie */);
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    ModelState.AddModelError("", AccountValidation.ErrorCodeToString(createStatus));
-                }
+                FormsService.SignIn(model.Email, false /* createPersistentCookie */);
+                return RedirectToAction("Index", "Home");
             }
 
             // If we got this far, something failed, redisplay form

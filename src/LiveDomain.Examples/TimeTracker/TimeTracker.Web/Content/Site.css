@@ -5,9 +5,9 @@ to use a different color start by replacing all instances of
 ----------------------------------------------------------*/
 body
 {
-    background-color: #5c87b2;
-    font-size: 75%;
-    font-family: Verdana, Tahoma, Arial, "Helvetica Neue", Helvetica, Sans-Serif;
+    background-color: #FFFFFF;
+    font-size: 80%;
+    font-family: Segoe UI;
     margin: 0;
     padding: 0;
     color: #696969;
@@ -15,26 +15,26 @@ body
 
 a:link
 {
-    color: #034af3;
-    text-decoration: underline;
+    color: #509DB2;
+    text-decoration: none;
 }
 a:visited
 {
-    color: #505abc;
+    color: #3F7C8C;
 }
 a:hover
 {
-    color: #1d60ff;
+    color: #56AABF;
     text-decoration: none;
 }
 a:active
 {
-    color: #12eb87;
+    color: #3F7C8C;
 }
 
 p, ul
 {
-    margin-bottom: 20px;
+    margin: 5 0px;
     line-height: 1.6em;
 }
 
@@ -42,8 +42,8 @@ p, ul
 ----------------------------------------------------------*/
 h1, h2, h3, h4, h5, h6
 {
-    font-size: 1.5em;
-    color: #000;
+    font-size: 2.5em;
+    color: #4C4C4C;
 }
 
 h1
@@ -54,7 +54,8 @@ h1
 }
 h2
 {
-    padding: 0 0 10px 0;
+    padding: 0px;
+    margin: 0px;
 }
 h3
 {
@@ -83,7 +84,7 @@ first child of the left and right table columns */
 page width. Or, you can specify an exact pixel width. */
 .page
 {
-    width: 90%;
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
 }
@@ -109,7 +110,7 @@ page width. Or, you can specify an exact pixel width. */
 
 #main
 {
-    padding: 30px 30px 15px 30px;
+    padding: 20px 30px 15px 20px;
     background-color: #fff;
     margin-bottom: 30px;
     _height: 1px; /* only IE6 applies CSS properties starting with an underscore */
@@ -182,31 +183,31 @@ ul#menu li.selected a
 /* FORM LAYOUT ELEMENTS   
 ----------------------------------------------------------*/
 
-fieldset 
+fieldset
 {
-    border:1px solid #ddd;
-    padding:0 1.4em 1.4em 1.4em;
-    margin:0 0 1.5em 0;
+    border: 1px solid #ddd;
+    padding: 0 1.4em 1.4em 1.4em;
+    margin: 0 0 1.5em 0;
 }
 
-legend 
+legend
 {
-    font-size:1.2em;
+    font-size: 1.2em;
     font-weight: bold;
 }
 
-textarea 
+textarea
 {
     min-height: 75px;
 }
 
-input[type="text"] 
+input[type="text"]
 {
     width: 200px;
     border: 1px solid #CCC;
 }
 
-input[type="password"] 
+input[type="password"]
 {
     width: 200px;
     border: 1px solid #CCC;
@@ -215,24 +216,51 @@ input[type="password"]
 /* TABLE
 ----------------------------------------------------------*/
 
-table 
+table
 {
-  border: solid 1px #e8eef4;
-  border-collapse: collapse;
+    border: solid 1px #DCE0E5;
+    border-collapse: collapse;
+    width: 40%
 }
 
-table td 
+table td
 {
-  padding: 5px;   
-  border: solid 1px #e8eef4;
+    padding: 5px;
+    border: solid 1px #e8eef4;
 }
 
 table th
 {
-  padding: 6px 5px;
-  text-align: left;
-  background-color: #e8eef4; 
-  border: solid 1px #e8eef4;   
+    padding: 6px 5px;
+    text-align: left;
+    background-color: #e8eef4;
+    border: solid 1px #e8eef4;
+}
+
+#dataTable
+{
+    margin-top: 10px;
+}
+
+#dataTableActionColumn
+{
+    width: 45px;
+    text-align: center;
+}
+
+#dataList
+{
+    margin-top: 5px;
+    width: 50%;
+    padding: 5px;
+    background-color: #E8EEF4;
+    border: solid 1px #D0D4D8;
+}
+
+#actionLink
+{
+    font-family: Courier New;
+    font-size: 90%;
 }
 
 /* MISC  
@@ -244,28 +272,28 @@ table th
 
 .error
 {
-    color:Red;
+    color: Red;
 }
 
 #menucontainer
 {
-    margin-top:40px;
+    margin-top: 40px;
 }
 
 div#title
 {
-    display:block;
-    float:left;
-    text-align:left;
+    display: block;
+    float: left;
+    text-align: left;
 }
 
 #logindisplay
 {
-    font-size:1.1em;
-    display:block;
-    text-align:right;
-    margin:10px;
-    color:White;
+    font-size: 1.1em;
+    display: block;
+    text-align: right;
+    margin: 10px;
+    color: White;
 }
 
 #logindisplay a:link
@@ -317,16 +345,14 @@ div#title
 
 /* Styles for editor and display helpers
 ----------------------------------------------------------*/
-.display-label,
-.editor-label
+.display-label, .editor-label
 {
     margin: 1em 0 0 0;
 }
 
-.display-field,
-.editor-field
+.display-field, .editor-field
 {
-    margin:0.5em 0 0 0;
+    margin: 0.5em 0 0 0;
 }
 
 .text-box

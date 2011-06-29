@@ -12,7 +12,7 @@ namespace TimeTracker.Core
 	{
         public string Email { get; set; }
         public String Name { get; set; }
-		private String  PasswordHash { get; set; }
+		private String PasswordHash { get; set; }
 
         public void SetPassword(string password)
         {

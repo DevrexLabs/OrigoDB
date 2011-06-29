@@ -30,7 +30,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -40,6 +40,7 @@
       <HintPath>..\Lib\LiveDomain.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -48,23 +49,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assignment.cs" />
-    <Compile Include="Client.cs" />
+    <Compile Include="Commands\UserCommands.cs" />
+    <Compile Include="IEnumerableExtensions.cs" />
+    <Compile Include="Model\Assignment.cs" />
+    <Compile Include="Model\Client.cs" />
     <Compile Include="Commands\ClientCommands.cs" />
+    <Compile Include="Commands\ProjectCommands.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="CryptoHelper.cs" />
     <Compile Include="Queries\ClientQueries.cs" />
-    <Compile Include="TModel.cs" />
-    <Compile Include="Project.cs" />
+    <Compile Include="Model\TModel.cs" />
+    <Compile Include="Model\Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Role.cs" />
-    <Compile Include="Task.cs" />
-    <Compile Include="TaskState.cs" />
-    <Compile Include="Timer.cs" />
-    <Compile Include="User.cs" />
-    <Compile Include="WorkItem.cs" />
+    <Compile Include="Model\Role.cs" />
+    <Compile Include="Model\Task.cs" />
+    <Compile Include="Model\TaskState.cs" />
+    <Compile Include="Model\Timer.cs" />
+    <Compile Include="Model\User.cs" />
+    <Compile Include="Model\WorkItem.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <None Include="Model\ClassDiagram.cd" />
+    <None Include="Snippets\test.snippet" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

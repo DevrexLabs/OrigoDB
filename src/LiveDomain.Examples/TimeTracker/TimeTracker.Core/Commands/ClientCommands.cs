@@ -10,13 +10,19 @@ namespace TimeTracker.Core.Commands
     public class AddClientCommand<M, T> : CommandWithResult<TModel, bool>
     {
         public string Name { get; set; }
-        public List<Project> Projects { get; set; }
 
         protected override bool Execute(TModel model) 
         {
+            int newId = 0;
+            Client mostRecentClient = model.Clients.LastOrDefault();
+            if (mostRecentClient != null)
+            {
+                newId = mostRecentClient.Id + 1;
+            }
+
             Client client = new Client();
+            client.Id = newId;
             client.Name = Name;
-            client.Projects = Projects;
             model.Clients.Add(client);
             return true;
         }
@@ -25,12 +31,12 @@ namespace TimeTracker.Core.Commands
     [Serializable]
     public class UpdateClientCommand<M, T> : CommandWithResult<TModel, bool>
     {
-        public string OldName { get; set; }
+        public int Id { get; set; }
         public string NewName { get; set; }
 
         protected override bool Execute(TModel model)
         {
-            Client client = model.Clients.FirstOrDefault(x => x.Name == OldName);
+            Client client = model.Clients.FirstOrDefault(x => x.Id == Id);
             if (client != null)
             {
                 client.Name = NewName;

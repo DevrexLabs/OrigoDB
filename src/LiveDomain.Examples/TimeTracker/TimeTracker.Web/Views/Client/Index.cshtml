@@ -1,33 +1,19 @@
 ﻿@model IEnumerable<TimeTracker.Core.Client>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "TimeTracker";
 }
 
-<h2>Index</h2>
+<h2>Clients</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Add client", "Add")
 </p>
-<table>
-    <tr>
-        <th></th>
-        <th>
-            Name
-        </th>
-    </tr>
 
+<p>
 @foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { name = item.Name }) |
-            @Html.ActionLink("Delete", "Delete", new { name = item.Name })
-        </td>
-        <td>
-            @item.Name
-        </td>
-    </tr>
+    <div id="dataList">
+        @item.Name (<span id="actionLink">@Html.ActionLink("edit", "Edit", new { id = item.Id })</span>)
+    </div>
 }
-
-</table>
-
+</p>

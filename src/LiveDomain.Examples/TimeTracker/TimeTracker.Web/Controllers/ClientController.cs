@@ -22,19 +22,23 @@ namespace TimeTracker.Web.Controllers
             return View(client);
         }
 
-        public ActionResult Create()
+        public ActionResult Add()
         {
             return View();
         }
 
         [HttpPost]
-        public ActionResult Create(Client inputClient)
+        public ActionResult Add(Client inputClient)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return View();
+                }
+
                 AddClientCommand<TModel, bool> command = new AddClientCommand<TModel, bool>();
                 command.Name = inputClient.Name;
-                command.Projects = new List<Project>();
                 MvcApplication.Engine.Execute(command);
 
                 return RedirectToAction("Index");
@@ -44,23 +48,27 @@ namespace TimeTracker.Web.Controllers
                 return View();
             }
         }
- 
-        public ActionResult Edit(string name)
+
+        public ActionResult Edit(int id)
         {
-            Client client = MvcApplication.Engine.Execute(m => m.Clients.FirstOrDefault(x => x.Name == name));
+            Client client = MvcApplication.Engine.Execute(m => m.Clients.FirstOrDefault(x => x.Id == id));
             return View(client);
         }
 
         [HttpPost]
-        public ActionResult Edit(string oldName, string name, Client inputClient)
+        public ActionResult Edit(Client inputClient)
         {
             try
             {
-                UpdateClientCommand<TModel, bool> command = new UpdateClientCommand<TModel, bool>();
-                command.OldName = oldName;
-                command.NewName = name;
-                MvcApplication.Engine.Execute(command);
+                if (!ModelState.IsValid)
+                {
+                    return View();
+                }
 
+                UpdateClientCommand<TModel, bool> command = new UpdateClientCommand<TModel, bool>();
+                command.Id = inputClient.Id;
+                command.NewName = inputClient.Name;
+                MvcApplication.Engine.Execute(command);
                 return RedirectToAction("Index");
             }
             catch

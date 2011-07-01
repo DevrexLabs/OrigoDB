@@ -35,8 +35,8 @@ namespace TimeTracker.Web.Models
     public class LogOnModel
     {
         [Required]
-        [Display(Name = "User name")]
-        public string UserName { get; set; }
+        [Display(Name = "Email")]
+        public string Email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
@@ -170,6 +170,7 @@ namespace TimeTracker.Web.Models
         public void SignOut()
         {
             FormsAuthentication.SignOut();
+            UserSession.LogOut();
         }
     }
     #endregion

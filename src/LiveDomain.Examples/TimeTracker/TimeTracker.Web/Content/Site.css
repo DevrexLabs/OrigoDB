@@ -213,6 +213,11 @@ input[type="password"]
     border: 1px solid #CCC;
 }
 
+#HourlyRate
+{
+    width: 60px;
+}
+
 /* TABLE
 ----------------------------------------------------------*/
 
@@ -220,7 +225,7 @@ table
 {
     border: solid 1px #DCE0E5;
     border-collapse: collapse;
-    width: 40%
+    width: 80%
 }
 
 table td
@@ -257,10 +262,50 @@ table th
     border: solid 1px #D0D4D8;
 }
 
+#dataListTitle
+{
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#dataListItemTitle
+{
+    font-weight: bold;
+}
+
 #actionLink
 {
     font-family: Courier New;
     font-size: 90%;
+}
+
+#clientSection
+{
+    /* background-color: #E8E8E8; */
+    padding: 5px;
+}
+
+
+
+table.addAssignmentTable
+{
+    border: none;
+    background-color: #E8EEF4;
+    border-collapse: collapse;
+    width: 60%;
+}
+
+table.addAssignmentTable td
+{
+    padding: 5px;
+    border: none;
+}
+
+table.addAssignmentTable th
+{
+    padding: 6px 5px;
+    text-align: left;
+    border: none;
 }
 
 /* MISC  

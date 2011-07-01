@@ -1,4 +1,6 @@
-﻿@model IEnumerable<TimeTracker.Core.Project>
+﻿@model TimeTracker.Web.ViewModels.ProjectViewModel
+
+<script src="@Url.Content("~/Scripts/jquery-ui.js")" type="text/javascript"></script>
 
 @{
     ViewBag.Title = "Index";
@@ -15,8 +17,19 @@
     @Html.ActionLink("Add project", "Add")
 </p>
 
-@foreach (var item in Model) {
-    <div id="dataList">
-        @item.Name (<span id="actionLink">@Html.ActionLink("edit", "Edit", new { id = item.Id })</span>)
-    </div>
+@foreach (var client in Model.Clients) {
+    if(client.Projects.Count > 0){
+        <div id="clientSection">
+            <span id="dataListTitle">@client.Name</span>
+            @foreach (var project in client.Projects) {
+                <div id="dataList">
+                    <span id="dataListItemTitle">@project.Name</span>
+                    (<span id="actionLink">@Html.ActionLink("edit", "Edit", new { id = project.Id })</span>)
+                    <br />
+                    <span>@project.Description</span>
+                </div>
+            }
+        </div>
+        <br />
+    }
 }

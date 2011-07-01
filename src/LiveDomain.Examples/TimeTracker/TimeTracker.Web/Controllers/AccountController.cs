@@ -40,9 +40,9 @@ namespace TimeTracker.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (MembershipService.ValidateUser(model.UserName, model.Password))
+                if (MembershipService.ValidateUser(model.Email, model.Password))
                 {
-                    FormsService.SignIn(model.UserName, model.RememberMe);
+                    FormsService.SignIn(model.Email, model.RememberMe);
                     if (Url.IsLocalUrl(returnUrl))
                     {
                         return Redirect(returnUrl);
@@ -54,7 +54,7 @@ namespace TimeTracker.Web.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", "The user name or password provided is incorrect.");
+                    ModelState.AddModelError("validationMessage", "The user name or password provided is incorrect.");
                 }
             }
 
@@ -69,7 +69,6 @@ namespace TimeTracker.Web.Controllers
         public ActionResult LogOff()
         {
             FormsService.SignOut();
-
             return RedirectToAction("Index", "Home");
         }
 

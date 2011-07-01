@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using TimeTracker.Core;
 using TimeTracker.Web.ViewModels;
 using TimeTracker.Core.Commands;
+using TimeTracker.Core.Commands.Project;
 
 namespace TimeTracker.Web.Controllers
 {
@@ -19,8 +20,9 @@ namespace TimeTracker.Web.Controllers
                 ModelState.AddModelError("validationMessage", validationMessage);
             }
 
-            List<Project> allProjects = MvcApplication.Engine.Execute(x => x.Projects);
-            return View(allProjects);
+            ProjectViewModel viewModel = new ProjectViewModel();
+            viewModel.Clients = MvcApplication.Engine.Execute(x => x.Clients);
+            return View(viewModel);
         }
 
         public ActionResult Details(int id)

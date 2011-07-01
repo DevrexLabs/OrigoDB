@@ -7,23 +7,28 @@ using LiveDomain.Examples.Ladders;
 namespace TimeTracker.Core
 {
 
-    [Serializable]
+	[Serializable]
 	public class User
 	{
-        public string Email { get; set; }
-        public String Name { get; set; }
+		public string Email { get; set; }
+		public String Name { get; set; }
 		private String PasswordHash { get; set; }
 
-        public void SetPassword(string password)
-        {
-            PasswordHash = CryptoHelper.CreateHashWithRandomSalt(password);
-        }
+		public void SetPassword(string password)
+		{
+			PasswordHash = CryptoHelper.CreateHashWithRandomSalt(password);
+		}
 
-        public bool PasswordEquals(string password)
-        {
-            return CryptoHelper.VerifyHash(password, PasswordHash);
-        }
+		public bool PasswordEquals(string password)
+		{
+			return CryptoHelper.VerifyHash(password, PasswordHash);
+		}
 
 		public List<Assignment> Assignments { get; set; }
+
+		public User()
+		{
+			Assignments = new List<Assignment>();
+		}
 	}
 }

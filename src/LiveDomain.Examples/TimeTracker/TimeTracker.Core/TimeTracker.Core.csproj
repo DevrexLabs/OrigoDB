@@ -49,12 +49,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\Assignment\AddAssignmentCommand.cs" />
+    <Compile Include="Commands\Project\AddProjectCommand.cs" />
+    <Compile Include="Commands\Project\ChangeClientForProjectCommand.cs" />
+    <Compile Include="Commands\Project\ChangeProjectOwnerCommand.cs" />
+    <Compile Include="Commands\Project\EditProjectDetailsCommand.cs" />
+    <Compile Include="Commands\Role\AddRoleCommand.cs" />
+    <Compile Include="Commands\Role\EditRoleCommand.cs" />
     <Compile Include="Commands\UserCommands.cs" />
     <Compile Include="IEnumerableExtensions.cs" />
     <Compile Include="Model\Assignment.cs" />
     <Compile Include="Model\Client.cs" />
     <Compile Include="Commands\ClientCommands.cs" />
-    <Compile Include="Commands\ProjectCommands.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="CryptoHelper.cs" />
     <Compile Include="Queries\ClientQueries.cs" />

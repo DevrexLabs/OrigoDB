@@ -151,7 +151,8 @@ namespace TimeTracker.Web.Providers
 
         public override bool ValidateUser(string username, string password)
         {
-            User user = MvcApplication.Engine.Execute(m => m.Users.SingleOrDefault(u => u.Email == username));
+            List<User> users = MvcApplication.Engine.Execute(m => m.Users);
+            User user = users.SingleOrDefault(u => u.Email == username);
             if (user == null)
             {
                 return false;

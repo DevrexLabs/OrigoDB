@@ -7,6 +7,8 @@ using LiveDomain.Core;
 using TimeTracker.Core.Queries;
 using TimeTracker.Core;
 using TimeTracker.Core.Commands;
+using TimeTracker.Web.ViewModels;
+using TimeTracker.Core.Commands.Assignment;
 
 namespace TimeTracker.Web.Controllers
 {
@@ -14,23 +16,51 @@ namespace TimeTracker.Web.Controllers
     {
         public ActionResult Index()
         {
-            ViewBag.Message = "Welcome to ASP.NET MVC!";
+            UserSession session = UserSession.Current;
+            if (session == null)
+            {
+                return View();
+            }
 
-            //int numContacts = MvcApplication.Engine.Execute(ClientQueries.NumOfClients());
-            //if (numContacts < 1)
-            //{
-            //    AddClientCommand<TModel, bool> command = new AddClientCommand<TModel, bool>();
-            //    command.Name = "Client #1";
-            //    command.Projects = new List<Project>();
-            //    MvcApplication.Engine.Execute(command);
-            //}
+            HomeViewModel viewModel = new HomeViewModel();
+            viewModel.User = session.User;
+            viewModel.Projects = MvcApplication.Engine.Execute(model => model.Projects);
+            viewModel.Roles= MvcApplication.Engine.Execute(model => model.Roles);
 
-            return View();
+            foreach (Project project in viewModel.Projects)
+            {
+                if (project.Members.Count(m => m.User.Email == viewModel.User.Email) > 0)
+                {
+                    viewModel.AssignedProjects.Add(project);
+                }
+            }
+
+            return View(viewModel);
         }
 
-        public ActionResult About()
+        [HttpPost]
+        public ActionResult AddAssignment(HomeViewModel viewModel)
         {
-            return View();
+            try
+            {
+                if (ModelState.IsValid == false)
+                {
+                    return RedirectToAction("Index");
+                }
+
+                AddAssignmentCommand<TModel> command = new AddAssignmentCommand<TModel>();
+                command.User = UserSession.Current.User;
+                command.RoleId = viewModel.SelectedRoleId;
+                command.ProjectId = viewModel.SelectedProjectId;
+                command.HourlyRate = viewModel.HourlyRate;
+                MvcApplication.Engine.Execute(command);
+
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
         }
     }
 }

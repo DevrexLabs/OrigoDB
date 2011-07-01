@@ -68,6 +68,9 @@
     <Compile Include="Controllers\ClientController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ProjectController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
+    <Compile Include="Controllers\RoleController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -136,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Report\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TimeTracker.Core\TimeTracker.Core.csproj">
@@ -145,6 +149,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Providers\TimeTrackerMembershipProvider.cs" />
+    <Compile Include="UserSession.cs" />
+    <Compile Include="ViewModels\HomeViewModel.cs" />
     <Compile Include="ViewModels\ProjectViewModel.cs" />
     <None Include="Views\Client\Add.cshtml" />
     <None Include="Views\Client\Edit.cshtml" />
@@ -152,6 +158,10 @@
     <None Include="Views\Project\Add.cshtml" />
     <None Include="Views\Project\Edit.cshtml" />
     <None Include="Views\Project\Index.cshtml" />
+    <None Include="Views\Role\Add.cshtml" />
+    <None Include="Views\Role\Edit.cshtml" />
+    <None Include="Views\Role\Index.cshtml" />
+    <None Include="Views\User\Index.cshtml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />

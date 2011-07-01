@@ -1,8 +1,39 @@
-﻿@{
-    ViewBag.Title = "Home Page";
+﻿@model TimeTracker.Web.ViewModels.HomeViewModel
+
+<h2>Hi @if(Model != null && Model.User != null){ @Model.User.Name }!</h2>
+
+@if(Model != null){
+    foreach(var project in Model.AssignedProjects){
+        <p>@project.Name</p>
+    }
+    
+    <h3 style="margin-bottom: 5px;">Join a project</h3>
+    
+    using (Html.BeginForm("AddAssignment", "Home")) {
+        <table class="addAssignmentTable">
+            <tr>
+                <th>Project</th>
+                <th>Role</th>
+                <th>Hourly rate</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td>@Html.DropDownListFor(model => model.SelectedProjectId, new SelectList(Model.Projects, "Id", "Name"))</td>
+                <td>@Html.DropDownListFor(model => model.SelectedRoleId, new SelectList(Model.Roles, "Id", "Name"))</td>
+                <td>@Html.TextBoxFor(model => model.HourlyRate, new { Size = 4, @Value = "" })</td>
+                <td><input type="submit" value="Join Project" style="padding:4 10px;" /></td>
+            </tr>
+        </table>
+    }
 }
 
-<h2>@ViewBag.Message</h2>
-<p>
-    To learn more about ASP.NET MVC visit <a href="http://asp.net/mvc" title="ASP.NET MVC Website">http://asp.net/mvc</a>.
-</p>
+<script language="javascript" type="text/javascript">
+    
+    function outUl() {
+        var textBox = document.getElementById('HourlyRate');
+        textBox.value = 777;
+    }
+
+    element = document.getElementById('SelectedRoleId');
+    element.addEventListener('change', outUl, false);
+</script>

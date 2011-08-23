@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 
 namespace LiveDomain.Core.Test
 {
@@ -49,22 +50,69 @@ namespace LiveDomain.Core.Test
         // [ClassCleanup()]
         // public static void MyClassCleanup() { }
         //
-        // Use TestInitialize to run code before running each test 
-        // [TestInitialize()]
-        // public void MyTestInitialize() { }
-        //
-        // Use TestCleanup to run code after each test has run
-        // [TestCleanup()]
-        // public void MyTestCleanup() { }
-        //
+         //Use TestInitialize to run code before running each test 
+         [TestInitialize()]
+         public void MyTestInitialize() 
+         {
+             Path = System.IO.Path.Combine(TestContext.TestRunResultsDirectory, Guid.NewGuid().ToString());
+         }
+        
+
+         //Use TestCleanup to run code after each test has run
+         [TestCleanup()]
+         public void MyTestCleanup() 
+         {
+             //Directory.Delete(Path);
+         }
+        
         #endregion
 
+
+         public string Path { get; set; }
+         public Engine Engine { get; set; }
+
         [TestMethod]
-        public void TestMethod1()
+        public void CanCreateEngine()
         {
-            //
-            // TODO: Add test logic here
-            //
+            Engine.Create(new TestModel(), new EngineSettings(Path));
+        }
+
+        [TestMethod]
+        public void CanLoadEngine()
+        {
+            CanCreateEngine();
+            this.Engine = Engine.Load(Path);
+            
+        }
+
+        [TestMethod]
+        public void CommandPermutesModel()
+        {
+            CanLoadEngine();
+            int commandsExecuted = (int) this.Engine.Execute(new TestCommand());
+        }
+
+        [TestMethod]
+        public void ModelRetainsStateAfterRestore()
+        {
+            CommandPermutesModel();
+            Engine.Close();
+            Engine = Engine.Load(Path);
+            int numCommandsExecuted = (int)Engine.Execute(new GetNumberOfCommandsExecutedQuery());
+            Assert.AreEqual(numCommandsExecuted, 1);
+        }
+
+        [TestMethod]
+        public void OnLoadIsCalledAfterRestore()
+        {
+            ModelRetainsStateAfterRestore();
+            bool onLoadWasCalled = Engine.Execute<TestModel, bool>(m => m.OnLoadExecuted);
+            Assert.IsTrue(onLoadWasCalled);
+        }
+
+        [TestMethod]
+        public void CanExecuteGenericCommand()
+        {
         }
     }
 }

@@ -7,7 +7,6 @@ using System.Threading;
 namespace LiveDomain.Core
 {
 
-
     /// <summary>
     /// A command modifies the state of the model.
     /// </summary>
@@ -27,7 +26,7 @@ namespace LiveDomain.Core
             ExecuteStub(model);
         }
 
-        internal abstract void ExecuteStub(Model model);
+        internal abstract object ExecuteStub(Model model);
 
     }
 
@@ -36,15 +35,16 @@ namespace LiveDomain.Core
     /// </summary>
     /// <typeparam name="M">The specific type of the model, derived from Model</typeparam>
     [Serializable]
-    public abstract class Command<M> : Command 
+    public abstract class Command<M> : Command
         where M : Model
     {
 
         protected internal virtual void Prepare(M model) {}
 
-        internal override void ExecuteStub(Model model)
+        internal override object ExecuteStub(Model model)
         {
             Execute(model as M);
+            return null;
         }
 
         internal override void PrepareStub(Model model)
@@ -53,7 +53,6 @@ namespace LiveDomain.Core
         }
 
         internal protected abstract void Execute(M model);
-
     }
 
     [Serializable]
@@ -67,9 +66,9 @@ namespace LiveDomain.Core
             Prepare(model as M);
         }
 
-        internal override void ExecuteStub(Model model)
+        internal override object ExecuteStub(Model model)
         {
-            Execute(model as M);
+            return Execute(model as M);
         }
 
         internal protected abstract R Execute(M model);

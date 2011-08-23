@@ -16,8 +16,6 @@ namespace LiveDomain.Core
 	{
 		IFormatter _formatter;
 
-		//internal Stream Stream { get; set; }
-
 		internal Serializer(IFormatter formatter)
 		{
 			_formatter = formatter;
@@ -48,6 +46,11 @@ namespace LiveDomain.Core
 			_formatter.Serialize(ms, graph);
 			return ms.ToArray();
 		}
+
+        internal object Clone(object graph)
+        {
+            return Deserialize<object>(Serialize(graph));
+        }
 
 		internal T Clone<T>(T graph)
 		{

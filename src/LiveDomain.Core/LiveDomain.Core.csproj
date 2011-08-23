@@ -40,18 +40,27 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsynchronousLogWriter.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CommandFailedException.cs" />
+    <Compile Include="ConcurrencyMode.cs" />
     <Compile Include="Engine.cs" />
+    <Compile Include="EngineSettings.cs" />
     <Compile Include="FatalException.cs" />
+    <Compile Include="ILockStrategy.cs" />
     <Compile Include="ILogCommand.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ILogWriter.cs" />
     <Compile Include="LogItem.cs" />
+    <Compile Include="LogWriter.cs" />
     <Compile Include="Model.cs" />
+    <Compile Include="NullLockingStrategy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query.cs" />
+    <Compile Include="ReaderWriterLockSlimStrategy.cs" />
     <Compile Include="Serializer.cs" />
+    <Compile Include="SingleThreadedLockingStrategy.cs" />
     <Compile Include="SnapshotInfo.cs">
       <SubType>Code</SubType>
     </Compile>

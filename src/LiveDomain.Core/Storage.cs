@@ -24,11 +24,11 @@ namespace LiveDomain.Core
         Serializer _serializer;
         string _snapshotDirectory;
         string _logfile;
-        //EngineSettings _settings;
+        EngineSettings _settings;
 
         internal string RootDirectory { get; private set; }
 
-        private SynchronousLogWriter _logwriter;
+        private ILogWriter _logwriter;
 
         internal void AppendToLog(ILogCommand command)
         {
@@ -48,24 +48,25 @@ namespace LiveDomain.Core
         }
 
 
-        internal Storage(string rootDirectory)
+        internal Storage(EngineSettings settings)
         {
-            //_settings = settings;
-            RootDirectory = rootDirectory;
-            _snapshotDirectory = rootDirectory + "\\snapshots";
-            _logfile = rootDirectory + "\\" + LogFileName;
+            _settings = settings;
+            RootDirectory = _settings.Path;
+            _snapshotDirectory = Path.Combine(RootDirectory, "snapshots");
+            _logfile = Path.Combine(_settings.AlternateLogPath ?? RootDirectory, LogFileName);
             _serializer = CreateSerializer();
-            _logwriter = new SynchronousLogWriter(_logfile, CreateSerializer());
+            _logwriter = CreateLogWriter();
+
         }
 
 
-        internal M ReadModel<M>() where M : Model
+        internal Model ReadModel()
         {
             string path = GetDataFilePath();
             var stream = File.OpenRead(path);
             using (stream)
             {
-                return _serializer.Read<M>(stream);
+                return _serializer.Read<Model>(stream);
             }
         }
 
@@ -76,7 +77,7 @@ namespace LiveDomain.Core
         /// <param name="model">The model to save</param>      
         internal void Save(Model model, string name)
         {
-            if (!Regex.IsMatch("", "^[a-zA-Z0-9_]+$")) 
+            if (!Regex.IsMatch(name, "^[a-zA-Z0-9_]+$")) 
                 throw new ArgumentException("Snapshot name contains invalid chars. a-zA-Z0-9_", name);
             
             string path = _snapshotDirectory + "\\" + name;
@@ -92,7 +93,7 @@ namespace LiveDomain.Core
         internal IEnumerable<SnapshotInfo> GetSnapshots()
         {
             return Directory.GetFiles(_snapshotDirectory)
-                .Select(name => new FileInfo(_snapshotDirectory + "\\" + name))
+                .Select(name => new FileInfo(Path.Combine(_snapshotDirectory , name)))
                 .Select( s => new SnapshotInfo
                 { 
                     Name = s.Name, 
@@ -123,7 +124,15 @@ namespace LiveDomain.Core
         {
             _logwriter.Dispose();
             File.Delete(GetLogFilePath());
-            _logwriter = new SynchronousLogWriter(_logfile, CreateSerializer());
+            _logwriter = CreateLogWriter(); 
+        }
+
+        private ILogWriter CreateLogWriter()
+        {
+            var logWriter = _settings.CreateLogWriter();
+            logWriter.Serializer = CreateSerializer();
+            logWriter.Stream = GetWriteStream(_logfile);
+            return (ILogWriter) logWriter;
         }
 
 
@@ -169,30 +178,30 @@ namespace LiveDomain.Core
                     yield return logItem;
                 }
             }
-            _logwriter = new SynchronousLogWriter(_logfile, CreateSerializer());
+
+            _logwriter = CreateLogWriter();
+        }
+
+        private Serializer CreateSerializer()
+        {
+            IFormatter formatter = _settings.CreateSerializationFormatter();
+            return new Serializer(formatter);
         }
 
         protected Stream GetWriteStream(string path)
         {
             Stream stream = File.OpenWrite(path);
-            //if (Compression.GZip == _settings.Compression) stream = new GZipStream(stream, CompressionMode.Compress);
+            if (_settings.Compression == CompressionMethod.GZip) stream = new GZipStream(stream, CompressionMode.Compress);
             return stream;
         }
 
         protected Stream GetReadStream(string path)
         {
             Stream stream = File.OpenRead(path);
-            //if (_settings.Compression == Compression.GZip) stream = new GZipStream(stream, CompressionMode.Decompress);
+            if (_settings.Compression == CompressionMethod.GZip) stream = new GZipStream(stream, CompressionMode.Decompress);
             return stream;
         }
 
-
-
-        protected Serializer CreateSerializer()
-        {
-            return new Serializer(new BinaryFormatter());
-            
-        }
 
 
         public void Dispose()
@@ -200,5 +209,18 @@ namespace LiveDomain.Core
             _logwriter.Dispose();
         }
 
+        internal static Storage Create(string path)
+        {
+            return Create(new EngineSettings(path));
+        }
+
+        internal static Storage Create(EngineSettings settings)
+        {
+            string path = settings.Path;
+            if (Directory.Exists(path)) throw new Exception("Directory already exists");
+            Directory.CreateDirectory(path);
+            Directory.CreateDirectory(path + @"\snapshots");
+            return new Storage(settings);
+        }
     }
 }

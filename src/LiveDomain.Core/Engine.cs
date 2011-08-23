@@ -11,48 +11,31 @@ namespace LiveDomain.Core
 {
 
 
-    public abstract class Engine
-    {
-
-        protected static M Recover<M>(string directory) where M : Model
-        {
-            Storage storage = new Storage(directory);
-            M model = storage.ReadModel<M>();
-
-            foreach (var logitem in storage.ReadLogEntries())
-            {
-                logitem._command.Redo(model);
-            }
-            storage.Dispose();
-            return model;
-        }
-
-        public static Engine<M> Load<M>(string directory) where M : Model
-        {
-            M model = Recover<M>(directory);
-            return new Engine<M>(directory, model);
-        }
-
-        public static void Create<M>(string directory, M model) where M : Model
-        {
-            //TODO: Refactor, responsibility of Storage
-            if (Directory.Exists(directory)) throw new Exception("Directory already exists");
-            Directory.CreateDirectory(directory);
-            //Directory.CreateDirectory(directory + @"\snapshots");
-            var storage = new Storage(directory);
-            storage.Merge(model);
-            storage.Dispose();
-            //return Engine.Load<M>(directory);
-        }
-    }
-
     /// <summary>
     /// Engine is responsible for executing commands and queries against
     /// the model while conforming to ACID.
     /// </summary>
     /// <typeparam name="M"></typeparam>
-    public class Engine<M> : Engine, IDisposable where M : Model
+    public class Engine : IDisposable
     {
+
+        public static Engine Load(EngineSettings settings)
+        {
+            Model model = Restore(settings);
+            return new Engine( model, settings);
+        }
+
+        public static void Create( Model model, EngineSettings settings)
+        {
+            var storage = Storage.Create(settings); 
+            storage.Merge(model);
+            storage.Dispose();
+        }
+
+        /// <summary>
+        /// The prevalent system. The database. Your single aggregate root.
+        /// </summary>
+        protected Model _model;
 
         /// <summary>
         /// The time to wait for the lock before a TimeoutException is thrown.
@@ -61,13 +44,19 @@ namespace LiveDomain.Core
 
 
         /// <summary>
-        /// The encapsulated prevalent system
+        /// Set to true to avoid returning references directly into the model. Default is true.
         /// </summary>
-        M _model;
+        /// 
+        public bool CloneResults { get; set; }
+
+
+
         Storage _storage;
-        ReaderWriterLockSlim _lock;
+        ILockStrategy _lock;
         Serializer _serializer;
         bool _isDisposed = false;
+        EngineSettings _settings;
+
 
 
         /// <summary>
@@ -77,8 +66,8 @@ namespace LiveDomain.Core
         {
             if (!_isDisposed)
             {
-                EnterWriteLockOrDie();
-                //Forces close of the command log
+                _lock.EnterWrite();
+                DisposeImpl();
                 _isDisposed = true;
             }
         }
@@ -89,6 +78,19 @@ namespace LiveDomain.Core
             _model = null;
         }
 
+        protected static Model Restore(EngineSettings settings)
+        {
+            Storage storage = new Storage(settings);
+            Model model = storage.ReadModel();
+            model.OnLoad();
+
+            foreach (var logitem in storage.ReadLogEntries())
+            {
+                logitem._command.Redo(model);
+            }
+            storage.Dispose();
+            return model;
+        }
 
         /// <summary>
         /// Merge committed transactions with the current image on disk and empty the transaction log.
@@ -98,12 +100,12 @@ namespace LiveDomain.Core
             ThrowIfDisposed();
             try
             {
-                EnterReadLockOrDie();
+                _lock.EnterRead();
                 _storage.Merge(_model);
             }
             finally
             {
-                _lock.ExitReadLock();
+                _lock.Exit();
             }
         }
 
@@ -114,57 +116,66 @@ namespace LiveDomain.Core
 
 
 
-        internal Engine(string directory, M model)
+        protected Engine(Model model, EngineSettings settings)
         {
-            _storage = new Storage(directory);
+            _settings = settings;
+            _storage = new Storage(_settings);
             _model = model;
-            _lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
-            _serializer = new Serializer(new BinaryFormatter());
-            LockTimeout = TimeSpan.FromSeconds(2);
+            _lock = _settings.CreateLockingStrategy();
+            _serializer = new Serializer(_settings.CreateSerializationFormatter());
         }
 
 
+        public object Execute(Query query)
+        {
+            return Execute(query, CloneResults);
+        }
 
-        public T Execute<T>(Func<M, T> query, bool cloneResults = true)
+        public object Execute(Query query, bool cloneResults)
+        {
+            return Execute<Model, object>((m) => query.ExecuteStub(m), cloneResults);
+        }
+
+        public T Execute<M, T>(Func<M, T> query) where M : Model
+        {
+            return Execute(query, CloneResults);
+        }
+
+        public T Execute<M,T>(Func<M, T> query, bool cloneResults) where M : Model
         {
             ThrowIfDisposed();
-            EnterReadLockOrDie();
+            _lock.EnterRead();
 
             try
             {
-                T result = query.Invoke(_model);
-                if (cloneResults) result = _serializer.Clone<T>(result);
+                T result = query.Invoke(_model as M);
+                if (cloneResults) result = _serializer.Clone(result);
                 return result;
             }
             finally
             {
-                _lock.ExitReadLock();
+                _lock.Exit();
             }
+
         }
 
-        public T Execute<T>(CommandWithResult<M, T> command)
+        public object Execute(Command command)
         {
-            return ExecuteImpl<T>(command);
+            return Execute(command, CloneResults);
         }
 
-        public void Execute(Command<M> command)
-        {
-            ExecuteImpl<object>(command);
-        }
-
-        private T ExecuteImpl<T>(Command command)
+        public object Execute(Command command, bool cloneResults)
         {
             ThrowIfDisposed();
 
-            EnterUpgradeLockOrDie();
+            _lock.EnterUpgrade();
             try
             {
                 CallPrepare(command);
-                EnterWriteLockOrDie();
-                T result = default(T);
-                if (command is CommandWithResult<M, T>) result = (command as CommandWithResult<M, T>).Execute(_model);
-                else command.ExecuteStub(_model);
+                _lock.EnterWrite();
+                object result = command.ExecuteStub(_model);
                 _storage.AppendToLog(command);
+                if (cloneResults) result = _serializer.Clone(result);
                 return result;
             }
             catch (TimeoutException) { throw; }
@@ -177,8 +188,7 @@ namespace LiveDomain.Core
             }
             finally
             {
-                if (_lock.IsWriteLockHeld) _lock.ExitWriteLock();
-                if (_lock.IsUpgradeableReadLockHeld) _lock.ExitUpgradeableReadLock();
+                _lock.Exit();
             }
         }
 
@@ -188,8 +198,8 @@ namespace LiveDomain.Core
             {
                 string path = _storage.RootDirectory;
                 _storage.Dispose();
-                _model = Recover<M>(path);
-                _storage = new Storage(path);
+                _model = Restore( _settings);
+                _storage = new Storage( _settings);
             }
             catch (Exception ex)
             {
@@ -212,39 +222,14 @@ namespace LiveDomain.Core
         }
 
 
-        private void EnterWriteLockOrDie()
-        {
-            if (!_lock.TryEnterWriteLock(LockTimeout))
-            {
-                throw new TimeoutException("no write lock aquired within timeout period");
-            }
-        }
-
-
-        private void EnterReadLockOrDie()
-        {
-            if (!_lock.TryEnterReadLock(LockTimeout))
-            {
-                throw new TimeoutException(" no read lock aquired within timeout period");
-            }
-        }
-
-        private void EnterUpgradeLockOrDie()
-        {
-            if (!_lock.TryEnterUpgradeableReadLock(LockTimeout))
-            {
-                throw new TimeoutException("no upgradeable read lock aquired within timeout period");
-            }
-        }
-
         /// <summary>
         /// Discards the commands in the transaction log and restores from latest Merge()
         /// </summary>
-        public void Revert()
+        public void RevertToSnapshot()
         {
             ThrowIfDisposed();
             _storage.TruncateLog();
-            _model = _storage.ReadModel<M>();
+            _model = _storage.ReadModel();
         }
 
         public void Dispose()
@@ -252,5 +237,33 @@ namespace LiveDomain.Core
             this.Close();
         }
 
+
+        public static Engine Load(string Path)
+        {
+            return Load(new EngineSettings(Path));
+        }
+    }
+
+    public class Engine<M> : Engine where M : Model
+    {
+        public T Execute<T>(CommandWithResult<M, T> command)
+        {
+            return (T) base.Execute(command);
+        }
+
+        public void Execute(Command<M> command)
+        {
+            base.Execute(command);
+        }
+
+        public T Execute<T>(Query<M, T> query)
+        {
+            return (T) base.Execute(query);
+        }
+
+        internal Engine(string path, M model) : this(model, new EngineSettings(path)) { }
+        internal Engine(M model, EngineSettings settings) : base(model, settings)
+        {
+        }
     }
 }

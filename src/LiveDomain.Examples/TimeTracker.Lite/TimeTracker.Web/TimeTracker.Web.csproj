@@ -154,6 +154,7 @@
     <Compile Include="ViewModels\HomeViewModel.cs" />
     <Compile Include="ViewModels\ProjectViewModel.cs" />
     <None Include="Views\Client\Add.cshtml" />
+    <Content Include="Views\Client\Details.cshtml" />
     <None Include="Views\Client\Edit.cshtml" />
     <None Include="Views\Client\Index.cshtml" />
     <None Include="Views\Project\Add.cshtml" />

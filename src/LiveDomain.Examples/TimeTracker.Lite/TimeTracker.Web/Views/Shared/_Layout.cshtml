@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <title>@ViewBag.Title</title>
+        <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/Menu.css")" rel="stylesheet" type="text/css" />
+        <script src="@Url.Content("~/Scripts/jquery-1.4.4.min.js")" type="text/javascript"></script>
+    </head>
+
+    <body>
+
+        <div id="company_bar">
+            <div class="content-wrapper">
+                <div class="span-11">
+                    <strong>TimeTracker</strong>
+                    <span id="trial_message_header">
+                        <span style="margin:0px 5px;color:#777">|</span>
+                        Some random text...
+                        <a href="https://devrex.harvestapp.com/company/edit_plan" class="">Try our premium version</a>
+                    </span>
+                </div>
+                <div class="span-5 last user-area">
+                    @Html.Partial("_LogOnPartial")
+                </div>
+            </div>
+        </div>
+
+        <div id="navigation_tabs">
+            <div class="content-wrapper">
+                <ul>
+                    <li>
+                        @Html.ActionLink("Control Panel", "Index", "Home")
+                    </li>
+                    <li>
+                        @Html.ActionLink("Clients", "Index", "Client")
+                    </li>
+                    <li>
+                        @Html.ActionLink("Projects", "Index", "Project")
+                    </li>
+                    <li>
+                        @Html.ActionLink("Roles", "Index", "Role")
+                    </li>
+                    <!--
+                    <li>
+                        @Html.ActionLink("About", "About", "Home")
+                    </li>
+                    <li>
+                        <a href="https://devrex.harvestapp.com/daily">Timesheets</a>
+                    </li>
+                    <li>
+                        <a href="https://devrex.harvestapp.com/invoices">Invoices</a>
+                    </li>
+                    <li>
+                        <a href="https://devrex.harvestapp.com/estimates">Estimates</a>
+                    </li>
+                    <li>
+                        <a href="https://devrex.harvestapp.com/projects">Manage</a>
+                    </li>
+                    <li class="help-tab">
+                        <a href="https://www.help.com" target="_blank">Help</a>
+                    </li>
+                    -->
+                </ul>
+            </div>
+        </div>
+
+        <!--<div id="sub_nav">
+            <div class="content-wrapper">
+                <ul>
+                    <li>
+                        <a href="https://devrex.harvestapp.com/welcome" class="current">Add</a>
+                    </li>
+                    <li>
+                        <a href="https://devrex.harvestapp.com/overview">Dashboard</a>
+                    </li>
+                </ul>
+                <div class="nobdr pagetips" id="page_tips" style="display:none;">
+                    <a href="#" onclick="toggle_help_box(); return false;" style="font-weight: normal;">Page Tips</a>
+                </div>
+            </div>
+        </div>-->
+
+        <div class="page">
+            <!--<div id="header">
+            <div id="title">
+                <h1>My MVC Application</h1>
+            </div>
+
+            <div id="logindisplay">
+                @Html.Partial("_LogOnPartial")
+            </div>
+
+            <div id="menucontainer">
+                <ul id="menu">
+                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                    <li>@Html.ActionLink("Clients", "Index", "Client")</li>
+                    <li>@Html.ActionLink("About", "About", "Home")</li>
+                </ul>
+            </div>
+        </div>-->
+
+            <div id="main" class="content-wrapper">
+                @RenderBody()
+                <div id="footer">
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

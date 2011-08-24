@@ -18,4 +18,15 @@ namespace TimeTracker.Core.Commands
             model.AddUser(Name, Email, Password);
         }
     }
+
+	[Serializable]
+	public class RemoveUserCommand<M> : Command<TModel>
+	{
+		public User User { get; set; }
+
+		protected override void Execute(TModel model)
+		{
+			model.RemoveUser(User);
+		}
+	}
 }

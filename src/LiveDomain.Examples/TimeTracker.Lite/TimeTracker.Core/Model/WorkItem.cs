@@ -11,10 +11,8 @@ namespace TimeTracker.Core
     [Serializable]
 	public class WorkItem
 	{
-		public Task Task { get; set; }
 		public DateTime Started { get; set; }
 		public TimeSpan Duration { get; set; }
-		public Assignment Assignment { get; set; }
 		
         /// <summary>
         /// A short description visible to the client

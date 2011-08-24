@@ -19,8 +19,6 @@
             </tr>
             <tr>
                 <td>@Html.DropDownListFor(model => model.SelectedProjectId, new SelectList(Model.Projects, "Id", "Name"))</td>
-                <td>@Html.DropDownListFor(model => model.SelectedRoleId, new SelectList(Model.Roles, "Id", "Name"))</td>
-                <td>@Html.TextBoxFor(model => model.HourlyRate, new { Size = 4, @Value = "" })</td>
                 <td><input type="submit" value="Join Project" style="padding:4 10px;" /></td>
             </tr>
         </table>

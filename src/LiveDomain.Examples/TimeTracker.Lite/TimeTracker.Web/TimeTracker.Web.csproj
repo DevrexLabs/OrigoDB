@@ -70,7 +70,6 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ProjectController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
-    <Compile Include="Controllers\RoleController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -133,9 +132,7 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_LogOnPartial.cshtml" />
-    <Content Include="Views\Shared\_Layout.cshtml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -160,9 +157,6 @@
     <None Include="Views\Project\Add.cshtml" />
     <None Include="Views\Project\Edit.cshtml" />
     <None Include="Views\Project\Index.cshtml" />
-    <None Include="Views\Role\Add.cshtml" />
-    <None Include="Views\Role\Edit.cshtml" />
-    <None Include="Views\Role\Index.cshtml" />
     <None Include="Views\User\Index.cshtml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

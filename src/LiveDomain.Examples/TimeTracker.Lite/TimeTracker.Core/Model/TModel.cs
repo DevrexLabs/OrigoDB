@@ -8,73 +8,15 @@ namespace TimeTracker.Core
     [Serializable]
     public class TModel : LiveDomain.Core.Model
     {
-        //private HashSet<String> _roles = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-        //private List<User> _people = new List<User>();
-        //private List<Project> _projects = new List<Project>();
-
-        //public IEnumerable<Project> Projects { get { return _projects; } }
-        //public IEnumerable<User> People { get { return _people; } }
-        //public IEnumerable<String> Roles { get { return _roles; } }
-
         public List<Client> Clients { get; set; }
         public List<Project> Projects { get; set; }
         public List<User> Users { get; set; }
-        public List<Role> Roles { get; set; }
-
-        //public void AddRole(string role)
-        //{
-        //    if (!_roles.Contains(role))
-        //    {
-        //        string ucFirst = role.Substring(0, 1).ToUpperInvariant() + role.Substring(1).ToLowerInvariant();
-        //        _roles.Add(ucFirst);
-        //    }
-        //}
 
         public TModel()
         {
             Clients = new List<Client>();
             Projects = new List<Project>();
             Users = new List<User>();
-            Roles = new List<Role>();
-        }
-
-        public void AddAssigmnent(User user, int projectId, int roleId, decimal hourlyRate)
-        {
-            Role role = GetRoleById(roleId);
-            Assignment assignment = new Assignment(user, role);
-
-            if (hourlyRate > 0)
-            {
-                assignment.HourlyRate = hourlyRate;
-            }
-            else
-            {
-                assignment.HourlyRate = assignment.Role.DefaultHourlyRate;
-            }
-
-            Project project = GetProjectById(projectId);
-            project.Members.Add(assignment);
-            user.Assignments.Add(assignment);
-        }
-
-        public void AddRole(String name, String description, decimal defaultHourlyRate)
-        {
-            int newId = this.Roles.GetNextId(r => r.Id);
-            Role role = new Role(newId, name, description, defaultHourlyRate);
-            this.Roles.Add(role);
-        }
-
-        public void EditRole(int id, string name, string description, decimal defaultHourlyRate)
-        {
-            Role role = this.Roles.SingleOrDefault(r => r.Id == id);
-            if (role == null)
-            {
-                throw new ArgumentException(String.Format("Role with id {0} does not exist", id));
-            }
-
-            role.Name = name;
-            role.Description = description;
-            role.DefaultHourlyRate = defaultHourlyRate;
         }
 
         public void AddUser(string name, string email, string password)
@@ -90,6 +32,16 @@ namespace TimeTracker.Core
             user.SetPassword(password);
             this.Users.Add(user);
         }
+
+		public void RemoveUser(User user)
+		{
+			if (!Users.Contains(user))
+			{
+				throw new Exception("User doesnt exist");
+			}
+
+			this.Users.Remove(user);
+		}
 
         #region Project
 
@@ -132,16 +84,6 @@ namespace TimeTracker.Core
         #endregion
 
         #region Helpers
-
-        private Role GetRoleById(int roleId)
-        {
-            Role role = this.Roles.SingleOrDefault(p => p.Id == roleId);
-            if (role == null)
-            {
-                throw new ArgumentException("Role with the given id does not exist");
-            }
-            return role;
-        }
 
         private Client GetClientById(int clientId)
         {

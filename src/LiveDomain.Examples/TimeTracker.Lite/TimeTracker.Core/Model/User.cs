@@ -24,11 +24,8 @@ namespace TimeTracker.Core
 			return CryptoHelper.VerifyHash(password, PasswordHash);
 		}
 
-		public List<Assignment> Assignments { get; set; }
-
 		public User()
 		{
-			Assignments = new List<Assignment>();
 		}
 	}
 }

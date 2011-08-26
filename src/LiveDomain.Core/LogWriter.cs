@@ -9,13 +9,13 @@ namespace LiveDomain.Core
     internal abstract class LogWriter
     {
 
-        protected internal Serializer Serializer { get; set; }
-        protected internal Stream Stream { get; set; }
+        protected Serializer _serializer;
+        protected Stream _stream;
 
-        public void Dispose()
+        public virtual void Dispose()
         {
-            Stream.Flush();
-            Stream.Dispose();
+            _stream.Flush();
+            _stream.Dispose();
         }
 
     }

@@ -1,10 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveDomain.Core", "LiveDomain.Core.csproj", "{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveDomain.Core.Test", "..\LiveDomain.Core.Test\LiveDomain.Core.Test.csproj", "{C85316AC-9295-4D8D-9511-637B7C876EBD}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{24D332B0-6441-48FC-A6A0-AFC1E5685AA3}"
 	ProjectSection(SolutionItems) = preProject
 		LiveDomain.Core.vsmdi = LiveDomain.Core.vsmdi
@@ -12,17 +8,22 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveDomain.Core", "LiveDomain.Core\LiveDomain.Core.csproj", "{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveDomain.Core.Test", "LiveDomain.Core.Test\LiveDomain.Core.Test.csproj", "{C85316AC-9295-4D8D-9511-637B7C876EBD}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 3
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs28
 		SccLocalPath0 = .
-		SccProjectUniqueName1 = LiveDomain.Core.csproj
-		SccLocalPath1 = .
-		SccProjectUniqueName2 = ..\\LiveDomain.Core.Test\\LiveDomain.Core.Test.csproj
-		SccProjectName2 = ../LiveDomain.Core.Test
-		SccLocalPath2 = ..\\LiveDomain.Core.Test
+		SccProjectUniqueName1 = LiveDomain.Core\\LiveDomain.Core.csproj
+		SccProjectName1 = LiveDomain.Core
+		SccLocalPath1 = LiveDomain.Core
+		SccProjectUniqueName2 = LiveDomain.Core.Test\\LiveDomain.Core.Test.csproj
+		SccProjectName2 = LiveDomain.Core.Test
+		SccLocalPath2 = LiveDomain.Core.Test
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = LiveDomain.Core.vsmdi

@@ -129,10 +129,9 @@ namespace LiveDomain.Core
 
         private ILogWriter CreateLogWriter()
         {
-            var logWriter = _settings.CreateLogWriter();
-            logWriter.Serializer = CreateSerializer();
-            logWriter.Stream = GetWriteStream(_logfile);
-            return (ILogWriter) logWriter;
+            Serializer serializer = CreateSerializer();
+            Stream stream = GetWriteStream(_logfile);
+            return _settings.CreateLogWriter(stream, serializer);
         }
 
 

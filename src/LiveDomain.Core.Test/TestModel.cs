@@ -11,7 +11,8 @@ namespace LiveDomain.Core.Test
         public int CommandsExecuted { get; set; }
 
         public bool OnLoadExecuted { get; private set; }
-        protected override void OnLoad()
+        
+        protected internal override void OnLoad()
         {
             OnLoadExecuted = true;
         }
@@ -34,14 +35,14 @@ namespace LiveDomain.Core.Test
         public bool ThrowExceptionInExecute { get; set; }
         public bool ThrowCommandFailedExceptionFromExecute { get; set; }
 
-        protected override void Prepare(TestModel model)
+        protected internal override void Prepare(TestModel model)
         {
             if (ThrowInPrepare)
             {
                 throw new Exception();
             }
         }
-        protected override int Execute(TestModel model)
+        protected internal override int Execute(TestModel model)
         {
             if (ThrowCommandFailedExceptionFromExecute)
             {

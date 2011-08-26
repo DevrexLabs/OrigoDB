@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace LiveDomain.Core
 {
@@ -132,14 +133,15 @@ namespace LiveDomain.Core
             }
         }
 
-        internal LogWriter CreateLogWriter()
+        internal ILogWriter CreateLogWriter(Stream stream, Serializer serializer)
         {
+
             switch (LogWriterPerformance)
             {
                 case LogWriterPerformanceMode.Synchronous:
-                    return new SynchronousLogWriter();
+                    return new SynchronousLogWriter(stream,serializer);
                 case LogWriterPerformanceMode.Asynchronous:
-                    return new AsynchronousLogWriter();
+                    return new AsynchronousLogWriter(new SynchronousLogWriter(stream,serializer));
                 default:
                     throw new Exception("Missing case for switch on LogWriterPerformanceMode");
             }

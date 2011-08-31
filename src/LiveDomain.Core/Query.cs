@@ -18,6 +18,6 @@ namespace LiveDomain.Core
         {
             return Execute(m as M);
         }
-        public abstract R Execute(M m);
+        protected abstract R Execute(M m);
 	}
 }

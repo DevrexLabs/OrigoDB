@@ -43,15 +43,18 @@
     <Compile Include="AsynchronousLogWriter.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CommandFailedException.cs" />
+    <Compile Include="CommandLog.cs" />
     <Compile Include="ConcurrencyMode.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="EngineSettings.cs" />
     <Compile Include="FatalException.cs" />
+    <Compile Include="ICommandLog.cs" />
     <Compile Include="ILockStrategy.cs" />
     <Compile Include="ILogCommand.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ILogWriter.cs" />
+    <Compile Include="IStorage.cs" />
     <Compile Include="LogItem.cs" />
     <Compile Include="LogWriter.cs" />
     <Compile Include="Model.cs" />
@@ -60,16 +63,19 @@
     <Compile Include="Query.cs" />
     <Compile Include="ReaderWriterLockSlimStrategy.cs" />
     <Compile Include="Serializer.cs" />
+    <Compile Include="ServerResponse.cs" />
     <Compile Include="SingleThreadedLockingStrategy.cs" />
     <Compile Include="SnapshotInfo.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Storage.cs" />
     <Compile Include="SynchronousLogWriter.cs" />
+    <Compile Include="Utils\StringToPropertiesParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="License.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

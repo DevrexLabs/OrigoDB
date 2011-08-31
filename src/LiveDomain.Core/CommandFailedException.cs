@@ -5,6 +5,7 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
+	[Serializable]
     public class CommandFailedException : Exception
     {
         public CommandFailedException()

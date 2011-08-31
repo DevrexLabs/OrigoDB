@@ -133,15 +133,15 @@ namespace LiveDomain.Core
 
         public object Execute(Query query, bool cloneResults)
         {
-            return Execute<Model, object>((m) => query.ExecuteStub(m), cloneResults);
+			return Execute<Model, object>((m) => query.ExecuteStub(m), cloneResults);
         }
 
         public T Execute<M, T>(Func<M, T> query) where M : Model
         {
-            return Execute(query, CloneResults);
+			return Execute(query, CloneResults);
         }
 
-        public T Execute<M,T>(Func<M, T> query, bool cloneResults) where M : Model
+		public T Execute<M, T>(Func<M, T> query, bool cloneResults) where M : Model
         {
             ThrowIfDisposed();
             _lock.EnterRead();
@@ -238,10 +238,21 @@ namespace LiveDomain.Core
         }
 
 
-        public static Engine Load(string Path)
+        public static Engine Load(string path)
         {
-            return Load(new EngineSettings(Path));
+            return Load(new EngineSettings(path));
         }
+
+    	public static Engine<M> Load<M>(string path) where M : Model
+    	{
+    		return Load<M>(new EngineSettings(path));
+    	}
+
+    	public static Engine<M> Load<M>(EngineSettings settings) where M : Model
+    	{
+    		Model model = Restore(settings);
+    		return new Engine<M>(model as M, settings);
+    	}
     }
 
     public class Engine<M> : Engine where M : Model
@@ -251,17 +262,27 @@ namespace LiveDomain.Core
             return (T) base.Execute(command);
         }
 
-        public void Execute(Command<M> command)
-        {
-            base.Execute(command);
-        }
+		public void Execute(Command<M> command)
+		{
+			base.Execute(command);
+		}
 
-        public T Execute<T>(Query<M, T> query)
-        {
-            return (T) base.Execute(query);
-        }
+		public T Execute<T>(Query<M, T> query)
+		{
+			return (T)base.Execute(query);
+		}
 
-        internal Engine(string path, M model) : this(model, new EngineSettings(path)) { }
+		public T Execute<T>(Func<M, T> query)
+		{
+			return base.Execute(query, CloneResults);
+		}
+
+		public T Execute<T>(Func<M, T> query, bool cloneResults)
+		{
+			return base.Execute(query);
+		}
+
+    	internal Engine(string path, M model) : this(model, new EngineSettings(path)) { }
         internal Engine(M model, EngineSettings settings) : base(model, settings)
         {
         }

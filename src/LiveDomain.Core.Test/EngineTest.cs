@@ -51,7 +51,7 @@ namespace LiveDomain.Core.Test
         // public static void MyClassCleanup() { }
         //
          //Use TestInitialize to run code before running each test 
-         [TestInitialize()]
+         [TestInitialize]
          public void MyTestInitialize() 
          {
              Path = System.IO.Path.Combine(TestContext.TestRunResultsDirectory, Guid.NewGuid().ToString());
@@ -106,7 +106,7 @@ namespace LiveDomain.Core.Test
         public void OnLoadIsCalledAfterRestore()
         {
             ModelRetainsStateAfterRestore();
-            bool onLoadWasCalled = Engine.Execute<TestModel, bool>(m => m.OnLoadExecuted);
+			bool onLoadWasCalled = Engine.Execute<TestModel, bool>(m => m.OnLoadExecuted);
             Assert.IsTrue(onLoadWasCalled);
         }
 

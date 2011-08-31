@@ -19,5 +19,10 @@ namespace LiveDomain.Core
             _serializer.Write(item, _stream);
             _stream.Flush();
 		}
+
+		public void Close()
+		{
+			_stream.Close();
+		}
 	}
 }

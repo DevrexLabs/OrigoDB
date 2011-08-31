@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
-    class SnapshotInfo
+    public class SnapshotInfo
     {
         public DateTime Created { get; set; }
         public string Name { get; set; }

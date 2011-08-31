@@ -69,6 +69,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Storage.cs" />
+    <Compile Include="StorageSettings.cs" />
     <Compile Include="SynchronousLogWriter.cs" />
     <Compile Include="Utils\StringToPropertiesParser.cs" />
   </ItemGroup>

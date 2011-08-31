@@ -14,8 +14,11 @@ namespace LiveDomain.Core
 
         public virtual void Dispose()
         {
-            _stream.Flush();
-            _stream.Dispose();
+            if (_stream != null)
+            {
+                if (_stream.CanWrite) _stream.Flush();
+                _stream.Dispose();
+            }
         }
 
     }

@@ -66,11 +66,6 @@ namespace LiveDomain.Core
         /// </summary>
         public string Path { get; set; }
         
-        /// <summary>
-        /// In a high performance scenario you might want to place the log 
-        /// file on a dedicated RAID 1 disc for fast writing.
-        /// </summary>
-        public string AlternateLogPath { get; set; }
 
         /// <summary>
         /// Maximum time to wait for any read or write lock

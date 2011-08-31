@@ -11,81 +11,82 @@ using System.Runtime.Serialization;
 
 namespace LiveDomain.Core
 {
-	/// <summary>
-	/// Knows how to serialize, deserialize, read and write to disc.
-	/// </summary>
-	internal class Storage : IDisposable, IStorage
-	{
-		const string DataFileName = "model.bin";
-		const string LogFileName = "log.bin";
-
-		//Private members
-		Serializer _serializer;
-		string _snapshotDirectory;
-		string _logfile;
-		EngineSettings _settings;
-		internal string RootDirectory { get; private set; }
-
-		private ILogWriter _logwriter;
-
-		internal void AppendToLog(ILogCommand command)
-		{
-			try
-			{
-				_logwriter.Write(new LogItem(command));
-			}
-			catch (SerializationException)
-			{
-				//The command cannot be serialized
-				throw;
-			}
-			catch (Exception ex)
-			{
-				throw new FatalException("Cannot write to the command log, see inner exception for details", ex);
-			}
-		}
+    /// <summary>
+    /// Responsible for knowing about file names, formats and directory layout.
+    /// </summary>
+    internal class Storage : IStorage
+    {
+        /*
+         *  {name} 
+         *     {name}.base
+         *     {name}.commands
+         *     {name}.config
+         *     {name}.snapshots
+         *        {name}.001.snapshot
+         */
 
 
-		internal Storage(EngineSettings settings)
-		{
-			_settings = settings;
-			RootDirectory = _settings.Path;
-			_snapshotDirectory = Path.Combine(RootDirectory, "snapshots");
-			_logfile = Path.Combine(_settings.AlternateLogPath ?? RootDirectory, LogFileName);
-			_serializer = CreateSerializer();
-			_logwriter = CreateLogWriter();
+        /// <summary>
+        /// Absolute path to the command log file
+        /// </summary>
+        string _commandLogFile;
+        string _baseImageFile;
+        string _snapshotDirectory;
+        EngineSettings _settings;
 
-		}
-
-
+	
 		internal Model ReadModel()
 		{
-			string path = GetDataFilePath();
-			var stream = File.OpenRead(path);
-			using (stream)
-			{
-				return _serializer.Read<Model>(stream);
-			}
+            string path = GetDataFilePath();
+            return ReadModel(path);
+
 		}
+
+        internal Model ReadSnapshot(string name)
+        {
+            string path = Path.Combine(_snapshotDirectory, name);
+            return ReadModel(path);
+        }
+
+        private Model ReadModel(string path)
+        {
+            Model model = null;
+            var stream = File.OpenRead(path);
+            using (stream)
+            {
+                model = CreateSerializer().Read<Model>(stream);
+            }
+            model.OnLoad();
+            return model;
+        }
 
 		/// <summary>
 		/// Serializes and writes the model to disc. Will throw an exception if a snapshot with the same name exists.
 		/// </summary>
 		/// <param name="name">The name of the snapshot, must be a valid filename</param>
 		/// <param name="model">The model to save</param>      
-		internal void Save(Model model, string name)
-		{
-			if (!Regex.IsMatch(name, "^[a-zA-Z0-9_]+$"))
-				throw new ArgumentException("Snapshot name contains invalid chars. a-zA-Z0-9_", name);
 
-			string path = _snapshotDirectory + "\\" + name;
-			if (File.Exists(path))
-				throw new InvalidOperationException("Snapshot name already exists");
+        internal Storage(EngineSettings settings)
+        {
+            _settings = settings;
+            string targetDirectory = settings.Path;
+            if (!Path.IsPathRooted(targetDirectory)) throw new ArgumentException("Must be absolute path", "targetDirectory");
+            
+            //Extract last directoryname from path.
+            //BUG: null or exception if target is root of drive
+            string name = Regex.Match(targetDirectory, @"([^\\]+)$").Value;
+
+            //Avoid code duplication
+            Func<string,string,string,string> pathBuilder = (@base, template, id) => Path.Combine(@base, String.Format(template, id));
+            
+            _baseImageFile = pathBuilder.Invoke(targetDirectory, "{0}.base", name);
+            _commandLogFile = pathBuilder.Invoke(targetDirectory, "{0}.commands", name);
+            _snapshotDirectory = pathBuilder.Invoke(targetDirectory, "{0}.snapshots", name);
+        }
 
 
-			//Delegate to overloaded method
-			WriteModel(path, model);
-		}
+
+
 
 
 		internal IEnumerable<SnapshotInfo> GetSnapshots()
@@ -100,35 +101,10 @@ namespace LiveDomain.Core
 				}).ToArray();
 		}
 
-		/// <summary>
-		/// Replace the main serialized graph with the current version of the model
-		/// </summary>
-		/// <param name="model"></param>
-		internal void Merge(Model model)
-		{
-			string path = GetDataFilePath();
-			string tempPath = GetTempPath();
-
-			WriteModel(tempPath, model);
-
-			if (File.Exists(path)) File.Delete(path);
-
-			File.Move(tempPath, path);
-
-			TruncateLog();
-		}
-
-		internal void TruncateLog()
-		{
-			_logwriter.Dispose();
-			File.Delete(GetLogFilePath());
-			_logwriter = CreateLogWriter();
-		}
-
-		private ILogWriter CreateLogWriter()
+		public ILogWriter CreateLogWriter()
 		{
 			Serializer serializer = CreateSerializer();
-			Stream stream = GetWriteStream(_logfile, append: true);
+			Stream stream = GetWriteStream(GetLogFilePath(), append: true);
 			return _settings.CreateLogWriter(stream, serializer);
 		}
 
@@ -136,6 +112,26 @@ namespace LiveDomain.Core
 		{
 			return new CommandLog(this);
 		}
+
+
+        /// <summary>
+        /// Write the model to the data file
+        /// </summary>
+        /// <param name="model"></param>
+        internal void WriteModel(Model model, bool useTempFile = false)
+        {
+                string path = GetDataFilePath();
+                string tempPath = useTempFile ? GetTempPath() : path;
+
+                WriteModel(tempPath, model);
+
+                if (useTempFile)
+                {
+                    if (File.Exists(path)) File.Delete(path);
+                    File.Move(tempPath, path);
+                }
+        }
+
 
 		/// <summary>
 		/// Serializes the model to the specified path. Assumes sufficient disc space and that the file is writeable.
@@ -147,49 +143,40 @@ namespace LiveDomain.Core
 			Stream stream = GetWriteStream(path, append: false);
 			using (stream)
 			{
-				_serializer.Write(model, stream);
+                CreateSerializer().Write(model, stream);
 			}
 		}
 
-		public string GetDataFilePath()
-		{
-			return RootDirectory + @"\" + DataFileName;
-		}
-
-		public string GetLogFilePath()
-		{
-			return RootDirectory + @"\" + LogFileName;
-		}
-
-		public string GetTempPath()
-		{
-			return RootDirectory + @"\" + Guid.NewGuid().ToString();
-		}
+        internal void WriteSnapshot(string name, Model model)
+        {
+            if (!Directory.Exists(_snapshotDirectory)) Directory.CreateDirectory(_snapshotDirectory);
+            string path = Path.Combine(_snapshotDirectory, name);
+            WriteModel(path, model);
+        }
 
 
-		internal IEnumerable<LogItem> ReadLogEntries()
-		{
-			_logwriter.Dispose();
-			Stream logStream = GetReadStream(GetLogFilePath());
+        public string GetDataFilePath()
+        {
+            return _baseImageFile;
+        }
 
-			using (logStream)
-			{
-				foreach (var logItem in _serializer.ReadToEnd<LogItem>(logStream))
-				{
-					yield return logItem;
-				}
-			}
+        public string GetLogFilePath()
+        {
+            return _commandLogFile;
+        }
 
-			_logwriter = CreateLogWriter();
-		}
+        public string GetTempPath()
+        {
+            return Path.Combine(_baseImageFile, Guid.NewGuid().ToString());
+        }
 
-		private Serializer CreateSerializer()
+		public Serializer CreateSerializer()
 		{
 			IFormatter formatter = _settings.CreateSerializationFormatter();
 			return new Serializer(formatter);
 		}
 
-		private Stream GetWriteStream(string path, bool append)
+		public Stream GetWriteStream(string path, bool append)
 		{
 			var filemode = append ? FileMode.Append : FileMode.Create;
 			Stream stream = new FileStream(path, filemode, FileAccess.Write);
@@ -197,16 +184,11 @@ namespace LiveDomain.Core
 			return stream;
 		}
 
-		private Stream GetReadStream(string path)
+		public Stream GetReadStream(string path)
 		{
 			Stream stream = File.OpenRead(path);
 			if (_settings.Compression == CompressionMethod.GZip) stream = new GZipStream(stream, CompressionMode.Decompress);
 			return stream;
-		}
-
-		public void Dispose()
-		{
-			_logwriter.Dispose();
 		}
 
 		internal static Storage Create(string path)
@@ -217,32 +199,11 @@ namespace LiveDomain.Core
 		internal static Storage Create(EngineSettings settings)
 		{
 			string path = settings.Path;
-			if (Directory.Exists(path)) throw new Exception("Directory already exists");
+			if (Directory.Exists(path)) throw new ArgumentException("Directory already exists", "settings.Path");
 			Directory.CreateDirectory(path);
-			Directory.CreateDirectory(path + @"\snapshots");
 			return new Storage(settings);
 		}
 
-		#region Implementation of IStorage
-		ILogWriter IStorage.CreateLogWriter()
-		{
-			return this.CreateLogWriter();
-		}
 
-		Serializer IStorage.CreateSerializer() 
-		{
-			return this.CreateSerializer();
-		}
-
-		Stream IStorage.GetWriteStream(string path, bool append)
-		{
-			return this.GetWriteStream(path, append);
-		}
-
-		Stream IStorage.GetReadStream(string path)
-		{
-			return this.GetReadStream(path);
-		}
-		#endregion
-	}
+    }
 }

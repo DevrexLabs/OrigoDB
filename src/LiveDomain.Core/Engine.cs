@@ -6,6 +6,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace LiveDomain.Core
 {
@@ -19,21 +20,8 @@ namespace LiveDomain.Core
     public class Engine : IDisposable
     {
 
-        public static Engine Load(EngineSettings settings)
-        {
-            Model model = Restore(settings);
-            return new Engine( model, settings);
-        }
-
-        public static void Create( Model model, EngineSettings settings)
-        {
-            var storage = Storage.Create(settings); 
-            storage.Merge(model);
-            storage.Dispose();
-        }
-
         /// <summary>
-        /// The prevalent system. The database. Your single aggregate root.
+        /// The prevalent system. The database. Your single aggregate root. The graph.
         /// </summary>
         protected Model _model;
 
@@ -42,9 +30,17 @@ namespace LiveDomain.Core
         /// </summary>
         public TimeSpan LockTimeout { get; set; }
 
+        /// <summary>
+        /// The command log implementation
+        /// </summary>
+        internal ICommandLog CommandLog { get; private set; }
+
 
         /// <summary>
-        /// Set to true to avoid returning references directly into the model. Default is true.
+        /// Make a deep copy of all command and query results so no references are passed out from the model.
+        /// <remarks>
+        /// Set to false if you are certain that results will not be modified by client code. Note also that 
+        /// the state of the resultset can be modified by a subsequent command rendering the result graph inconsistent.</remarks>
         /// </summary>
         /// 
         public bool CloneResults { get; set; }
@@ -58,50 +54,53 @@ namespace LiveDomain.Core
         EngineSettings _settings;
 
 
-
         /// <summary>
-        /// Shuts down the server
+        /// Shuts down the engine
         /// </summary>
         public void Close()
         {
+            //TODO: Do we need a close? How about an Offline/Online
             if (!_isDisposed)
             {
-                _lock.EnterWrite();
-                DisposeImpl();
-                _isDisposed = true;
+                try
+                {
+                    _lock.EnterWrite();
+                    CommandLog.Close();
+                    _isDisposed = true;
+
+                }
+                finally
+                {
+                    _lock.Exit();
+                }
             }
         }
 
-        private void DisposeImpl()
-        {
-            _storage.Dispose();
-            _model = null;
-        }
 
-        protected static Model Restore(EngineSettings settings)
+        private void Restore()
         {
-            Storage storage = new Storage(settings);
-            Model model = storage.ReadModel();
-            model.OnLoad();
+            CommandLog.Close();
 
-            foreach (var logitem in storage.ReadLogEntries())
+            _model = _storage.ReadModel();
+
+            foreach (var logItem in CommandLog)
             {
-                logitem._command.Redo(model);
+                //TODO: Dont talk to strangers
+                logItem._command.Redo(_model);
             }
-            storage.Dispose();
-            return model;
         }
 
         /// <summary>
-        /// Merge committed transactions with the current image on disk and empty the transaction log.
+        /// Writes the current model to disk and clears the log
         /// </summary>
-        public void Merge()
+        public void PersistImage()
         {
             ThrowIfDisposed();
             try
             {
                 _lock.EnterRead();
-                _storage.Merge(_model);
+                _storage.WriteModel(_model);
+                CommandLog.Clear();
             }
             finally
             {
@@ -114,18 +113,31 @@ namespace LiveDomain.Core
             if (_isDisposed) throw new InvalidOperationException("Engine has been disposed");
         }
 
+        private void CallPrepare(Command command)
+        {
+            try
+            {
+                command.PrepareStub(_model);
+            }
+            catch (Exception ex)
+            {
 
+                throw new CommandFailedException("Exception thrown during Prepare(), see inner exception for details", ex);
+            }
+        }
 
-        protected Engine(Model model, EngineSettings settings)
+        protected Engine(EngineSettings settings)
         {
             _settings = settings;
             _storage = new Storage(_settings);
-            _model = model;
             _lock = _settings.CreateLockingStrategy();
             _serializer = new Serializer(_settings.CreateSerializationFormatter());
+            CommandLog = _storage.CreateLog();
         }
 
 
+        #region Execute overloads
+        
         public object Execute(Query query)
         {
             return Execute(query, CloneResults);
@@ -174,17 +186,17 @@ namespace LiveDomain.Core
                 CallPrepare(command);
                 _lock.EnterWrite();
                 object result = command.ExecuteStub(_model);
-                _storage.AppendToLog(command);
+                CommandLog.Append(command);
                 if (cloneResults) result = _serializer.Clone(result);
                 return result;
             }
             catch (TimeoutException) { throw; }
             catch (CommandFailedException) { throw; }
-            catch (FatalException) { DisposeImpl(); throw; }
+            catch (FatalException) { Close(); throw; }
             catch (Exception ex) 
             {
-                RollBack();
-                throw new CommandFailedException("Command threw an exception, Rollback() was performed, see inner exception for details", ex);
+                Restore();//TODO: Or shutdown based on setting
+                throw new CommandFailedException("Command threw an exception, state was rolled back, see inner exception for details", ex);
             }
             finally
             {
@@ -192,45 +204,70 @@ namespace LiveDomain.Core
             }
         }
 
-        private void RollBack()
+        #endregion
+
+
+       
+
+
+        #region Snapshot methods
+        
+        /// <summary>
+        /// Discards the commands in the transaction log and restores from latest image
+        /// </summary>
+        public void RevertToImage()
         {
-            try
-            {
-                string path = _storage.RootDirectory;
-                _storage.Dispose();
-                _model = Restore( _settings);
-                _storage = new Storage( _settings);
-            }
-            catch (Exception ex)
-            {
-                Dispose();
-                throw new FatalException("Rollback failed, shutting down. See inner exception for details", ex);
-            }
+            Revert(String.Empty);
         }
-
-        private void CallPrepare(Command command)
-        {
-            try
-            {
-                command.PrepareStub(_model);
-            }
-            catch (Exception ex)
-            {
-
-                throw new CommandFailedException("Exception thrown during Prepare(), see inner exception for details", ex);
-            }
-        }
-
 
         /// <summary>
-        /// Discards the commands in the transaction log and restores from latest Merge()
+        /// Shared by RevertToSnapshot and RevertToImage. Behaviour is identical, source file differs.
         /// </summary>
-        public void RevertToSnapshot()
+        /// <param name="name"></param>
+        private void Revert(string name)
         {
-            ThrowIfDisposed();
-            _storage.TruncateLog();
-            _model = _storage.ReadModel();
+
+            bool isSnapshot = !String.IsNullOrEmpty(name);
+            try
+            {
+                _lock.EnterWrite();
+                _model = isSnapshot ? _storage.ReadSnapshot(name) : _storage.ReadModel();
+                CommandLog.Clear();
+            }
+            finally
+            {
+                _lock.Exit();
+            }
         }
+
+        public void RevertToSnapshot(string name)
+        {
+            Revert(name);
+        }
+
+        public void RevertToSnapshot(SnapshotInfo snapshotInfo)
+        {
+            RevertToSnapshot(snapshotInfo.Name);
+        }
+
+        public void WriteSnapshot(string name)
+        {
+            try
+            {
+                _lock.EnterRead();
+                _storage.WriteSnapshot(name, _model);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                _lock.Exit();
+            }
+        }
+
+        #endregion
 
         public void Dispose()
         {
@@ -238,6 +275,21 @@ namespace LiveDomain.Core
         }
 
 
+        #region Static Load and Create methods
+
+        public static Engine Load(EngineSettings settings)
+        {
+            Engine engine = new Engine(settings);
+            engine.Restore();
+            return engine;
+        }
+
+        public static void Create(Model model, EngineSettings settings)
+        {
+            var storage = Storage.Create(settings);
+            storage.WriteModel(model);
+        }
+        
         public static Engine Load(string path)
         {
             return Load(new EngineSettings(path));
@@ -250,13 +302,58 @@ namespace LiveDomain.Core
 
     	public static Engine<M> Load<M>(EngineSettings settings) where M : Model
     	{
-    		Model model = Restore(settings);
-    		return new Engine<M>(model as M, settings);
+    		return new Engine<M>(settings);
     	}
+
+
+
+        /// <summary>
+        /// Loads an existing or creates a new Engine using defaults
+        /// </summary>
+        /// <typeparam name="M"></typeparam>
+        /// <returns></returns>
+
+        public static Engine<M> LoadOrCreate<M>(Func<M> constructor = null, string targetDirectory = null, string name = null) where M : Model, new()
+        {
+            if (constructor == null) constructor = () => new M();
+
+            if (String.IsNullOrEmpty(targetDirectory)) { }
+            if (String.IsNullOrEmpty(name)) { }
+
+
+            try
+            {
+                bool canLoad = true; //todo
+                if (!canLoad) Create(constructor.Invoke(), new EngineSettings(targetDirectory));
+                return Load<M>(targetDirectory);
+
+            }
+            catch (Exception) //TODO: Add specific exception
+            {
+                throw;
+            }
+        }
+
+        #endregion
     }
 
     public class Engine<M> : Engine where M : Model
     {
+
+        public Engine(EngineSettings settings) : base(settings){}
+
+        //public static Engine<M> Load<M>() where M : Model
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+
+        public T Execute<T>(Func<M, T> query)
+        {
+            return base.Execute(query);
+        }
+
+
         public T Execute<T>(CommandWithResult<M, T> command)
         {
             return (T) base.Execute(command);
@@ -272,19 +369,10 @@ namespace LiveDomain.Core
 			return (T)base.Execute(query);
 		}
 
-		public T Execute<T>(Func<M, T> query)
-		{
-			return base.Execute(query, CloneResults);
-		}
 
 		public T Execute<T>(Func<M, T> query, bool cloneResults)
 		{
 			return base.Execute(query);
 		}
-
-    	internal Engine(string path, M model) : this(model, new EngineSettings(path)) { }
-        internal Engine(M model, EngineSettings settings) : base(model, settings)
-        {
-        }
     }
 }

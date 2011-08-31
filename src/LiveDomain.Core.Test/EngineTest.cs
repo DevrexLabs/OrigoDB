@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using LiveDomain.Core;
 
 namespace LiveDomain.Core.Test
 {
@@ -62,7 +63,7 @@ namespace LiveDomain.Core.Test
          [TestCleanup()]
          public void MyTestCleanup() 
          {
-             //Directory.Delete(Path);
+             if(Engine != null) Engine.Close();
          }
         
         #endregion
@@ -90,6 +91,7 @@ namespace LiveDomain.Core.Test
         {
             CanLoadEngine();
             int commandsExecuted = (int) this.Engine.Execute(new TestCommand());
+
         }
 
         [TestMethod]
@@ -110,9 +112,77 @@ namespace LiveDomain.Core.Test
             Assert.IsTrue(onLoadWasCalled);
         }
 
+        string _name;
         [TestMethod]
-        public void CanExecuteGenericCommand()
+        public void CanCreateSnapshot()
         {
+            CanLoadEngine();
+            _name = new Guid().ToString();
+            Engine.WriteSnapshot(_name);
         }
+
+        [TestMethod]
+        public void CanRestoreSnapshot()
+        {
+            CanCreateSnapshot();
+            int commandsBefore = GetCommandsExecuted();
+            ExecuteCommands(3);
+            Assert.AreEqual(commandsBefore + 3, GetCommandsExecuted());
+            Engine.RevertToSnapshot(_name);
+            Assert.AreEqual(commandsBefore, GetCommandsExecuted());
+        }
+
+        [TestMethod]
+        public void Log_is_cleared_on_snapshot_revert()
+        {
+            CanRestoreSnapshot();
+            Assert.IsTrue(Engine.CommandLog.Count() == 0);
+
+        }
+
+
+
+        /// <summary>
+        ///A test for RevertToImage
+        ///</summary>
+        [TestMethod()]
+        public void RevertToImageTest()
+        {
+            CanLoadEngine();
+            int commandsExecuted = GetCommandsExecuted();
+            Assert.IsTrue(GetCommandsExecuted() == 0);
+            ExecuteCommands(5);
+            Assert.IsTrue(GetCommandsExecuted() == 5);
+            Engine.PersistImage();
+            Assert.IsTrue(GetCommandsExecuted() == 5);
+            ExecuteCommands(4);
+            Assert.IsTrue(GetCommandsExecuted() == 9);
+            Engine.RevertToImage();
+            Assert.IsTrue(GetCommandsExecuted() == 5);
+        }
+
+
+        private void ExecuteCommands(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Engine.Execute(new TestCommand());
+            }
+        }
+
+        private int GetCommandsExecuted()
+        {
+            return Engine.Execute<TestModel, int>(m => m.CommandsExecuted);
+        }
+
+        [TestMethod]
+        public void LogIsClearedOnWriteImage()
+        {
+            CanLoadEngine();
+            ExecuteCommands(new Random().Next(10) + 1);
+            Engine.PersistImage();
+            Assert.IsTrue(Engine.CommandLog.Count() == 0);
+        }
+
     }
 }

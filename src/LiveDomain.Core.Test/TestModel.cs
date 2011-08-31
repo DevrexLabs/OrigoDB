@@ -22,7 +22,7 @@ namespace LiveDomain.Core.Test
 
     public class GetNumberOfCommandsExecutedQuery : Query<TestModel, int>
     {
-        public override int Execute(TestModel model)
+        protected override int Execute(TestModel model)
         {
             return model.CommandsExecuted;
         }

@@ -9,8 +9,14 @@ using System.Collections.Concurrent;
 
 namespace LiveDomain.Core
 {
+
+    /// <summary>
+    /// The actual write to disk is performed by a background thread. The call to Write() adds to a queue and then returns immediately.
+    /// <remarks>Faster response times with a risk of dataloss. Also has the ability to buffer commands when request rates burst</remarks>
+    /// </summary>
 	internal class AsynchronousLogWriter : ILogWriter
 	{
+        //TODO: Add some fault tolerance, exception handling, and engine notification so it can choose to shutdown if the log isnt working.
 		AutoResetEvent _closeWaitHandle = new AutoResetEvent(false);
 		BlockingCollection<LogItem> _queue;
 		SynchronousLogWriter _wrappedWriter;

@@ -8,8 +8,8 @@ namespace LiveDomain.Core
 	internal interface ICommandLog : IEnumerable<LogItem>
 	{
 		void Open();
-		void Write(Command command);
+		void Append(Command command);
 		void Close();
-		void Truncate();
+		void Clear();
 	}
 }

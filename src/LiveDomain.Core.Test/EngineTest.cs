@@ -140,7 +140,12 @@ namespace LiveDomain.Core.Test
 
         }
 
-
+        [TestMethod]
+        public void Snapshot_info_gets_returned()
+        {
+            CanCreateSnapshot();
+            Assert.AreEqual(1, Engine.GetSnapshots().Count());
+        }
 
         /// <summary>
         ///A test for RevertToImage

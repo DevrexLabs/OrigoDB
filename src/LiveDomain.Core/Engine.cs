@@ -211,7 +211,13 @@ namespace LiveDomain.Core
 
 
         #region Snapshot methods
-        
+
+
+        public IEnumerable<SnapshotInfo> GetSnapshots() 
+        { 
+            return _storage.GetSnapshots(); 
+        }
+
         /// <summary>
         /// Discards the commands in the transaction log and restores from latest image
         /// </summary>

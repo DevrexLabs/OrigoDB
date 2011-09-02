@@ -55,6 +55,7 @@
     </Compile>
     <Compile Include="ILogWriter.cs" />
     <Compile Include="IStorage.cs" />
+    <Compile Include="ITransactionHandler.cs" />
     <Compile Include="LogItem.cs" />
     <Compile Include="LogWriter.cs" />
     <Compile Include="Model.cs" />

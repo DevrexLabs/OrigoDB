@@ -26,7 +26,13 @@ namespace LiveDomain.Core
 
 		public void Close()
 		{
-			_stream.Close();
+			if(_stream.CanRead || _stream.CanWrite)
+				_stream.Close();
 		}
+
+    	void IDisposable.Dispose()
+    	{
+			Close();
+    	}
 	}
 }

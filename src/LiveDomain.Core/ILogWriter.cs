@@ -1,7 +1,7 @@
 ﻿using System;
 namespace LiveDomain.Core
 {
-    interface ILogWriter : IDisposable
+	public interface ILogWriter : IDisposable
     {
         void Write(LogItem logItem);
     	void Close();

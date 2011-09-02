@@ -19,10 +19,10 @@ namespace LiveDomain.Core
         //TODO: Add some fault tolerance, exception handling, and engine notification so it can choose to shutdown if the log isnt working.
 		AutoResetEvent _closeWaitHandle = new AutoResetEvent(false);
 		BlockingCollection<LogItem> _queue;
-		SynchronousLogWriter _wrappedWriter;
+		ILogWriter _wrappedWriter;
 		Thread _writerThread;
 
-		public AsynchronousLogWriter(SynchronousLogWriter writer)
+		public AsynchronousLogWriter(ILogWriter writer)
 		{
 			_wrappedWriter = writer;
 			_writerThread = new Thread(WriteBackground) {IsBackground = false};
@@ -46,7 +46,7 @@ namespace LiveDomain.Core
 			_wrappedWriter.Close();
 		}
 
-		public void Dispose()
+    	void IDisposable.Dispose()
 		{
 			Close();
 			_wrappedWriter.Dispose();

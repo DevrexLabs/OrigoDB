@@ -17,7 +17,7 @@ namespace LiveDomain.Core
     /// the model while conforming to ACID.
     /// </summary>
     /// <typeparam name="M"></typeparam>
-    public class Engine : IDisposable
+	public class Engine : IDisposable
     {
 
         /// <summary>
@@ -140,20 +140,10 @@ namespace LiveDomain.Core
         
         public object Execute(Query query)
         {
-            return Execute(query, CloneResults);
+        	return Execute<Model, object>(M => query.ExecuteStub(M));
         }
 
-        public object Execute(Query query, bool cloneResults)
-        {
-			return Execute<Model, object>((m) => query.ExecuteStub(m), cloneResults);
-        }
-
-        public T Execute<M, T>(Func<M, T> query) where M : Model
-        {
-			return Execute(query, CloneResults);
-        }
-
-		public T Execute<M, T>(Func<M, T> query, bool cloneResults) where M : Model
+		public T Execute<M, T>(Func<M, T> query) where M : Model
         {
             ThrowIfDisposed();
             _lock.EnterRead();
@@ -161,7 +151,7 @@ namespace LiveDomain.Core
             try
             {
                 T result = query.Invoke(_model as M);
-                if (cloneResults) result = _serializer.Clone(result);
+                if (CloneResults) result = _serializer.Clone(result);
                 return result;
             }
             finally
@@ -173,11 +163,6 @@ namespace LiveDomain.Core
 
         public object Execute(Command command)
         {
-            return Execute(command, CloneResults);
-        }
-
-        public object Execute(Command command, bool cloneResults)
-        {
             ThrowIfDisposed();
 
             _lock.EnterUpgrade();
@@ -187,7 +172,7 @@ namespace LiveDomain.Core
                 _lock.EnterWrite();
                 object result = command.ExecuteStub(_model);
                 CommandLog.Append(command);
-                if (cloneResults) result = _serializer.Clone(result);
+                if (CloneResults) result = _serializer.Clone(result);
                 return result;
             }
             catch (TimeoutException) { throw; }
@@ -285,8 +270,8 @@ namespace LiveDomain.Core
 
         public static Engine Load(EngineSettings settings)
         {
-            Engine engine = new Engine(settings);
-            engine.Restore();
+            var engine = new Engine(settings);
+			engine.Restore();
             return engine;
         }
 
@@ -308,7 +293,9 @@ namespace LiveDomain.Core
 
     	public static Engine<M> Load<M>(EngineSettings settings) where M : Model
     	{
-    		return new Engine<M>(settings);
+			var engine = new Engine<M>(settings);
+			engine.Restore();
+    		return engine;
     	}
 
 
@@ -343,7 +330,7 @@ namespace LiveDomain.Core
         #endregion
     }
 
-    public class Engine<M> : Engine where M : Model
+	public class Engine<M> : Engine, ILocalTransactionHandler<M> where M : Model
     {
 
         public Engine(EngineSettings settings) : base(settings){}
@@ -359,8 +346,7 @@ namespace LiveDomain.Core
             return base.Execute(query);
         }
 
-
-        public T Execute<T>(CommandWithResult<M, T> command)
+    	public T Execute<T>(CommandWithResult<M, T> command)
         {
             return (T) base.Execute(command);
         }

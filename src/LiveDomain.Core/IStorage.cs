@@ -6,7 +6,7 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
-	internal interface IStorage
+	public interface IStorage
 	{
 		string GetDataFilePath();
 		string GetLogFilePath();

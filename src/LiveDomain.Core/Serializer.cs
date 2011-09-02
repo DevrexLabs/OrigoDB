@@ -12,7 +12,7 @@ namespace LiveDomain.Core
 	/// <summary>
 	/// Provides serialization using an IFormatter
 	/// </summary>
-	internal class Serializer
+	public class Serializer
 	{
 		IFormatter _formatter;
 

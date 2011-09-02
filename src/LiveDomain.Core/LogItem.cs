@@ -6,7 +6,7 @@ using System.Text;
 namespace LiveDomain.Core
 {
 	[Serializable]
-	internal class LogItem
+	public class LogItem
 	{
         internal ILogCommand _command;
 

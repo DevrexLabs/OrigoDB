@@ -189,5 +189,11 @@ namespace LiveDomain.Core.Test
             Assert.IsTrue(Engine.CommandLog.Count() == 0);
         }
 
+        [TestMethod]
+        public void Can_compile_canaresiska()
+        {
+            Engine ಠ_ಠ = this.Engine;
+        }
+
     }
 }

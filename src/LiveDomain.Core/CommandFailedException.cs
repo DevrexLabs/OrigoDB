@@ -5,6 +5,10 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
+
+    /// <summary>
+    /// A command failed but the model was not modified. Throw this exception from your commands execute method to cancel.
+    /// </summary>
 	[Serializable]
     public class CommandFailedException : Exception
     {

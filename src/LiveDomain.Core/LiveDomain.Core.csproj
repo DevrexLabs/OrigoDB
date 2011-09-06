@@ -40,24 +40,22 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsynchronousLogWriter.cs" />
+    <Compile Include="AsynchronousJournalWriter.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CommandFailedException.cs" />
-    <Compile Include="CommandLog.cs" />
+    <Compile Include="CommandJournal.cs" />
     <Compile Include="ConcurrencyMode.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="EngineSettings.cs" />
     <Compile Include="FatalException.cs" />
-    <Compile Include="ICommandLog.cs" />
+    <Compile Include="ICommandJournal.cs" />
     <Compile Include="ILockStrategy.cs" />
-    <Compile Include="ILogCommand.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ILogWriter.cs" />
+    <Compile Include="IJournalWriter.cs" />
     <Compile Include="IStorage.cs" />
     <Compile Include="ITransactionHandler.cs" />
-    <Compile Include="LogItem.cs" />
-    <Compile Include="LogWriter.cs" />
+    <Compile Include="JournalEntry.cs" />
+    <Compile Include="JournalItem.cs" />
+    <Compile Include="JournalWriter.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="NullLockingStrategy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,14 +68,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Storage.cs" />
-    <Compile Include="StorageSettings.cs" />
-    <Compile Include="SynchronousLogWriter.cs" />
-    <Compile Include="Utils\StringToPropertiesParser.cs" />
+    <Compile Include="SynchronousJournalWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="License.txt" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Utils\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

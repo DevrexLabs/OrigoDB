@@ -14,27 +14,27 @@ namespace LiveDomain.Core
     /// The actual write to disk is performed by a background thread. The call to Write() adds to a queue and then returns immediately.
     /// <remarks>Faster response times with a risk of dataloss. Also has the ability to buffer commands when request rates burst</remarks>
     /// </summary>
-	internal class AsynchronousLogWriter : ILogWriter
+	internal class AsynchronousJournalWriter : IJournalWriter
 	{
-        //TODO: Add some fault tolerance, exception handling, and engine notification so it can choose to shutdown if the log isnt working.
+        //TODO: Add some fault tolerance, exception handling, and engine notification so it can choose to shutdown if the journal isn't working.
 		AutoResetEvent _closeWaitHandle = new AutoResetEvent(false);
-		BlockingCollection<LogItem> _queue;
-		ILogWriter _wrappedWriter;
+		BlockingCollection<JournalEntry> _queue;
+		IJournalWriter _wrappedWriter;
 		Thread _writerThread;
 
-		public AsynchronousLogWriter(ILogWriter writer)
+		public AsynchronousJournalWriter(IJournalWriter writer)
 		{
 			_wrappedWriter = writer;
 			_writerThread = new Thread(WriteBackground) {IsBackground = false};
-			_queue = new BlockingCollection<LogItem>(new ConcurrentQueue<LogItem>());
+			_queue = new BlockingCollection<JournalEntry>(new ConcurrentQueue<JournalEntry>());
 			_writerThread.Start();
 		}
 
-		#region ILogWriter Members
+		#region IJournalWriter Members
 
-		public void Write(LogItem logItem)
+		public void Write(JournalEntry item)
 		{
-			_queue.Add(logItem);
+			_queue.Add(item);
 		}
 
 		public void Close()
@@ -59,8 +59,8 @@ namespace LiveDomain.Core
 			_closeWaitHandle.Reset();
 			while (!_queue.IsCompleted)
 			{
-				LogItem logItem;
-				if (_queue.TryTake(out logItem, Timeout.Infinite)) _wrappedWriter.Write(logItem);
+				JournalEntry item;
+				if (_queue.TryTake(out item, Timeout.Infinite)) _wrappedWriter.Write(item);
 			}
 			_closeWaitHandle.Set();
 		}

@@ -19,18 +19,25 @@ namespace LiveDomain.Core
         /*
          *  {name} 
          *     {name}.base
-         *     {name}.commands
-         *     {name}.config
+         *     {name}.journal
          *     {name}.snapshots
          *        {name}.001.snapshot
          */
 
 
         /// <summary>
-        /// Absolute path to the command log file
+        /// Absolute path to the command journal
         /// </summary>
-        string _commandLogFile;
+        string _commandJournalFile;
+
+        /// <summary>
+        /// Absolute path to the base snapshot
+        /// </summary>
         string _baseImageFile;
+
+        /// <summary>
+        /// Absolute path of the snapshot directory
+        /// </summary>
         string _snapshotDirectory;
         EngineSettings _settings;
 
@@ -80,13 +87,9 @@ namespace LiveDomain.Core
             Func<string,string,string,string> pathBuilder = (@base, template, id) => Path.Combine(@base, String.Format(template, id));
             
             _baseImageFile = pathBuilder.Invoke(targetDirectory, "{0}.base", name);
-            _commandLogFile = pathBuilder.Invoke(targetDirectory, "{0}.commands", name);
+            _commandJournalFile = pathBuilder.Invoke(targetDirectory, "{0}.journal", name);
             _snapshotDirectory = pathBuilder.Invoke(targetDirectory, "{0}.snapshots", name);
         }
-
-
-
-
 
 
 		internal IEnumerable<SnapshotInfo> GetSnapshots()
@@ -101,16 +104,16 @@ namespace LiveDomain.Core
 				}).ToArray();
 		}
 
-		public ILogWriter CreateLogWriter()
+		public IJournalWriter CreateJournalWriter()
 		{
 			Serializer serializer = CreateSerializer();
-			Stream stream = GetWriteStream(GetLogFilePath(), append: true);
-			return _settings.CreateLogWriter(stream, serializer);
+			Stream stream = GetWriteStream(GetJournalFilePath(), append: true);
+			return _settings.CreateJournalWriter(stream, serializer);
 		}
 
-		internal ICommandLog CreateLog()
+		internal ICommandJournal CreateCommandJournal()
 		{
-			return new CommandLog(this);
+			return new CommandJournal(this);
 		}
 
 
@@ -160,9 +163,9 @@ namespace LiveDomain.Core
             return _baseImageFile;
         }
 
-        public string GetLogFilePath()
+        public string GetJournalFilePath()
         {
-            return _commandLogFile;
+            return _commandJournalFile;
         }
 
         public string GetTempPath()

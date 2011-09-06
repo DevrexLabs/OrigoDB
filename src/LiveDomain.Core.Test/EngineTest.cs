@@ -16,9 +16,6 @@ namespace LiveDomain.Core.Test
     {
         public EngineTest()
         {
-            //
-            // TODO: Add constructor logic here
-            //
         }
 
         private TestContext testContextInstance;
@@ -118,7 +115,7 @@ namespace LiveDomain.Core.Test
         {
             CanLoadEngine();
             _name = new Guid().ToString();
-            Engine.WriteSnapshot(_name);
+            Engine.CreateSnapshot(_name);
         }
 
         [TestMethod]
@@ -133,10 +130,10 @@ namespace LiveDomain.Core.Test
         }
 
         [TestMethod]
-        public void Log_is_cleared_on_snapshot_revert()
+        public void Journal_is_cleared_on_snapshot_revert()
         {
             CanRestoreSnapshot();
-            Assert.IsTrue(Engine.CommandLog.Count() == 0);
+            Assert.IsTrue(Engine.CommandJournal.Count() == 0);
 
         }
 
@@ -158,7 +155,7 @@ namespace LiveDomain.Core.Test
             Assert.IsTrue(GetCommandsExecuted() == 0);
             ExecuteCommands(5);
             Assert.IsTrue(GetCommandsExecuted() == 5);
-            Engine.PersistImage();
+            Engine.WriteBaseImage();
             Assert.IsTrue(GetCommandsExecuted() == 5);
             ExecuteCommands(4);
             Assert.IsTrue(GetCommandsExecuted() == 9);
@@ -181,12 +178,12 @@ namespace LiveDomain.Core.Test
         }
 
         [TestMethod]
-        public void LogIsClearedOnWriteImage()
+        public void JournalIsClearedOnWriteImage()
         {
             CanLoadEngine();
             ExecuteCommands(new Random().Next(10) + 1);
-            Engine.PersistImage();
-            Assert.IsTrue(Engine.CommandLog.Count() == 0);
+            Engine.WriteBaseImage();
+            Assert.IsTrue(Engine.CommandJournal.Count() == 0);
         }
 
         [TestMethod]

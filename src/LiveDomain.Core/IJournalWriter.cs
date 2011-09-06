@@ -1,9 +1,9 @@
 ﻿using System;
 namespace LiveDomain.Core
 {
-	public interface ILogWriter : IDisposable
+	interface IJournalWriter : IDisposable
     {
-        void Write(LogItem logItem);
+        void Write(JournalEntry item);
     	void Close();
     }
 }

@@ -6,15 +6,15 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
-	public interface IStorage
+	internal interface IStorage
 	{
 		string GetDataFilePath();
-		string GetLogFilePath();
+		string GetJournalFilePath();
 		string GetTempPath();
 
 		Serializer CreateSerializer();
 		Stream GetWriteStream(string path,bool append);
 		Stream GetReadStream(string path);
-		ILogWriter CreateLogWriter();
+		IJournalWriter CreateJournalWriter();
 	}
 }

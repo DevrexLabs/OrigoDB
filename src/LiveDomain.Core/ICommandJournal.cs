@@ -5,10 +5,10 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
-	internal interface ICommandLog : IEnumerable<LogItem>
+	internal interface ICommandJournal : IEnumerable<JournalEntry>
 	{
 		void Open();
-		void Append(Command command);
+		void Append<T>(T item);
 		void Close();
 		void Clear();
 	}

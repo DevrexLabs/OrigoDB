@@ -5,6 +5,8 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
+
+    [Serializable]
     public class SnapshotInfo
     {
         public DateTime Created { get; set; }

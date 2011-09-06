@@ -23,7 +23,7 @@ namespace LiveDomain.Core
         /// <summary>
         /// The prevalent system. The database. Your single aggregate root. The graph.
         /// </summary>
-        protected Model _model;
+        protected Model _theModel;
 
         /// <summary>
         /// The time to wait for the lock before a TimeoutException is thrown.
@@ -31,9 +31,9 @@ namespace LiveDomain.Core
         public TimeSpan LockTimeout { get; set; }
 
         /// <summary>
-        /// The command log implementation
+        /// The command journal implementation
         /// </summary>
-        internal ICommandLog CommandLog { get; private set; }
+        internal ICommandJournal CommandJournal { get; private set; }
 
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace LiveDomain.Core
                 try
                 {
                     _lock.EnterWrite();
-                    CommandLog.Close();
+                    CommandJournal.Close();
                     _isDisposed = true;
 
                 }
@@ -79,28 +79,27 @@ namespace LiveDomain.Core
 
         private void Restore()
         {
-            CommandLog.Close();
+            CommandJournal.Close();
 
-            _model = _storage.ReadModel();
+            _theModel = _storage.ReadModel();
 
-            foreach (var logItem in CommandLog)
+            foreach (var command in CommandJournal.OfType<JournalEntry<Command>>().Select(entry => entry.Item))
             {
-                //TODO: Dont talk to strangers
-                logItem._command.Redo(_model);
+                command.Redo(_theModel);
             }
         }
 
         /// <summary>
-        /// Writes the current model to disk and clears the log
+        /// Writes the model to disk and clears the journal
         /// </summary>
-        public void PersistImage()
+        public void WriteBaseImage()
         {
             ThrowIfDisposed();
             try
             {
                 _lock.EnterRead();
-                _storage.WriteModel(_model);
-                CommandLog.Clear();
+                _storage.WriteModel(_theModel);
+                CommandJournal.Clear();
             }
             finally
             {
@@ -117,7 +116,7 @@ namespace LiveDomain.Core
         {
             try
             {
-                command.PrepareStub(_model);
+                command.PrepareStub(_theModel);
             }
             catch (Exception ex)
             {
@@ -132,7 +131,7 @@ namespace LiveDomain.Core
             _storage = new Storage(_settings);
             _lock = _settings.CreateLockingStrategy();
             _serializer = new Serializer(_settings.CreateSerializationFormatter());
-            CommandLog = _storage.CreateLog();
+            CommandJournal = _storage.CreateCommandJournal();
         }
 
 
@@ -150,7 +149,7 @@ namespace LiveDomain.Core
 
             try
             {
-                T result = query.Invoke(_model as M);
+                T result = query.Invoke(_theModel as M);
                 if (CloneResults) result = _serializer.Clone(result);
                 return result;
             }
@@ -170,8 +169,8 @@ namespace LiveDomain.Core
             {
                 CallPrepare(command);
                 _lock.EnterWrite();
-                object result = command.ExecuteStub(_model);
-                CommandLog.Append(command);
+                object result = command.ExecuteStub(_theModel);
+                CommandJournal.Append(command);
                 if (CloneResults) result = _serializer.Clone(result);
                 return result;
             }
@@ -204,7 +203,7 @@ namespace LiveDomain.Core
         }
 
         /// <summary>
-        /// Discards the commands in the transaction log and restores from latest image
+        /// Discards the commands in the journal and restores from latest image
         /// </summary>
         public void RevertToImage()
         {
@@ -222,8 +221,8 @@ namespace LiveDomain.Core
             try
             {
                 _lock.EnterWrite();
-                _model = isSnapshot ? _storage.ReadSnapshot(name) : _storage.ReadModel();
-                CommandLog.Clear();
+                _theModel = isSnapshot ? _storage.ReadSnapshot(name) : _storage.ReadModel();
+                CommandJournal.Clear();
             }
             finally
             {
@@ -241,12 +240,12 @@ namespace LiveDomain.Core
             RevertToSnapshot(snapshotInfo.Name);
         }
 
-        public void WriteSnapshot(string name)
+        public void CreateSnapshot(string pathRelativeToSnapshotDir)
         {
             try
             {
                 _lock.EnterRead();
-                _storage.WriteSnapshot(name, _model);
+                _storage.WriteSnapshot(pathRelativeToSnapshotDir, _theModel);
             }
             catch (Exception)
             {

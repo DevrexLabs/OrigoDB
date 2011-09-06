@@ -21,19 +21,20 @@ namespace LiveDomain.Core
         /// </summary>
         None,
         GZip
+        //TODO: Add 7zip support
     }
 
-    public enum LogWriterPerformanceMode
+    public enum JournalWriterPerformanceMode
     {
         /// <summary>
         /// Safe but slower
-        /// Log writer waits for disc write and flush, exceptions are propagated to client.
+        /// Journal writer waits for disc write and flush, exceptions are propagated to client.
         /// </summary>
         Synchronous,
 
         /// <summary>
         /// High Performance but unsafe, commands can get lost.
-        /// Log writer runs in the background, disk write time is not included in command execution time.
+        /// Journal writer runs in the background, disk write time is not included in command execution time.
         /// </summary>
         Asynchronous
     }
@@ -62,7 +63,7 @@ namespace LiveDomain.Core
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
 
         /// <summary>
-        /// Root directory where model, log and snapshots are stored.
+        /// Root directory where model, journal and snapshots are stored.
         /// </summary>
         public string Path { get; set; }
         
@@ -75,7 +76,7 @@ namespace LiveDomain.Core
         public CompressionMethod Compression { get; set; }
         public ConcurrencyMode Concurrency{ get; set; }
         public SerializationMethod SerializationMethod { get; set; }
-        public LogWriterPerformanceMode LogWriterPerformance { get; set; }
+        public JournalWriterPerformanceMode JournalWriterPerformance { get; set; }
 
         public EngineSettings(string path)
         {
@@ -86,7 +87,7 @@ namespace LiveDomain.Core
             Compression = CompressionMethod.None;
             Concurrency = ConcurrencyMode.MultipleReadersOrSingleWriter;
             SerializationMethod = SerializationMethod.NetBinaryFormatter;
-            LogWriterPerformance = LogWriterPerformanceMode.Synchronous;
+            JournalWriterPerformance = JournalWriterPerformanceMode.Synchronous;
         }
 
 
@@ -128,17 +129,17 @@ namespace LiveDomain.Core
             }
         }
 
-        internal ILogWriter CreateLogWriter(Stream stream, Serializer serializer)
+        internal IJournalWriter CreateJournalWriter(Stream stream, Serializer serializer)
         {
 
-            switch (LogWriterPerformance)
+            switch (JournalWriterPerformance)
             {
-                case LogWriterPerformanceMode.Synchronous:
-                    return new SynchronousLogWriter(stream,serializer);
-                case LogWriterPerformanceMode.Asynchronous:
-                    return new AsynchronousLogWriter(new SynchronousLogWriter(stream,serializer));
+                case JournalWriterPerformanceMode.Synchronous:
+                    return new SynchronousJournalWriter(stream,serializer);
+                case JournalWriterPerformanceMode.Asynchronous:
+                    return new AsynchronousJournalWriter(new SynchronousJournalWriter(stream,serializer));
                 default:
-                    throw new Exception("Missing case for switch on LogWriterPerformanceMode");
+                    throw new Exception("Missing case for switch on JournalWriterPerformanceMode");
             }
         }
     }

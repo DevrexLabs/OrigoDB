@@ -11,7 +11,7 @@ namespace LiveDomain.Core
     /// A command modifies the state of the model.
     /// </summary>
     [Serializable]
-    public abstract class Command : ILogCommand
+    public abstract class Command
     {
 
         /// <summary>
@@ -20,7 +20,7 @@ namespace LiveDomain.Core
         /// <param name="model"></param>
         internal abstract void PrepareStub(Model model);
 
-        void ILogCommand.Redo(Model model)
+        internal void Redo(Model model)
         {
             PrepareStub(model);
             ExecuteStub(model);

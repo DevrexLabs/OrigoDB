@@ -7,34 +7,34 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
-	internal class CommandLog : ICommandLog
+	internal class CommandJournal : ICommandJournal
 	{
-		private ILogWriter _writer;
+		private IJournalWriter _writer;
 		private IStorage _storage;
 		bool _isOpen;
 
 
-		public CommandLog(IStorage storage)
+		public CommandJournal(IStorage storage)
 		{
 			_storage = storage;
 		}
 
 		#region Implementation of IEnumerable
 
-		public IEnumerator<LogItem> GetEnumerator()
+		public IEnumerator<JournalEntry> GetEnumerator()
 		{
 			Close();
-			var path = _storage.GetLogFilePath();
+			var path = _storage.GetJournalFilePath();
             if (File.Exists(path))
             {
                 var serializer = _storage.CreateSerializer();
-                var logStream = _storage.GetReadStream(path);
+                var stream = _storage.GetReadStream(path);
 
-                using (logStream)
+                using (stream)
                 {
-                    foreach (var logItem in serializer.ReadToEnd<LogItem>(logStream))
+                    foreach (var journalEntry in serializer.ReadToEnd<JournalEntry>(stream))
                     {
-                        yield return logItem;
+                        yield return journalEntry;
                     }
                 }
             }
@@ -48,19 +48,20 @@ namespace LiveDomain.Core
 
 		#endregion
 
-		#region Implementation of ICommandLog
+		#region Implementation of ICommandJournal
 
 		public void Open()
 		{
 			if (_isOpen) return;
 			_isOpen = true;
-			_writer = _storage.CreateLogWriter();
+			_writer = _storage.CreateJournalWriter();
 		}
 
-		public void Append(Command command)
+		public void Append<T>(T command)
 		{
-			var logItem = new LogItem(command);
-			_writer.Write(logItem);
+            if (typeof(T) != typeof(Command)) throw new ArgumentException("Argument must be of type T","command");
+			var entry = new JournalEntry<Command>(command as Command);
+			_writer.Write(entry);
 		}
 
 		public void Close()
@@ -74,7 +75,7 @@ namespace LiveDomain.Core
 		public void Clear()
 		{
 			Close();
-			File.Delete(_storage.GetLogFilePath());
+			File.Delete(_storage.GetJournalFilePath());
 			Open();
 		}
 

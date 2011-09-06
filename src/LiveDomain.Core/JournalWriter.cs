@@ -6,7 +6,7 @@ using System.IO;
 
 namespace LiveDomain.Core
 {
-    internal abstract class LogWriter
+    internal abstract class JournalWriter
     {
 
         protected Serializer _serializer;

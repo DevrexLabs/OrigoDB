@@ -12,7 +12,7 @@ namespace LiveDomain.Core.Test
 
         public bool OnLoadExecuted { get; private set; }
         
-        protected internal override void OnLoad()
+        protected internal override void OnRestore()
         {
             OnLoadExecuted = true;
         }
@@ -31,6 +31,7 @@ namespace LiveDomain.Core.Test
     [Serializable]
     public class TestCommand : CommandWithResult<TestModel,int>
     {
+        public byte[] Payload { get; set; }
         public bool ThrowInPrepare { get; set; }
         public bool ThrowExceptionInExecute { get; set; }
         public bool ThrowCommandFailedExceptionFromExecute { get; set; }

@@ -5,6 +5,9 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using LiveDomain.Core;
+using System.Threading;
+using System.Web;
+using System.Net;
 
 namespace LiveDomain.Core.Test
 {
@@ -52,15 +55,23 @@ namespace LiveDomain.Core.Test
          [TestInitialize]
          public void MyTestInitialize() 
          {
-             Path = System.IO.Path.Combine(TestContext.TestRunResultsDirectory, Guid.NewGuid().ToString());
+             _logger = new InMemoryLogger();
+             Log.SetLogger(_logger);
+             Path = System.IO.Path.Combine("c:\\temp", Guid.NewGuid().ToString());
          }
-        
+
+         InMemoryLogger _logger;
 
          //Use TestCleanup to run code after each test has run
          [TestCleanup()]
          public void MyTestCleanup() 
          {
-             if(Engine != null) Engine.Close();
+             if (Engine != null)
+             {
+                 Engine.Close();
+                 Thread.Sleep(TimeSpan.FromMilliseconds(100));
+                 if(Directory.Exists(Path)) new DirectoryInfo(Path).Delete(true);
+             }
          }
         
         #endregion
@@ -69,34 +80,63 @@ namespace LiveDomain.Core.Test
          public string Path { get; set; }
          public Engine Engine { get; set; }
 
+         public EngineConfiguration CreateConfig()
+         {
+             var config = new EngineConfiguration(Path);
+             config.JournalWriterPerformance = JournalWriterPerformanceMode.Asynchronous;
+             return config;
+         }
+
         [TestMethod]
         public void CanCreateEngine()
         {
-            Engine.Create(new TestModel(), new EngineSettings(Path));
+            this.Engine = Engine.Create(new TestModel(), CreateConfig());
+        }
+
+        [TestMethod]
+        public void CanLoadGeneric()
+        {
+            CanCreateEngine();
+            Engine.Close();
+            this.Engine = Engine.Load<TestModel>(CreateConfig());
         }
 
         [TestMethod]
         public void CanLoadEngine()
         {
             CanCreateEngine();
-            this.Engine = Engine.Load(Path);
+            Engine.Close();
+            this.Engine = Engine.Load(CreateConfig());
             
         }
 
         [TestMethod]
-        public void CommandPermutesModel()
+        public void CanExecuteCommand()
         {
             CanLoadEngine();
             int commandsExecuted = (int) this.Engine.Execute(new TestCommand());
+            int numCommandsExecuted = (int)Engine.Execute(new GetNumberOfCommandsExecutedQuery());
+            Assert.AreEqual(numCommandsExecuted, 1);
+        }
 
+        [TestMethod]
+        public void JournalRollsOver()
+        {
+            CanLoadEngine();
+            for (int i = 0; i < 100; i++)
+            {
+                Command command = new TestCommand() { Payload = new byte[100000] };
+                this.Engine.Execute(command);
+            }
+            Assert.IsTrue(_logger.Messages.Count(m => m.Contains("Journal file rollover")) > 0);
         }
 
         [TestMethod]
         public void ModelRetainsStateAfterRestore()
         {
-            CommandPermutesModel();
+            CanExecuteCommand();
             Engine.Close();
-            Engine = Engine.Load(Path);
+            Engine = Engine.Load(CreateConfig());
             int numCommandsExecuted = (int)Engine.Execute(new GetNumberOfCommandsExecutedQuery());
             Assert.AreEqual(numCommandsExecuted, 1);
         }
@@ -111,56 +151,49 @@ namespace LiveDomain.Core.Test
 
         string _name;
         [TestMethod]
-        public void CanCreateSnapshot()
+        public void CanCreateSnapshotWithGuidAsName()
         {
             CanLoadEngine();
-            _name = new Guid().ToString();
+            _name = Guid.NewGuid().ToString();
             Engine.CreateSnapshot(_name);
         }
 
         [TestMethod]
-        public void CanRestoreSnapshot()
-        {
-            CanCreateSnapshot();
-            int commandsBefore = GetCommandsExecuted();
-            ExecuteCommands(3);
-            Assert.AreEqual(commandsBefore + 3, GetCommandsExecuted());
-            Engine.RevertToSnapshot(_name);
-            Assert.AreEqual(commandsBefore, GetCommandsExecuted());
-        }
-
-        [TestMethod]
-        public void Journal_is_cleared_on_snapshot_revert()
-        {
-            CanRestoreSnapshot();
-            Assert.IsTrue(Engine.CommandJournal.Count() == 0);
-
-        }
-
-        [TestMethod]
-        public void Snapshot_info_gets_returned()
-        {
-            CanCreateSnapshot();
-            Assert.AreEqual(1, Engine.GetSnapshots().Count());
-        }
-
-        /// <summary>
-        ///A test for RevertToImage
-        ///</summary>
-        [TestMethod()]
-        public void RevertToImageTest()
+        public void CanCreateSnapshotWithEmptyName()
         {
             CanLoadEngine();
-            int commandsExecuted = GetCommandsExecuted();
-            Assert.IsTrue(GetCommandsExecuted() == 0);
-            ExecuteCommands(5);
-            Assert.IsTrue(GetCommandsExecuted() == 5);
-            Engine.WriteBaseImage();
-            Assert.IsTrue(GetCommandsExecuted() == 5);
-            ExecuteCommands(4);
-            Assert.IsTrue(GetCommandsExecuted() == 9);
-            Engine.RevertToImage();
-            Assert.IsTrue(GetCommandsExecuted() == 5);
+            Engine.CreateSnapshot(String.Empty);
+
+            Engine.CreateSnapshot();
+        }
+
+        [TestMethod]
+        public void LoadOrCreateCreatesWhenNotExists()
+        {
+            this.Engine = Engine.LoadOrCreate<TestModel>();
+            Assert.IsTrue(_logger.Messages.Any(m => m.Contains("Engine Created")));
+        }
+
+
+        [TestMethod]
+        public void LoadOrCreateCreatesInWebContext()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public void LoadOrCreateLoadsInWebContext()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public void LoadOrCreateLoadsWhenExists()
+        {
+            var engine = Engine.LoadOrCreate<TestModel>();
+            engine.Close();
+            this.Engine = Engine.LoadOrCreate<TestModel>();
+            Assert.IsTrue(_logger.Messages.Any(m => m.Contains("Engine Loaded")));
         }
 
 
@@ -176,21 +209,5 @@ namespace LiveDomain.Core.Test
         {
             return Engine.Execute<TestModel, int>(m => m.CommandsExecuted);
         }
-
-        [TestMethod]
-        public void JournalIsClearedOnWriteImage()
-        {
-            CanLoadEngine();
-            ExecuteCommands(new Random().Next(10) + 1);
-            Engine.WriteBaseImage();
-            Assert.IsTrue(Engine.CommandJournal.Count() == 0);
-        }
-
-        [TestMethod]
-        public void Can_compile_canaresiska()
-        {
-            Engine ಠ_ಠ = this.Engine;
-        }
-
     }
 }

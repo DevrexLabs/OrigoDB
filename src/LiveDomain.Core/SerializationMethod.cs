@@ -5,5 +5,8 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
-
+    public enum SerializationMethod
+    {
+        NetBinaryFormatter
+    }
 }

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace LiveDomain.Core
 {
@@ -13,9 +10,10 @@ namespace LiveDomain.Core
     {
 
         /// <summary>
-        /// Override this method to perform custom initialization after the model has been materialized.
+        /// This method is called after the model has been restored from 
+        /// persistent storage and before the engine is available for transactions.
         /// </summary>
-        protected internal virtual void OnLoad() { }
+        protected internal virtual void OnRestore() { }
 
     }
 }

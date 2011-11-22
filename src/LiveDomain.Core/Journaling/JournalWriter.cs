@@ -6,11 +6,17 @@ using System.IO;
 
 namespace LiveDomain.Core
 {
-    internal abstract class JournalWriter
+    internal abstract class JournalWriter : IJournalWriter
     {
-
-        protected Serializer _serializer;
         protected Stream _stream;
+
+        public long Length 
+        { 
+            get 
+            { 
+                return _stream.Position; 
+            }
+        }
 
         public virtual void Dispose()
         {
@@ -21,5 +27,9 @@ namespace LiveDomain.Core
             }
         }
 
+
+
+        public abstract void Write(JournalEntry item);
+        public abstract void Close();
     }
 }

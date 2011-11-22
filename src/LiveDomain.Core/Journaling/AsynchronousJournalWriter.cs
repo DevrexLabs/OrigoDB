@@ -52,6 +52,11 @@ namespace LiveDomain.Core
 			_wrappedWriter.Dispose();
 		}
 
+        public long Length
+        {
+            get { return _wrappedWriter.Length; }
+        }
+
 		#endregion
 
 		void WriteBackground()
@@ -64,5 +69,5 @@ namespace LiveDomain.Core
 			}
 			_closeWaitHandle.Set();
 		}
-	}
+    }
 }

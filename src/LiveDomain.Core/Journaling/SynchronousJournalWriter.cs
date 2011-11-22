@@ -11,28 +11,28 @@ namespace LiveDomain.Core
     /// <summary>
     /// A writer that waits for the disk write to complete before returning. Slower but reliable.
     /// </summary>
-	internal class SynchronousJournalWriter : JournalWriter, IJournalWriter
+	internal class SynchronousJournalWriter : JournalWriter
 	{
-        public SynchronousJournalWriter(Stream stream, Serializer serializer)
+        ISerializer _serializer;
+
+        public SynchronousJournalWriter(Stream stream, ISerializer serializer)
         {
+            if (serializer == null) throw new ArgumentNullException("serializer");
+            if (stream == null) throw new ArgumentNullException("stream");
+
             _serializer = serializer;
             _stream = stream;
         }
-		public void Write(JournalEntry item)
+		public override void Write(JournalEntry item)
 		{
             _serializer.Write(item, _stream);
-            _stream.Flush(); //TODO: What if the file becomes corrupt and half of the command is written? Deserialization will crash.
+            _stream.Flush();
 		}
 
-		public void Close()
+		public override void Close()
 		{
 			if(_stream.CanRead || _stream.CanWrite)
 				_stream.Close();
 		}
-
-    	void IDisposable.Dispose()
-    	{
-			Close();
-    	}
 	}
 }

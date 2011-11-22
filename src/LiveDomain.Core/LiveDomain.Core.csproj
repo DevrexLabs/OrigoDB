@@ -40,41 +40,51 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsynchronousJournalWriter.cs" />
+    <Compile Include="Command%28M%29.cs" />
+    <Compile Include="CommandWithResult%28M,R%29.cs" />
+    <Compile Include="Configuration\CompressionMethod.cs" />
+    <Compile Include="ILog.cs" />
+    <Compile Include="Journaling\AsynchronousJournalWriter.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CommandFailedException.cs" />
-    <Compile Include="CommandJournal.cs" />
-    <Compile Include="ConcurrencyMode.cs" />
+    <Compile Include="Journaling\CommandJournal.cs" />
+    <Compile Include="Configuration\ConcurrencyMode.cs" />
     <Compile Include="Engine.cs" />
-    <Compile Include="EngineSettings.cs" />
+    <Compile Include="Configuration\EngineConfiguration.cs" />
+    <Compile Include="Engine%28M%29.cs" />
     <Compile Include="FatalException.cs" />
-    <Compile Include="ICommandJournal.cs" />
-    <Compile Include="ILockStrategy.cs" />
-    <Compile Include="IJournalWriter.cs" />
-    <Compile Include="IStorage.cs" />
+    <Compile Include="Journaling\ICommandJournal.cs" />
+    <Compile Include="Configuration\JournalWriterPerformanceMode.cs" />
+    <Compile Include="Log.cs" />
+    <Compile Include="Persistence\ISerializer.cs" />
+    <Compile Include="Persistence\Storage.cs" />
+    <Compile Include="SerializationMethod.cs" />
+    <Compile Include="Synchronization\ILockStrategy.cs" />
+    <Compile Include="Journaling\IJournalWriter.cs" />
+    <Compile Include="Persistence\IPersistentStorage.cs" />
     <Compile Include="ITransactionHandler.cs" />
-    <Compile Include="JournalEntry.cs" />
-    <Compile Include="JournalItem.cs" />
-    <Compile Include="JournalWriter.cs" />
+    <Compile Include="Journaling\JournalEntry.cs" />
+    <Compile Include="Journaling\JournalWriter.cs" />
     <Compile Include="Model.cs" />
-    <Compile Include="NullLockingStrategy.cs" />
+    <Compile Include="Synchronization\NullLockingStrategy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query.cs" />
-    <Compile Include="ReaderWriterLockSlimStrategy.cs" />
-    <Compile Include="Serializer.cs" />
+    <Compile Include="Synchronization\ReaderWriterLockSlimStrategy.cs" />
+    <Compile Include="Persistence\Serializer.cs" />
     <Compile Include="ServerResponse.cs" />
-    <Compile Include="SingleThreadedLockingStrategy.cs" />
+    <Compile Include="Synchronization\SingleThreadedLockingStrategy.cs" />
     <Compile Include="SnapshotInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Storage.cs" />
-    <Compile Include="SynchronousJournalWriter.cs" />
+    <Compile Include="Persistence\FileStorage.cs" />
+    <Compile Include="Journaling\SynchronousJournalWriter.cs" />
+    <Compile Include="Utilities\DirectoryEx.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="License.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Utils\" />
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

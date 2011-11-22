@@ -12,7 +12,7 @@ namespace LiveDomain.Core
 	/// <summary>
 	/// Provides serialization using an IFormatter
 	/// </summary>
-	public class Serializer
+	internal class Serializer : ISerializer
 	{
 		IFormatter _formatter;
 
@@ -21,17 +21,17 @@ namespace LiveDomain.Core
 			_formatter = formatter;
 		}
 
-		internal void Write(object graph, Stream stream)
+		public void Write(object graph, Stream stream)
 		{
 			_formatter.Serialize(stream, graph);
 		}
 
-		internal T Read<T>(Stream stream)
+        public T Read<T>(Stream stream)
 		{
 			return (T) _formatter.Deserialize(stream);
 		}
 
-		internal IEnumerable<T> ReadToEnd<T>(Stream stream)
+        public IEnumerable<T> ReadToEnd<T>(Stream stream)
 		{
 			while (stream.Position < stream.Length)
 			{
@@ -40,24 +40,24 @@ namespace LiveDomain.Core
 		}
 
 
-		internal byte[] Serialize(object graph)
+        public byte[] Serialize(object graph)
 		{
 			MemoryStream ms = new MemoryStream();
 			_formatter.Serialize(ms, graph);
 			return ms.ToArray();
 		}
 
-        internal object Clone(object graph)
+        public object Clone(object graph)
         {
             return Deserialize<object>(Serialize(graph));
         }
 
-		internal T Clone<T>(T graph)
+        public T Clone<T>(T graph)
 		{
 			return Deserialize<T>(Serialize(graph));
 		}
 
-		internal T Deserialize<T>(byte[] bytes)
+        public T Deserialize<T>(byte[] bytes)
 		{
 			MemoryStream ms = new MemoryStream(bytes);
 			return (T) _formatter.Deserialize(ms);

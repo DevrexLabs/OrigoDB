@@ -8,13 +8,13 @@ namespace LiveDomain.Core
     [Serializable]
     public abstract class Query
     {
-        public abstract object ExecuteStub(Model m);
+        internal abstract object ExecuteStub(Model m);
     }
 
     [Serializable]
 	public abstract class Query<M,R>:Query where M : Model
 	{
-        public override object ExecuteStub(Model m)
+        internal override object ExecuteStub(Model m)
         {
             return Execute(m as M);
         }

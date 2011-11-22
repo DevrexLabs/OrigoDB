@@ -203,6 +203,7 @@ namespace LiveDomain.Core.Test
         [TestMethod]
         public void LoadOrCreateCreatesWhenNotExists()
         {
+            DeleteFromDefaultLocation<TestModel>();
             this.Engine = Engine.LoadOrCreate<TestModel>();
             Assert.IsTrue(_logger.Messages.Any(m => m.Contains("Engine Created")));
         }

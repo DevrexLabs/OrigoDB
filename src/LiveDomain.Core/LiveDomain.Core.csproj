@@ -43,7 +43,10 @@
     <Compile Include="Command%28M%29.cs" />
     <Compile Include="CommandWithResult%28M,R%29.cs" />
     <Compile Include="Configuration\CompressionMethod.cs" />
-    <Compile Include="ILog.cs" />
+    <Compile Include="FileLogger.cs" />
+    <Compile Include="Logging\InMemoryLogger.cs" />
+    <Compile Include="Logging\Logger.cs" />
+    <Compile Include="Logging\ILog.cs" />
     <Compile Include="Journaling\AsynchronousJournalWriter.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CommandFailedException.cs" />
@@ -52,16 +55,19 @@
     <Compile Include="Engine.cs" />
     <Compile Include="Configuration\EngineConfiguration.cs" />
     <Compile Include="Engine%28M%29.cs" />
-    <Compile Include="FatalException.cs" />
     <Compile Include="Journaling\ICommandJournal.cs" />
     <Compile Include="Configuration\JournalWriterPerformanceMode.cs" />
-    <Compile Include="Log.cs" />
+    <Compile Include="Logging\NullLogger.cs" />
+    <Compile Include="Persistence\JournalSegmentInfo.cs" />
+    <Compile Include="Logging\Log.cs" />
     <Compile Include="Persistence\ISerializer.cs" />
     <Compile Include="Persistence\Storage.cs" />
     <Compile Include="SerializationMethod.cs" />
+    <Compile Include="Configuration\SnapshotBehavior.cs" />
+    <Compile Include="StorageBlobIdentifier.cs" />
     <Compile Include="Synchronization\ILockStrategy.cs" />
     <Compile Include="Journaling\IJournalWriter.cs" />
-    <Compile Include="Persistence\IPersistentStorage.cs" />
+    <Compile Include="Persistence\IStorage.cs" />
     <Compile Include="ITransactionHandler.cs" />
     <Compile Include="Journaling\JournalEntry.cs" />
     <Compile Include="Journaling\JournalWriter.cs" />
@@ -73,9 +79,6 @@
     <Compile Include="Persistence\Serializer.cs" />
     <Compile Include="ServerResponse.cs" />
     <Compile Include="Synchronization\SingleThreadedLockingStrategy.cs" />
-    <Compile Include="SnapshotInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Persistence\FileStorage.cs" />
     <Compile Include="Journaling\SynchronousJournalWriter.cs" />
     <Compile Include="Utilities\DirectoryEx.cs" />

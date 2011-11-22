@@ -84,6 +84,7 @@ namespace LiveDomain.Core.Test
          {
              var config = new EngineConfiguration(Path);
              config.JournalWriterPerformance = JournalWriterPerformanceMode.Asynchronous;
+             config.SnapshotBehavior = SnapshotBehavior.AfterRestore;
              return config;
          }
 
@@ -92,6 +93,38 @@ namespace LiveDomain.Core.Test
         {
             this.Engine = Engine.Create(new TestModel(), CreateConfig());
         }
+
+        [TestMethod]
+        public void CanCreateEngineUsingDefaultLocationAndConfig()
+        {
+            DeleteFromDefaultLocation<TestModel>();
+            var engine = Engine.Create<TestModel>();
+            engine.Close();
+        }
+
+        [TestMethod]
+        public void CanCreateEngineUsingDefaultLocationAndCustomConfig()
+        {
+            //Test will fail if storage already exists
+            DeleteFromDefaultLocation<TestModel>();
+            var config = new EngineConfiguration();
+            config.CloneCommands = false;
+            var engine = Engine.Create<TestModel>(config);
+            engine.Close();
+        }
+
+        private void DeleteFromDefaultLocation<M>() where M : Model
+        {
+            var config = new EngineConfiguration();
+            config.SetDefaultLocation<M>();
+            var dirInfo = new DirectoryInfo(config.Location);
+            if (dirInfo.Exists)
+            {
+                dirInfo.Delete(recursive: true);
+                Thread.Sleep(TimeSpan.FromMilliseconds(200));
+            }
+        }
+
 
         [TestMethod]
         public void CanLoadGeneric()
@@ -128,7 +161,7 @@ namespace LiveDomain.Core.Test
                 Command command = new TestCommand() { Payload = new byte[100000] };
                 this.Engine.Execute(command);
             }
-            Assert.IsTrue(_logger.Messages.Count(m => m.Contains("Journal file rollover")) > 0);
+            Assert.IsTrue(_logger.Messages.Count(m => m.Contains("NewJournalSegment")) > 0);
         }
 
         [TestMethod]
@@ -193,8 +226,35 @@ namespace LiveDomain.Core.Test
             var engine = Engine.LoadOrCreate<TestModel>();
             engine.Close();
             this.Engine = Engine.LoadOrCreate<TestModel>();
+            
             Assert.IsTrue(_logger.Messages.Any(m => m.Contains("Engine Loaded")));
         }
+
+        [TestMethod]
+        public void SnapshotTakenOnLoad()
+        {
+            DeleteFromDefaultLocation<TestModel>();
+            EngineConfiguration config = new EngineConfiguration();
+            config.SnapshotBehavior = SnapshotBehavior.AfterRestore;
+            var engine = Engine.Create<TestModel>(config);
+            engine.Close();
+            Assert.IsTrue(_logger.Messages.Any(m => m.Contains("BeginSnapshot")));
+            Assert.IsTrue(_logger.Messages.Any(m => m.Contains("EndSnapshot")));
+        }
+
+        [TestMethod]
+        public void SnapshotTakenOnShutdown()
+        {
+            DeleteFromDefaultLocation<TestModel>();
+            EngineConfiguration config = new EngineConfiguration();
+            config.SnapshotBehavior = SnapshotBehavior.OnShutdown;
+            var engine = Engine.Create<TestModel>(config);
+            engine.Close();
+            Assert.IsTrue(_logger.Messages.Any(m => m.Contains("BeginSnapshot")));
+            Assert.IsTrue(_logger.Messages.Any(m => m.Contains("EndSnapshot")));
+        }
+
+
 
 
         private void ExecuteCommands(int count)

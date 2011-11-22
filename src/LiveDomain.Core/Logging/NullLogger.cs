@@ -5,12 +5,10 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
-	[Serializable]
-    public class FatalException : Exception
+    public class NullLogger : Logger
     {
-        public FatalException(string message, Exception inner) : base(message, inner)
+        protected override void WriteToLog(string message)
         {
-
         }
     }
 }

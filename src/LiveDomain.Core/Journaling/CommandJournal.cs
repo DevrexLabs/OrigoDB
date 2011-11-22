@@ -28,22 +28,22 @@ namespace LiveDomain.Core
 		}
 
 
-        public void Rollover()
+        public void CreateNextSegment()
         {
-            if (_state == JournalState.Closed) throw new InvalidOperationException("Cant advance journal when journal is closed");
-            Log.Write("Journal file rollover");
+            if (_state == JournalState.Closed) throw new InvalidOperationException("Cant create journal segment when journal is closed");
+            Log.Write("NewJournalSegment");
             _writer.Dispose();
 
-            Stream stream = _storage.CreateJournalWriterStream(JournalWriterCreateOptions.NextFragment);
+            Stream stream = _storage.CreateJournalWriterStream(JournalWriterCreateOptions.NextSegment);
             _writer = _config.CreateJournalWriter(stream);
         }
 
-        public IEnumerable<JournalEntry<Command>> GetEntriesFrom(JournalFragmentInfo fragment)
+        public IEnumerable<JournalEntry<Command>> GetEntriesFrom(JournalSegmentInfo segment)
         {
             JournalState preState = _state;
             SetState(JournalState.Closed);
 
-            foreach (var journalEntry in _storage.GetJournalEntries(fragment))
+            foreach (var journalEntry in _storage.GetJournalEntries(segment))
             {
                 yield return journalEntry;
             }
@@ -53,7 +53,7 @@ namespace LiveDomain.Core
 
 		public IEnumerable<JournalEntry<Command>> GetAllEntries()
 		{
-            return GetEntriesFrom(JournalFragmentInfo.Initial);
+            return GetEntriesFrom(JournalSegmentInfo.Initial);
 		}
 
 
@@ -79,9 +79,9 @@ namespace LiveDomain.Core
 
 			var entry = new JournalEntry<Command>(command);
 			_writer.Write(entry);
-            if (_writer.Length >= _config.JournalFragmentSizeInBytes)
+            if (_writer.Length >= _config.JournalSegmentSizeInBytes)
             {
-                Rollover();
+                CreateNextSegment();
             }
 		}
 

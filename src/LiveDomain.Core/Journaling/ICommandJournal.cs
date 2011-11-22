@@ -10,9 +10,9 @@ namespace LiveDomain.Core
 
 
         /// <summary>
-        /// Creates next empty journal fragment
+        /// Creates next empty journal segment
         /// </summary>
-        void Rollover();
+        void CreateNextSegment();
 
         /// <summary>
         /// return the entire sequence of journalentries
@@ -27,7 +27,7 @@ namespace LiveDomain.Core
         /// </summary>
         /// <param name="position"></param>
         /// <returns></returns>
-        IEnumerable<JournalEntry<Command>> GetEntriesFrom(JournalFragmentInfo position);
+        IEnumerable<JournalEntry<Command>> GetEntriesFrom(JournalSegmentInfo position);
 
         /// <summary>
         /// Open for appending

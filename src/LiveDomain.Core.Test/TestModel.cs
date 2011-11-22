@@ -12,7 +12,7 @@ namespace LiveDomain.Core.Test
 
         public bool OnLoadExecuted { get; private set; }
         
-        protected internal override void OnRestore()
+        protected internal override void JournalRestored()
         {
             OnLoadExecuted = true;
         }

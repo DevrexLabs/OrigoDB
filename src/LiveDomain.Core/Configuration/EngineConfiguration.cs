@@ -13,13 +13,13 @@ namespace LiveDomain.Core
 
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
         public const string DefaultDateFormatString =  "yyyy.MM.dd.hh.mm.ss.fff";
-        public const long DefaultJournalFragmentSizeInBytes = 1024 * 1024;
+        public const long DefaultJournalSegmentSizeInBytes = 1024 * 1024;
 
 
         /// <summary>
         /// Identifies where the command journal 
         /// </summary>
-        public string TargetLocation{ get; set; }
+        public string Location{ get; set; }
 
         /// <summary>
         /// Same as TargetLocation unless set to some other location
@@ -28,11 +28,11 @@ namespace LiveDomain.Core
         {
             get
             {
-                return _snapshotLocation ?? TargetLocation;
+                return _snapshotLocation ?? Location;
             }
             set
             {
-                if (value == null || value == TargetLocation) _snapshotLocation = null;
+                if (value == null || value == Location) _snapshotLocation = null;
                 else _snapshotLocation = value;
             }
         }
@@ -52,9 +52,9 @@ namespace LiveDomain.Core
         }
 
         /// <summary>
-        /// When fragment exceeds this size a new fragment is created
+        /// When segment exceeds this size a new segment is created
         /// </summary>
-        public long JournalFragmentSizeInBytes { get; set; }
+        public long JournalSegmentSizeInBytes { get; set; }
 
 
         /// <summary>
@@ -79,6 +79,8 @@ namespace LiveDomain.Core
         public TimeSpan LockTimeout { get; set; }
 
 
+        public SnapshotBehavior SnapshotBehavior{get;set;}
+
         public CompressionMethod Compression 
         { 
             get { return CompressionMethod.None; } 
@@ -96,10 +98,16 @@ namespace LiveDomain.Core
         public JournalWriterPerformanceMode JournalWriterPerformance { get; set; }
         public string DateFormatString { get; set; }
 
+
+        public EngineConfiguration() : this(null)
+        {
+
+        }
+
         public EngineConfiguration(string targetLocation)
         {
 
-            TargetLocation = targetLocation;
+            Location = targetLocation;
 
             //Set default values
             LockTimeout = DefaultTimeout;
@@ -107,14 +115,10 @@ namespace LiveDomain.Core
             Concurrency = ConcurrencyMode.MultipleReadersOrSingleWriter;
             SerializationMethod = SerializationMethod.NetBinaryFormatter;
             JournalWriterPerformance = JournalWriterPerformanceMode.Synchronous;
-            JournalFragmentSizeInBytes = DefaultJournalFragmentSizeInBytes;
+            JournalSegmentSizeInBytes = DefaultJournalSegmentSizeInBytes;
             DateFormatString = DefaultDateFormatString;
             CloneResults = true;
-#if RELEASE
-            CloneCommands = false;
-#else
             CloneCommands = true;
-#endif
         }
 
 
@@ -192,6 +196,54 @@ namespace LiveDomain.Core
         }
 
         #endregion
+
+
+        public static string GetDefaultLocation()
+        {
+
+            string result = Directory.GetCurrentDirectory();
+
+            //Attempt web
+            try
+            {
+                string typeName = "System.Web.HttpContext, System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
+                Type type = Type.GetType(typeName);
+                object httpContext = type.GetProperty("Current").GetGetMethod().Invoke(null, null);
+                object httpRequest = type.GetProperty("Request").GetGetMethod().Invoke(httpContext, null);
+                result = (string)httpRequest.GetType().GetProperty("ApplicationPath").GetGetMethod().Invoke(httpRequest, null);
+                result = result.TrimEnd('\\') + "App_Data";
+            }
+            catch { }
+            return result;
+        }
+
+        public bool HasLocation 
+        { 
+            get 
+            {
+                return !String.IsNullOrEmpty(Location);
+            }
+        }
+
+        public void SetDefaultLocation<M>() where M : Model
+        {
+            SetDefaultLocation(typeof(M));
+            
+        }
+
+        public void SetDefaultLocation(Type type)
+        {
+            SetDefaultLocation(type.Name);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name">Name of the location</param>
+        public void SetDefaultLocation(string name)
+        {
+            Location = GetDefaultLocation() + @"\" + name;
+        }
     }
 
 }

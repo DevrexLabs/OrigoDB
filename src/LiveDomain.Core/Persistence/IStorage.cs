@@ -12,7 +12,7 @@ namespace LiveDomain.Core
     public enum JournalWriterCreateOptions
     {
         Append,
-        NextFragment
+        NextSegment
     }
 
 
@@ -22,7 +22,7 @@ namespace LiveDomain.Core
 	internal interface IPersistentStorage
 	{
 
-        IEnumerable<JournalEntry<Command>> GetJournalEntries(JournalFragmentInfo position);
+        IEnumerable<JournalEntry<Command>> GetJournalEntries(JournalSegmentInfo position);
         
 
         /// <summary>
@@ -34,9 +34,9 @@ namespace LiveDomain.Core
         /// Should return null if no snapshot exists. Used as base image when 
         /// restoring to latest state.
         /// </summary>
-        /// <param name="state">A reference to the first fragment in the sequence following the returned snapshot</param>
+        /// <param name="state">A reference to the first segment in the sequence following the returned snapshot</param>
         /// <returns></returns>
-        Model GetMostRecentSnapshot(out JournalFragmentInfo journalState);
+        Model GetMostRecentSnapshot(out JournalSegmentInfo journalState);
 
         /// <summary>
         /// Write a snapshot to disk
@@ -45,15 +45,17 @@ namespace LiveDomain.Core
         /// <param name="name"></param>
         void WriteSnapshot(Model model, string name);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="options"></param>
-        /// <returns></returns>
         Stream CreateJournalWriterStream(JournalWriterCreateOptions options);
 
+        /// <summary>
+        /// Checks the integrity of the configuration and throw if Create() will fail
+        /// </summary>
         void VerifyCanCreate();
 
+        /// <summary>
+        /// Perform initial preparation of the storage
+        /// </summary>
+        /// <param name="model"></param>
         void Create(Model model);
     }
 }

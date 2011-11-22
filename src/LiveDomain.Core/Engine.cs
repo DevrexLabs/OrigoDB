@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 
 namespace LiveDomain.Core
 {
@@ -25,13 +26,7 @@ namespace LiveDomain.Core
         /// All configuration settings, cloned in the constructor
         /// </summary>
         EngineConfiguration _config;
-
-        /// <summary>
-        /// 
-        /// </summary>
         IPersistentStorage _storage;
-
-
         ILockStrategy _lock;
         ISerializer _serializer;
         bool _isDisposed = false;
@@ -45,17 +40,18 @@ namespace LiveDomain.Core
         {
             if (!_isDisposed)
             {
-                try
+                if (_config.SnapshotBehavior == SnapshotBehavior.OnShutdown)
                 {
-                    _lock.EnterWrite();
-                    _commandJournal.Close();        
-                    _isDisposed = true;
+                    //Allow reading while snapshot is being taken
+                    //but no modifications after that
+                    _lock.EnterUpgrade(); 
+                    CreateSnapshotImpl("auto");
 
                 }
-                finally
-                {
-                    _lock.Exit();
-                }
+                _lock.EnterWrite();
+                _isDisposed = true;
+                _commandJournal.Close();        
+                    
             }
         }
 
@@ -63,15 +59,16 @@ namespace LiveDomain.Core
         private void Restore()
         {
 
-            JournalFragmentInfo fragment;
+            JournalSegmentInfo segment;
 
-            _theModel = _storage.GetMostRecentSnapshot(out fragment);
+            _theModel = _storage.GetMostRecentSnapshot(out segment);
             if (_theModel == null) throw new ApplicationException("No initial snapshot");
-            
-            foreach (var command in _commandJournal.GetEntriesFrom(fragment).Select(entry => entry.Item))
+            _theModel.SnapshotRestored();
+            foreach (var command in _commandJournal.GetEntriesFrom(segment).Select(entry => entry.Item))
             {
                 command.Redo(_theModel);
             }
+            _theModel.JournalRestored();
         }
 
 
@@ -93,8 +90,17 @@ namespace LiveDomain.Core
 
             _commandJournal = _config.CreateCommandJournal(_storage);
             Restore();
-            _theModel.OnRestore();
             _commandJournal.Open();
+            
+            if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)
+            {
+                Log.Write("Starting snaphot job on threadpool");
+                
+                ThreadPool.QueueUserWorkItem((o) => CreateSnapshot("auto"));
+
+                //Give the thread a chance to start and aquire the readlock
+                Thread.Sleep(TimeSpan.FromMilliseconds(10));
+            }
         }
 
 
@@ -108,13 +114,17 @@ namespace LiveDomain.Core
 		public T Execute<M, T>(Func<M, T> query) where M : Model
         {
             ThrowIfDisposed();
-            _lock.EnterRead();
-
             try
             {
+                _lock.EnterRead();
                 T result = query.Invoke(_theModel as M);
                 if (_config.CloneResults) result = _serializer.Clone(result);
                 return result;
+            }
+            catch (TimeoutException)
+            {
+                ThrowIfDisposed();
+                throw;
             }
             finally
             {
@@ -126,20 +136,27 @@ namespace LiveDomain.Core
         public object Execute(Command command)
         {
             ThrowIfDisposed();
-            if(_config.CloneCommands) command = _serializer.Clone(command);
-            _lock.EnterUpgrade();
+
+            Command commandToSerialize = command;
+            if (_config.CloneCommands) command = _serializer.Clone(command);
+            
             try
             {
+                _lock.EnterUpgrade();
                 command.PrepareStub(_theModel);
                 _lock.EnterWrite();
                 object result = command.ExecuteStub(_theModel);
-                _commandJournal.Append(command);
+                //TODO: We might benefit from downgrading the lock at this point
+                _commandJournal.Append(commandToSerialize);
                 if (_config.CloneResults) result = _serializer.Clone(result);
                 return result;
             }
-            catch (TimeoutException) { throw; }
+            catch (TimeoutException)
+            {
+                ThrowIfDisposed();
+                throw; 
+            }
             catch (CommandFailedException) { throw; }
-            catch (FatalException) { Close(); throw; }
             catch (Exception ex) 
             {
                 Restore(); //TODO: Or shutdown based on setting
@@ -164,8 +181,7 @@ namespace LiveDomain.Core
             try
             {
                 _lock.EnterRead();
-                _storage.WriteSnapshot(_theModel, name);
-                _commandJournal.Rollover();
+                CreateSnapshotImpl(name);
             }
             catch (Exception)
             {
@@ -175,6 +191,14 @@ namespace LiveDomain.Core
             {
                 _lock.Exit();
             }
+        }
+
+        private void CreateSnapshotImpl(string name)
+        {
+            Log.Write("BeginSnapshot:" + name);
+            _storage.WriteSnapshot(_theModel, name);
+            _commandJournal.CreateNextSegment();
+            Log.Write("EndSnapshot:" + name);
         }
 
         #endregion
@@ -187,25 +211,27 @@ namespace LiveDomain.Core
 
         #region Static non-generic Load and Create methods
 
-        public static Engine Load(string targetLocation)
+        public static Engine Load(string location)
         {
-            return Load(new EngineConfiguration(targetLocation));
+            return Load(new EngineConfiguration(location));
         }
 
-        public static Engine Load(EngineConfiguration settings)
+        public static Engine Load(EngineConfiguration config)
         {
-            settings.CreateStorage().VerifyCanLoad();
-            var engine = new Engine(settings);
+            if (!config.HasLocation) throw new InvalidOperationException("Specify location to load from in non-generic load");
+            config.CreateStorage().VerifyCanLoad();
+            var engine = new Engine(config);
             return engine;
         }
 
-        public static Engine Create(Model model, string targetLocation)
+        public static Engine Create(Model model, string location)
         {
-            return Create(model, new EngineConfiguration(targetLocation));
+            return Create(model, new EngineConfiguration(location));
         }
 
         public static Engine Create(Model model, EngineConfiguration config)
         {
+            if (!config.HasLocation) config.SetDefaultLocation(model.GetType());
             return Create<Model>(model, config);
 
         }
@@ -216,19 +242,16 @@ namespace LiveDomain.Core
         #region Static generic Load methods
 
         /// <summary>
-        /// Load using default configuration. Location defaults to either 
-        /// ~/App_Data\typeof(M).Name or CurrentDirectory()\typeof(M).Name
+        /// Load using default configuration and location
         /// </summary>
         /// <returns>A strongly typed generic Engine</returns>
         public static Engine<M> Load<M>() where M : Model
         {
-            string current = Directory.GetCurrentDirectory();
-            string targetDirectory = Path.Combine(current, typeof(M).Name);
-            return Load<M>(targetDirectory);
+            return Load<M>(new EngineConfiguration());
         }
 
         /// <summary>
-        /// Load from targetDirectory using the default EngineConfiguration
+        /// Load from location using the default EngineConfiguration
         /// </summary>
         /// <typeparam name="M"></typeparam>
         /// <param name="location"></param>
@@ -239,15 +262,15 @@ namespace LiveDomain.Core
     	}
 
         /// <summary>
-        /// Load using a specific configuration. Path is part of the configuration
+        /// Load using an explicit configuration.
         /// </summary>
         /// <typeparam name="M"></typeparam>
         /// <param name="config"></param>
         /// <returns></returns>
     	public static Engine<M> Load<M>(EngineConfiguration config) where M : Model
     	{
+            if (!config.HasLocation) config.SetDefaultLocation<M>();
 			var engine = new Engine<M>(config);
-			engine.Restore();
     		return engine;
     	}
         #endregion
@@ -261,28 +284,7 @@ namespace LiveDomain.Core
         /// <returns></returns>
         public static Engine<M> Create<M>() where M : Model
         {
-            string location = GetDefaultLocation() + @"\" + typeof(M).Name;
-            return Create<M>(location);
-        }
-
-
-        private static string GetDefaultLocation()
-        {
-            
-            string result = Directory.GetCurrentDirectory();
-            
-            //Attempt web
-            try
-            {
-                string typeName = "System.Web.HttpContext, System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
-                Type type = Type.GetType(typeName);
-                object httpContext = type.GetProperty("Current").GetGetMethod().Invoke(null, null);
-                object httpRequest = type.GetProperty("Request").GetGetMethod().Invoke(httpContext,null);
-                result = (string) httpRequest.GetType().GetProperty("ApplicationPath").GetGetMethod().Invoke(httpRequest,null);
-                result = result.TrimEnd('\\') + "App_Data";
-            }
-            catch{}
-            return result;
+            return Create<M>(new EngineConfiguration());
         }
 
         public static Engine<M> Create<M>(string location) where M : Model
@@ -298,6 +300,7 @@ namespace LiveDomain.Core
 
         public static Engine<M> Create<M>(M model, EngineConfiguration config) where M : Model
         {
+            if (!config.HasLocation) config.SetDefaultLocation<M>();
             IPersistentStorage storage = config.CreateStorage();
             storage.Create(model);
             return Load<M>(config);
@@ -310,11 +313,7 @@ namespace LiveDomain.Core
 
         public static Engine<M> LoadOrCreate<M>() where M : Model, new()
         {
-
-            //use current directory as default. TODO: 
-            string location = GetDefaultLocation() + @"\" + typeof(M).Name;
-
-            return LoadOrCreate<M>(location);
+            return LoadOrCreate<M>(new EngineConfiguration());
         }
 
 
@@ -335,6 +334,7 @@ namespace LiveDomain.Core
         {
             if (constructor == null) throw new ArgumentNullException("constructor");
             if(config == null) throw new ArgumentNullException("config");
+            if (!config.HasLocation) config.SetDefaultLocation<M>();
             Engine<M> result = null;
             try
             {

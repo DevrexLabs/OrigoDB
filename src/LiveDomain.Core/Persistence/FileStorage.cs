@@ -7,7 +7,7 @@ using System.Linq;
 namespace LiveDomain.Core
 {
     /// <summary>
-    /// Responsible for knowing about file names, formats and directory layout.
+    /// Storage implementation using a local file system
     /// </summary>
     internal class FileStorage : Storage
     {
@@ -23,7 +23,7 @@ namespace LiveDomain.Core
 
         public override void Initialize()
         {
-            EnsureDirectoryExists(_config.TargetLocation);
+            EnsureDirectoryExists(_config.Location);
 
             if (_config.HasAlternativeSnapshotLocation)
             {
@@ -46,7 +46,7 @@ namespace LiveDomain.Core
         /// <returns></returns>
         protected override IEnumerable<string> GetItemIdentifiers()
         {
-            foreach (string fileName in Directory.GetFiles(_config.TargetLocation))
+            foreach (string fileName in Directory.GetFiles(_config.Location))
             {
                 yield return new FileInfo(fileName).Name;
             }
@@ -114,8 +114,8 @@ namespace LiveDomain.Core
         /// <returns></returns>
         private string GetFullyQualifiedPath(string id)
         {
-            string directory = _config.TargetLocation;
-            if (id.EndsWith(StorageFragmentIdentifier.SnapshotSuffix))
+            string directory = _config.Location;
+            if (id.EndsWith(StorageBlobIdentifier.SnapshotSuffix))
             {
                 directory = _config.SnapshotLocation;
             }
@@ -124,7 +124,7 @@ namespace LiveDomain.Core
 
         public override void VerifyCanCreate()
         {
-            VerifyDirectory(_config.TargetLocation);
+            VerifyDirectory(_config.Location);
             if (_config.HasAlternativeSnapshotLocation)
                 VerifyDirectory(_config.SnapshotLocation);
         }
@@ -132,7 +132,7 @@ namespace LiveDomain.Core
         public override void VerifyCanLoad()
         {
             string error = String.Empty;
-            if (!Directory.Exists(_config.TargetLocation))
+            if (!Directory.Exists(_config.Location))
             {
                 error = "Target directory does not exist\n";
             }
@@ -151,7 +151,7 @@ namespace LiveDomain.Core
                 error += "Initial snapshot missing\n";
             }
 
-            if (Directory.GetFiles(_config.TargetLocation, "*.journal").Count() == 0)
+            if (Directory.GetFiles(_config.Location, "*.journal").Count() == 0)
             {
                 error += "No journal files found\n";
             }

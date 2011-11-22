@@ -5,30 +5,6 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
-
-    public enum LogMessageType
-    {
-        Debug,
-        Info,
-        Warning,
-        Exception
-    }
-
-    public interface ILog
-    {
-        void Debug(string message);
-        void Write(string message);
-        void Warn(string message);
-        void Write(Exception exception);
-    }
-
-    public class NullLogger : Logger
-    {
-        protected override void Write(LogMessageType type, string message)
-        {
-        }
-    }
-
     public abstract class Logger : ILog
     {
         public void Debug(string message)
@@ -52,6 +28,10 @@ namespace LiveDomain.Core
             Write(LogMessageType.Exception, message);
         }
 
+        public virtual void Dispose()
+        {
+        }
+
         private string BuildMessageFromException(Exception exception)
         {
             StringBuilder builder = new StringBuilder();
@@ -65,18 +45,18 @@ namespace LiveDomain.Core
 
         }
 
-        protected abstract void Write(LogMessageType messageType, string message);
-    }
-
-    public class InMemoryLogger : Logger
-    {
-        List<string> _messages = new List<string>();
-        public IEnumerable<string> Messages { get { return _messages; } }
-
-
-        protected override void Write(LogMessageType messageType, string message)
+        protected virtual string FormatMessage(LogMessageType messageType, string message)
         {
-            _messages.Add(DateTime.Now.ToString() + " : " + messageType.ToString().ToUpper() + " : " + message);
+            return DateTime.Now.ToString() + " : " + messageType.ToString().ToUpper() + " : " + message;
         }
+
+        protected virtual void Write(LogMessageType messageType, string message)
+        {
+            string formattedMessage = FormatMessage(messageType, message);
+            WriteToLog(message);
+        }
+
+
+        protected abstract void WriteToLog(string message);
     }
 }

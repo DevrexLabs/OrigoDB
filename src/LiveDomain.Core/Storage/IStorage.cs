@@ -19,7 +19,7 @@ namespace LiveDomain.Core
     /// <summary>
     /// Responsible for reading/writing files and keeping track of Sequencing
     /// </summary>
-	internal interface IPersistentStorage
+	internal interface IStorage
 	{
 
         IEnumerable<JournalEntry<Command>> GetJournalEntries(JournalSegmentInfo position);
@@ -57,5 +57,9 @@ namespace LiveDomain.Core
         /// </summary>
         /// <param name="model"></param>
         void Create(Model model);
+
+        bool Exists { get; }
+
+        bool CanCreate { get; }
     }
 }

@@ -144,13 +144,24 @@ namespace LiveDomain.Core.Test
         }
 
         [TestMethod]
-        public void CanExecuteCommand()
+        public void CanExecuteCommandWithResults()
         {
             CanLoadEngine();
-            int commandsExecuted = (int) this.Engine.Execute(new TestCommand());
+            int commandsExecuted = (int) this.Engine.Execute(new TestCommandWithResult());
             int numCommandsExecuted = (int)Engine.Execute(new GetNumberOfCommandsExecutedQuery());
             Assert.AreEqual(numCommandsExecuted, 1);
         }
+
+        [TestMethod]
+        public void CanExecuteCommand()
+        {
+            CanLoadEngine();
+            int commandsExecutedBefore = (int)Engine.Execute(new GetNumberOfCommandsExecutedQuery());
+            this.Engine.Execute(new TestCommandWithoutResult());
+            int commandsExecutedAfter = (int)Engine.Execute(new GetNumberOfCommandsExecutedQuery());
+            Assert.AreEqual(commandsExecutedAfter - commandsExecutedBefore, 1);
+        }
+
 
         [TestMethod]
         public void JournalRollsOver()
@@ -158,7 +169,7 @@ namespace LiveDomain.Core.Test
             CanLoadEngine();
             for (int i = 0; i < 100; i++)
             {
-                Command command = new TestCommand() { Payload = new byte[100000] };
+                Command command = new TestCommandWithResult() { Payload = new byte[100000] };
                 this.Engine.Execute(command);
             }
             Assert.IsTrue(_logger.Messages.Count(m => m.Contains("NewJournalSegment")) > 0);
@@ -262,7 +273,7 @@ namespace LiveDomain.Core.Test
         {
             for (int i = 0; i < count; i++)
             {
-                Engine.Execute(new TestCommand());
+                Engine.Execute(new TestCommandWithResult());
             }
         }
 

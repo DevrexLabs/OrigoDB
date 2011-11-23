@@ -29,7 +29,16 @@ namespace LiveDomain.Core.Test
     }
 
     [Serializable]
-    public class TestCommand : CommandWithResult<TestModel,int>
+    public class TestCommandWithoutResult : Command<TestModel>
+    {
+        protected internal override void Execute(TestModel model)
+        {
+            model.CommandsExecuted++;
+        }
+    }
+
+    [Serializable]
+    public class TestCommandWithResult : CommandWithResult<TestModel,int>
     {
         public byte[] Payload { get; set; }
         public bool ThrowInPrepare { get; set; }

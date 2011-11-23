@@ -26,7 +26,7 @@ namespace LiveDomain.Core
         /// All configuration settings, cloned in the constructor
         /// </summary>
         EngineConfiguration _config;
-        IPersistentStorage _storage;
+        IStorage _storage;
         ILockStrategy _lock;
         ISerializer _serializer;
         bool _isDisposed = false;
@@ -118,7 +118,7 @@ namespace LiveDomain.Core
             {
                 _lock.EnterRead();
                 T result = query.Invoke(_theModel as M);
-                if (_config.CloneResults) result = _serializer.Clone(result);
+                if (_config.CloneResults && result != null) result = _serializer.Clone(result);
                 return result;
             }
             catch (TimeoutException)
@@ -147,8 +147,9 @@ namespace LiveDomain.Core
                 _lock.EnterWrite();
                 object result = command.ExecuteStub(_theModel);
                 //TODO: We might benefit from downgrading the lock at this point
+                //TODO: We could run the 2 following statements in parallel
+                if (_config.CloneResults && result != null) result = _serializer.Clone(result);
                 _commandJournal.Append(commandToSerialize);
-                if (_config.CloneResults) result = _serializer.Clone(result);
                 return result;
             }
             catch (TimeoutException)
@@ -270,6 +271,7 @@ namespace LiveDomain.Core
     	public static Engine<M> Load<M>(EngineConfiguration config) where M : Model
     	{
             if (!config.HasLocation) config.SetDefaultLocation<M>();
+            config.CreateStorage().VerifyCanLoad();
 			var engine = new Engine<M>(config);
     		return engine;
     	}
@@ -301,7 +303,7 @@ namespace LiveDomain.Core
         public static Engine<M> Create<M>(M model, EngineConfiguration config) where M : Model
         {
             if (!config.HasLocation) config.SetDefaultLocation<M>();
-            IPersistentStorage storage = config.CreateStorage();
+            IStorage storage = config.CreateStorage();
             storage.Create(model);
             return Load<M>(config);
         }
@@ -336,16 +338,20 @@ namespace LiveDomain.Core
             if(config == null) throw new ArgumentNullException("config");
             if (!config.HasLocation) config.SetDefaultLocation<M>();
             Engine<M> result = null;
-            try
+
+            var storage = config.CreateStorage();
+
+            if (storage.Exists)
             {
                 result = Load<M>(config);
                 Log.Write("Engine Loaded");
             }
-            catch (Exception)
+            else if (storage.CanCreate)
             {
-                result = Create(constructor.Invoke(), config);
+                result = Create<M>(constructor.Invoke(), config);
                 Log.Write("Engine Created");
             }
+            else throw new ApplicationException("Couldn't load or create");
             return result;
         }
 

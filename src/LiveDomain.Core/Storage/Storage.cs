@@ -11,7 +11,7 @@ namespace LiveDomain.Core
     /// <summary>
     /// Responsible for naming scheme and file ordering
     /// </summary>
-    abstract class Storage : IPersistentStorage
+    abstract class Storage : IStorage
     {
 
         EngineConfiguration _config;
@@ -142,6 +142,39 @@ namespace LiveDomain.Core
             }
 
             CreateJournalWriterStream(JournalWriterCreateOptions.Append).Close();
+        }
+
+
+        bool IStorage.Exists
+        {
+            get 
+            {
+                try
+                {
+                    VerifyCanLoad();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+        }
+
+        public bool CanCreate
+        {
+            get
+            {
+                try
+                {
+                    VerifyCanCreate();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
         }
     }
 }

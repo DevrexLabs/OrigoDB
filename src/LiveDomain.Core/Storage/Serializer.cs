@@ -42,6 +42,7 @@ namespace LiveDomain.Core
 
         public byte[] Serialize(object graph)
 		{
+            if (graph == null) throw new ArgumentNullException("graph");
 			MemoryStream ms = new MemoryStream();
 			_formatter.Serialize(ms, graph);
 			return ms.ToArray();
@@ -49,6 +50,7 @@ namespace LiveDomain.Core
 
         public object Clone(object graph)
         {
+            if (graph == null) throw new ArgumentNullException("graph");
             return Deserialize<object>(Serialize(graph));
         }
 

@@ -16,12 +16,12 @@ namespace LiveDomain.Core
         }
 
         private IJournalWriter _writer;
-		private IPersistentStorage _storage;
+		private IStorage _storage;
         private JournalState _state;
         private EngineConfiguration _config;
 
 
-		public CommandJournal(EngineConfiguration config, IPersistentStorage storage)
+		public CommandJournal(EngineConfiguration config, IStorage storage)
 		{
             _config = config;
 			_storage = storage;

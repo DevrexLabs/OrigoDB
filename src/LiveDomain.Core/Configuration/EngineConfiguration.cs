@@ -184,13 +184,13 @@ namespace LiveDomain.Core
             }
         }
 
-        internal IPersistentStorage CreateStorage()
+        internal IStorage CreateStorage()
         {
             return new FileStorage(this);
         }
 
 
-        internal ICommandJournal CreateCommandJournal(IPersistentStorage _storage)
+        internal ICommandJournal CreateCommandJournal(IStorage _storage)
         {
             return new CommandJournal(this, _storage);
         }

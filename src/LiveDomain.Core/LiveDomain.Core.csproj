@@ -58,6 +58,7 @@
     <Compile Include="Journaling\ICommandJournal.cs" />
     <Compile Include="Configuration\JournalWriterPerformanceMode.cs" />
     <Compile Include="Logging\NullLogger.cs" />
+    <Compile Include="Storage\IStorage_2.cs" />
     <Compile Include="Storage\JournalSegmentInfo.cs" />
     <Compile Include="Logging\Log.cs" />
     <Compile Include="Storage\ISerializer.cs" />

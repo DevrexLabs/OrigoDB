@@ -7,26 +7,35 @@ using LiveDomain.Relational.Extensions;
 
 namespace LiveDomain.Relational
 {
+[Serializable]
+public class Category
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+}
 
-    public class Category
+[Serializable]
+public class User
+{
+    [Key]
+    public string Email { get; set; }
+}
+
+[Serializable]
+public class Task : IComparable<Task>
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public DateTime DueBy{ get; set; }
+    public int CategoryId { get; set; }
+
+    public int CompareTo(Task other)
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
+        return Id.CompareTo(other.Id);
     }
+}
 
-    public class Task : IComparable<Task>
-    {
-        public ulong Id { get; set; }
-        public string Name { get; set; }
-        public DateTime DueBy{ get; set; }
-        public int CategoryId { get; set; }
-
-        public int CompareTo(Task other)
-        {
-            return Id.CompareTo(other.Id);
-        }
-    }
-
+    [Serializable]
     public class Task2
     {
         public ulong Id { get; set; }
@@ -34,6 +43,7 @@ namespace LiveDomain.Relational
         public int MyCategoryId { get; set; }
     }
 
+    [Serializable]
     public class Task3
     {
         [Key]
@@ -58,6 +68,7 @@ namespace LiveDomain.Relational
         void AssignKey(E entity);
     }
 
+    [Serializable]
     public class NullKeyStrategy<E> : IKeyStrategy<E>
     {
         public void AssignKey(E entity)
@@ -66,6 +77,7 @@ namespace LiveDomain.Relational
         }
     }
 
+    [Serializable]
     public class AssignIfDefaultKeyStrategy<E,K> : IKeyStrategy<E>
     {
         Action<E, K> _keyWriter;
@@ -93,6 +105,7 @@ namespace LiveDomain.Relational
         E NextKey();
     }
 
+    [Serializable]
     public class SequentialIntegerKeyGenerator : IKeyGenerator<ulong>
     {
         ulong _next = 1;
@@ -113,6 +126,7 @@ namespace LiveDomain.Relational
 
     }
 
+    [Serializable]
     public class GuidKeyGenerator : IKeyGenerator<Guid>
     {
         public Guid NextKey()
@@ -122,25 +136,28 @@ namespace LiveDomain.Relational
     }
 
 
-    public class DelegateComparer<T> : IComparer<T>
+    //[Serializable]
+    //public class DelegateComparer<T> : IComparer<T>
+    //{
+    //    IComparer<T> 
+    //    internal Func<T, T, int> _comparer;
+
+    //    public DelegateComparer(Func<T,T,int> comparer)
+    //    {
+    //        _comparer = comparer;
+    //    }
+
+    //    public int Compare(T x, T y)
+    //    {
+    //        return _comparer.Invoke(x, y);
+    //    }
+    //}
+
+    [Serializable]
+    public class ReflectionComparer<T> : IComparer<T>
     {
-
-        internal Func<T, T, int> _comparer;
-
-        public DelegateComparer(Func<T,T,int> comparer)
-        {
-            _comparer = comparer;
-        }
-
-        public int Compare(T x, T y)
-        {
-            return _comparer.Invoke(x, y);
-        }
-    }
-
-    public class ReflectionComparer<T> : DelegateComparer<T>
-    {
-        public ReflectionComparer(params PropertyInfo[] properties) : base(null)
+        Func<T,T,int> _comparer;
+        public ReflectionComparer(params PropertyInfo[] properties)
         {
             if (properties == null) throw new ArgumentNullException("properties");
             foreach (var propertyInfo in properties)
@@ -161,9 +178,18 @@ namespace LiveDomain.Relational
             };
             this._comparer = comparer;
         }
+
+        public int Compare(T a, T b)
+        {
+            return _comparer.Invoke(a, b);
+        }
     }
 
-    public class EntitySet<E> 
+    [Serializable]
+    public class EntitySet { }
+
+    [Serializable]
+    public class EntitySet<E> : EntitySet, IEnumerable<E>
     {
 
         SortedSet<E> _items;
@@ -213,9 +239,9 @@ namespace LiveDomain.Relational
                 return new ReflectionComparer<E>(keyProperty);
             }
 
-            //See if entity is comparable
-            if(typeof(E).Implements(typeof(IComparable<E>)))
-                return new DelegateComparer<E>((a, b) => ((IComparable<E>)a).CompareTo(b));
+            ////See if entity is comparable
+            //if(typeof(E).Implements(typeof(IComparable<E>)))
+            //    return new DelegateComparer<E>((a, b) => ((IComparable<E>)a).CompareTo(b));
             
             
             //See if there's an Id property
@@ -263,6 +289,21 @@ namespace LiveDomain.Relational
         {
             _items.Remove(entity);
             _items.Add(entity);
+        }
+
+        public IEnumerator<E> GetEnumerator()
+        {
+            return _items.GetEnumerator();
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public void Clear()
+        {
+            _items.Clear();
         }
     }
 }

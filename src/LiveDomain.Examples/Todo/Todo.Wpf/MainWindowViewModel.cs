@@ -21,7 +21,7 @@ namespace Todo.Wpf
 
         public ObservableCollection<string> Lists { get; private set; }
         
-        public ObservableCollection<TaskView> Tasks
+        public ObservableCollection<TaskViewModel> Tasks
         { 
             get; 
             private set; 
@@ -45,27 +45,36 @@ namespace Todo.Wpf
 
         private void LoadTasks()
         {
-            var tasks = _engine.Execute(db=>db.Lists.Single(list => list.IsNamed(CurrentList)).Tasks.Select(task => new TaskView(task)).ToList());
-            tasks.ForEach( task => {
-                task.CompleteChanged += CompleteChanged;
-                task.SaveRequested += SaveTask;
-                task.InitializeSaveCommand();
-            });
+            var query = Queries.GetTasksByListName(CurrentList);
+            var tasks = _engine.Execute(query).Select(t => new TaskViewModel(t)).ToList();
+
+            foreach (TaskViewModel task in tasks)
+            {
+                AttachEvents(task);
+            }
             
-            Tasks = new ObservableCollection<TaskView>(tasks);
+            Tasks = new ObservableCollection<TaskViewModel>(tasks);
             
             NotifyPropertyChanged("Tasks");
+        }
+
+        private void AttachEvents(TaskViewModel task)
+        {
+            task.CompleteChanged += CompleteChanged;
+            task.SaveRequested += SaveTask;
         }
 
 
         private void SaveTask(object sender, EventArgs e)
         {
-            TaskView task = (TaskView)sender;
+            TaskViewModel task = (TaskViewModel)sender;
+            //TODO: Create a SaveTaskCommand
         }
 
         private void CompleteChanged(object sender, EventArgs e)
         {
-            TaskView task = (TaskView)sender;
+            TaskViewModel task = (TaskViewModel)sender;
+            //TODO: Create SetCompletedCommand and ClearCompletedCommand classes
            
         }
 
@@ -142,7 +151,10 @@ namespace Todo.Wpf
             Task task = new Task(NewTaskTitle);
             AddTaskCommand command = new AddTaskCommand(task, CurrentList);
             _engine.Execute(command);
-            Tasks.Add(new TaskView(task));
+
+            var taskViewModel = new TaskViewModel(new TaskInfo(task));
+            AttachEvents(taskViewModel);
+            Tasks.Add(taskViewModel);
             NewTaskTitle = String.Empty;
         }
 

@@ -7,8 +7,7 @@ using System.Windows.Input;
 
 namespace Todo.Wpf
 {
-    [Serializable]
-    public class TaskView : ViewModelBase
+    public class TaskViewModel : ViewModelBase
     {
 
         private Guid _id;
@@ -75,13 +74,14 @@ namespace Todo.Wpf
             }
         }
 
-        public TaskView(Task task)
+        public TaskViewModel(TaskInfo task)
         {
             _id = task.Id;
             _title = task.Title;
             _description = task.Description;
             _dueBy = task.DueBy;
             _completed = task.Completed;
+            _saveCommand = new DelegateCommand(() => SaveRequested.Invoke(this, EventArgs.Empty), () => HasBeenModified);
         }
 
 
@@ -103,20 +103,11 @@ namespace Todo.Wpf
             }
         }
 
-        /// <summary>
-        /// TaskView is instantiated within a query and gets serialized by the engine. 
-        /// So this command must be injected after construction.
-        /// </summary>
-        [NonSerialized]
         DelegateCommand _saveCommand;
-        public DelegateCommand SaveCommand { get { return _saveCommand; }  }
+        public ICommand SaveCommand { get { return _saveCommand; }  }
 
         public event EventHandler<EventArgs> CompleteChanged = delegate { };
         public event EventHandler<EventArgs> SaveRequested = delegate { };
 
-        internal void InitializeSaveCommand()
-        {
-            _saveCommand = new DelegateCommand(() => SaveRequested.Invoke(this, EventArgs.Empty), () => HasBeenModified);
-        }
     }
 }

@@ -136,6 +136,11 @@ namespace LiveDomain.Core
             {
                 error = "Target directory does not exist\n";
             }
+            else if (Directory.GetFiles(_config.Location, "*.journal").Count() == 0)
+            {
+                error += "No journal files found in target directory\n";
+            }
+            
 
             if (_config.HasAlternativeSnapshotLocation)
             {
@@ -151,10 +156,7 @@ namespace LiveDomain.Core
                 error += "Initial snapshot missing\n";
             }
 
-            if (Directory.GetFiles(_config.Location, "*.journal").Count() == 0)
-            {
-                error += "No journal files found\n";
-            }
+
 
             if (error != String.Empty)
             {

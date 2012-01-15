@@ -57,7 +57,7 @@ namespace LiveDomain.Core.Test
          {
              _logger = new InMemoryLogger();
              Log.SetLogger(_logger);
-             Path = System.IO.Path.Combine("c:\\temp", Guid.NewGuid().ToString());
+             Path = Guid.NewGuid().ToString();
          }
 
          InMemoryLogger _logger;
@@ -69,24 +69,25 @@ namespace LiveDomain.Core.Test
              if (Engine != null)
              {
                  Engine.Close();
-                 Thread.Sleep(TimeSpan.FromMilliseconds(100));
-                 if(Directory.Exists(Path)) new DirectoryInfo(Path).Delete(true);
+                 Thread.Sleep(50);
+                 if (Directory.Exists(Path)) new DirectoryInfo(Path).Delete(true);
              }
          }
         
         #endregion
 
-
-         public string Path { get; set; }
          public Engine Engine { get; set; }
-
-         public EngineConfiguration CreateConfig()
-         {
-             var config = new EngineConfiguration(Path);
-             config.JournalWriterPerformance = JournalWriterPerformanceMode.Asynchronous;
-             config.SnapshotBehavior = SnapshotBehavior.AfterRestore;
-             return config;
-         }
+         public String Path { get; set; }
+         
+        public EngineConfiguration CreateConfig()
+        {
+            var config = new EngineConfiguration();
+            config.Location = Path;
+            config.JournalWriterPerformance = JournalWriterPerformanceMode.Synchronous;
+            config.StorageMode = StorageMode.FileSystem;
+            config.SnapshotBehavior = SnapshotBehavior.AfterRestore;
+            return config;
+        }
 
         [TestMethod]
         public void CanCreateEngine()
@@ -146,7 +147,7 @@ namespace LiveDomain.Core.Test
         [TestMethod]
         public void CanExecuteCommandWithResults()
         {
-            CanLoadEngine();
+            CanCreateEngine();
             int commandsExecuted = (int) this.Engine.Execute(new TestCommandWithResult());
             int numCommandsExecuted = (int)Engine.Execute(new GetNumberOfCommandsExecutedQuery());
             Assert.AreEqual(numCommandsExecuted, 1);
@@ -155,10 +156,10 @@ namespace LiveDomain.Core.Test
         [TestMethod]
         public void CanExecuteCommand()
         {
-            CanLoadEngine();
-            int commandsExecutedBefore = (int)Engine.Execute(new GetNumberOfCommandsExecutedQuery());
-            this.Engine.Execute(new TestCommandWithoutResult());
-            int commandsExecutedAfter = (int)Engine.Execute(new GetNumberOfCommandsExecutedQuery());
+            Engine = Engine.LoadOrCreate<TestModel>(CreateConfig());
+            int commandsExecutedBefore = (int) Engine.Execute(new GetNumberOfCommandsExecutedQuery());
+            Engine.Execute(new TestCommandWithoutResult());
+            int commandsExecutedAfter = (int) Engine.Execute(new GetNumberOfCommandsExecutedQuery());
             Assert.AreEqual(commandsExecutedAfter - commandsExecutedBefore, 1);
         }
 
@@ -166,7 +167,7 @@ namespace LiveDomain.Core.Test
         [TestMethod]
         public void JournalRollsOver()
         {
-            CanLoadEngine();
+            CanCreateEngine();
             for (int i = 0; i < 100; i++)
             {
                 Command command = new TestCommandWithResult() { Payload = new byte[100000] };
@@ -182,7 +183,7 @@ namespace LiveDomain.Core.Test
             Engine.Close();
             Engine = Engine.Load(CreateConfig());
             int numCommandsExecuted = (int)Engine.Execute(new GetNumberOfCommandsExecutedQuery());
-            Assert.AreEqual(numCommandsExecuted, 1);
+            Assert.IsTrue(numCommandsExecuted > 0);
         }
 
         [TestMethod]
@@ -197,7 +198,7 @@ namespace LiveDomain.Core.Test
         [TestMethod]
         public void CanCreateSnapshotWithGuidAsName()
         {
-            CanLoadEngine();
+            CanCreateEngine();
             _name = Guid.NewGuid().ToString();
             Engine.CreateSnapshot(_name);
         }
@@ -205,7 +206,7 @@ namespace LiveDomain.Core.Test
         [TestMethod]
         public void CanCreateSnapshotWithEmptyName()
         {
-            CanLoadEngine();
+            CanCreateEngine();
             Engine.CreateSnapshot(String.Empty);
 
             Engine.CreateSnapshot();
@@ -265,9 +266,6 @@ namespace LiveDomain.Core.Test
             Assert.IsTrue(_logger.Messages.Any(m => m.Contains("BeginSnapshot")));
             Assert.IsTrue(_logger.Messages.Any(m => m.Contains("EndSnapshot")));
         }
-
-
-
 
         private void ExecuteCommands(int count)
         {

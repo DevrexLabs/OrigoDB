@@ -93,6 +93,7 @@ namespace LiveDomain.Core
             } 
         }
 
+        public StorageMode StorageMode { get; set; }
         public ConcurrencyMode Concurrency{ get; set; }
         public SerializationMethod SerializationMethod { get; set; }
         public JournalWriterPerformanceMode JournalWriterPerformance { get; set; }
@@ -168,7 +169,7 @@ namespace LiveDomain.Core
             }
         }
 
-        internal IJournalWriter CreateJournalWriter(Stream stream)
+        virtual internal IJournalWriter CreateJournalWriter(Stream stream)
         {
 
             ISerializer serializer = CreateSerializer();
@@ -184,13 +185,23 @@ namespace LiveDomain.Core
             }
         }
 
-        internal IStorage CreateStorage()
+        virtual internal IStorage CreateStorage()
         {
-            return new FileStorage(this);
+            switch (this.StorageMode)
+            {
+                case StorageMode.None: 
+                    return new NullStorage();
+                case StorageMode.FileSystem:
+                    return new FileStorage(this);
+                case StorageMode.Azure:
+                case StorageMode.SQL:
+                default:
+                    throw new Exception("Unsupported or unrecognized storage mode: " + this.StorageMode.ToString());
+            }
         }
 
 
-        internal ICommandJournal CreateCommandJournal(IStorage _storage)
+        virtual internal ICommandJournal CreateCommandJournal(IStorage _storage)
         {
             return new CommandJournal(this, _storage);
         }

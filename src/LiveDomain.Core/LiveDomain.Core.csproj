@@ -58,10 +58,12 @@
     <Compile Include="Journaling\ICommandJournal.cs" />
     <Compile Include="Configuration\JournalWriterPerformanceMode.cs" />
     <Compile Include="Logging\NullLogger.cs" />
-    <Compile Include="Storage\IStorage_2.cs" />
+    <Compile Include="Storage\StorageMode.cs" />
     <Compile Include="Storage\JournalSegmentInfo.cs" />
     <Compile Include="Logging\Log.cs" />
     <Compile Include="Storage\ISerializer.cs" />
+    <Compile Include="Storage\NullStorage.cs" />
+    <Compile Include="Storage\NullWriterStream.cs" />
     <Compile Include="Storage\Storage.cs" />
     <Compile Include="Configuration\SerializationMethod.cs" />
     <Compile Include="Configuration\SnapshotBehavior.cs" />
@@ -85,6 +87,7 @@
     <Compile Include="Utilities\DirectoryEx.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Changes.txt" />
     <Content Include="License.txt" />
   </ItemGroup>
   <ItemGroup>

@@ -9,7 +9,7 @@ namespace LiveDomain.Core
     public class Engine<M> : Engine, ILocalTransactionHandler<M> where M : Model
     {
 
-        public Engine(EngineConfiguration settings) : base(settings) { }
+        public Engine(EngineConfiguration config) : base(() => Activator.CreateInstance<M>(), config) { }
 
 
         public T Execute<T>(Func<M, T> query)

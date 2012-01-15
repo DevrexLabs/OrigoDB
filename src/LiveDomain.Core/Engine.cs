@@ -56,13 +56,19 @@ namespace LiveDomain.Core
         }
 
 
-        private void Restore()
+        private void Restore<M>(Func<M> constructor) where M : Model
         {
 
             JournalSegmentInfo segment;
 
             _theModel = _storage.GetMostRecentSnapshot(out segment);
-            if (_theModel == null) throw new ApplicationException("No initial snapshot");
+
+            if (_theModel == null) 
+            {
+                if(constructor == null)  throw new ApplicationException("No initial snapshot");
+                _theModel = constructor.Invoke();
+            }
+            
             _theModel.SnapshotRestored();
             foreach (var command in _commandJournal.GetEntriesFrom(segment).Select(entry => entry.Item))
             {
@@ -78,7 +84,7 @@ namespace LiveDomain.Core
         }
 
 
-        protected Engine(EngineConfiguration config)
+        protected Engine(Func<Model> constructor, EngineConfiguration config)
         {
             _serializer = config.CreateSerializer();
             
@@ -89,7 +95,7 @@ namespace LiveDomain.Core
             _lock = _config.CreateLockingStrategy();
 
             _commandJournal = _config.CreateCommandJournal(_storage);
-            Restore();
+            Restore(constructor);
             _commandJournal.Open();
             
             if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)
@@ -160,7 +166,7 @@ namespace LiveDomain.Core
             catch (CommandFailedException) { throw; }
             catch (Exception ex) 
             {
-                Restore(); //TODO: Or shutdown based on setting
+                Restore(() => (Model)Activator.CreateInstance(_theModel.GetType())); //TODO: Or shutdown based on setting
                 throw new CommandFailedException("Command threw an exception, state was rolled back, see inner exception for details", ex);
             }
             finally
@@ -221,7 +227,7 @@ namespace LiveDomain.Core
         {
             if (!config.HasLocation) throw new InvalidOperationException("Specify location to load from in non-generic load");
             config.CreateStorage().VerifyCanLoad();
-            var engine = new Engine(config);
+            var engine = new Engine(null, config);
             return engine;
         }
 
@@ -294,6 +300,11 @@ namespace LiveDomain.Core
             return Create<M>(new EngineConfiguration(location));
         }
 
+        public static Engine<M> Create<M>(M model, string location) where M : Model
+        {
+            return Create<M>(model, new EngineConfiguration(location));
+        }
+
         public static Engine<M> Create<M>(EngineConfiguration config) where M : Model
         {
             M model = Activator.CreateInstance<M>();
@@ -310,7 +321,7 @@ namespace LiveDomain.Core
 
         #endregion
 
-        #region Static generic CreateOrLoad methods
+        #region Static generic LoadOrCreate methods
 
 
         public static Engine<M> LoadOrCreate<M>() where M : Model, new()
@@ -330,6 +341,11 @@ namespace LiveDomain.Core
 
             Func<M> constructor = () => (M) Activator.CreateInstance<M>();
             return LoadOrCreate<M>(constructor, config);
+        }
+
+        public static Engine<M> LoadOrCreate<M>(Func<M> constructor) where M : Model
+        {
+            return LoadOrCreate(constructor, new EngineConfiguration());
         }
 
         public static Engine<M> LoadOrCreate<M>(Func<M> constructor, EngineConfiguration config) where M : Model

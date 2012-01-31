@@ -110,6 +110,20 @@ namespace LiveDomain.Core
         }
 
 
+        internal byte[] GetSnapshot()
+        {
+            try
+            {
+                _lock.EnterRead();
+                return _serializer.Serialize(_theModel);
+
+            }
+            finally
+            {
+                _lock.Exit();
+            }
+        }
+
         #region Execute overloads
         
         public object Execute(Query query)
@@ -124,6 +138,7 @@ namespace LiveDomain.Core
             {
                 _lock.EnterRead();
                 T result = query.Invoke(_theModel as M);
+                //TODO: Possible comparison of value type to null
                 if (_config.CloneResults && result != null) result = _serializer.Clone(result);
                 return result;
             }
@@ -339,7 +354,7 @@ namespace LiveDomain.Core
         public static Engine<M> LoadOrCreate<M>(EngineConfiguration config) where M : Model, new()
         {
 
-            Func<M> constructor = () => (M) Activator.CreateInstance<M>();
+            Func<M> constructor = () => Activator.CreateInstance<M>();
             return LoadOrCreate<M>(constructor, config);
         }
 

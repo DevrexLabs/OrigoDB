@@ -37,12 +37,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Command%28M%29.cs" />
-    <Compile Include="CommandWithResult%28M,R%29.cs" />
+    <Compile Include="Command[M].cs" />
+    <Compile Include="CommandWithResult[M,R].cs" />
     <Compile Include="Configuration\CompressionMethod.cs" />
+    <Compile Include="Logging\ILogFactory.cs" />
+    <Compile Include="Logging\InternalLogFactory.cs" />
+    <Compile Include="Logging\SingletonLogFactory.cs" />
+    <Compile Include="Modules.cs" />
+    <Compile Include="Security\IAuthenticator.cs" />
+    <Compile Include="Security\IAuthorizer.cs" />
     <Compile Include="Logging\FileLogger.cs" />
     <Compile Include="Logging\InMemoryLogger.cs" />
     <Compile Include="Logging\Logger.cs" />
@@ -54,13 +61,23 @@
     <Compile Include="Configuration\ConcurrencyMode.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Configuration\EngineConfiguration.cs" />
-    <Compile Include="Engine%28M%29.cs" />
+    <Compile Include="Engine[M].cs" />
     <Compile Include="Journaling\ICommandJournal.cs" />
     <Compile Include="Configuration\JournalWriterPerformanceMode.cs" />
     <Compile Include="Logging\NullLogger.cs" />
+    <Compile Include="Security\StaticRule.cs" />
+    <Compile Include="Security\Permission.cs" />
+    <Compile Include="Security\PermissionSet.cs" />
+    <Compile Include="Security\LiveDomainPrincipal.cs" />
+    <Compile Include="Security\Role.cs" />
+    <Compile Include="Security\Rule[T].cs" />
+    <Compile Include="Security\Authenticator.cs" />
+    <Compile Include="Security\TypeBasedPermissionSet.cs" />
+    <Compile Include="Security\TypeBasedRule.cs" />
+    <Compile Include="Utilities\TypeExtensions.cs" />
+    <Compile Include="Security\User.cs" />
     <Compile Include="Storage\StorageMode.cs" />
     <Compile Include="Storage\JournalSegmentInfo.cs" />
-    <Compile Include="Logging\Log.cs" />
     <Compile Include="Storage\ISerializer.cs" />
     <Compile Include="Storage\NullStorage.cs" />
     <Compile Include="Storage\NullWriterStream.cs" />
@@ -84,6 +101,7 @@
     <Compile Include="Synchronization\SingleThreadedLockingStrategy.cs" />
     <Compile Include="Storage\FileStorage.cs" />
     <Compile Include="Journaling\SynchronousJournalWriter.cs" />
+    <Compile Include="Utilities\PasswordHasher.cs" />
     <Compile Include="Utilities\DirectoryEx.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +110,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
+    <None Include="Security\ClassDiagram2.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="modules\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -8,6 +8,9 @@ using System.Collections;
 
 namespace LiveDomain.Core
 {
+
+
+
     /// <summary>
     /// Responsible for naming scheme and file ordering
     /// </summary>
@@ -17,7 +20,7 @@ namespace LiveDomain.Core
         EngineConfiguration _config;
         ISerializer _serializer;
 
-        public Storage(EngineConfiguration config)
+        protected Storage(EngineConfiguration config)
         {
             _config = config;
             _serializer = _config.CreateSerializer();

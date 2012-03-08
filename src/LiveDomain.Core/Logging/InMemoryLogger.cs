@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace LiveDomain.Core
 {
@@ -14,6 +11,11 @@ namespace LiveDomain.Core
         protected override void WriteToLog(string message)
         {
             _messages.Add(message);
+        }
+
+        internal void Clear()
+        {
+            _messages.Clear();
         }
     }
 }

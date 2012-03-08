@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using LiveDomain.Core.Logging;
 
 namespace LiveDomain.Core
 {
@@ -13,14 +14,13 @@ namespace LiveDomain.Core
     /// Engine is responsible for executing commands and queries against
     /// the model while conforming to ACID.
     /// </summary>
-    /// <typeparam name="M"></typeparam>
 	public class Engine : IDisposable
     {
 
         /// <summary>
         /// The prevalent system. The database. Your single aggregate root. The graph.
         /// </summary>
-        protected Model _theModel;
+        Model _theModel;
 
         /// <summary>
         /// All configuration settings, cloned in the constructor
@@ -31,6 +31,7 @@ namespace LiveDomain.Core
         ISerializer _serializer;
         bool _isDisposed = false;
         ICommandJournal _commandJournal;
+        static ILog _log = Modules.GetLogFactory().GetLogForCallingType();
         
  
         /// <summary>
@@ -100,11 +101,11 @@ namespace LiveDomain.Core
             
             if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)
             {
-                Log.Write("Starting snaphot job on threadpool");
+                _log.Info("Starting snaphot job on threadpool");
                 
                 ThreadPool.QueueUserWorkItem((o) => CreateSnapshot("auto"));
 
-                //Give the thread a chance to start and aquire the readlock
+                //Give the snapshot thread a chance to start and aquire the readlock
                 Thread.Sleep(TimeSpan.FromMilliseconds(10));
             }
         }
@@ -116,7 +117,19 @@ namespace LiveDomain.Core
             {
                 _lock.EnterRead();
                 return _serializer.Serialize(_theModel);
+            }
+            finally
+            {
+                _lock.Exit();
+            }
+        }
 
+        internal void WriteSnapshotToStream(Stream stream)
+        {
+            try
+            {
+                _lock.EnterRead();
+                _serializer.Write(_theModel, stream);
             }
             finally
             {
@@ -167,8 +180,6 @@ namespace LiveDomain.Core
                 command.PrepareStub(_theModel);
                 _lock.EnterWrite();
                 object result = command.ExecuteStub(_theModel);
-                //TODO: We might benefit from downgrading the lock at this point
-                //TODO: We could run the 2 following statements in parallel
                 if (_config.CloneResults && result != null) result = _serializer.Clone(result);
                 _commandJournal.Append(commandToSerialize);
                 return result;
@@ -181,7 +192,7 @@ namespace LiveDomain.Core
             catch (CommandFailedException) { throw; }
             catch (Exception ex) 
             {
-                Restore(() => (Model)Activator.CreateInstance(_theModel.GetType())); //TODO: Or shutdown based on setting
+                Restore(() => (Model)Activator.CreateInstance(_theModel.GetType()));
                 throw new CommandFailedException("Command threw an exception, state was rolled back, see inner exception for details", ex);
             }
             finally
@@ -217,10 +228,10 @@ namespace LiveDomain.Core
 
         private void CreateSnapshotImpl(string name)
         {
-            Log.Write("BeginSnapshot:" + name);
+            _log.Info("BeginSnapshot:" + name);
             _storage.WriteSnapshot(_theModel, name);
             _commandJournal.CreateNextSegment();
-            Log.Write("EndSnapshot:" + name);
+            _log.Info("EndSnapshot:" + name);
         }
 
         #endregion
@@ -375,12 +386,12 @@ namespace LiveDomain.Core
             if (storage.Exists)
             {
                 result = Load<M>(config);
-                Log.Write("Engine Loaded");
+                _log.Trace("Engine Loaded");
             }
             else if (storage.CanCreate)
             {
                 result = Create<M>(constructor.Invoke(), config);
-                Log.Write("Engine Created");
+                _log.Trace("Engine Created");
             }
             else throw new ApplicationException("Couldn't load or create");
             return result;

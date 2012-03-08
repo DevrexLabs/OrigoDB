@@ -2,31 +2,49 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using LiveDomain.Core.Logging;
 
 namespace LiveDomain.Core
 {
     public abstract class Logger : ILog
     {
-        public void Debug(string message)
+
+        public void Trace(string message, params object[] args)
         {
-            Write(LogMessageType.Debug, message);
+            Write(LogMessageType.Trace, message, args);
         }
 
-        public void Write(string message)
+        public void Debug(string message, params object[] args)
         {
-            Write(LogMessageType.Info, message);
+            Write(LogMessageType.Debug, message, args);
         }
 
-        public void Warn(string message)
+        public void Info(string message, params object[] args)
         {
-            Write(LogMessageType.Warning, message);
+            Write(LogMessageType.Info, message, args);
         }
 
-        public void Write(Exception exception)
+        public void Warn(string message, params object[] args)
+        {
+            Write(LogMessageType.Warning, message, args);
+        }
+
+        public void Error(string message, params object[] args)
+        {
+            Write(LogMessageType.Error, message, args);
+        }
+
+        public void Exception(Exception exception)
         {
             string message = BuildMessageFromException(exception);
-            Write(LogMessageType.Exception, message);
+            Write(LogMessageType.Error, message);
         }
+
+        public void Fatal(string message, params object[] args)
+        {
+            Write(LogMessageType.Fatal, message, args);
+        }
+
 
         public virtual void Dispose()
         {
@@ -50,10 +68,11 @@ namespace LiveDomain.Core
             return DateTime.Now.ToString() + " : " + messageType.ToString().ToUpper() + " : " + message;
         }
 
-        protected virtual void Write(LogMessageType messageType, string message)
+        protected virtual void Write(LogMessageType messageType, string message, params object[] args)
         {
+            message = String.Format(message, args);
             string formattedMessage = FormatMessage(messageType, message);
-            WriteToLog(message);
+            lock(this) WriteToLog(message);
         }
 
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using LiveDomain.Core.Logging;
 
 namespace LiveDomain.Core
 {
@@ -19,6 +20,8 @@ namespace LiveDomain.Core
 		private IStorage _storage;
         private JournalState _state;
         private EngineConfiguration _config;
+	    private ILog _log = Modules.GetLogFactory().GetLogForCallingType();
+
 
 
 		public CommandJournal(EngineConfiguration config, IStorage storage)
@@ -31,7 +34,7 @@ namespace LiveDomain.Core
         public void CreateNextSegment()
         {
             if (_state == JournalState.Closed) throw new InvalidOperationException("Cant create journal segment when journal is closed");
-            Log.Write("NewJournalSegment");
+            _log.Info("NewJournalSegment");
             _writer.Dispose();
 
             Stream stream = _storage.CreateJournalWriterStream(JournalWriterCreateOptions.NextSegment);

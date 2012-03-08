@@ -14,7 +14,7 @@
       </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAIDAAAAAAAIAAAAAAACAQAAAAAAQAAAAAAAACAgYA=</HashCode>
+      <HashCode>AAAIDAAAAAAAIEAAAAAACAQAAAAAAQAAAAAAAACAgYA=</HashCode>
       <FileName>Journaling\CommandJournal.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -53,7 +53,7 @@
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAIgAAAACAAgAQgAAECAAiBAEAACEAAAAAAAAKAgAA=</HashCode>
+      <HashCode>AAAIgAAAACAAgEQgAAECAAiBAEAgCEAIAAAAAAKAgAA=</HashCode>
       <FileName>Engine.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -61,7 +61,7 @@
   <Class Name="LiveDomain.Core.Model">
     <Position X="9" Y="1.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAIAAAAAAEAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAIAEAAAAIAAAAAAEAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Model.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -73,7 +73,7 @@
     </Members>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAQAAQAQBAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>CommandWithResult(M,R).cs</FileName>
+      <FileName>CommandWithResult[M,R].cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="LiveDomain.Core.Command&lt;M&gt;">
@@ -84,7 +84,7 @@
     </Members>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAQAAQAQBAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Command(M).cs</FileName>
+      <FileName>Command[M].cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="LiveDomain.Core.Query&lt;M, R&gt;">

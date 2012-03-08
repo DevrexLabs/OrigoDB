@@ -52,7 +52,7 @@ namespace LiveDomain.Relational
     }
 
     [Serializable]
-    public class AddEntityCommand<T> : CommandWithResult<RelationalModel, T>
+    public class AddEntityCommand<T> : CommandWithResult<RelationalModel, T>   
     {
         public readonly T Entity;
 

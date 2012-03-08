@@ -1,4 +1,5 @@
 ﻿using System;
+using LiveDomain.Core.Security;
 
 namespace LiveDomain.Core
 {
@@ -8,6 +9,10 @@ namespace LiveDomain.Core
     [Serializable]
     public abstract class Model
     {
+
+        internal IAuthenticator Authenticator { get; set; }
+        
+        internal IAuthorizer<Type> Authorizer { get; set; }
 
         /// <summary>
         /// SnapshotRestored is called after the most recent snaphot has been loaded 

@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
-using LiveDomain.Core;
 using System.Threading;
-using System.Web;
-using System.Net;
+using LiveDomain.Core.Logging;
 
 namespace LiveDomain.Core.Test
 {
@@ -55,12 +51,16 @@ namespace LiveDomain.Core.Test
          [TestInitialize]
          public void MyTestInitialize() 
          {
-             _logger = new InMemoryLogger();
-             Log.SetLogger(_logger);
              Path = Guid.NewGuid().ToString();
+             _logger.Clear();
          }
 
-         InMemoryLogger _logger;
+        static EngineTest()
+        {
+            Modules.SetLogFactory(new SingletonLogFactory(_logger));
+        }
+
+         static InMemoryLogger _logger = new InMemoryLogger();
 
          //Use TestCleanup to run code after each test has run
          [TestCleanup()]

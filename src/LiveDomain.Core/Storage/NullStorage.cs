@@ -15,7 +15,6 @@ namespace LiveDomain.Core
 
         public IEnumerable<JournalEntry<Command>> GetJournalEntries(JournalSegmentInfo position)
         {
-            //Empty array as opposed to null
             return new JournalEntry<Command>[0];
         }
 

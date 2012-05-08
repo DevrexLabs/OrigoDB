@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
-    internal class JournalSegmentInfo
+    public class JournalSegmentInfo
     {
         public readonly int SequenceNumber;
         public static readonly JournalSegmentInfo Initial = new JournalSegmentInfo(1);

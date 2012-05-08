@@ -13,9 +13,9 @@ namespace LiveDomain.Core
         protected readonly T Securable;
         protected readonly ISet<string> Roles;
 
-        protected Rule(Permission permission, IEnumerable<string> roles )
+        protected Rule(Permission permission, IEnumerable<string> roles ) 
+            : this(permission, default(T), roles)
         {
-            Permission = permission;
         }
 
         public Rule(Permission permission, T securable, IEnumerable<string> roles)

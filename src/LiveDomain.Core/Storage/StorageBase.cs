@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Collections;
+using LiveDomain.Core.Configuration;
 
-namespace LiveDomain.Core
+namespace LiveDomain.Core.Storage
 {
 
 
@@ -14,13 +13,18 @@ namespace LiveDomain.Core
     /// <summary>
     /// Responsible for naming scheme and file ordering
     /// </summary>
-    abstract class Storage : IStorage
+    abstract class StorageBase : IStorage
     {
 
         EngineConfiguration _config;
         ISerializer _serializer;
 
-        protected Storage(EngineConfiguration config)
+        protected EngineConfiguration EngineConfiguration
+        {
+            get { return _config; }
+        }
+
+        protected StorageBase(EngineConfiguration config)
         {
             _config = config;
             _serializer = _config.CreateSerializer();

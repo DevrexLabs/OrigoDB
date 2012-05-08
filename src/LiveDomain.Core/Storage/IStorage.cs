@@ -19,7 +19,7 @@ namespace LiveDomain.Core
     /// <summary>
     /// Responsible for reading/writing files and keeping track of Sequencing
     /// </summary>
-	internal interface IStorage
+	public interface IStorage
 	{
 
         IEnumerable<JournalEntry<Command>> GetJournalEntries(JournalSegmentInfo position);

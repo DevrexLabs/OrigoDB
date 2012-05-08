@@ -14,7 +14,7 @@
       <FileName>Domain\TaskList.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Todo.Core.TaskInfo" Collapsed="true">
+  <Class Name="Todo.Core.TaskInfo">
     <Position X="4" Y="3.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAACAAAAAAAgAEIAAAAAAAAAAAAAAAAAAAAAAAAAAQA=</HashCode>

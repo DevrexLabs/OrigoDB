@@ -19,8 +19,14 @@ namespace LiveDomain.Core.Security
             base.Allow(typeof(T2), roleArray);
         }
 
+        public TypeBasedPermissionSet(Permission defaultPermission = Permission.Denied) 
+            : base(defaultPermission)
+        {
+            
+        }
+
         //Abstract factory method
-        public override Rule<Type> CreateRule(Permission permission, Type securable, IEnumerable<string> roles)
+        protected override Rule<Type> CreateRule(Permission permission, Type securable, IEnumerable<string> roles)
         {
             return new TypeBasedRule(permission, securable, roles);
         }

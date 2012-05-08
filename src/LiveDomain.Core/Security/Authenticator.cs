@@ -6,7 +6,7 @@ using System.Security.Principal;
 namespace LiveDomain.Core.Security
 {
     [Serializable]
-    public class Authenticator :  IAuthenticator
+    public class AuthenticationModel :  IAuthenticator
     {
 
         public const string AuthenticationType = "LiveDBAuthentication";
@@ -15,7 +15,7 @@ namespace LiveDomain.Core.Security
         readonly Dictionary<String, User> _users;
 
 
-        public Authenticator()
+        public AuthenticationModel()
         {
             _roles = new Dictionary<string, Role>(StringComparer.InvariantCultureIgnoreCase);
             _users = new Dictionary<string, User>(StringComparer.InvariantCultureIgnoreCase);

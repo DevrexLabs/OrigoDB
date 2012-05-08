@@ -3,31 +3,33 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using LiveDomain.Core.Configuration;
+using LiveDomain.Core.Storage;
 
 namespace LiveDomain.Core
 {
     /// <summary>
     /// Storage implementation using a local file system
     /// </summary>
-    internal class FileStorage : Storage
+    internal class FileStorage : StorageBase
     {
 
 
-        EngineConfiguration _config;
+        //EngineConfiguration EngineConfiguration;
 
 
         internal FileStorage(EngineConfiguration config) : base(config)
         {
-            _config = config;
+            //EngineConfiguration = config;
         }
 
         public override void Initialize()
         {
-            EnsureDirectoryExists(_config.Location);
+            EnsureDirectoryExists(EngineConfiguration.Location);
 
-            if (_config.HasAlternativeSnapshotLocation)
+            if (EngineConfiguration.HasAlternativeSnapshotLocation)
             {
-                EnsureDirectoryExists(_config.SnapshotLocation); 
+                EnsureDirectoryExists(EngineConfiguration.SnapshotLocation); 
             }
         }
 
@@ -46,14 +48,14 @@ namespace LiveDomain.Core
         /// <returns></returns>
         protected override IEnumerable<string> GetItemIdentifiers()
         {
-            foreach (string fileName in Directory.GetFiles(_config.Location))
+            foreach (string fileName in Directory.GetFiles(EngineConfiguration.Location))
             {
                 yield return new FileInfo(fileName).Name;
             }
 
-            if (_config.HasAlternativeSnapshotLocation)
+            if (EngineConfiguration.HasAlternativeSnapshotLocation)
             {
-                foreach (string fileName in Directory.GetFiles(_config.SnapshotLocation))
+                foreach (string fileName in Directory.GetFiles(EngineConfiguration.SnapshotLocation))
                 {
                     yield return new FileInfo(fileName).Name;
                 }
@@ -62,7 +64,7 @@ namespace LiveDomain.Core
 
         protected override void RemoveSnapshot(string id)
         {
-            string path = Path.Combine(_config.SnapshotLocation, id);
+            string path = Path.Combine(EngineConfiguration.SnapshotLocation, id);
             File.Delete(path);
         }
 
@@ -70,7 +72,7 @@ namespace LiveDomain.Core
         {
             string path = GetFullyQualifiedPath(id);
             Stream stream = File.OpenRead(path);
-            if (_config.Compression == CompressionMethod.GZip)
+            if (EngineConfiguration.Compression == CompressionMethod.GZip)
             {
                 stream = new GZipStream(stream, CompressionMode.Decompress);
             }
@@ -89,7 +91,7 @@ namespace LiveDomain.Core
             var filemode = append ? FileMode.Append : FileMode.Create;
             
             Stream stream = new FileStream(path, filemode, FileAccess.Write);
-            if (_config.Compression == CompressionMethod.GZip)
+            if (EngineConfiguration.Compression == CompressionMethod.GZip)
             {
                 stream = new GZipStream(stream, CompressionMode.Compress);
             }
@@ -114,43 +116,43 @@ namespace LiveDomain.Core
         /// <returns></returns>
         private string GetFullyQualifiedPath(string id)
         {
-            string directory = _config.Location;
+            string directory = EngineConfiguration.Location;
             if (id.EndsWith(StorageBlobIdentifier.SnapshotSuffix))
             {
-                directory = _config.SnapshotLocation;
+                directory = EngineConfiguration.SnapshotLocation;
             }
             return Path.Combine(directory,id);
         }
 
         public override void VerifyCanCreate()
         {
-            VerifyDirectory(_config.Location);
-            if (_config.HasAlternativeSnapshotLocation)
-                VerifyDirectory(_config.SnapshotLocation);
+            VerifyDirectory(EngineConfiguration.Location);
+            if (EngineConfiguration.HasAlternativeSnapshotLocation)
+                VerifyDirectory(EngineConfiguration.SnapshotLocation);
         }
 
         public override void VerifyCanLoad()
         {
             string error = String.Empty;
-            if (!Directory.Exists(_config.Location))
+            if (!Directory.Exists(EngineConfiguration.Location))
             {
                 error = "Target directory does not exist\n";
             }
-            else if (Directory.GetFiles(_config.Location, "*.journal").Count() == 0)
+            else if (Directory.GetFiles(EngineConfiguration.Location, "*.journal").Count() == 0)
             {
                 error += "No journal files found in target directory\n";
             }
             
 
-            if (_config.HasAlternativeSnapshotLocation)
+            if (EngineConfiguration.HasAlternativeSnapshotLocation)
             {
-                if (!Directory.Exists(_config.SnapshotLocation))
+                if (!Directory.Exists(EngineConfiguration.SnapshotLocation))
                 {
                     error += "Snapshot directory does not exist\n";
                 }
             }
 
-            string initialSnapshot = Path.Combine(_config.SnapshotLocation, "000000000.snapshot");
+            string initialSnapshot = Path.Combine(EngineConfiguration.SnapshotLocation, "000000000.snapshot");
             if (!File.Exists(initialSnapshot))
             {
                 error += "Initial snapshot missing\n";

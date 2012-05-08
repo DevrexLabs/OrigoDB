@@ -2,9 +2,9 @@
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Diagnostics;
+using LiveDomain.Core.Security;
 
-namespace LiveDomain.Core
+namespace LiveDomain.Core.Configuration
 {
 
     [Serializable]
@@ -193,10 +193,10 @@ namespace LiveDomain.Core
                     return new NullStorage();
                 case StorageMode.FileSystem:
                     return new FileStorage(this);
-                case StorageMode.Azure:
-                case StorageMode.SQL:
+                case StorageMode.Custom:
+                    return LiveDbConfiguration.Current.GetCustomStorage(this);
                 default:
-                    throw new Exception("Unsupported or unrecognized storage mode: " + this.StorageMode.ToString());
+                    throw new Exception("Unsupported storage mode: " + this.StorageMode.ToString());
             }
         }
 
@@ -204,6 +204,11 @@ namespace LiveDomain.Core
         virtual internal ICommandJournal CreateCommandJournal(IStorage _storage)
         {
             return new CommandJournal(this, _storage);
+        }
+
+        virtual internal IAuthorizer<Type> CreateAuthorizer()
+        {
+            return LiveDbConfiguration.Current.GetAuthorizer();
         }
 
         #endregion

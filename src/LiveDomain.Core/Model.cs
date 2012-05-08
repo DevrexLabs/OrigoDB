@@ -10,10 +10,6 @@ namespace LiveDomain.Core
     public abstract class Model
     {
 
-        internal IAuthenticator Authenticator { get; set; }
-        
-        internal IAuthorizer<Type> Authorizer { get; set; }
-
         /// <summary>
         /// SnapshotRestored is called after the most recent snaphot has been loaded 
         /// but before any commands are restored.

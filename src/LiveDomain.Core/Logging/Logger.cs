@@ -9,6 +9,17 @@ namespace LiveDomain.Core
     public abstract class Logger : ILog
     {
 
+        public String Name { get; private set; }
+
+        public Logger(string name = "unnamed")
+        {
+            if(String.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("Invalid logger name");
+            }
+            Name = name;
+        }
+
         public void Trace(string message, params object[] args)
         {
             Write(LogMessageType.Trace, message, args);
@@ -65,14 +76,16 @@ namespace LiveDomain.Core
 
         protected virtual string FormatMessage(LogMessageType messageType, string message)
         {
-            return DateTime.Now.ToString() + " : " + messageType.ToString().ToUpper() + " : " + message;
+            const string format = "{0} - {1} - {2} - {3}";
+
+            return String.Format(format, DateTime.Now, Name, messageType.ToString().ToUpper(), message);
         }
 
         protected virtual void Write(LogMessageType messageType, string message, params object[] args)
         {
             message = String.Format(message, args);
             string formattedMessage = FormatMessage(messageType, message);
-            lock(this) WriteToLog(message);
+            lock(this) WriteToLog(formattedMessage);
         }
 
 

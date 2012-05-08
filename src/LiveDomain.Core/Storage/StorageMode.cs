@@ -10,7 +10,6 @@ namespace LiveDomain.Core
     {
         FileSystem,
         None,
-        SQL,
-        Azure
+        Custom
     }
 }

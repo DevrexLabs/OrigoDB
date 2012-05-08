@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="LiveDomain.Core.Security.Authenticator">
-    <Position X="2.5" Y="2" Width="2.25" />
+  <Class Name="LiveDomain.Core.Security.AuthenticationModel">
+    <Position X="3.5" Y="0.5" Width="2.25" />
     <Compartments>
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
@@ -12,18 +12,11 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="LiveDomain.Core.Model" Collapsed="true">
-    <Position X="2.5" Y="0.75" Width="2.25" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAIAEAAAAIAAAAAAEAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Model.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="LiveDomain.Core.StaticRule&lt;T&gt;">
+  <Class Name="LiveDomain.Core.Security.MatchAllRule&lt;T&gt;">
     <Position X="11.5" Y="3.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>ABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Security\StaticRule.cs</FileName>
+      <FileName>Security\MatchAllRule.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="LiveDomain.Core.Rule&lt;T&gt;">
@@ -58,15 +51,26 @@
       <FileName>Security\TypeBasedRule.cs</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="LiveDomain.Core.Security.SecurityModel">
+    <Position X="2.25" Y="3.25" Width="1.75" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAABAAAgAAAAoAAgAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Security\SecurityModel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
   <Interface Name="LiveDomain.Core.Security.IAuthenticator">
-    <Position X="0.75" Y="2" Width="1.5" />
+    <Position X="0.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAIAAgAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Security\IAuthenticator.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Interface Name="LiveDomain.Core.Security.IAuthorizer&lt;T&gt;">
-    <Position X="0.75" Y="3.5" Width="1.5" />
+    <Position X="0.5" Y="2" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Security\IAuthorizer.cs</FileName>

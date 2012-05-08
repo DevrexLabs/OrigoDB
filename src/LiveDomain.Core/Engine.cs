@@ -4,7 +4,9 @@ using System.Linq;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using LiveDomain.Core.Configuration;
 using LiveDomain.Core.Logging;
+using LiveDomain.Core.Security;
 
 namespace LiveDomain.Core
 {
@@ -31,8 +33,13 @@ namespace LiveDomain.Core
         ISerializer _serializer;
         bool _isDisposed = false;
         ICommandJournal _commandJournal;
-        static ILog _log = Modules.GetLogFactory().GetLogForCallingType();
-        
+        static ILog _log = LiveDbConfiguration.Current.GetLogFactory().GetLogForCallingType();
+        IAuthorizer<Type> _authorizer;
+
+        private IAuthorizer<Type> CreateAuthorizer()
+        {
+            return _theModel as IAuthorizer<Type> ?? _config.CreateAuthorizer();
+        }
  
         /// <summary>
         /// Shuts down the engine
@@ -97,6 +104,7 @@ namespace LiveDomain.Core
 
             _commandJournal = _config.CreateCommandJournal(_storage);
             Restore(constructor);
+            _authorizer = CreateAuthorizer();
             _commandJournal.Open();
             
             if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)
@@ -141,19 +149,26 @@ namespace LiveDomain.Core
         
         public object Execute(Query query)
         {
-        	return Execute<Model, object>(M => query.ExecuteStub(M));
+            ThrowIfDisposed();
+            ThrowUnlessAuthenticated(query.GetType());
+        	return ExecuteQuery<Model, object>(model => query.ExecuteStub(model));
         }
 
-		public T Execute<M, T>(Func<M, T> query) where M : Model
+        public T Execute<M,T>(Func<M,T> query) where M : Model
         {
             ThrowIfDisposed();
+            ThrowUnlessAuthenticated(query.GetType());
+            return ExecuteQuery(query);
+
+        }
+		private T ExecuteQuery<M, T>(Func<M, T> query) where M : Model
+        {
             try
             {
                 _lock.EnterRead();
-                T result = query.Invoke(_theModel as M);
-                //TODO: Possible comparison of value type to null
+                object result = query.Invoke(_theModel as M);
                 if (_config.CloneResults && result != null) result = _serializer.Clone(result);
-                return result;
+                return (T) result;
             }
             catch (TimeoutException)
             {
@@ -164,13 +179,12 @@ namespace LiveDomain.Core
             {
                 _lock.Exit();
             }
-
         }
 
         public object Execute(Command command)
         {
             ThrowIfDisposed();
-
+            ThrowUnlessAuthenticated(command.GetType());
             Command commandToSerialize = command;
             if (_config.CloneCommands) command = _serializer.Clone(command);
             
@@ -198,6 +212,16 @@ namespace LiveDomain.Core
             finally
             {
                 _lock.Exit();
+            }
+        }
+
+        private void ThrowUnlessAuthenticated(Type transactionType)
+        {
+            
+            if (!_authorizer.Allows(transactionType, Thread.CurrentPrincipal))
+            {
+                var msg = String.Format("Access denied to type {0}", transactionType);
+                throw new UnauthorizedAccessException(msg);
             }
         }
 

@@ -13,7 +13,7 @@ namespace LiveDomain.Core.Security
         List<Rule<T>> _rulesAllowed = new List<Rule<T>>();
 
         Permission _defaultPermission;
-        StaticRule<T> _defaultRule;
+        MatchAllRule<T> _defaultRule;
 
         public Permission DefaultPermission
         {
@@ -21,18 +21,14 @@ namespace LiveDomain.Core.Security
             set 
             {
                 _defaultPermission = value;
-                _defaultRule = new StaticRule<T>(value);        
+                _defaultRule = new MatchAllRule<T>(value);        
             }
         }
 
 
-        public PermissionSet() : this(Permission.Denied)
+        public PermissionSet(Permission defaultPermission = Permission.Denied)
         {
-        }
-
-        public PermissionSet(Permission @default)
-        {
-            DefaultPermission = @default;
+            DefaultPermission = defaultPermission;
         }
 
         public void Clear()
@@ -59,7 +55,7 @@ namespace LiveDomain.Core.Security
             return matchingRule.Permission == Permission.Allowed;
         }
 
-        public virtual Rule<T> CreateRule(Permission permission, T securable, IEnumerable<String> roles )
+        protected virtual Rule<T> CreateRule(Permission permission, T securable, IEnumerable<String> roles )
         {
             return new Rule<T>(permission, securable, roles);
         }

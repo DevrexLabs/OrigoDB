@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using LiveDomain.Core.Configuration;
 using LiveDomain.Core.Logging;
 
 namespace LiveDomain.Core
@@ -19,16 +20,16 @@ namespace LiveDomain.Core
         private IJournalWriter _writer;
 		private IStorage _storage;
         private JournalState _state;
-        private EngineConfiguration _config;
-	    private ILog _log = Modules.GetLogFactory().GetLogForCallingType();
+        private EngineConfiguration _engineConfig;
+	    private static ILog _log = LiveDbConfiguration.Current.GetLogFactory().GetLogForCallingType();
 
 
+        public CommandJournal(EngineConfiguration engineConfig, IStorage storage)
+        {
+            _engineConfig = engineConfig;
+            _storage = storage;
+        }
 
-		public CommandJournal(EngineConfiguration config, IStorage storage)
-		{
-            _config = config;
-			_storage = storage;
-		}
 
 
         public void CreateNextSegment()
@@ -38,7 +39,7 @@ namespace LiveDomain.Core
             _writer.Dispose();
 
             Stream stream = _storage.CreateJournalWriterStream(JournalWriterCreateOptions.NextSegment);
-            _writer = _config.CreateJournalWriter(stream);
+            _writer = _engineConfig.CreateJournalWriter(stream);
         }
 
         public IEnumerable<JournalEntry<Command>> GetEntriesFrom(JournalSegmentInfo segment)
@@ -69,7 +70,7 @@ namespace LiveDomain.Core
             }
             
             Stream stream = _storage.CreateJournalWriterStream(JournalWriterCreateOptions.Append);
-            _writer = _config.CreateJournalWriter(stream);
+            _writer = _engineConfig.CreateJournalWriter(stream);
             _state = JournalState.Open;
 		}
 
@@ -82,7 +83,7 @@ namespace LiveDomain.Core
 
 			var entry = new JournalEntry<Command>(command);
 			_writer.Write(entry);
-            if (_writer.Length >= _config.JournalSegmentSizeInBytes)
+            if (_writer.Length >= _engineConfig.JournalSegmentSizeInBytes)
             {
                 CreateNextSegment();
             }

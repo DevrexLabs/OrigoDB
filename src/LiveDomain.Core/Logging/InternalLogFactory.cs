@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
@@ -13,11 +10,11 @@ namespace LiveDomain.Core.Logging
         readonly Func<String, ILog> _creator;
         readonly Dictionary<String, ILog> _logs; 
 
-        public InternalLogFactory() : this((name) => new FileLogger())
+        public InternalLogFactory() : this(name => new FileLogger(name))
         {
         }
 
-        public InternalLogFactory(Func<String, ILog> logCreator )
+        public InternalLogFactory(Func<String, ILog> logCreator)
         {
             if(logCreator == null) throw new ArgumentNullException("logCreator");
             _creator = logCreator;
@@ -40,7 +37,7 @@ namespace LiveDomain.Core.Logging
 
         public ILog GetLog(string name)
         {
-            if(false == _logs.ContainsKey(name))
+            if(_logs.ContainsKey(name) == false)
             {
                 _logs[name] = _creator.Invoke(name);
             }

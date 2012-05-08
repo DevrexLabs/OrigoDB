@@ -7,7 +7,7 @@ namespace LiveDomain.Core
 {
 
     [Serializable]
-    abstract class JournalEntry
+    public abstract class JournalEntry
     {
         protected internal readonly DateTime Created;
         public JournalEntry()
@@ -18,7 +18,7 @@ namespace LiveDomain.Core
     }
 
 	[Serializable]
-	class JournalEntry<T> : JournalEntry
+	public class JournalEntry<T> : JournalEntry
 	{
         public T Item { get; protected internal set; }
 		

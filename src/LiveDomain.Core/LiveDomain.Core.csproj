@@ -38,16 +38,19 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command[M].cs" />
     <Compile Include="CommandWithResult[M,R].cs" />
     <Compile Include="Configuration\CompressionMethod.cs" />
+    <Compile Include="Configuration\LiveDbConfiguration.cs" />
     <Compile Include="Logging\ILogFactory.cs" />
     <Compile Include="Logging\InternalLogFactory.cs" />
     <Compile Include="Logging\SingletonLogFactory.cs" />
-    <Compile Include="Modules.cs" />
+    <Compile Include="Security\NullAuthorizer.cs" />
     <Compile Include="Security\IAuthenticator.cs" />
     <Compile Include="Security\IAuthorizer.cs" />
     <Compile Include="Logging\FileLogger.cs" />
@@ -65,7 +68,8 @@
     <Compile Include="Journaling\ICommandJournal.cs" />
     <Compile Include="Configuration\JournalWriterPerformanceMode.cs" />
     <Compile Include="Logging\NullLogger.cs" />
-    <Compile Include="Security\StaticRule.cs" />
+    <Compile Include="Security\SecurityModel.cs" />
+    <Compile Include="Security\MatchAllRule.cs" />
     <Compile Include="Security\Permission.cs" />
     <Compile Include="Security\PermissionSet.cs" />
     <Compile Include="Security\LiveDomainPrincipal.cs" />
@@ -74,6 +78,7 @@
     <Compile Include="Security\Authenticator.cs" />
     <Compile Include="Security\TypeBasedPermissionSet.cs" />
     <Compile Include="Security\TypeBasedRule.cs" />
+    <Compile Include="Storage\IStorageFactory.cs" />
     <Compile Include="Utilities\TypeExtensions.cs" />
     <Compile Include="Security\User.cs" />
     <Compile Include="Storage\StorageMode.cs" />
@@ -81,7 +86,7 @@
     <Compile Include="Storage\ISerializer.cs" />
     <Compile Include="Storage\NullStorage.cs" />
     <Compile Include="Storage\NullWriterStream.cs" />
-    <Compile Include="Storage\Storage.cs" />
+    <Compile Include="Storage\StorageBase.cs" />
     <Compile Include="Configuration\SerializationMethod.cs" />
     <Compile Include="Configuration\SnapshotBehavior.cs" />
     <Compile Include="Storage\StorageBlobIdentifier.cs" />

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using LiveDomain.Core.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Threading;
@@ -57,7 +58,7 @@ namespace LiveDomain.Core.Test
 
         static EngineTest()
         {
-            Modules.SetLogFactory(new SingletonLogFactory(_logger));
+            LiveDbConfiguration.Current.SetLogFactory(new SingletonLogFactory(_logger));
         }
 
          static InMemoryLogger _logger = new InMemoryLogger();

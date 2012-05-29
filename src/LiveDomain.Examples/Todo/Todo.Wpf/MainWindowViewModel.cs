@@ -7,13 +7,14 @@ using System.Windows.Input;
 using System.Collections.ObjectModel;
 using Todo.Core;
 using LiveDomain.Core;
+using Todo.Core.Queries;
 
 namespace Todo.Wpf
 {
     public class MainWindowViewModel : ViewModelBase
     {
 
-        private Engine<TodoModel> _engine;
+        private ITransactionHandler<TodoModel> _engine;
 
         private DelegateCommand _newListCommand;
         private DelegateCommand _newTaskCommand;
@@ -45,7 +46,7 @@ namespace Todo.Wpf
 
         private void LoadTasks()
         {
-            var query = Queries.GetTasksByListName(CurrentList);
+            var query = new GetTasksByListNameQuery(CurrentList);
             var tasks = _engine.Execute(query).Select(t => new TaskViewModel(t)).ToList();
 
             foreach (TaskViewModel task in tasks)
@@ -112,13 +113,15 @@ namespace Todo.Wpf
             }
         }
 
+        
 
-        public MainWindowViewModel(Engine<TodoModel> engine)
+
+        public MainWindowViewModel(ITransactionHandler<TodoModel> engine)
         {
             _engine = engine;
             _newListCommand = new DelegateCommand(() => CreateNewList(), () => CanCreateNewList);
             _newTaskCommand = new DelegateCommand(() => CreateNewTask(), () => CanCreateNewTask);
-            Lists = new ObservableCollection<string>(_engine.Execute(db => db.Lists.Select(list => list.Name).ToArray()));
+            Lists = new ObservableCollection<string>(_engine.Execute(new GetListNamesQuery()));
             if (Lists.Count > 0) CurrentList = Lists[0];
         }
 

@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using LiveDomain.Core;
+using LiveDomain.Enterprise.Networking.Client;
 using Todo.Core;
 
 namespace Todo.Wpf
@@ -24,7 +25,8 @@ namespace Todo.Wpf
         public MainWindow()
         {
             InitializeComponent();
-            var engine = Engine.LoadOrCreate<TodoModel>();
+            var engine = new LiveDomainClient<TodoModel>("localhost",9292);
+            //var engine = Engine.LoadOrCreate<TodoModel>();
             this.DataContext = new MainWindowViewModel(engine);
         }
 

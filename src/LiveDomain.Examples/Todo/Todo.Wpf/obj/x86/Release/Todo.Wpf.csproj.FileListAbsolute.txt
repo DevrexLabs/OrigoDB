@@ -1,0 +1,21 @@
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\bin\Release\Todo.Wpf.exe
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\bin\Release\Todo.Wpf.pdb
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\bin\Release\LiveDomain.Core.dll
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\bin\Release\LiveDomain.Enterprise.dll
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\bin\Release\Todo.Core.dll
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\bin\Release\Nancy.Hosting.Self.dll
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\bin\Release\Newtonsoft.Json.dll
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\bin\Release\Todo.Core.pdb
+C:\SourceControl\LiveDomain.Enterprise\LiveDomain.Enterprise.Server\bin\Prepare\Examples\Todo\Todo.Wpf.exe
+C:\SourceControl\LiveDomain.Enterprise\LiveDomain.Enterprise.Server\bin\Prepare\Examples\Todo\Todo.Wpf.pdb
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\obj\x86\Release\ResolveAssemblyReference.cache
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\obj\x86\Release\MainWindow.baml
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\obj\x86\Release\MainWindow.g.cs
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\obj\x86\Release\App.g.cs
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\obj\x86\Release\Todo.Wpf_MarkupCompile.cache
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\obj\x86\Release\Todo.Wpf.g.resources
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\obj\x86\Release\Todo.Wpf.Properties.Resources.resources
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\obj\x86\Release\GenerateResource.read.1.tlog
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\obj\x86\Release\GenerateResource.write.1.tlog
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\obj\x86\Release\Todo.Wpf.exe
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Wpf\obj\x86\Release\Todo.Wpf.pdb

@@ -25,9 +25,10 @@ namespace Todo.Wpf
         public MainWindow()
         {
             InitializeComponent();
-            var engine = new LiveDomainClient<TodoModel>("localhost",9292);
-            //var engine = Engine.LoadOrCreate<TodoModel>();
-            this.DataContext = new MainWindowViewModel(engine);
+            this.Closing += (s, e) =>
+                                {
+                                    Application.Current.Shutdown();
+                                };
         }
 
         private void Expander_Expanded(object sender, RoutedEventArgs e)

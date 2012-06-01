@@ -137,7 +137,8 @@ namespace Todo.Wpf
         {
             get
             {
-                return !String.IsNullOrWhiteSpace(NewTaskTitle) && Lists.Count(s => s.ToLower() == NewTaskTitle.ToLower()) == 0;
+                bool taskNameAlreadyExists = Lists.Any(name => String.Equals(name, NewTaskTitle, StringComparison.InvariantCultureIgnoreCase));
+                return !String.IsNullOrWhiteSpace(NewTaskTitle) && !taskNameAlreadyExists;
             }
         }
 

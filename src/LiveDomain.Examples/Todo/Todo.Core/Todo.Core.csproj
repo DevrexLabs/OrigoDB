@@ -55,7 +55,6 @@
     <Compile Include="Commands\AddListCommand.cs" />
     <Compile Include="Domain\Category.cs" />
     <Compile Include="Commands\RenameListCommand.cs" />
-    <Compile Include="Queries.cs" />
     <Compile Include="Commands\SetTaskCategoriesCommand.cs" />
     <Compile Include="Domain\Task.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

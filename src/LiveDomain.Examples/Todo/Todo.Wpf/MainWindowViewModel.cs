@@ -39,7 +39,7 @@ namespace Todo.Wpf
                 {
                     _currentList = value;
                     LoadTasks();
-                    NotifyPropertyChanged(CurrentList);
+                    NotifyPropertyChanged("CurrentList");
                 }
             }
         }

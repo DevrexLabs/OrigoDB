@@ -4,16 +4,8 @@
         Title="MainWindow" Height="650" Width="825"
         >
     <Window.Resources>
-        <LinearGradientBrush x:Key="backgroundBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="LightGray" Offset="0"/>
-            <GradientStop Color="LightSteelBlue" Offset="0.9"/>
-        </LinearGradientBrush>
-        <LinearGradientBrush x:Key="windowBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="White" Offset="0"/>
-            <GradientStop Color="Black" Offset="1"/>
-        </LinearGradientBrush>
         <DataTemplate x:Key="taskDataTemplate">
-            <Expander Background="{StaticResource backgroundBrush}" Margin="5" Expanded="Expander_Expanded" Collapsed="Expander_Collapsed" >
+            <Expander Margin="5" Expanded="Expander_Expanded" Collapsed="Expander_Collapsed" >
                 <Expander.Header>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -49,7 +41,7 @@
                     <TextBlock Text="Due Date"/>
                     <DatePicker/>
                     <TextBlock Text="Completed"/>
-                    <TextBox IsReadOnly="True" Background="#EEEEEE" Text="{Binding Completed, Mode=OneWay}"/>
+                    <TextBox IsReadOnly="True" Text="{Binding Completed, Mode=OneWay}"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Content="Save" Command="{Binding SaveCommand}" Margin="5" Width="50"/>
                     </StackPanel>
@@ -57,7 +49,7 @@
             </Expander>
         </DataTemplate>
     </Window.Resources>
-    <Grid Background="{StaticResource windowBackgroundBrush}">
+    <Grid>
         <Grid Margin="10" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -75,7 +67,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock FontSize="20" FontWeight="Bold" Margin="5" Text="Lists" Grid.ColumnSpan="2"/>
-                <ListBox Grid.ColumnSpan="2" Grid.Row="1" FontSize="14" ItemsSource="{Binding Lists}" Background="{StaticResource backgroundBrush}"
+                <ListBox Grid.ColumnSpan="2" Grid.Row="1" FontSize="14" ItemsSource="{Binding Lists}"
                          IsSynchronizedWithCurrentItem="True" SelectedItem="{Binding CurrentList}"/>
                 <TextBox Margin="5" FontSize="14" Grid.Row="2" Text="{Binding Path=NewListName, UpdateSourceTrigger=PropertyChanged}"/>
                 <Button FontSize="14" Content="Add List" Padding="2" Margin="5" Grid.Row="2" Grid.Column="1" Command="{Binding NewListCommand}"/>

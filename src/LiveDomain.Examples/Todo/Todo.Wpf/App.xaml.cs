@@ -29,6 +29,7 @@ namespace Todo.Wpf
             var viewModel = new MainWindowViewModel(transactionHandler);
             var window = new MainWindow();
             window.DataContext = viewModel;
+            this.MainWindow = window;
             window.Show();
         }
     }

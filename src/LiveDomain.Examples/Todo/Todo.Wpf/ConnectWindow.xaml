@@ -1,0 +1,21 @@
+﻿<Window x:Class="Todo.Wpf.ConnectWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ConnectWindow" Height="300" Width="300">
+    <Grid>
+        <StackPanel>
+
+            <RadioButton IsChecked="{Binding IsEmbedded}">Embedded engine</RadioButton>
+            <RadioButton IsChecked="{Binding IsRemote}" Content="Server"/>
+            <GroupBox Margin="10,0,0,0" Header="Server Settings" Padding="10">
+                <StackPanel>
+                    <TextBlock Text="Server host or IP"/>
+                    <TextBox Text="localhost"/>
+                    <TextBlock Text="Port"/>
+                    <TextBox Text="9292"/>
+                </StackPanel>
+            </GroupBox>
+            <Button Content="Start sample app" Click="Button_Click_1" />
+        </StackPanel>
+    </Grid>
+</Window>

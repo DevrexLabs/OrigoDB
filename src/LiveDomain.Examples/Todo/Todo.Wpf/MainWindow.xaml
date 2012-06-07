@@ -1,19 +1,11 @@
 ﻿<Window x:Class="Todo.Wpf.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="650" Width="825"
-        >
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:Wpf="clr-namespace:Todo.Wpf" Title="MainWindow" Height="650" Width="825"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" mc:Ignorable="d">
     <Window.Resources>
-        <LinearGradientBrush x:Key="backgroundBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="LightGray" Offset="0"/>
-            <GradientStop Color="LightSteelBlue" Offset="0.9"/>
-        </LinearGradientBrush>
-        <LinearGradientBrush x:Key="windowBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="White" Offset="0"/>
-            <GradientStop Color="Black" Offset="1"/>
-        </LinearGradientBrush>
-        <DataTemplate x:Key="taskDataTemplate">
-            <Expander Background="{StaticResource backgroundBrush}" Margin="5" Expanded="Expander_Expanded" Collapsed="Expander_Collapsed" >
+        <DataTemplate DataType="{x:Type Wpf:TaskViewModel}">
+            <Expander Margin="5" Expanded="Expander_Expanded" Collapsed="Expander_Collapsed" >
                 <Expander.Header>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -46,18 +38,18 @@
                     <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"></TextBox>
                     <TextBlock Text="Description"/>
                     <TextBox AcceptsReturn="True" Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Height="60"/>
-                    <TextBlock Text="Due Date"/>
-                    <DatePicker/>
+                    <!--<TextBlock Text="Due Date"/>-->
+                    <!--<DatePicker/>-->
                     <TextBlock Text="Completed"/>
-                    <TextBox IsReadOnly="True" Background="#EEEEEE" Text="{Binding Completed, Mode=OneWay}"/>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBox IsReadOnly="True" Text="{Binding Completed, Mode=OneWay}"/>
+                    <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Content="Save" Command="{Binding SaveCommand}" Margin="5" Width="50"/>
-                    </StackPanel>
+                    </StackPanel>-->
                 </StackPanel>
             </Expander>
         </DataTemplate>
     </Window.Resources>
-    <Grid Background="{StaticResource windowBackgroundBrush}">
+    <Grid>
         <Grid Margin="10" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -75,7 +67,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock FontSize="20" FontWeight="Bold" Margin="5" Text="Lists" Grid.ColumnSpan="2"/>
-                <ListBox Grid.ColumnSpan="2" Grid.Row="1" FontSize="14" ItemsSource="{Binding Lists}" Background="{StaticResource backgroundBrush}"
+                <ListBox Grid.ColumnSpan="2" Grid.Row="1" FontSize="14" ItemsSource="{Binding Lists}"
                          IsSynchronizedWithCurrentItem="True" SelectedItem="{Binding CurrentList}"/>
                 <TextBox Margin="5" FontSize="14" Grid.Row="2" Text="{Binding Path=NewListName, UpdateSourceTrigger=PropertyChanged}"/>
                 <Button FontSize="14" Content="Add List" Padding="2" Margin="5" Grid.Row="2" Grid.Column="1" Command="{Binding NewListCommand}"/>
@@ -92,8 +84,8 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Margin="5" FontSize="20" FontWeight="Bold" Text="{Binding CurrentList}"></TextBlock>
                 <Grid Grid.Row="1" Grid.ColumnSpan="2">
-                    <ScrollViewer>
-                        <ItemsControl Grid.ColumnSpan="2" ItemTemplate="{StaticResource taskDataTemplate}" Grid.Row="1" ItemsSource="{Binding Tasks}"></ItemsControl>
+                    <ScrollViewer DataContext="{Binding Tasks}">
+                        <ItemsControl Grid.ColumnSpan="2" Grid.Row="1" ItemsSource="{Binding}"></ItemsControl>
                     </ScrollViewer>
                 </Grid>
                 <TextBox Margin="5" Grid.Row="2" FontSize="14" Text="{Binding Path=NewTaskTitle, UpdateSourceTrigger=PropertyChanged}"/>

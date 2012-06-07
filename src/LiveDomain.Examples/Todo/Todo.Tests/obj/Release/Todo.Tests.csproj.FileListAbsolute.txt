@@ -1,0 +1,8 @@
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Tests\bin\Release\Todo.Tests.dll
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Tests\bin\Release\Todo.Tests.pdb
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Tests\bin\Release\LiveDomain.Core.dll
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Tests\bin\Release\Todo.Core.dll
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Tests\bin\Release\Todo.Core.pdb
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Tests\obj\Release\ResolveAssemblyReference.cache
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Tests\obj\Release\Todo.Tests.dll
+C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Tests\obj\Release\Todo.Tests.pdb

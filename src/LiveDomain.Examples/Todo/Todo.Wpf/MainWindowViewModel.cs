@@ -7,13 +7,15 @@ using System.Windows.Input;
 using System.Collections.ObjectModel;
 using Todo.Core;
 using LiveDomain.Core;
+using Todo.Core.Commands;
+using Todo.Core.Queries;
 
 namespace Todo.Wpf
 {
     public class MainWindowViewModel : ViewModelBase
     {
 
-        private Engine<TodoModel> _engine;
+        private ITransactionHandler<TodoModel> _engine;
 
         private DelegateCommand _newListCommand;
         private DelegateCommand _newTaskCommand;
@@ -38,14 +40,14 @@ namespace Todo.Wpf
                 {
                     _currentList = value;
                     LoadTasks();
-                    NotifyPropertyChanged(CurrentList);
+                    NotifyPropertyChanged("CurrentList");
                 }
             }
         }
 
         private void LoadTasks()
         {
-            var query = Queries.GetTasksByListName(CurrentList);
+            var query = new GetTasksByListNameQuery(CurrentList);
             var tasks = _engine.Execute(query).Select(t => new TaskViewModel(t)).ToList();
 
             foreach (TaskViewModel task in tasks)
@@ -73,9 +75,18 @@ namespace Todo.Wpf
 
         private void CompleteChanged(object sender, EventArgs e)
         {
-            TaskViewModel task = (TaskViewModel)sender;
-            //TODO: Create SetCompletedCommand and ClearCompletedCommand classes
-           
+            var task = (TaskViewModel)sender;
+
+            if (task.IsCompleted)
+            {
+                var command = new SetCompletedCommand(task.Id, DateTime.Now);
+                _engine.Execute(command);
+            }
+            else
+            {
+                var command = new ClearCompletedCommand(task.Id);
+                _engine.Execute(command);
+            }
         }
 
         public ICommand NewListCommand
@@ -112,13 +123,15 @@ namespace Todo.Wpf
             }
         }
 
+        
 
-        public MainWindowViewModel(Engine<TodoModel> engine)
+
+        public MainWindowViewModel(ITransactionHandler<TodoModel> engine)
         {
             _engine = engine;
             _newListCommand = new DelegateCommand(() => CreateNewList(), () => CanCreateNewList);
             _newTaskCommand = new DelegateCommand(() => CreateNewTask(), () => CanCreateNewTask);
-            Lists = new ObservableCollection<string>(_engine.Execute(db => db.Lists.Select(list => list.Name).ToArray()));
+            Lists = new ObservableCollection<string>(_engine.Execute(new GetListNamesQuery()));
             if (Lists.Count > 0) CurrentList = Lists[0];
         }
 
@@ -134,7 +147,8 @@ namespace Todo.Wpf
         {
             get
             {
-                return !String.IsNullOrWhiteSpace(NewTaskTitle) && Lists.Count(s => s.ToLower() == NewTaskTitle.ToLower()) == 0;
+                bool taskNameAlreadyExists = Lists.Any(name => String.Equals(name, NewTaskTitle, StringComparison.InvariantCultureIgnoreCase));
+                return !String.IsNullOrWhiteSpace(NewTaskTitle) && !taskNameAlreadyExists && !string.IsNullOrEmpty(CurrentList);
             }
         }
 
@@ -143,6 +157,10 @@ namespace Todo.Wpf
             AddListCommand command = new AddListCommand(NewListName);
             _engine.Execute(command);
             Lists.Add(NewListName);
+
+            if (Lists.Count == 1)
+                CurrentList = NewListName;
+
             NewListName = String.Empty;
         }
 

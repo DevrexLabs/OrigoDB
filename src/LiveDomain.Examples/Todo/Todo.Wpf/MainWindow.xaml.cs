@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using LiveDomain.Core;
+using LiveDomain.Enterprise.Networking.Client;
 using Todo.Core;
 
 namespace Todo.Wpf

@@ -1,6 +1,0 @@
-C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Core\bin\Debug\Todo.Core.dll
-C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Core\bin\Debug\Todo.Core.pdb
-C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Core\bin\Debug\LiveDomain.Core.dll
-C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Core\obj\Debug\ResolveAssemblyReference.cache
-C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Core\obj\Debug\Todo.Core.dll
-C:\Dropbox\Shared Work\CodePlex\livedomain\src\LiveDomain.Examples\Todo\Todo.Core\obj\Debug\Todo.Core.pdb

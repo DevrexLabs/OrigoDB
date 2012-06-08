@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Collections.ObjectModel;
 using Todo.Core;
 using LiveDomain.Core;
+using Todo.Core.Commands;
 using Todo.Core.Queries;
 
 namespace Todo.Wpf
@@ -74,9 +75,18 @@ namespace Todo.Wpf
 
         private void CompleteChanged(object sender, EventArgs e)
         {
-            TaskViewModel task = (TaskViewModel)sender;
-            //TODO: Create SetCompletedCommand and ClearCompletedCommand classes
-           
+            var task = (TaskViewModel)sender;
+
+            if (task.IsCompleted)
+            {
+                var command = new SetCompletedCommand(task.Id, DateTime.Now);
+                _engine.Execute(command);
+            }
+            else
+            {
+                var command = new ClearCompletedCommand(task.Id);
+                _engine.Execute(command);
+            }
         }
 
         public ICommand NewListCommand
@@ -138,7 +148,7 @@ namespace Todo.Wpf
             get
             {
                 bool taskNameAlreadyExists = Lists.Any(name => String.Equals(name, NewTaskTitle, StringComparison.InvariantCultureIgnoreCase));
-                return !String.IsNullOrWhiteSpace(NewTaskTitle) && !taskNameAlreadyExists;
+                return !String.IsNullOrWhiteSpace(NewTaskTitle) && !taskNameAlreadyExists && !string.IsNullOrEmpty(CurrentList);
             }
         }
 
@@ -147,6 +157,10 @@ namespace Todo.Wpf
             AddListCommand command = new AddListCommand(NewListName);
             _engine.Execute(command);
             Lists.Add(NewListName);
+
+            if (Lists.Count == 1)
+                CurrentList = NewListName;
+
             NewListName = String.Empty;
         }
 

@@ -47,12 +47,8 @@
     <Reference Include="LiveDomain.Core">
       <HintPath>..\packages\LiveDomain.Core.0.3.4\lib\net40\LiveDomain.Core.dll</HintPath>
     </Reference>
-    <Reference Include="LiveDomain.Enterprise, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Libs\LiveDomain.Enterprise.dll</HintPath>
-    </Reference>
-    <Reference Include="Nancy">
-      <HintPath>..\packages\Nancy.0.11.0\lib\net40\Nancy.dll</HintPath>
+    <Reference Include="LiveDomain.Enterprise.Shared">
+      <HintPath>Libs\LiveDomain.Enterprise.Shared.dll</HintPath>
     </Reference>
     <Reference Include="ReuxablesLegacy">
       <HintPath>Libs\ReuxablesLegacy.dll</HintPath>
@@ -132,9 +128,7 @@
       <Name>Todo.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Libs\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

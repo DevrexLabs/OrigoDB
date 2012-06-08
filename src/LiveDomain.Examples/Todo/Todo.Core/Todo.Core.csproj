@@ -53,6 +53,8 @@
   <ItemGroup>
     <Compile Include="Commands\AddTaskCommand.cs" />
     <Compile Include="Commands\AddListCommand.cs" />
+    <Compile Include="Commands\SetCompletedCommand.cs" />
+    <Compile Include="Commands\ClearCompletedCommand.cs" />
     <Compile Include="Domain\Category.cs" />
     <Compile Include="Commands\RenameListCommand.cs" />
     <Compile Include="Commands\SetTaskCategoriesCommand.cs" />

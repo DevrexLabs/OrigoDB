@@ -4,7 +4,6 @@ using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Windows;
-using LiveDomain.Enterprise.Networking.Client;
 using Todo.Core;
 
 namespace Todo.Wpf

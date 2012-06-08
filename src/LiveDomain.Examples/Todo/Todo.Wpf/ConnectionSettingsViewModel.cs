@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using LiveDomain.Enterprise.Shared.Network;
 using Todo.Core;
 using LiveDomain.Core;
-using LiveDomain.Enterprise.Networking.Client;
 
 namespace Todo.Wpf
 {
@@ -26,11 +26,9 @@ namespace Todo.Wpf
 
         public ITransactionHandler<TodoModel> GetTransactionHandler()
         {
-            if(IsEmbedded.Value)
-            {
-                return Engine.LoadOrCreate<TodoModel>();
-            }
-            else return new LiveDomainClient<TodoModel>(Host, Port);
+            if(IsEmbedded.Value) return Engine.LoadOrCreate<TodoModel>();
+            
+            return new LiveDomainClient<TodoModel>(Host, Port);
         }
     }
 }

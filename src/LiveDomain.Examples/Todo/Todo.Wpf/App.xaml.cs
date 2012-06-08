@@ -15,7 +15,16 @@ namespace Todo.Wpf
     {
         public App()
         {
-            this.Startup += new StartupEventHandler(App_Startup);
+            
+            Startup += App_Startup;
+            
+            DispatcherUnhandledException += (s, e) =>
+            {
+                MessageBox.Show("Unhandled exception, shutting down: " +
+                                e.Exception.Message);
+                e.Handled = true;
+                Current.Shutdown();
+            };
         }
 
         void App_Startup(object sender, StartupEventArgs e)
@@ -23,13 +32,17 @@ namespace Todo.Wpf
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             var connectionViewModel = new ConnectionSettingsViewModel();
             var connectDialog = new ConnectWindow(connectionViewModel);
-            connectDialog.ShowDialog();
-            var transactionHandler = connectionViewModel.GetTransactionHandler();
-            var viewModel = new MainWindowViewModel(transactionHandler);
-            var window = new MainWindow();
-            window.DataContext = viewModel;
-            this.MainWindow = window;
-            window.Show();
+            var result = connectDialog.ShowDialog();
+            if(result ?? false)
+            {
+                var transactionHandler = connectionViewModel.GetTransactionHandler();
+                var viewModel = new MainWindowViewModel(transactionHandler);
+                var window = new MainWindow();
+                window.DataContext = viewModel;
+                this.MainWindow = window;
+                window.Show();
+            }
+            else Current.Shutdown();
         }
     }
 }

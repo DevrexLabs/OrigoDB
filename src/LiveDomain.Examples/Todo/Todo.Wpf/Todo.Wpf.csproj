@@ -50,9 +50,6 @@
     <Reference Include="LiveDomain.Enterprise.Shared">
       <HintPath>Libs\LiveDomain.Enterprise.Shared.dll</HintPath>
     </Reference>
-    <Reference Include="ReuxablesLegacy">
-      <HintPath>Libs\ReuxablesLegacy.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />

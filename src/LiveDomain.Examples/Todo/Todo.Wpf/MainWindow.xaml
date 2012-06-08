@@ -5,55 +5,27 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" mc:Ignorable="d">
     <Window.Resources>
         <DataTemplate DataType="{x:Type Wpf:TaskViewModel}">
-            <Expander Margin="5" Expanded="Expander_Expanded" Collapsed="Expander_Collapsed" >
-                <Expander.Header>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <CheckBox VerticalAlignment="Bottom" Margin="10" IsChecked="{Binding Path=IsCompleted}">
-                            <CheckBox.LayoutTransform>
-                                <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
-                            </CheckBox.LayoutTransform>
-                        </CheckBox>
-                        <TextBlock Margin="10" VerticalAlignment="Center" Text="{Binding Title}" FontSize="14" Grid.Column="1"/>
-                    </Grid>
-                </Expander.Header>
-                <StackPanel Margin="30,-30,0,0" Width="300" HorizontalAlignment="Left">
-                    <StackPanel.Resources>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="FontStyle" Value="Italic"/>
-                            <Setter Property="Margin" Value="5,0,5,0"/>
-                        </Style>
-                        <Style TargetType="TextBox">
-                            <Setter Property="FontSize" Value="14"/>
-                            <Setter Property="Margin" Value="5,0,5,5"/>
-                        </Style>
-                        <Style TargetType="DatePicker">
-                            <Setter Property="Margin" Value="5,0,5,5"/>
-                        </Style>
-                    </StackPanel.Resources>
-                    <TextBlock>Title</TextBlock>
-                    <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                    <TextBlock Text="Description"/>
-                    <TextBox AcceptsReturn="True" Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Height="60"/>
-                    <!--<TextBlock Text="Due Date"/>-->
-                    <!--<DatePicker/>-->
-                    <TextBlock Text="Completed"/>
-                    <TextBox IsReadOnly="True" Text="{Binding Completed, Mode=OneWay}"/>
-                    <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="Save" Command="{Binding SaveCommand}" Margin="5" Width="50"/>
-                    </StackPanel>-->
-                </StackPanel>
-            </Expander>
+            <Grid>  
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <CheckBox VerticalAlignment="Bottom" Margin="10" IsChecked="{Binding Path=IsCompleted}" ToolTip="{Binding Completed}">
+                    <CheckBox.LayoutTransform>
+                        <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                    </CheckBox.LayoutTransform>
+                </CheckBox>
+                <TextBlock Margin="10" VerticalAlignment="Center" Text="{Binding Title}" FontSize="14" Grid.Column="1"/>
+            </Grid>
         </DataTemplate>
+        
+       
     </Window.Resources>
     <Grid>
         <Grid Margin="10" >
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="5*"/>
             </Grid.ColumnDefinitions>
             <Grid>
                 <Grid.RowDefinitions>
@@ -63,14 +35,14 @@
 
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock FontSize="20" FontWeight="Bold" Margin="5" Text="Lists" Grid.ColumnSpan="2"/>
                 <ListBox Grid.ColumnSpan="2" Grid.Row="1" FontSize="14" ItemsSource="{Binding Lists}"
                          IsSynchronizedWithCurrentItem="True" SelectedItem="{Binding CurrentList}"/>
                 <TextBox Margin="5" FontSize="14" Grid.Row="2" Text="{Binding Path=NewListName, UpdateSourceTrigger=PropertyChanged}"/>
-                <Button FontSize="14" Content="Add List" Padding="2" Margin="5" Grid.Row="2" Grid.Column="1" Command="{Binding NewListCommand}"/>
+                <Button FontSize="14" Content="Add List" Padding="5,2,5,2" Margin="5" Grid.Row="2" Grid.Column="1" Command="{Binding NewListCommand}"/>
             </Grid>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
@@ -89,7 +61,8 @@
                     </ScrollViewer>
                 </Grid>
                 <TextBox Margin="5" Grid.Row="2" FontSize="14" Text="{Binding Path=NewTaskTitle, UpdateSourceTrigger=PropertyChanged}"/>
-                <Button Content="Add Task" Margin="5" Grid.Column="1" FontSize="14" Grid.Row="2" Command="{Binding NewTaskCommand}"/>
+                <Button Content="Add Item" Margin="5" Grid.Column="1" Padding="5,2,5,2" FontSize="14" Grid.Row="2" Command="{Binding NewTaskCommand}"/>
+                <CheckBox Content="Show completed" IsChecked="{Binding ShowCompleted}" Grid.Column="1" Height="16" HorizontalAlignment="Left" Margin="5" Name="checkBox1" VerticalAlignment="Center" />
             </Grid>
         </Grid>
     </Grid>

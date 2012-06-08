@@ -29,7 +29,18 @@ namespace Todo.Wpf
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
+            DialogResult = true;
             this.Close();
+        }
+
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            connectionSettingsGroupBox.IsEnabled = true;
+        }
+
+        private void RadioButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            connectionSettingsGroupBox.IsEnabled = false;
         }
     }
 }

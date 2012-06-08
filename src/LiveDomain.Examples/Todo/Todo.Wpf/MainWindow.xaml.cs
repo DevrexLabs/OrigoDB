@@ -24,27 +24,7 @@ namespace Todo.Wpf
         public MainWindow()
         {
             InitializeComponent();
-            this.Closing += (s, e) =>
-                                {
-                                    Application.Current.Shutdown();
-                                };
-        }
-
-        private void Expander_Expanded(object sender, RoutedEventArgs e)
-        {
-           var control = (HeaderedContentControl) sender;
-           SetVisibility(control, false);
-        }
-
-        private void SetVisibility(HeaderedContentControl control, bool visible)
-        {
-            (control.Header as UIElement).Visibility = visible ? Visibility.Visible : Visibility.Hidden;
-        }
-
-        private void Expander_Collapsed(object sender, RoutedEventArgs e)
-        {
-            var control = (HeaderedContentControl)sender;
-            SetVisibility(control, true);
+            this.Closing += (s, e) => App.Current.Shutdown();
         }
     }
 }

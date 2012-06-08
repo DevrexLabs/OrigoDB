@@ -60,7 +60,7 @@
     <Compile Include="Commands\SetTaskCategoriesCommand.cs" />
     <Compile Include="Domain\Task.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Queries\GetListNamesQuery.cs" />
+    <Compile Include="Queries.cs" />
     <Compile Include="TaskInfo.cs" />
     <Compile Include="Domain\TaskList.cs" />
     <Compile Include="Domain\TodoModel.cs" />

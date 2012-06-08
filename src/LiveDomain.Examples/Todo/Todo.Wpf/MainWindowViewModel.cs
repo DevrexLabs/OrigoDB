@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 using Todo.Core;
 using LiveDomain.Core;
 using Todo.Core.Commands;
-using Todo.Core.Queries;
+using System.Windows.Data;
 
 namespace Todo.Wpf
 {
@@ -20,6 +20,9 @@ namespace Todo.Wpf
         private DelegateCommand _newListCommand;
         private DelegateCommand _newTaskCommand;
 
+
+        private List<TaskViewModel> allTasks;
+        private List<TaskViewModel> incompleteTasks; 
 
         public ObservableCollection<string> Lists { get; private set; }
         
@@ -47,31 +50,33 @@ namespace Todo.Wpf
 
         private void LoadTasks()
         {
-            var query = new GetTasksByListNameQuery(CurrentList);
-            var tasks = _engine.Execute(query).Select(t => new TaskViewModel(t)).ToList();
+            var query = new GetTasksByListName(CurrentList);
+            allTasks = _engine.Execute(query).Select(t => new TaskViewModel(t)).ToList();
+            incompleteTasks = allTasks.Where(t => !t.Completed.HasValue).ToList();
 
-            foreach (TaskViewModel task in tasks)
+            foreach (TaskViewModel task in allTasks)
             {
                 AttachEvents(task);
             }
-            
-            Tasks = new ObservableCollection<TaskViewModel>(tasks);
-            
+
+            SetTasks();
             NotifyPropertyChanged("Tasks");
+        }
+
+
+        private void SetTasks()
+        {
+            Tasks = _showCompleted
+                        ? new ObservableCollection<TaskViewModel>(allTasks)
+                        : new ObservableCollection<TaskViewModel>(incompleteTasks);
         }
 
         private void AttachEvents(TaskViewModel task)
         {
             task.CompleteChanged += CompleteChanged;
-            task.SaveRequested += SaveTask;
         }
 
 
-        private void SaveTask(object sender, EventArgs e)
-        {
-            TaskViewModel task = (TaskViewModel)sender;
-            //TODO: Create a SaveTaskCommand
-        }
 
         private void CompleteChanged(object sender, EventArgs e)
         {
@@ -88,6 +93,25 @@ namespace Todo.Wpf
                 _engine.Execute(command);
             }
         }
+
+
+        private bool _showCompleted;
+
+        public bool ShowCompleted 
+        {
+            get { return _showCompleted; }
+            set 
+            { 
+                if(value != _showCompleted)
+                {
+                    _showCompleted = value;
+                    SetTasks();
+                    NotifyPropertyChanged("ShowCompleted");
+                    NotifyPropertyChanged("Tasks");
+                }
+            }
+        }
+
 
         public ICommand NewListCommand
         {
@@ -131,7 +155,7 @@ namespace Todo.Wpf
             _engine = engine;
             _newListCommand = new DelegateCommand(() => CreateNewList(), () => CanCreateNewList);
             _newTaskCommand = new DelegateCommand(() => CreateNewTask(), () => CanCreateNewTask);
-            Lists = new ObservableCollection<string>(_engine.Execute(new GetListNamesQuery()));
+            Lists = new ObservableCollection<string>(_engine.Execute(new GetListNames()));
             if (Lists.Count > 0) CurrentList = Lists[0];
         }
 
@@ -172,6 +196,7 @@ namespace Todo.Wpf
 
             var taskViewModel = new TaskViewModel(new TaskInfo(task));
             AttachEvents(taskViewModel);
+            allTasks.Add(taskViewModel);
             Tasks.Add(taskViewModel);
             NewTaskTitle = String.Empty;
         }

@@ -9,10 +9,11 @@ using Todo.Core;
 using LiveDomain.Core;
 using Todo.Core.Commands;
 using System.Windows.Data;
+using LiveDomain.Enterprise;
 
 namespace Todo.Wpf
 {
-    public class MainWindowViewModel : ViewModelBase
+    public class MainWindowViewModel : ViewModelBase, IDisposable
     {
 
         private ITransactionHandler<TodoModel> _engine;
@@ -21,8 +22,8 @@ namespace Todo.Wpf
         private DelegateCommand _newTaskCommand;
 
 
-        private List<TaskViewModel> allTasks;
-        private List<TaskViewModel> incompleteTasks; 
+        private ObservableCollection<TaskViewModel> allTasks;
+        private ObservableCollection<TaskViewModel> incompleteTasks; 
 
         public ObservableCollection<string> Lists { get; private set; }
         
@@ -51,8 +52,9 @@ namespace Todo.Wpf
         private void LoadTasks()
         {
             var query = new GetTasksByListName(CurrentList);
-            allTasks = _engine.Execute(query).Select(t => new TaskViewModel(t)).ToList();
-            incompleteTasks = allTasks.Where(t => !t.Completed.HasValue).ToList();
+            var tasks = _engine.Execute(query).Select(t => new TaskViewModel(t)).ToList();
+            allTasks = new ObservableCollection<TaskViewModel>(tasks);
+            incompleteTasks = new ObservableCollection<TaskViewModel>(tasks.Where(t => !t.Completed.HasValue));
 
             foreach (TaskViewModel task in allTasks)
             {
@@ -67,8 +69,8 @@ namespace Todo.Wpf
         private void SetTasks()
         {
             Tasks = _showCompleted
-                        ? new ObservableCollection<TaskViewModel>(allTasks)
-                        : new ObservableCollection<TaskViewModel>(incompleteTasks);
+                        ? allTasks
+                        : incompleteTasks;
         }
 
         private void AttachEvents(TaskViewModel task)
@@ -84,11 +86,13 @@ namespace Todo.Wpf
 
             if (task.IsCompleted)
             {
+                incompleteTasks.Remove(task);
                 var command = new SetCompletedCommand(task.Id, DateTime.Now);
                 _engine.Execute(command);
             }
             else
             {
+                incompleteTasks.Add(task);
                 var command = new ClearCompletedCommand(task.Id);
                 _engine.Execute(command);
             }
@@ -150,20 +154,23 @@ namespace Todo.Wpf
         
 
 
-        public MainWindowViewModel(ITransactionHandler<TodoModel> engine)
+        public MainWindowViewModel(ITransactionHandler<TodoModel> transactionHandler)
         {
-            _engine = engine;
+            _engine = transactionHandler;
             _newListCommand = new DelegateCommand(() => CreateNewList(), () => CanCreateNewList);
             _newTaskCommand = new DelegateCommand(() => CreateNewTask(), () => CanCreateNewTask);
             Lists = new ObservableCollection<string>(_engine.Execute(new GetListNames()));
             if (Lists.Count > 0) CurrentList = Lists[0];
+            NewTaskTitle = "";
+            SetTasks();
         }
 
         private bool CanCreateNewList
         {
             get
             {
-                return !String.IsNullOrWhiteSpace(NewListName);
+                bool listNameAlreadyExists = Lists.Any(name => String.Equals(name, NewListName, StringComparison.InvariantCultureIgnoreCase));
+                return !listNameAlreadyExists && !String.IsNullOrWhiteSpace(NewListName);
             }
         }
 
@@ -171,8 +178,10 @@ namespace Todo.Wpf
         {
             get
             {
-                bool taskNameAlreadyExists = Lists.Any(name => String.Equals(name, NewTaskTitle, StringComparison.InvariantCultureIgnoreCase));
-                return !String.IsNullOrWhiteSpace(NewTaskTitle) && !taskNameAlreadyExists && !string.IsNullOrEmpty(CurrentList);
+                
+                return !string.IsNullOrEmpty(CurrentList) &&
+                    !String.IsNullOrWhiteSpace(NewTaskTitle) && 
+                    !allTasks.Any(t => String.Equals(t.Title, NewTaskTitle, StringComparison.InvariantCultureIgnoreCase)); ;
             }
         }
 
@@ -208,5 +217,11 @@ namespace Todo.Wpf
             _newTaskCommand.NotifyCanExecuteChanged();
         }
 
+
+        public void Dispose()
+        {
+            var disposable = _engine as LiveDomainClient<TodoModel>;
+            if (disposable != null) disposable.Dispose();
+        }
     }
 }

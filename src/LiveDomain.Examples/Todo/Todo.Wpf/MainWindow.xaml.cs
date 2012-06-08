@@ -24,7 +24,11 @@ namespace Todo.Wpf
         public MainWindow()
         {
             InitializeComponent();
-            this.Closing += (s, e) => App.Current.Shutdown();
+            this.Closing += (s, e) =>
+                                {
+                                    (this.DataContext as IDisposable).Dispose();
+                                    App.Current.Shutdown();
+                                };
         }
     }
 }

@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Todo.CLI", "Todo.CLI\Todo.CLI.csproj", "{27A970B1-AC44-4AE9-AC18-5B8DF50C3E59}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 4
@@ -72,6 +74,16 @@ Global
 		{A9E6075F-306D-4574-93B0-A744273A113D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{A9E6075F-306D-4574-93B0-A744273A113D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{A9E6075F-306D-4574-93B0-A744273A113D}.Release|x86.ActiveCfg = Release|Any CPU
+		{27A970B1-AC44-4AE9-AC18-5B8DF50C3E59}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{27A970B1-AC44-4AE9-AC18-5B8DF50C3E59}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{27A970B1-AC44-4AE9-AC18-5B8DF50C3E59}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{27A970B1-AC44-4AE9-AC18-5B8DF50C3E59}.Debug|x86.ActiveCfg = Debug|x86
+		{27A970B1-AC44-4AE9-AC18-5B8DF50C3E59}.Debug|x86.Build.0 = Debug|x86
+		{27A970B1-AC44-4AE9-AC18-5B8DF50C3E59}.Release|Any CPU.ActiveCfg = Release|x86
+		{27A970B1-AC44-4AE9-AC18-5B8DF50C3E59}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{27A970B1-AC44-4AE9-AC18-5B8DF50C3E59}.Release|Mixed Platforms.Build.0 = Release|x86
+		{27A970B1-AC44-4AE9-AC18-5B8DF50C3E59}.Release|x86.ActiveCfg = Release|x86
+		{27A970B1-AC44-4AE9-AC18-5B8DF50C3E59}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

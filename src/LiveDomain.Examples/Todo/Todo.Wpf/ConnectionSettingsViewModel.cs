@@ -1,6 +1,6 @@
-﻿using LiveDomain.Enterprise.Shared.Network;
-using Todo.Core;
+﻿using Todo.Core;
 using LiveDomain.Core;
+using LiveDomain.Enterprise;
 
 namespace Todo.Wpf
 {
@@ -24,7 +24,9 @@ namespace Todo.Wpf
         {
             if(IsEmbedded.Value) return Engine.LoadOrCreate<TodoModel>();
             
-            return new LiveDomainClient<TodoModel>(Host, Port);
+            var client = new LiveDomainClient<TodoModel>(Host, Port);
+            client.Open();
+            return client;
         }
     }
 }

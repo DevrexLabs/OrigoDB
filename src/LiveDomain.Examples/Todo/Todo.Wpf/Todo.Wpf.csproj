@@ -48,7 +48,7 @@
       <HintPath>..\packages\LiveDomain.Core.0.3.4\lib\net40\LiveDomain.Core.dll</HintPath>
     </Reference>
     <Reference Include="LiveDomain.Enterprise.Client">
-      <HintPath>Libs\LiveDomain.Enterprise.Client.dll</HintPath>
+      <HintPath>..\..\..\..\lib\LiveDomain.Enterprise.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />

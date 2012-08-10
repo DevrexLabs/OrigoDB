@@ -194,6 +194,8 @@ namespace LiveDomain.Core
                 command.PrepareStub(_theModel);
                 _lock.EnterWrite();
                 object result = command.ExecuteStub(_theModel);
+                //TODO: We might benefit from downgrading the lock at this point
+                //TODO: We could run the 2 following statements in parallel
                 if (_config.CloneResults && result != null) result = _serializer.Clone(result);
                 _commandJournal.Append(commandToSerialize);
                 return result;
@@ -203,11 +205,11 @@ namespace LiveDomain.Core
                 ThrowIfDisposed();
                 throw; 
             }
-            catch (CommandFailedException) { throw; }
+            catch (CommandAbortedException) { throw; }
             catch (Exception ex) 
             {
-                Restore(() => (Model)Activator.CreateInstance(_theModel.GetType()));
-                throw new CommandFailedException("Command threw an exception, state was rolled back, see inner exception for details", ex);
+                Restore(() => (Model)Activator.CreateInstance(_theModel.GetType())); //TODO: Or shutdown based on setting
+                throw new CommandAbortedException("Command threw an exception, state was rolled back, see inner exception for details", ex);
             }
             finally
             {

@@ -33,8 +33,8 @@ namespace LiveDomain.Core
             }
             catch (Exception ex)
             {
-                
-               throw new CommandFailedException("Exception thrown during Prepare(), see inner exception for details", ex);
+
+                throw new CommandAbortedException("Exception thrown during Prepare(), see inner exception for details", ex);
             }
         }
 

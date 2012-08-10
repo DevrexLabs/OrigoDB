@@ -56,7 +56,7 @@ namespace LiveDomain.Core.Test
         {
             if (ThrowCommandFailedExceptionFromExecute)
             {
-                throw new CommandFailedException();
+                throw new CommandAbortedException();
             }
             if (ThrowExceptionInExecute)
             {

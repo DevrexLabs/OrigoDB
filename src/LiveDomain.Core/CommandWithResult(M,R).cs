@@ -13,9 +13,19 @@ namespace LiveDomain.Core
     {
         internal protected virtual void Prepare(M model) { }
 
+
+        //TODO: Duplicate method! refactor
         internal override void PrepareStub(Model model)
         {
-            Prepare(model as M);
+            try
+            {
+                Prepare(model as M);
+            }
+            catch (Exception ex)
+            {
+
+                throw new CommandAbortedException("Exception thrown during Prepare(), see inner exception for details", ex);
+            }
         }
 
         internal override object ExecuteStub(Model model)

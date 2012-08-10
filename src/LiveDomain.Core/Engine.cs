@@ -143,6 +143,9 @@ namespace LiveDomain.Core
         {
             ThrowIfDisposed();
 
+
+            //execute the clone in case the original is modified during execution
+            //pray that the user doesnt modify the command on a different thread
             Command commandToSerialize = command;
             if (_config.CloneCommands) command = _serializer.Clone(command);
             
@@ -163,11 +166,11 @@ namespace LiveDomain.Core
                 ThrowIfDisposed();
                 throw; 
             }
-            catch (CommandFailedException) { throw; }
+            catch (CommandAbortedException) { throw; }
             catch (Exception ex) 
             {
                 Restore(() => (Model)Activator.CreateInstance(_theModel.GetType())); //TODO: Or shutdown based on setting
-                throw new CommandFailedException("Command threw an exception, state was rolled back, see inner exception for details", ex);
+                throw new CommandAbortedException("Command threw an exception, state was rolled back, see inner exception for details", ex);
             }
             finally
             {

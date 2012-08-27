@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Cms.Core;
+using LiveDomain.Core;
 
 namespace Blog.Core
 {
@@ -11,8 +12,9 @@ namespace Blog.Core
     public class AddEntryCommand : Command<BlogModel>
     {
 
-        public override void Execute(BlogModel db)
+        protected override void Execute(BlogModel model)
         {
+            throw new NotImplementedException();
         }
     }
 

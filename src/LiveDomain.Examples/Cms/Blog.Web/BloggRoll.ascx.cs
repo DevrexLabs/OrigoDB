@@ -11,7 +11,7 @@ namespace Blog.Web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            var blogs = Global.Engine.Execute( m => m.Blogs.Select(b => new { Title = b.Title, Description = b.Description}));
+            var blogs = Global.Db.Execute( m => m.Blogs.Select(b => new { Title = b.Title, Description = b.Description}));
             BlogRollDataList.DataSource = blogs;
             BlogRollDataList.DataBind();
         }

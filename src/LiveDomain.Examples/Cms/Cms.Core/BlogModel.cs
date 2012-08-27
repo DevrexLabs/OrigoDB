@@ -35,11 +35,12 @@ namespace Cms.Core
             SearchIndex = new Dictionary<string, HashSet<BlogEntry>>();
         }
 
-        protected override void OnLoad()
+        protected override void SnapshotRestored()
         {
-            base.OnLoad();
+            base.SnapshotRestored();
             RebuildIndex();
         }
+ 
 
         /// <summary>
         /// In memory full text indexing hosted on #liveDB

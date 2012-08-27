@@ -30,7 +30,7 @@ namespace Blog.Web
             return model;
         }
 
-        public static Engine<BlogModel> Engine
+        public static Engine<BlogModel> Db
         {
             get; private set;
         }
@@ -38,8 +38,9 @@ namespace Blog.Web
         void Application_Start(object sender, EventArgs e)
         {
             string path = Server.MapPath("~/App_Data/blogdb");
-            if (!Directory.Exists(path)) Engine<BlogModel>.Create(CreateModelWithTestData(), new EngineSettings(path));
-            Engine = (Engine<BlogModel>) Engine<BlogModel>.Load<BlogModel>(path);
+            var config = new EngineConfiguration(path);
+            config.CloneResults = false;
+            Db = Engine.LoadOrCreate(CreateModelWithTestData, config);
         }
 
         void Application_End(object sender, EventArgs e)

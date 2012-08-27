@@ -6,6 +6,10 @@
 *.user
 *.sln.docstates
 
+#LiveDomain snapshot and journal files
+*.snapshot
+*.journal
+
 # Build results
 
 [Dd]ebug*/

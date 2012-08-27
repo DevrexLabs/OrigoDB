@@ -12,8 +12,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveDomain.Core", "LiveDoma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveDomain.Core.Test", "LiveDomain.Core.Test\LiveDomain.Core.Test.csproj", "{C85316AC-9295-4D8D-9511-637B7C876EBD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveDomain.Relational", "LiveDomain.Relational\LiveDomain.Relational.csproj", "{9E643DAF-7AA3-4AEA-AEB8-7E57FEA77AF0}"
-EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 4
@@ -46,10 +44,6 @@ Global
 		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9E643DAF-7AA3-4AEA-AEB8-7E57FEA77AF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9E643DAF-7AA3-4AEA-AEB8-7E57FEA77AF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9E643DAF-7AA3-4AEA-AEB8-7E57FEA77AF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9E643DAF-7AA3-4AEA-AEB8-7E57FEA77AF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -49,7 +49,6 @@
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Journaling\AsynchronousJournalWriter.cs" />
     <Compile Include="Command.cs" />
-    <Compile Include="CommandAbortedException.cs" />
     <Compile Include="Journaling\CommandJournal.cs" />
     <Compile Include="Configuration\ConcurrencyMode.cs" />
     <Compile Include="Engine.cs" />

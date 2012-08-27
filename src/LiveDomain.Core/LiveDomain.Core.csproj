@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command%28M%29.cs" />
+    <Compile Include="CommandAbortedException.cs" />
     <Compile Include="CommandWithResult%28M,R%29.cs" />
     <Compile Include="Configuration\CompressionMethod.cs" />
     <Compile Include="Logging\FileLogger.cs" />

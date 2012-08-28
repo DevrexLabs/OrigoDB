@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using LiveDomain.Core.Logging;
 using LiveDomain.Core.Security;
 
 namespace LiveDomain.Core.Configuration
@@ -124,8 +126,103 @@ namespace LiveDomain.Core.Configuration
 
 
         #region FactoryMethods
-        
 
+        public virtual string KeyTemplate
+        {
+            get { return "LiveDbConfiguration.{0}"; }
+        }
+
+        private static EngineConfiguration _current = Create();
+
+        public static EngineConfiguration Current
+        {
+            get { return _current; }
+            set { _current = value; }
+        }
+
+        public static EngineConfiguration Create()
+        {
+            //we need an instance to be able to call an instance method
+            var bootStrapper = new EngineConfiguration();
+
+            //look for specific implementation in config file, otherwise return self
+            return bootStrapper.LoadFromConfigOrDefault(() => bootStrapper);
+        }
+
+
+        protected virtual T LoadFromConfigOrDefault<T>(Func<T> @default = null)
+        {
+            @default = @default ?? (() => (T)Activator.CreateInstance(typeof(T)));
+            string configKey = ConfigKeyFromType(typeof(T));
+            var configTypeName = ConfigurationManager.AppSettings[configKey];
+            if (!String.IsNullOrEmpty(configTypeName))
+            {
+                return InstanceFromTypeName<T>(configTypeName);
+            }
+            else
+            {
+                return @default.Invoke();
+            }
+        }
+
+        protected virtual T InstanceFromTypeName<T>(string typeName)
+        {
+            try
+            {
+                Type type = Type.GetType(typeName);
+                return (T)Activator.CreateInstance(type);
+            }
+            catch (Exception exception)
+            {
+                String messageTemplate = "Can't load type {0}, see inner exception for details";
+                throw new ConfigurationErrorsException(String.Format(messageTemplate, typeName), exception);
+            }
+        }
+
+
+        private ILogFactory _logFactory = null;
+
+        protected internal virtual ILogFactory GetLogFactory()
+        {
+            if (_logFactory == null)
+            {
+                _logFactory = LoadFromConfigOrDefault<ILogFactory>(() => new InternalLogFactory());
+            }
+            return _logFactory;
+        }
+
+        public virtual void SetLogFactory(ILogFactory logFactory)
+        {
+            _logFactory = logFactory;
+        }
+
+        protected internal virtual IAuthorizer<Type> GetAuthorizer()
+        {
+            return new PermissionSet<Type>(Permission.Allowed);
+        }
+
+        public virtual EngineConfiguration GetEngineConfiguration()
+        {
+            return LoadFromConfigOrDefault<EngineConfiguration>();
+        }
+
+        protected internal virtual IStorage GetCustomStorage(EngineConfiguration engineConfiguration)
+        {
+            return LoadFromConfig<IStorage>();
+        }
+
+
+        protected virtual T LoadFromConfig<T>()
+        {
+            string configKey = String.Format(KeyTemplate, ConfigKeyFromType(typeof(T)));
+            var configTypeName = ConfigurationManager.AppSettings[configKey];
+            return InstanceFromTypeName<T>(configTypeName);
+        }
+
+        protected virtual String ConfigKeyFromType(Type type)
+        {
+            return type.Name;
+        }
         internal ISerializer CreateSerializer()
         {
             return new Serializer(CreateFormatter());
@@ -194,7 +291,7 @@ namespace LiveDomain.Core.Configuration
                 case StorageMode.FileSystem:
                     return new FileStorage(this);
                 case StorageMode.Custom:
-                    return LiveDbConfiguration.Current.GetCustomStorage(this);
+                    return GetCustomStorage(this);
                 default:
                     throw new Exception("Unsupported storage mode: " + this.StorageMode.ToString());
             }
@@ -208,7 +305,7 @@ namespace LiveDomain.Core.Configuration
 
         virtual internal IAuthorizer<Type> CreateAuthorizer()
         {
-            return LiveDbConfiguration.Current.GetAuthorizer();
+            return GetAuthorizer();
         }
 
         #endregion

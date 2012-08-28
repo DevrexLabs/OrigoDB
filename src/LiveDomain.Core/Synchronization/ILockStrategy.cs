@@ -5,6 +5,7 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
+    //TODO: make disposable, provide base implementationtry/finally and Exit in dispose?
     public interface ILockStrategy
     {
         void EnterRead();

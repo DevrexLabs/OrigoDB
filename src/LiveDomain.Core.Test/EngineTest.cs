@@ -58,7 +58,7 @@ namespace LiveDomain.Core.Test
 
         static EngineTest()
         {
-            LiveDbConfiguration.Current.SetLogFactory(new SingletonLogFactory(_logger));
+            EngineConfiguration.Current.SetLogFactory(new SingletonLogFactory(_logger));
         }
 
          static InMemoryLogger _logger = new InMemoryLogger();

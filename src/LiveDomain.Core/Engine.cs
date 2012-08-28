@@ -33,7 +33,7 @@ namespace LiveDomain.Core
         ISerializer _serializer;
         bool _isDisposed = false;
         ICommandJournal _commandJournal;
-        static ILog _log = LiveDbConfiguration.Current.GetLogFactory().GetLogForCallingType();
+        static ILog _log = EngineConfiguration.Current.GetLogFactory().GetLogForCallingType();
         IAuthorizer<Type> _authorizer;
 
         private IAuthorizer<Type> CreateAuthorizer()
@@ -96,7 +96,7 @@ namespace LiveDomain.Core
         {
             _serializer = config.CreateSerializer();
             
-            //Prevent modification from outside
+            //prevent outside modification after engine initialization
             _config = _serializer.Clone(config);
 
             _storage = _config.CreateStorage();
@@ -272,7 +272,9 @@ namespace LiveDomain.Core
 
         public static Engine Load(string location)
         {
-            return Load(new EngineConfiguration(location));
+            var config = EngineConfiguration.Current;
+            config.Location = location;
+            return Load(config);
         }
 
         public static Engine Load(EngineConfiguration config)
@@ -306,7 +308,8 @@ namespace LiveDomain.Core
         /// <returns>A strongly typed generic Engine</returns>
         public static Engine<M> Load<M>() where M : Model
         {
-            return Load<M>(new EngineConfiguration());
+            var config = EngineConfiguration.Current;
+            return Load<M>(config);
         }
 
         /// <summary>

@@ -21,7 +21,7 @@ namespace LiveDomain.Core
 		private IStorage _storage;
         private JournalState _state;
         private EngineConfiguration _engineConfig;
-	    private static ILog _log = LiveDbConfiguration.Current.GetLogFactory().GetLogForCallingType();
+	    private static ILog _log = EngineConfiguration.Current.GetLogFactory().GetLogForCallingType();
 
 
         public CommandJournal(EngineConfiguration engineConfig, IStorage storage)

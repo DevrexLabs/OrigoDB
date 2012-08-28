@@ -80,7 +80,7 @@ namespace LiveDomain.Core.Configuration
 
         internal IAuthorizer<Type> GetAuthorizer()
         {
-            return LoadFromConfigOrDefault<IAuthorizer<Type>>();
+            return new PermissionSet<Type>(Permission.Allowed);
         }
 
         public virtual EngineConfiguration GetEngineConfiguration()

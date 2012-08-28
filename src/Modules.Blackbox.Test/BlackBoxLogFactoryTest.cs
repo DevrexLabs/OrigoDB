@@ -1,4 +1,4 @@
-﻿using Livedomain.Integration.Blackbox;
+﻿using Livedomain.Modules.Blackbox;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using LiveDomain.Core.Logging;

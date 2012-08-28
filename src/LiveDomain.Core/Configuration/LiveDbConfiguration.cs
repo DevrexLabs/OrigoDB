@@ -2,6 +2,7 @@
 using System.Configuration;
 using System;
 using LiveDomain.Core.Logging;
+using LiveDomain.Core.Security;
 
 namespace LiveDomain.Core.Configuration
 {
@@ -77,9 +78,9 @@ namespace LiveDomain.Core.Configuration
             _logFactory = logFactory;
         }
 
-        internal Security.IAuthorizer<Type> GetAuthorizer()
+        internal IAuthorizer<Type> GetAuthorizer()
         {
-            throw new NotImplementedException();
+            return LoadFromConfigOrDefault<IAuthorizer<Type>>();
         }
 
         public virtual EngineConfiguration GetEngineConfiguration()

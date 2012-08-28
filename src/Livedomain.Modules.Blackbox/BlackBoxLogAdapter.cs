@@ -6,7 +6,7 @@ using LiveDomain.Core;
 using BlackBox;
 using LiveDomain.Core.Logging;
 
-namespace Livedomain.Integration.Blackbox
+namespace Livedomain.Modules.Blackbox
 {
     class BlackBoxLogAdapter : ILog
     {

@@ -3,7 +3,7 @@ using BlackBox;
 using LiveDomain.Core.Logging;
 using System.ComponentModel.Composition;
 
-namespace Livedomain.Integration.Blackbox
+namespace Livedomain.Modules.Blackbox
 {
     [Export(typeof(ILogFactory))]
     public class BlackBoxLogFactory : ILogFactory

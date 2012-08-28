@@ -18,10 +18,21 @@ namespace LiveDomain.Core.Configuration
         public const long DefaultJournalSegmentSizeInBytes = 1024 * 1024;
 
 
+        string _location, _snapshotLocation;
+
         /// <summary>
-        /// Identifies where the command journal 
+        /// The location of the command journal and snapshots. A directory path when using FileStorage, 
+        /// a connection string when using SqlStorage.
+        /// Assigning a relative path will resolve to current directory or App_Data if running in a web context
         /// </summary>
-        public string Location{ get; set; }
+        public string Location
+        {
+            get { return Path.Combine(GetDefaultDirectory(), _location); }
+            set { _location = value; }
+        }
+        
+
+
 
         /// <summary>
         /// Same as TargetLocation unless set to some other location
@@ -39,7 +50,7 @@ namespace LiveDomain.Core.Configuration
             }
         }
 
-        string _snapshotLocation = null;
+        
 
         /// <summary>
         /// True if the snapshotlocation differs from the location of the journal
@@ -70,7 +81,7 @@ namespace LiveDomain.Core.Configuration
 
         /// <summary>
         /// Make a deep copy of each command prior to execution. This will force a fast 
-        /// failure of commands that wont serialize. Default is false in RELEASE, true otherwise
+        /// failure of commands that wont serialize.
         /// </summary>
         public bool CloneCommands { get; set; }
 
@@ -311,7 +322,11 @@ namespace LiveDomain.Core.Configuration
         #endregion
 
 
-        public static string GetDefaultLocation()
+        /// <summary>
+        /// The default directory to use if the Location is relative
+        /// </summary>
+        /// <returns></returns>
+        public static string GetDefaultDirectory()
         {
 
             string result = Directory.GetCurrentDirectory();
@@ -333,28 +348,13 @@ namespace LiveDomain.Core.Configuration
         { 
             get 
             {
-                return !String.IsNullOrEmpty(Location);
+                return !String.IsNullOrEmpty(_location);
             }
         }
 
-        public void SetDefaultLocation<M>() where M : Model
+        internal void SetLocationFromType<M>()
         {
-            SetDefaultLocation(typeof(M));
-            
-        }
-
-        public void SetDefaultLocation(Type type)
-        {
-            SetDefaultLocation(type.Name);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name">Name of the location</param>
-        public void SetDefaultLocation(string name)
-        {
-            Location = GetDefaultLocation() + @"\" + name;
+            Location = typeof (M).Name;
         }
     }
 

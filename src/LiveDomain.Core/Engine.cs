@@ -36,6 +36,8 @@ namespace LiveDomain.Core
         static ILog _log = EngineConfiguration.Current.GetLogFactory().GetLogForCallingType();
         IAuthorizer<Type> _authorizer;
 
+        public EngineConfiguration Config { get { return _config; } }
+
         private IAuthorizer<Type> CreateAuthorizer()
         {
             return _theModel as IAuthorizer<Type> ?? _config.CreateAuthorizer();
@@ -97,7 +99,8 @@ namespace LiveDomain.Core
             _serializer = config.CreateSerializer();
             
             //prevent outside modification after engine initialization
-            _config = _serializer.Clone(config);
+            //_config = _serializer.Clone(config);
+            _config = config;
 
             _storage = _config.CreateStorage();
             _lock = _config.CreateLockingStrategy();
@@ -287,12 +290,14 @@ namespace LiveDomain.Core
 
         public static Engine Create(Model model, string location)
         {
-            return Create(model, new EngineConfiguration(location));
+            var config = EngineConfiguration.Current;
+            config.Location = location;
+            return Create(model, config);
         }
 
         public static Engine Create(Model model, EngineConfiguration config)
         {
-            if (!config.HasLocation) config.SetDefaultLocation(model.GetType());
+            if (!config.HasLocation) config.Location = model.GetType().Name;
             return Create<Model>(model, config);
 
         }
@@ -331,7 +336,7 @@ namespace LiveDomain.Core
         /// <returns></returns>
     	public static Engine<M> Load<M>(EngineConfiguration config) where M : Model
     	{
-            if (!config.HasLocation) config.SetDefaultLocation<M>();
+            if (!config.HasLocation) config.SetLocationFromType<M>();
             config.CreateStorage().VerifyCanLoad();
 			var engine = new Engine<M>(config);
     		return engine;
@@ -347,17 +352,22 @@ namespace LiveDomain.Core
         /// <returns></returns>
         public static Engine<M> Create<M>() where M : Model
         {
-            return Create<M>(new EngineConfiguration());
+            var config = EngineConfiguration.Current;
+            return Create<M>(config);
         }
 
         public static Engine<M> Create<M>(string location) where M : Model
         {
-            return Create<M>(new EngineConfiguration(location));
+            var config = EngineConfiguration.Current;
+            config.Location = location;
+            return Create<M>(config);
         }
 
         public static Engine<M> Create<M>(M model, string location) where M : Model
         {
-            return Create<M>(model, new EngineConfiguration(location));
+            var config = EngineConfiguration.Current;
+            config.Location = location;
+            return Create<M>(model, config);
         }
 
         public static Engine<M> Create<M>(EngineConfiguration config) where M : Model
@@ -368,7 +378,7 @@ namespace LiveDomain.Core
 
         public static Engine<M> Create<M>(M model, EngineConfiguration config) where M : Model
         {
-            if (!config.HasLocation) config.SetDefaultLocation<M>();
+            if (!config.HasLocation) config.SetLocationFromType<M>();
             IStorage storage = config.CreateStorage();
             storage.Create(model);
             return Load<M>(config);
@@ -381,13 +391,15 @@ namespace LiveDomain.Core
 
         public static Engine<M> LoadOrCreate<M>() where M : Model, new()
         {
-            return LoadOrCreate<M>(new EngineConfiguration());
+            return LoadOrCreate<M>(EngineConfiguration.Current);
         }
 
 
         public static Engine<M> LoadOrCreate<M>(string location) where M : Model, new()
         {
-            EngineConfiguration config = new EngineConfiguration(location);
+
+            var config = EngineConfiguration.Current;
+            config.Location = location;
             return LoadOrCreate<M>(config);
         }
 
@@ -400,14 +412,14 @@ namespace LiveDomain.Core
 
         public static Engine<M> LoadOrCreate<M>(Func<M> constructor) where M : Model
         {
-            return LoadOrCreate(constructor, new EngineConfiguration());
+            return LoadOrCreate(constructor,EngineConfiguration.Current);
         }
 
         public static Engine<M> LoadOrCreate<M>(Func<M> constructor, EngineConfiguration config) where M : Model
         {
             if (constructor == null) throw new ArgumentNullException("constructor");
             if(config == null) throw new ArgumentNullException("config");
-            if (!config.HasLocation) config.SetDefaultLocation<M>();
+            if (!config.HasLocation) config.SetLocationFromType<M>();
             Engine<M> result = null;
 
             var storage = config.CreateStorage();

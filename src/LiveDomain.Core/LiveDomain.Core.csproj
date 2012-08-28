@@ -52,7 +52,6 @@
     <Compile Include="Command[M].cs" />
     <Compile Include="CommandWithResult[M,R].cs" />
     <Compile Include="Configuration\CompressionMethod.cs" />
-    <Compile Include="Configuration\LiveDbConfiguration.cs" />
     <Compile Include="Logging\ILogFactory.cs" />
     <Compile Include="Logging\InternalLogFactory.cs" />
     <Compile Include="Logging\SingletonLogFactory.cs" />

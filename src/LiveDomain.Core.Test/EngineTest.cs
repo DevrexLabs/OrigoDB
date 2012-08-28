@@ -118,7 +118,7 @@ namespace LiveDomain.Core.Test
         private void DeleteFromDefaultLocation<M>() where M : Model
         {
             var config = new EngineConfiguration();
-            config.SetDefaultLocation<M>();
+            config.SetLocationFromType<M>();
             var dirInfo = new DirectoryInfo(config.Location);
             if (dirInfo.Exists)
             {

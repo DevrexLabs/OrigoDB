@@ -308,16 +308,6 @@ namespace LiveDomain.Core
         #region Static generic Load methods
 
         /// <summary>
-        /// Load using default configuration and location
-        /// </summary>
-        /// <returns>A strongly typed generic Engine</returns>
-        public static Engine<M> Load<M>() where M : Model
-        {
-            var config = EngineConfiguration.Current;
-            return Load<M>(config);
-        }
-
-        /// <summary>
         /// Load from location using the default EngineConfiguration
         /// </summary>
         /// <typeparam name="M"></typeparam>
@@ -334,8 +324,9 @@ namespace LiveDomain.Core
         /// <typeparam name="M"></typeparam>
         /// <param name="config"></param>
         /// <returns></returns>
-    	public static Engine<M> Load<M>(EngineConfiguration config) where M : Model
-    	{
+    	public static Engine<M> Load<M>(EngineConfiguration config = null) where M : Model
+        {
+            config = config ?? EngineConfiguration.Current;
             if (!config.HasLocation) config.SetLocationFromType<M>();
             config.CreateStorage().VerifyCanLoad();
 			var engine = new Engine<M>(config);
@@ -344,17 +335,6 @@ namespace LiveDomain.Core
         #endregion
 
         #region Generic Create methods
-
-        /// <summary>
-        /// Create using default constructor, default EngineConfiguration at the default location
-        /// </summary>
-        /// <typeparam name="M"></typeparam>
-        /// <returns></returns>
-        public static Engine<M> Create<M>() where M : Model
-        {
-            var config = EngineConfiguration.Current;
-            return Create<M>(config);
-        }
 
         public static Engine<M> Create<M>(string location) where M : Model
         {
@@ -370,8 +350,9 @@ namespace LiveDomain.Core
             return Create<M>(model, config);
         }
 
-        public static Engine<M> Create<M>(EngineConfiguration config) where M : Model
+        public static Engine<M> Create<M>(EngineConfiguration config = null) where M : Model
         {
+            config = config ?? EngineConfiguration.Current;
             M model = Activator.CreateInstance<M>();
             return Create(model, config);
         }
@@ -389,34 +370,24 @@ namespace LiveDomain.Core
         #region Static generic LoadOrCreate methods
 
 
-        public static Engine<M> LoadOrCreate<M>() where M : Model, new()
-        {
-            return LoadOrCreate<M>(EngineConfiguration.Current);
-        }
-
-
         public static Engine<M> LoadOrCreate<M>(string location) where M : Model, new()
         {
-
             var config = EngineConfiguration.Current;
             config.Location = location;
             return LoadOrCreate<M>(config);
         }
 
-        public static Engine<M> LoadOrCreate<M>(EngineConfiguration config) where M : Model, new()
+        public static Engine<M> LoadOrCreate<M>(EngineConfiguration config = null) where M : Model, new()
         {
 
+            config = config ?? EngineConfiguration.Current;
             Func<M> constructor = () => Activator.CreateInstance<M>();
             return LoadOrCreate<M>(constructor, config);
         }
 
-        public static Engine<M> LoadOrCreate<M>(Func<M> constructor) where M : Model
+        public static Engine<M> LoadOrCreate<M>(Func<M> constructor, EngineConfiguration config = null) where M : Model
         {
-            return LoadOrCreate(constructor,EngineConfiguration.Current);
-        }
-
-        public static Engine<M> LoadOrCreate<M>(Func<M> constructor, EngineConfiguration config) where M : Model
-        {
+            config = config ?? EngineConfiguration.Current;
             if (constructor == null) throw new ArgumentNullException("constructor");
             if(config == null) throw new ArgumentNullException("config");
             if (!config.HasLocation) config.SetLocationFromType<M>();

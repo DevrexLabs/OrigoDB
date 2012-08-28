@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Text.RegularExpressions;
-using LiveDomain.Core.Configuration;
 
 namespace LiveDomain.Core.Storage
 {
@@ -16,13 +15,9 @@ namespace LiveDomain.Core.Storage
     abstract class StorageBase : IStorage
     {
 
-        EngineConfiguration _config;
+        protected EngineConfiguration _config;
         ISerializer _serializer;
 
-        protected EngineConfiguration EngineConfiguration
-        {
-            get { return _config; }
-        }
 
         protected StorageBase(EngineConfiguration config)
         {

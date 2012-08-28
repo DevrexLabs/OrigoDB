@@ -73,10 +73,6 @@
       <Project>{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}</Project>
       <Name>LiveDomain.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Livedomain.Integration.Blackbox\LiveDomain.Modules.Blackbox.csproj">
-      <Project>{86F16DB8-22E9-483A-A752-87CE48D4DF18}</Project>
-      <Name>LiveDomain.Modules.Blackbox</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

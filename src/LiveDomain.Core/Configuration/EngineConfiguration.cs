@@ -54,7 +54,7 @@ namespace LiveDomain.Core
 
         public StorageMode StorageMode { get; set; }
 
-        public ConcurrencyMode Concurrency { get; set; }
+        public SynchronizationMode Concurrency { get; set; }
 
 
         public SerializationMethod SerializationMethod { get; set; }
@@ -72,7 +72,7 @@ namespace LiveDomain.Core
 
             //Set default values
             LockTimeout = DefaultTimeout;
-            Concurrency = ConcurrencyMode.MultipleReadersOrSingleWriter;
+            Concurrency = SynchronizationMode.SharedRead;
             SerializationMethod = SerializationMethod.NetBinaryFormatter;
             JournalWriterPerformance = JournalWriterPerformanceMode.Synchronous;
             StorageMode = StorageMode.FileSystem;
@@ -114,9 +114,9 @@ namespace LiveDomain.Core
         /// </summary>
         private void InitLockingConfiguration()
         {
-            _registry.Register<ILockStrategy, SingleThreadedLockingStrategy>(ConcurrencyMode.SingleReaderOrWriter.ToString());
-            _registry.Register<ILockStrategy, ReaderWriterLockSlimStrategy>(ConcurrencyMode.MultipleReadersOrSingleWriter.ToString());
-            _registry.Register<ILockStrategy, NullLockingStrategy>(ConcurrencyMode.MultipleReadersAndWriters.ToString());
+            _registry.Register<ILockStrategy, SingleThreadedLockingStrategy>(SynchronizationMode.Exclusive.ToString());
+            _registry.Register<ILockStrategy, ReaderWriterLockSlimStrategy>(SynchronizationMode.SharedRead.ToString());
+            _registry.Register<ILockStrategy, NullLockingStrategy>(SynchronizationMode.None.ToString());
         }
 
         /// <summary>

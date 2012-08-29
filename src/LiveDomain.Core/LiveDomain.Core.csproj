@@ -68,7 +68,7 @@
     <Compile Include="Command.cs" />
     <Compile Include="CommandAbortedException.cs" />
     <Compile Include="Journaling\CommandJournal.cs" />
-    <Compile Include="Configuration\ConcurrencyMode.cs" />
+    <Compile Include="Configuration\SynchronizationMode.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Configuration\EngineConfiguration.cs" />
     <Compile Include="Engine[M].cs" />

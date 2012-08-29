@@ -28,7 +28,7 @@ namespace LiveDomain.Core
         /// </summary>
         EngineConfiguration _config;
         IStorage _storage;
-        ILockStrategy _lock;
+        ISynchronizer _lock;
         ISerializer _serializer;
         bool _isDisposed = false;
         ICommandJournal _commandJournal;

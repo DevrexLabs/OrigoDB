@@ -19,14 +19,14 @@ namespace LiveDomain.Core
         private IJournalWriter _writer;
 		private IStorage _storage;
         private JournalState _state;
-        private EngineConfiguration _engineConfig;
+        private EngineConfiguration _config;
 	    private static ILog _log = Log.GetLogFactory().GetLogForCallingType();
 
 
-        public CommandJournal(EngineConfiguration engineConfig, IStorage storage)
+        public CommandJournal(EngineConfiguration config) //, IStorage storage
         {
-            _engineConfig = engineConfig;
-            _storage = storage;
+            _config = config;
+            _storage = config.CreateStorage();
         }
 
 
@@ -38,7 +38,7 @@ namespace LiveDomain.Core
             _writer.Dispose();
 
             Stream stream = _storage.CreateJournalWriterStream(JournalWriterCreateOptions.NextSegment);
-            _writer = _engineConfig.CreateJournalWriter(stream);
+            _writer = _config.CreateJournalWriter(stream);
         }
 
         public IEnumerable<JournalEntry<Command>> GetEntriesFrom(JournalSegmentInfo segment)
@@ -69,7 +69,7 @@ namespace LiveDomain.Core
             }
             
             Stream stream = _storage.CreateJournalWriterStream(JournalWriterCreateOptions.Append);
-            _writer = _engineConfig.CreateJournalWriter(stream);
+            _writer = _config.CreateJournalWriter(stream);
             _state = JournalState.Open;
 		}
 
@@ -82,7 +82,7 @@ namespace LiveDomain.Core
 
 			var entry = new JournalEntry<Command>(command);
 			_writer.Write(entry);
-            if (_writer.Length >= _engineConfig.JournalSegmentSizeInBytes)
+            if (_writer.Length >= _config.JournalSegmentSizeInBytes)
             {
                 CreateNextSegment();
             }

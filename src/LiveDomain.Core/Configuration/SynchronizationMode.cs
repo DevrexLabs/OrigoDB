@@ -6,8 +6,6 @@ using System.Text;
 namespace LiveDomain.Core
 {
 
-
-
     /// <summary>
     /// Engine chooses Locking strategy based on this setting
     /// </summary>

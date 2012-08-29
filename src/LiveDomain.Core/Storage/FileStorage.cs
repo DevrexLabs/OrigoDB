@@ -8,7 +8,7 @@ using LiveDomain.Core.Storage;
 namespace LiveDomain.Core
 {
     /// <summary>
-    /// Storage implementation using a local file system
+    /// File system based Storage implementation
     /// </summary>
     internal class FileStorage : StorageBase
     {
@@ -80,6 +80,10 @@ namespace LiveDomain.Core
             return new FileStream(path, filemode, FileAccess.Write);
         }
 
+        /// <summary>
+        /// Must not exist but must be empty if it does
+        /// </summary>
+        /// <param name="directory"></param>
         private void VerifyDirectory(string directory)
         {
             if (Directory.Exists(directory))

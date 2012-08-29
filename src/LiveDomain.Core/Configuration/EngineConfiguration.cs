@@ -80,7 +80,7 @@ namespace LiveDomain.Core
             CloneResults = true;
             CloneCommands = true;
 
-            _registry.Register<ICommandJournal>((c, p) => new CommandJournal(this, CreateStorage()));
+            _registry.Register<ICommandJournal>((c, p) => new CommandJournal(this));
             _registry.Register<IAuthorizer<Type>>((c, p) => new PermissionSet<Type>(Permission.Allowed));
             _registry.Register<ISerializer>((c,p) => new Serializer(CreateFormatter()));
 
@@ -114,9 +114,9 @@ namespace LiveDomain.Core
         /// </summary>
         private void InitLockingConfiguration()
         {
-            _registry.Register<ILockStrategy, SingleThreadedLockingStrategy>(SynchronizationMode.Exclusive.ToString());
-            _registry.Register<ILockStrategy, ReaderWriterLockSlimStrategy>(SynchronizationMode.SharedRead.ToString());
-            _registry.Register<ILockStrategy, NullLockingStrategy>(SynchronizationMode.None.ToString());
+            _registry.Register<ISynchronizer, ExclusiveSynchronizer>(SynchronizationMode.Exclusive.ToString());
+            _registry.Register<ISynchronizer, ReadWriteSynchronizer>(SynchronizationMode.SharedRead.ToString());
+            _registry.Register<ISynchronizer, NullSynchronizer>(SynchronizationMode.None.ToString());
         }
 
         /// <summary>
@@ -183,9 +183,9 @@ namespace LiveDomain.Core
         /// Factory method choosing concrete type based on ConcurrencyMode property
         /// </summary>
         /// <returns></returns>
-        protected internal virtual ILockStrategy CreateLockingStrategy()
+        protected internal virtual ISynchronizer CreateLockingStrategy()
         {
-            return _registry.Resolve<ILockStrategy>(Concurrency.ToString());
+            return _registry.Resolve<ISynchronizer>(Concurrency.ToString());
         }
 
         protected internal virtual IJournalWriter CreateJournalWriter(Stream stream)

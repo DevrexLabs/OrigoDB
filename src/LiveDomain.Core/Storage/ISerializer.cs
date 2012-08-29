@@ -3,6 +3,10 @@ using System.IO;
 using System.Collections.Generic;
 namespace LiveDomain.Core
 {
+
+    /// <summary>
+    /// Some high level serialization services
+    /// </summary>
     public interface ISerializer
     {
         object Clone(object graph);

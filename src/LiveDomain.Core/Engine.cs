@@ -37,10 +37,6 @@ namespace LiveDomain.Core
 
         public EngineConfiguration Config { get { return _config; } }
 
-        private IAuthorizer<Type> CreateAuthorizer()
-        {
-            return _theModel as IAuthorizer<Type> ?? _config.GetAuthorizer();
-        }
  
         /// <summary>
         /// Shuts down the engine
@@ -106,7 +102,7 @@ namespace LiveDomain.Core
 
             _commandJournal = _config.CreateCommandJournal();
             Restore(constructor);
-            _authorizer = CreateAuthorizer();
+            _authorizer = _config.CreateAuthorizer();
             _commandJournal.Open();
             
             if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)

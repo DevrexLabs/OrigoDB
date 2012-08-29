@@ -13,6 +13,12 @@ namespace LiveDomain.Core
 
     public partial class EngineConfiguration : ConfigurationBase
     {
+        protected TinyIoCContainer _registry;
+
+        /// <summary>
+        /// Ensure command journal is created only once
+        /// </summary>
+        private bool _commandJournalCreated;
 
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
         public const string DefaultDateFormatString = "yyyy.MM.dd.hh.mm.ss.fff";
@@ -52,15 +58,22 @@ namespace LiveDomain.Core
         /// </summary>
         public SnapshotBehavior SnapshotBehavior { get; set; }
 
-        public StorageMode StorageMode { get; set; }
+        public StorageType StorageType { get; set; }
 
         /// <summary>
         /// Effects which ISynchronizer is chosen by CreateSynchronizer()
         /// </summary>
         public SynchronizationMode Synchronization { get; set; }
 
-        public SerializationMethod SerializationMethod { get; set; }
-        public JournalWriterPerformanceMode JournalWriterPerformance { get; set; }
+        /// <summary>
+        /// Serialization format, defaults to BinaryFormatter
+        /// </summary>
+        public ObjectFormatting ObjectFormatting { get; set; }
+
+        /// <summary>
+        /// Synchronous or Asynchronous journaling
+        /// </summary>
+        public JournalWriterMode JournalWriterMode { get; set; }
 
 
         /// <summary>
@@ -75,26 +88,29 @@ namespace LiveDomain.Core
             //Set default values
             LockTimeout = DefaultTimeout;
             Synchronization = SynchronizationMode.ReadWrite;
-            SerializationMethod = SerializationMethod.NetBinaryFormatter;
-            JournalWriterPerformance = JournalWriterPerformanceMode.Synchronous;
-            StorageMode = StorageMode.FileSystem;
+            ObjectFormatting = ObjectFormatting.NetBinaryFormatter;
+            JournalWriterMode = JournalWriterMode.Synchronous;
+            StorageType = StorageType.FileSystem;
             JournalSegmentSizeInBytes = DefaultJournalSegmentSizeInBytes;
             CloneResults = true;
             CloneCommands = true;
 
+            _registry = new TinyIoCContainer();
             _registry.Register<ICommandJournal>((c, p) => new CommandJournal(this));
-            _registry.Register<IAuthorizer<Type>>((c, p) => new PermissionSet<Type>(Permission.Allowed));
+            _registry.Register<IAuthorizer<Type>>((c, p) => new TypeBasedPermissionSet(Permission.Allowed));
             _registry.Register<ISerializer>((c,p) => new Serializer(CreateFormatter()));
 
-            InitSynchronizationConfiguration();
-
-            InitJournalWriterConfiguration();
-            InitStorageConfiguration();
-            InitLockingConfiguration();
-            InitFormatterConfiguration();
+            InitSynchronizers();
+            InitJournalWriters();
+            InitStorageTypes();
+            InitFormatters();
         }
 
-        private void InitSynchronizationConfiguration()
+        #region Factory initializers
+        /// <summary>
+        /// Created a named registration for each SynchronizationMode enumeration value
+        /// </summary>
+        private void InitSynchronizers()
         {
             _registry.Register<ISynchronizer>((c, p) => new ReadWriteSynchronizer(LockTimeout),
                                               SynchronizationMode.ReadWrite.ToString());
@@ -103,54 +119,45 @@ namespace LiveDomain.Core
             _registry.Register<ISynchronizer>((c, p) => new ExclusiveSynchronizer(LockTimeout),
                                   SynchronizationMode.Exclusive.ToString());
 
-            
+
         }
 
-        private void InitJournalWriterConfiguration()
+        /// <summary>
+        /// Created a named registration for each JournalWriterPerformance enumeration value
+        /// </summary>
+        private void InitJournalWriters()
         {
             _registry.Register<IJournalWriter>(
                 (c, p) => new AsynchronousJournalWriter(new SynchronousJournalWriter(p["stream"] as Stream, CreateSerializer())),
-                JournalWriterPerformanceMode.Asynchronous.ToString());
+                JournalWriterMode.Asynchronous.ToString());
             _registry.Register<IJournalWriter>(
                 (c, p) => new SynchronousJournalWriter(p["stream"] as Stream, CreateSerializer()),
-                JournalWriterPerformanceMode.Synchronous.ToString());
+                JournalWriterMode.Synchronous.ToString());
         }
 
-        private void InitFormatterConfiguration()
+        private void InitFormatters()
         {
             _registry.Register<IFormatter>((c, p) => new BinaryFormatter(),
-                                           SerializationMethod.NetBinaryFormatter.ToString());
+                                           ObjectFormatting.NetBinaryFormatter.ToString());
             _registry.Register<IFormatter>((c, p) => LoadFromConfig<IFormatter>(),
-                                           SerializationMethod.Custom.ToString());
+                                           ObjectFormatting.Custom.ToString());
         }
 
-
-        /// <summary>
-        /// Created a named registration for each ConcurrencyMode enumeration value
-        /// </summary>
-        private void InitLockingConfiguration()
-        {
-            _registry.Register<ISynchronizer, ExclusiveSynchronizer>(SynchronizationMode.Exclusive.ToString());
-            _registry.Register<ISynchronizer, ReadWriteSynchronizer>(SynchronizationMode.ReadWrite.ToString());
-            _registry.Register<ISynchronizer, NullSynchronizer>(SynchronizationMode.None.ToString());
-        }
 
         /// <summary>
         /// Create a named registration for each StorageMode enumeration value
         /// </summary>
-        private void InitStorageConfiguration()
+        private void InitStorageTypes()
         {
-            
-            _registry.Register<IStorage>((c, p) => new FileStorage(this), StorageMode.FileSystem.ToString());
-            _registry.Register<IStorage, NullStorage>(StorageMode.None.ToString());
+
+            _registry.Register<IStorage>((c, p) => new FileStorage(this), StorageType.FileSystem.ToString());
+            _registry.Register<IStorage, NullStorage>(StorageType.None.ToString());
 
             //If StorageMode is set to custom and no factory has been injected, the fully qualified type 
             //name will be resolved from the app configuration file.
-            _registry.Register<IStorage>((c, p) => LoadFromConfig<IStorage>(), StorageMode.Custom.ToString());
-        }
-
-
-        protected TinyIoCContainer _registry = new TinyIoCContainer();
+            _registry.Register<IStorage>((c, p) => LoadFromConfig<IStorage>(), StorageType.Custom.ToString());
+        } 
+        #endregion
 
         /// <summary>
         /// Looks up a custom implementation in app config file with the key LiveDb.EngineConfiguration
@@ -165,34 +172,16 @@ namespace LiveDomain.Core
             return bootloader.LoadFromConfigOrDefault(() => bootloader);
         }
 
-        /// <summary>
-        /// Inject your custom storage factory here. StorageMode property will be set to Custom
-        /// </summary>
-        /// <param name="factory"></param>
-        public void SetCustomStorageFactory(Func<IStorage> factory)
-        {
-            StorageMode = StorageMode.Custom;
-            _registry.Register<IStorage>((c, p) => factory.Invoke(), StorageMode.Custom.ToString());
-        }
-
+        #region Factory methods
         protected internal virtual ISerializer CreateSerializer()
         {
             return _registry.Resolve<ISerializer>();
         }
 
-        public void SetCustomSerializerFactory(Func<EngineConfiguration, ISerializer> factory )
-        {
-            _registry.Register<ISerializer>((c, p) => factory.Invoke(this));
-        }
         protected internal virtual IFormatter CreateFormatter()
         {
-            string name = SerializationMethod.ToString();
+            string name = ObjectFormatting.ToString();
             return _registry.Resolve<IFormatter>(name);
-        }
-
-        public void SetCustomFormatterFactory(Func<EngineConfiguration, IFormatter> factory )
-        {
-            _registry.Register<IFormatter>((c, p) => factory.Invoke(this));
         }
 
         /// <summary>
@@ -207,27 +196,22 @@ namespace LiveDomain.Core
 
         protected internal virtual IJournalWriter CreateJournalWriter(Stream stream)
         {
-            string registrationName = JournalWriterPerformance.ToString();
-            var args = new NamedParameterOverloads {{"stream", stream}};
+            string registrationName = JournalWriterMode.ToString();
+            var args = new NamedParameterOverloads { { "stream", stream } };
             return _registry.Resolve<IJournalWriter>(registrationName, args);
         }
 
 
-        protected internal virtual IAuthorizer<Type> GetAuthorizer()
+        protected internal virtual IAuthorizer<Type> CreateAuthorizer()
         {
             return _registry.Resolve<IAuthorizer<Type>>();
         }
 
-
-
         protected internal virtual IStorage CreateStorage()
         {
-            string name = StorageMode.ToString();
+            string name = StorageType.ToString();
             return _registry.Resolve<IStorage>(name);
         }
-
-        private bool _commandJournalCreated = false;
-
 
         /// <summary>
         /// Creates and returns a new command journal instance, can only be called once.
@@ -237,27 +221,59 @@ namespace LiveDomain.Core
         /// <returns></returns>
         protected internal virtual ICommandJournal CreateCommandJournal()
         {
-            if(_commandJournalCreated) throw new InvalidOperationException();
+            if (_commandJournalCreated) throw new InvalidOperationException();
             _commandJournalCreated = true;
             return _registry.Resolve<ICommandJournal>();
         }
 
+        #endregion
+
+        #region Factory Injection Methods
         /// <summary>
         /// Inject a custom command journal factory. 
         /// Will throw if called after journal has been created.
         /// </summary>
         /// <param name="factory"></param>
-        public void SetCommandJournalFactory(Func<ICommandJournal> factory)
+        public void SetCommandJournalFactory(Func<EngineConfiguration, ICommandJournal> factory)
         {
             if (_commandJournalCreated) throw new InvalidOperationException();
-            _registry.Register<ICommandJournal>((c, p) => factory.Invoke());
+            _registry.Register<ICommandJournal>((c, p) => factory.Invoke(this));
         }
 
-        public void SetSynchronizerFactory(Func<EngineConfiguration,ISynchronizer> factory)
+        public void SetSynchronizerFactory(Func<EngineConfiguration, ISynchronizer> factory)
         {
             Synchronization = SynchronizationMode.Custom;
             string registrationName = Synchronization.ToString();
-            _registry.Register<ISynchronizer>((c,p) => factory.Invoke(this),registrationName);
+            _registry.Register<ISynchronizer>((c, p) => factory.Invoke(this), registrationName);
         }
+
+        public void SetAuthorizerFactory(Func<EngineConfiguration, IAuthorizer<Type>> factory)
+        {
+            _registry.Register<IAuthorizer<Type>>((c, p) => factory.Invoke(this));
+        }
+
+        public void SetFormatterFactory(Func<EngineConfiguration, IFormatter> factory)
+        {
+            ObjectFormatting = ObjectFormatting.Custom;
+            string registrationName = ObjectFormatting.ToString();
+            _registry.Register<IFormatter>((c, p) => factory.Invoke(this), registrationName);
+        }
+
+        /// <summary>
+        /// Inject your custom storage factory here. StorageMode property will be set to Custom
+        /// </summary>
+        /// <param name="factory"></param>
+        public void SetStorageFactory(Func<EngineConfiguration, IStorage> factory)
+        {
+            StorageType = StorageType.Custom;
+            string registrationName = StorageType.ToString();
+            _registry.Register<IStorage>((c, p) => factory.Invoke(this), registrationName);
+        }
+
+        public void SetSerializerFactory(Func<EngineConfiguration, ISerializer> factory)
+        {
+            _registry.Register<ISerializer>((c, p) => factory.Invoke(this));
+        } 
+        #endregion
     }
 }

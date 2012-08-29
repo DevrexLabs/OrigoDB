@@ -6,7 +6,7 @@ using System.Security.Principal;
 namespace LiveDomain.Core.Security
 {
     [Serializable]
-    public class PermissionSet<T> :IAuthorizer<T>
+    public abstract class PermissionSet<T> :IAuthorizer<T>
     {
 
         List<Rule<T>> _rulesDenied = new List<Rule<T>>();

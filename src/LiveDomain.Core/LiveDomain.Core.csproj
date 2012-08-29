@@ -73,7 +73,7 @@
     <Compile Include="Configuration\EngineConfiguration.cs" />
     <Compile Include="Engine[M].cs" />
     <Compile Include="Journaling\ICommandJournal.cs" />
-    <Compile Include="Configuration\JournalWriterPerformanceMode.cs" />
+    <Compile Include="Configuration\JournalWriterMode.cs" />
     <Compile Include="Logging\NullLogger.cs" />
     <Compile Include="Security\SecurityModel.cs" />
     <Compile Include="Security\MatchAllRule.cs" />
@@ -88,13 +88,13 @@
     <Compile Include="TinyIoC.cs" />
     <Compile Include="Utilities\TypeExtensions.cs" />
     <Compile Include="Security\User.cs" />
-    <Compile Include="Storage\StorageMode.cs" />
+    <Compile Include="Storage\StorageType.cs" />
     <Compile Include="Storage\JournalSegmentInfo.cs" />
     <Compile Include="Storage\ISerializer.cs" />
     <Compile Include="Storage\NullStorage.cs" />
     <Compile Include="Storage\NullWriterStream.cs" />
     <Compile Include="Storage\StorageBase.cs" />
-    <Compile Include="Configuration\SerializationMethod.cs" />
+    <Compile Include="Configuration\ObjectFormatting.cs" />
     <Compile Include="Configuration\SnapshotBehavior.cs" />
     <Compile Include="Storage\StorageBlobIdentifier.cs" />
     <Compile Include="Synchronization\ISynchronizer.cs" />
@@ -125,9 +125,7 @@
     <None Include="packages.config" />
     <None Include="Security\ClassDiagram2.cd" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="modules\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -84,8 +84,8 @@ namespace LiveDomain.Core.Test
         {
             var config = new EngineConfiguration();
             config.Location = Path;
-            config.JournalWriterPerformance = JournalWriterPerformanceMode.Synchronous;
-            config.StorageMode = StorageMode.FileSystem;
+            config.JournalWriterMode = JournalWriterMode.Synchronous;
+            config.StorageType = StorageType.FileSystem;
             config.SnapshotBehavior = SnapshotBehavior.AfterRestore;
             return config;
         }
@@ -272,7 +272,7 @@ namespace LiveDomain.Core.Test
         public void TinyIocResolvesNamedRegistration()
         {
             var registry = new TinyIoCContainer();
-            string name = StorageMode.FileSystem.ToString();
+            string name = StorageType.FileSystem.ToString();
             registry.Register<IStorage>((c,p) => new FileStorage(new EngineConfiguration()), name);
             var result = registry.Resolve<IStorage>(name);
             Assert.IsNotNull(result);

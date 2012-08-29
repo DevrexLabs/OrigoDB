@@ -84,9 +84,10 @@ namespace LiveDomain.Core.Test
         {
             var config = new EngineConfiguration();
             config.Location = Path;
-            config.JournalWriterMode = JournalWriterMode.Synchronous;
+            config.JournalWriterMode = JournalWriterMode.Asynchronous;
             config.StorageType = StorageType.FileSystem;
             config.SnapshotBehavior = SnapshotBehavior.AfterRestore;
+            config.Synchronization = SynchronizationMode.Exclusive;
             return config;
         }
 

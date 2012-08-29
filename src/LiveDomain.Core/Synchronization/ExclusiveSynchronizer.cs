@@ -24,17 +24,17 @@ namespace LiveDomain.Core
 
         public void EnterRead()
         {
-            Monitor.TryEnter(_lock, Timeout);
+            InvokeAndThrowIfFalse( () =>Monitor.TryEnter(_lock, Timeout));
         }
 
         public void EnterUpgrade()
         {
-            Monitor.TryEnter(_lock, Timeout);
+            InvokeAndThrowIfFalse( () => Monitor.TryEnter(_lock, Timeout));
         }
 
         public void EnterWrite()
         {
-            Monitor.TryEnter(_lock, Timeout);
+            InvokeAndThrowIfFalse( () => Monitor.TryEnter(_lock, Timeout));
         }
 
         public void Exit()
@@ -42,5 +42,9 @@ namespace LiveDomain.Core
             Monitor.Exit(_lock);
         }
 
+        private void InvokeAndThrowIfFalse(Func<bool> func )
+        {
+            if(!func.Invoke()) throw new TimeoutException("Couldn't aquire lock within the specified timeout period");
+        }
     }
 }

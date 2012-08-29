@@ -15,7 +15,7 @@ namespace LiveDomain.Core
         /// <summary>
         /// Allow multiple queries or a single command
         /// </summary>
-        SharedRead,
+        ReadWrite,
 
         /// <summary>
         /// Allow any access, thread safety is controlled by client code

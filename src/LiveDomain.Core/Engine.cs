@@ -102,7 +102,7 @@ namespace LiveDomain.Core
             _config = config;
 
             _storage = _config.CreateStorage();
-            _lock = _config.CreateLockingStrategy();
+            _lock = _config.CreateSynchronizer();
 
             _commandJournal = _config.CreateCommandJournal();
             Restore(constructor);

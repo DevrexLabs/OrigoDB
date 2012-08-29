@@ -54,8 +54,10 @@ namespace LiveDomain.Core
 
         public StorageMode StorageMode { get; set; }
 
-        public SynchronizationMode Concurrency { get; set; }
-
+        /// <summary>
+        /// Effects which ISynchronizer is chosen by CreateSynchronizer()
+        /// </summary>
+        public SynchronizationMode Synchronization { get; set; }
 
         public SerializationMethod SerializationMethod { get; set; }
         public JournalWriterPerformanceMode JournalWriterPerformance { get; set; }
@@ -72,7 +74,7 @@ namespace LiveDomain.Core
 
             //Set default values
             LockTimeout = DefaultTimeout;
-            Concurrency = SynchronizationMode.SharedRead;
+            Synchronization = SynchronizationMode.ReadWrite;
             SerializationMethod = SerializationMethod.NetBinaryFormatter;
             JournalWriterPerformance = JournalWriterPerformanceMode.Synchronous;
             StorageMode = StorageMode.FileSystem;
@@ -84,10 +86,24 @@ namespace LiveDomain.Core
             _registry.Register<IAuthorizer<Type>>((c, p) => new PermissionSet<Type>(Permission.Allowed));
             _registry.Register<ISerializer>((c,p) => new Serializer(CreateFormatter()));
 
+            InitSynchronizationConfiguration();
+
             InitJournalWriterConfiguration();
             InitStorageConfiguration();
             InitLockingConfiguration();
             InitFormatterConfiguration();
+        }
+
+        private void InitSynchronizationConfiguration()
+        {
+            _registry.Register<ISynchronizer>((c, p) => new ReadWriteSynchronizer(LockTimeout),
+                                              SynchronizationMode.ReadWrite.ToString());
+            _registry.Register<ISynchronizer>((c, p) => new NullSynchronizer(),
+                                              SynchronizationMode.None.ToString());
+            _registry.Register<ISynchronizer>((c, p) => new ExclusiveSynchronizer(LockTimeout),
+                                  SynchronizationMode.Exclusive.ToString());
+
+            
         }
 
         private void InitJournalWriterConfiguration()
@@ -115,7 +131,7 @@ namespace LiveDomain.Core
         private void InitLockingConfiguration()
         {
             _registry.Register<ISynchronizer, ExclusiveSynchronizer>(SynchronizationMode.Exclusive.ToString());
-            _registry.Register<ISynchronizer, ReadWriteSynchronizer>(SynchronizationMode.SharedRead.ToString());
+            _registry.Register<ISynchronizer, ReadWriteSynchronizer>(SynchronizationMode.ReadWrite.ToString());
             _registry.Register<ISynchronizer, NullSynchronizer>(SynchronizationMode.None.ToString());
         }
 
@@ -180,12 +196,13 @@ namespace LiveDomain.Core
         }
 
         /// <summary>
-        /// Factory method choosing concrete type based on ConcurrencyMode property
+        /// Gets a synchronizer based on the SynchronizationMode property
         /// </summary>
         /// <returns></returns>
-        protected internal virtual ISynchronizer CreateLockingStrategy()
+        protected internal virtual ISynchronizer CreateSynchronizer()
         {
-            return _registry.Resolve<ISynchronizer>(Concurrency.ToString());
+            string registrationName = Synchronization.ToString();
+            return _registry.Resolve<ISynchronizer>(registrationName);
         }
 
         protected internal virtual IJournalWriter CreateJournalWriter(Stream stream)
@@ -234,6 +251,13 @@ namespace LiveDomain.Core
         {
             if (_commandJournalCreated) throw new InvalidOperationException();
             _registry.Register<ICommandJournal>((c, p) => factory.Invoke());
+        }
+
+        public void SetSynchronizerFactory(Func<EngineConfiguration,ISynchronizer> factory)
+        {
+            Synchronization = SynchronizationMode.Custom;
+            string registrationName = Synchronization.ToString();
+            _registry.Register<ISynchronizer>((c,p) => factory.Invoke(this),registrationName);
         }
     }
 }

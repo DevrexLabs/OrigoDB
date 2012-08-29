@@ -73,9 +73,6 @@ namespace LiveDomain.Core.Test
         [TestMethod()]
         public void EngineConfigurationConstructorTest()
         {
-            string targetLocation = string.Empty; // TODO: Initialize to an appropriate value
-            EngineConfiguration target = new EngineConfiguration(targetLocation);
-            Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
         /// <summary>
@@ -147,7 +144,7 @@ namespace LiveDomain.Core.Test
             EngineConfiguration target = new EngineConfiguration(targetLocation); // TODO: Initialize to an appropriate value
             ISynchronizer expected = null; // TODO: Initialize to an appropriate value
             ISynchronizer actual;
-            actual = target.CreateLockingStrategy();
+            actual = target.CreateSynchronizer();
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -210,53 +207,11 @@ namespace LiveDomain.Core.Test
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
-        /// <summary>
-        ///A test for InitFormatterConfiguration
-        ///</summary>
-        [TestMethod()]
-        [DeploymentItem("LiveDomain.Core.dll")]
-        public void InitFormatterConfigurationTest()
-        {
-            // Creation of the private accessor for 'Microsoft.VisualStudio.TestTools.TypesAndSymbols.Assembly' failed
-            Assert.Inconclusive("Creation of the private accessor for \'Microsoft.VisualStudio.TestTools.TypesAndSy" +
-                    "mbols.Assembly\' failed");
-        }
 
-        /// <summary>
-        ///A test for InitJournalWriterConfiguration
-        ///</summary>
-        [TestMethod()]
-        [DeploymentItem("LiveDomain.Core.dll")]
-        public void InitJournalWriterConfigurationTest()
-        {
-            // Creation of the private accessor for 'Microsoft.VisualStudio.TestTools.TypesAndSymbols.Assembly' failed
-            Assert.Inconclusive("Creation of the private accessor for \'Microsoft.VisualStudio.TestTools.TypesAndSy" +
-                    "mbols.Assembly\' failed");
-        }
 
-        /// <summary>
-        ///A test for InitLockingConfiguration
-        ///</summary>
-        [TestMethod()]
-        [DeploymentItem("LiveDomain.Core.dll")]
-        public void InitLockingConfigurationTest()
-        {
-            // Creation of the private accessor for 'Microsoft.VisualStudio.TestTools.TypesAndSymbols.Assembly' failed
-            Assert.Inconclusive("Creation of the private accessor for \'Microsoft.VisualStudio.TestTools.TypesAndSy" +
-                    "mbols.Assembly\' failed");
-        }
 
-        /// <summary>
-        ///A test for InitStorageConfiguration
-        ///</summary>
-        [TestMethod()]
-        [DeploymentItem("LiveDomain.Core.dll")]
-        public void InitStorageConfigurationTest()
-        {
-            // Creation of the private accessor for 'Microsoft.VisualStudio.TestTools.TypesAndSymbols.Assembly' failed
-            Assert.Inconclusive("Creation of the private accessor for \'Microsoft.VisualStudio.TestTools.TypesAndSy" +
-                    "mbols.Assembly\' failed");
-        }
+
+ 
 
         /// <summary>
         ///A test for SetCommandJournalFactory
@@ -343,37 +298,7 @@ namespace LiveDomain.Core.Test
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
-        /// <summary>
-        ///A test for CloneResults
-        ///</summary>
-        [TestMethod()]
-        public void CloneResultsTest()
-        {
-            string targetLocation = string.Empty; // TODO: Initialize to an appropriate value
-            EngineConfiguration target = new EngineConfiguration(targetLocation); // TODO: Initialize to an appropriate value
-            bool expected = false; // TODO: Initialize to an appropriate value
-            bool actual;
-            target.CloneResults = expected;
-            actual = target.CloneResults;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
-        }
 
-        /// <summary>
-        ///A test for Concurrency
-        ///</summary>
-        [TestMethod()]
-        public void ConcurrencyTest()
-        {
-            string targetLocation = string.Empty; // TODO: Initialize to an appropriate value
-            EngineConfiguration target = new EngineConfiguration(targetLocation); // TODO: Initialize to an appropriate value
-            SynchronizationMode expected = new SynchronizationMode(); // TODO: Initialize to an appropriate value
-            SynchronizationMode actual;
-            target.Concurrency = expected;
-            actual = target.Concurrency;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
-        }
 
         /// <summary>
         ///A test for HasAlternativeSnapshotLocation

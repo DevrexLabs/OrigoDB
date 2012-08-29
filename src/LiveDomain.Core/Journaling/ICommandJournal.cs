@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
-	internal interface ICommandJournal
+	public interface ICommandJournal
 	{
 
 

@@ -13,12 +13,18 @@ namespace LiveDomain.Core
     public class ReaderWriterLockSlimStrategy : ILockStrategy
     {
 
+        public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
         
         ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
 
 
         public TimeSpan Timeout { get; set; }
 
+
+        public ReaderWriterLockSlimStrategy() : this(DefaultTimeout)
+        {
+            
+        }
         public ReaderWriterLockSlimStrategy(TimeSpan timeout)
         {
             Timeout = timeout;

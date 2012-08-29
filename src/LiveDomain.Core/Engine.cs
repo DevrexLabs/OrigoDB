@@ -4,7 +4,6 @@ using System.Linq;
 using System.IO;
 using System.Reflection;
 using System.Threading;
-using LiveDomain.Core.Configuration;
 using LiveDomain.Core.Logging;
 using LiveDomain.Core.Security;
 
@@ -33,14 +32,14 @@ namespace LiveDomain.Core
         ISerializer _serializer;
         bool _isDisposed = false;
         ICommandJournal _commandJournal;
-        static ILog _log = EngineConfiguration.Current.GetLogFactory().GetLogForCallingType();
+        static ILog _log = Log.GetLogFactory().GetLogForCallingType();
         IAuthorizer<Type> _authorizer;
 
         public EngineConfiguration Config { get { return _config; } }
 
         private IAuthorizer<Type> CreateAuthorizer()
         {
-            return _theModel as IAuthorizer<Type> ?? _config.CreateAuthorizer();
+            return _theModel as IAuthorizer<Type> ?? _config.GetAuthorizer();
         }
  
         /// <summary>
@@ -105,7 +104,7 @@ namespace LiveDomain.Core
             _storage = _config.CreateStorage();
             _lock = _config.CreateLockingStrategy();
 
-            _commandJournal = _config.CreateCommandJournal(_storage);
+            _commandJournal = _config.CreateCommandJournal();
             Restore(constructor);
             _authorizer = CreateAuthorizer();
             _commandJournal.Open();
@@ -275,7 +274,7 @@ namespace LiveDomain.Core
 
         public static Engine Load(string location)
         {
-            var config = EngineConfiguration.Current;
+            var config = EngineConfiguration.Create();
             config.Location = location;
             return Load(config);
         }
@@ -290,7 +289,7 @@ namespace LiveDomain.Core
 
         public static Engine Create(Model model, string location)
         {
-            var config = EngineConfiguration.Current;
+            var config = EngineConfiguration.Create();
             config.Location = location;
             return Create(model, config);
         }
@@ -314,8 +313,10 @@ namespace LiveDomain.Core
         /// <param name="location"></param>
         /// <returns></returns>
         public static Engine<M> Load<M>(string location) where M : Model
-    	{
-    		return Load<M>(new EngineConfiguration(location));
+        {
+            var config = EngineConfiguration.Create();
+            config.Location = location;
+    		return Load<M>(config);
     	}
 
         /// <summary>
@@ -326,7 +327,7 @@ namespace LiveDomain.Core
         /// <returns></returns>
     	public static Engine<M> Load<M>(EngineConfiguration config = null) where M : Model
         {
-            config = config ?? EngineConfiguration.Current;
+            config = config ?? EngineConfiguration.Create();
             if (!config.HasLocation) config.SetLocationFromType<M>();
             config.CreateStorage().VerifyCanLoad();
 			var engine = new Engine<M>(config);
@@ -338,21 +339,21 @@ namespace LiveDomain.Core
 
         public static Engine<M> Create<M>(string location) where M : Model
         {
-            var config = EngineConfiguration.Current;
+            var config = EngineConfiguration.Create();
             config.Location = location;
             return Create<M>(config);
         }
 
         public static Engine<M> Create<M>(M model, string location) where M : Model
         {
-            var config = EngineConfiguration.Current;
+            var config = EngineConfiguration.Create();
             config.Location = location;
             return Create<M>(model, config);
         }
 
         public static Engine<M> Create<M>(EngineConfiguration config = null) where M : Model
         {
-            config = config ?? EngineConfiguration.Current;
+            config = config ?? EngineConfiguration.Create();
             M model = Activator.CreateInstance<M>();
             return Create(model, config);
         }
@@ -372,7 +373,7 @@ namespace LiveDomain.Core
 
         public static Engine<M> LoadOrCreate<M>(string location) where M : Model, new()
         {
-            var config = EngineConfiguration.Current;
+            var config = EngineConfiguration.Create();
             config.Location = location;
             return LoadOrCreate<M>(config);
         }
@@ -380,14 +381,14 @@ namespace LiveDomain.Core
         public static Engine<M> LoadOrCreate<M>(EngineConfiguration config = null) where M : Model, new()
         {
 
-            config = config ?? EngineConfiguration.Current;
+            config = config ?? EngineConfiguration.Create();
             Func<M> constructor = () => Activator.CreateInstance<M>();
             return LoadOrCreate<M>(constructor, config);
         }
 
         public static Engine<M> LoadOrCreate<M>(Func<M> constructor, EngineConfiguration config = null) where M : Model
         {
-            config = config ?? EngineConfiguration.Current;
+            config = config ?? EngineConfiguration.Create();
             if (constructor == null) throw new ArgumentNullException("constructor");
             if(config == null) throw new ArgumentNullException("config");
             if (!config.HasLocation) config.SetLocationFromType<M>();

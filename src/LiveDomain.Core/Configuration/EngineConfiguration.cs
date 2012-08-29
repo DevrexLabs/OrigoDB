@@ -1,68 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using LiveDomain.Core.Logging;
 using LiveDomain.Core.Security;
+using TinyIoC;
 
-namespace LiveDomain.Core.Configuration
+namespace LiveDomain.Core
 {
 
-    [Serializable]
-    public class EngineConfiguration
+    public partial class EngineConfiguration : ConfigurationBase
     {
 
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
-        public const string DefaultDateFormatString =  "yyyy.MM.dd.hh.mm.ss.fff";
+        public const string DefaultDateFormatString = "yyyy.MM.dd.hh.mm.ss.fff";
         public const long DefaultJournalSegmentSizeInBytes = 1024 * 1024;
 
-
-        string _location, _snapshotLocation;
-
-        /// <summary>
-        /// The location of the command journal and snapshots. A directory path when using FileStorage, 
-        /// a connection string when using SqlStorage.
-        /// Assigning a relative path will resolve to current directory or App_Data if running in a web context
-        /// </summary>
-        public string Location
-        {
-            get { return Path.Combine(GetDefaultDirectory(), _location); }
-            set { _location = value; }
-        }
-        
-
-
-
-        /// <summary>
-        /// Same as TargetLocation unless set to some other location
-        /// </summary>
-        public string SnapshotLocation
-        {
-            get
-            {
-                return _snapshotLocation ?? Location;
-            }
-            set
-            {
-                if (value == null || value == Location) _snapshotLocation = null;
-                else _snapshotLocation = value;
-            }
-        }
-
-        
-
-        /// <summary>
-        /// True if the snapshotlocation differs from the location of the journal
-        /// </summary>
-        public bool HasAlternativeSnapshotLocation
-        {
-            get
-            {
-                return _snapshotLocation != null;
-            }
-
-        }
 
         /// <summary>
         /// When segment exceeds this size a new segment is created
@@ -92,270 +47,193 @@ namespace LiveDomain.Core.Configuration
         public TimeSpan LockTimeout { get; set; }
 
 
-        public SnapshotBehavior SnapshotBehavior{get;set;}
-
-        public CompressionMethod Compression 
-        { 
-            get { return CompressionMethod.None; } 
-            set 
-            {
-                if (value != CompressionMethod.None)
-                {
-                    throw new ArgumentException("Compression not yet supported", "CompressionMethod");
-                }
-            } 
-        }
+        /// <summary>
+        /// When to take automatic snapshots
+        /// </summary>
+        public SnapshotBehavior SnapshotBehavior { get; set; }
 
         public StorageMode StorageMode { get; set; }
-        public ConcurrencyMode Concurrency{ get; set; }
+
+        public ConcurrencyMode Concurrency { get; set; }
+
+
         public SerializationMethod SerializationMethod { get; set; }
         public JournalWriterPerformanceMode JournalWriterPerformance { get; set; }
-        public string DateFormatString { get; set; }
 
 
-        public EngineConfiguration() : this(null)
-        {
-
-        }
-
-        public EngineConfiguration(string targetLocation)
+        /// <summary>
+        /// Create an EngineConfiguration instance using default values
+        /// </summary>
+        /// <param name="targetLocation"></param>
+        public EngineConfiguration(string targetLocation = null)
         {
 
             Location = targetLocation;
 
             //Set default values
             LockTimeout = DefaultTimeout;
-            Compression = CompressionMethod.None;
             Concurrency = ConcurrencyMode.MultipleReadersOrSingleWriter;
             SerializationMethod = SerializationMethod.NetBinaryFormatter;
             JournalWriterPerformance = JournalWriterPerformanceMode.Synchronous;
+            StorageMode = StorageMode.FileSystem;
             JournalSegmentSizeInBytes = DefaultJournalSegmentSizeInBytes;
-            DateFormatString = DefaultDateFormatString;
             CloneResults = true;
             CloneCommands = true;
+
+            _registry.Register<ICommandJournal>((c, p) => new CommandJournal(this, CreateStorage()));
+            _registry.Register<IAuthorizer<Type>>((c, p) => new PermissionSet<Type>(Permission.Allowed));
+            _registry.Register<ISerializer>((c,p) => new Serializer(CreateFormatter()));
+
+            InitJournalWriterConfiguration();
+            InitStorageConfiguration();
+            InitLockingConfiguration();
+            InitFormatterConfiguration();
+        }
+
+        private void InitJournalWriterConfiguration()
+        {
+            _registry.Register<IJournalWriter>(
+                (c, p) => new AsynchronousJournalWriter(new SynchronousJournalWriter(p["stream"] as Stream, CreateSerializer())),
+                JournalWriterPerformanceMode.Asynchronous.ToString());
+            _registry.Register<IJournalWriter>(
+                (c, p) => new SynchronousJournalWriter(p["stream"] as Stream, CreateSerializer()),
+                JournalWriterPerformanceMode.Synchronous.ToString());
+        }
+
+        private void InitFormatterConfiguration()
+        {
+            _registry.Register<IFormatter>((c, p) => new BinaryFormatter(),
+                                           SerializationMethod.NetBinaryFormatter.ToString());
+            _registry.Register<IFormatter>((c, p) => LoadFromConfig<IFormatter>(),
+                                           SerializationMethod.Custom.ToString());
         }
 
 
-        #region FactoryMethods
-
-        public virtual string KeyTemplate
+        /// <summary>
+        /// Created a named registration for each ConcurrencyMode enumeration value
+        /// </summary>
+        private void InitLockingConfiguration()
         {
-            get { return "LiveDbConfiguration.{0}"; }
-        }
-
-        private static EngineConfiguration _current = Create();
-
-        public static EngineConfiguration Current
-        {
-            get { return _current; }
-            set { _current = value; }
-        }
-
-        public static EngineConfiguration Create()
-        {
-            //we need an instance to be able to call an instance method
-            var bootStrapper = new EngineConfiguration();
-
-            //look for specific implementation in config file, otherwise return self
-            return bootStrapper.LoadFromConfigOrDefault(() => bootStrapper);
-        }
-
-
-        protected virtual T LoadFromConfigOrDefault<T>(Func<T> @default = null)
-        {
-            @default = @default ?? (() => (T)Activator.CreateInstance(typeof(T)));
-            string configKey = ConfigKeyFromType(typeof(T));
-            var configTypeName = ConfigurationManager.AppSettings[configKey];
-            if (!String.IsNullOrEmpty(configTypeName))
-            {
-                return InstanceFromTypeName<T>(configTypeName);
-            }
-            else
-            {
-                return @default.Invoke();
-            }
-        }
-
-        protected virtual T InstanceFromTypeName<T>(string typeName)
-        {
-            try
-            {
-                Type type = Type.GetType(typeName);
-                return (T)Activator.CreateInstance(type);
-            }
-            catch (Exception exception)
-            {
-                String messageTemplate = "Can't load type {0}, see inner exception for details";
-                throw new ConfigurationErrorsException(String.Format(messageTemplate, typeName), exception);
-            }
-        }
-
-
-        private ILogFactory _logFactory = null;
-
-        protected internal virtual ILogFactory GetLogFactory()
-        {
-            if (_logFactory == null)
-            {
-                _logFactory = LoadFromConfigOrDefault<ILogFactory>(() => new InternalLogFactory());
-            }
-            return _logFactory;
-        }
-
-        public virtual void SetLogFactory(ILogFactory logFactory)
-        {
-            _logFactory = logFactory;
-        }
-
-        protected internal virtual IAuthorizer<Type> GetAuthorizer()
-        {
-            return new PermissionSet<Type>(Permission.Allowed);
-        }
-
-        public virtual EngineConfiguration GetEngineConfiguration()
-        {
-            return LoadFromConfigOrDefault<EngineConfiguration>();
-        }
-
-        protected internal virtual IStorage GetCustomStorage(EngineConfiguration engineConfiguration)
-        {
-            return LoadFromConfig<IStorage>();
-        }
-
-
-        protected virtual T LoadFromConfig<T>()
-        {
-            string configKey = String.Format(KeyTemplate, ConfigKeyFromType(typeof(T)));
-            var configTypeName = ConfigurationManager.AppSettings[configKey];
-            return InstanceFromTypeName<T>(configTypeName);
-        }
-
-        protected virtual String ConfigKeyFromType(Type type)
-        {
-            return type.Name;
-        }
-        internal ISerializer CreateSerializer()
-        {
-            return new Serializer(CreateFormatter());
+            _registry.Register<ILockStrategy, SingleThreadedLockingStrategy>(ConcurrencyMode.SingleReaderOrWriter.ToString());
+            _registry.Register<ILockStrategy, ReaderWriterLockSlimStrategy>(ConcurrencyMode.MultipleReadersOrSingleWriter.ToString());
+            _registry.Register<ILockStrategy, NullLockingStrategy>(ConcurrencyMode.MultipleReadersAndWriters.ToString());
         }
 
         /// <summary>
-        /// Factory method choosing concrete type based on SerializationMethod property
+        /// Create a named registration for each StorageMode enumeration value
+        /// </summary>
+        private void InitStorageConfiguration()
+        {
+            
+            _registry.Register<IStorage>((c, p) => new FileStorage(this), StorageMode.FileSystem.ToString());
+            _registry.Register<IStorage, NullStorage>(StorageMode.None.ToString());
+
+            //If StorageMode is set to custom and no factory has been injected, the fully qualified type 
+            //name will be resolved from the app configuration file.
+            _registry.Register<IStorage>((c, p) => LoadFromConfig<IStorage>(), StorageMode.Custom.ToString());
+        }
+
+
+        protected TinyIoCContainer _registry = new TinyIoCContainer();
+
+        /// <summary>
+        /// Looks up a custom implementation in app config file with the key LiveDb.EngineConfiguration
         /// </summary>
         /// <returns></returns>
-
-        internal IFormatter CreateFormatter()
+        public static EngineConfiguration Create()
         {
-            switch (SerializationMethod)
-            {
-                case SerializationMethod.NetBinaryFormatter:
-                    return new BinaryFormatter();
-                default:
-                    throw new Exception("Missing case for switch on SerializationMethod");
-            }
+            //we need an instance to be able to call an instance method
+            var bootloader = new EngineConfiguration();
+
+            //look for specific implementation in config file, otherwise return self
+            return bootloader.LoadFromConfigOrDefault(() => bootloader);
+        }
+
+        /// <summary>
+        /// Inject your custom storage factory here. StorageMode property will be set to Custom
+        /// </summary>
+        /// <param name="factory"></param>
+        public void SetCustomStorageFactory(Func<IStorage> factory)
+        {
+            StorageMode = StorageMode.Custom;
+            _registry.Register<IStorage>((c, p) => factory.Invoke(), StorageMode.Custom.ToString());
+        }
+
+        protected internal virtual ISerializer CreateSerializer()
+        {
+            return _registry.Resolve<ISerializer>();
+        }
+
+        public void SetCustomSerializerFactory(Func<EngineConfiguration, ISerializer> factory )
+        {
+            _registry.Register<ISerializer>((c, p) => factory.Invoke(this));
+        }
+        protected internal virtual IFormatter CreateFormatter()
+        {
+            string name = SerializationMethod.ToString();
+            return _registry.Resolve<IFormatter>(name);
+        }
+
+        public void SetCustomFormatterFactory(Func<EngineConfiguration, IFormatter> factory )
+        {
+            _registry.Register<IFormatter>((c, p) => factory.Invoke(this));
         }
 
         /// <summary>
         /// Factory method choosing concrete type based on ConcurrencyMode property
         /// </summary>
         /// <returns></returns>
-        internal ILockStrategy CreateLockingStrategy()
+        protected internal virtual ILockStrategy CreateLockingStrategy()
         {
-            switch (Concurrency)
-            {
-                case ConcurrencyMode.SingleReaderOrWriter:
-                    return new SingleThreadedLockingStrategy(LockTimeout);
-                
-                case ConcurrencyMode.MultipleReadersOrSingleWriter:
-                    return new ReaderWriterLockSlimStrategy(LockTimeout);
-                
-                case ConcurrencyMode.MultipleReadersAndWriters:
-                    return new NullLockingStrategy();
-                
-                default:
-                    throw new Exception("Missing case for switch on ConcurrencyMode");
-            }
+            return _registry.Resolve<ILockStrategy>(Concurrency.ToString());
         }
 
-        virtual internal IJournalWriter CreateJournalWriter(Stream stream)
+        protected internal virtual IJournalWriter CreateJournalWriter(Stream stream)
         {
-
-            ISerializer serializer = CreateSerializer();
-
-            switch (JournalWriterPerformance)
-            {
-                case JournalWriterPerformanceMode.Synchronous:
-                    return new SynchronousJournalWriter(stream,serializer);
-                case JournalWriterPerformanceMode.Asynchronous:
-                    return new AsynchronousJournalWriter(new SynchronousJournalWriter(stream,serializer));
-                default:
-                    throw new Exception("Missing case for switch on JournalWriterPerformanceMode");
-            }
-        }
-
-        virtual internal IStorage CreateStorage()
-        {
-            switch (this.StorageMode)
-            {
-                case StorageMode.None: 
-                    return new NullStorage();
-                case StorageMode.FileSystem:
-                    return new FileStorage(this);
-                case StorageMode.Custom:
-                    return GetCustomStorage(this);
-                default:
-                    throw new Exception("Unsupported storage mode: " + this.StorageMode.ToString());
-            }
+            string registrationName = JournalWriterPerformance.ToString();
+            var args = new NamedParameterOverloads {{"stream", stream}};
+            return _registry.Resolve<IJournalWriter>(registrationName, args);
         }
 
 
-        virtual internal ICommandJournal CreateCommandJournal(IStorage _storage)
+        protected internal virtual IAuthorizer<Type> GetAuthorizer()
         {
-            return new CommandJournal(this, _storage);
+            return _registry.Resolve<IAuthorizer<Type>>();
         }
 
-        virtual internal IAuthorizer<Type> CreateAuthorizer()
+
+
+        protected internal virtual IStorage CreateStorage()
         {
-            return GetAuthorizer();
+            string name = StorageMode.ToString();
+            return _registry.Resolve<IStorage>(name);
         }
 
-        #endregion
+        private bool _commandJournalCreated = false;
 
 
         /// <summary>
-        /// The default directory to use if the Location is relative
+        /// Creates and returns a new command journal instance, can only be called once.
+        /// The default type is CommandJournal unless a custom factory has been set by 
+        /// calling SetCommandJournalFactory()
         /// </summary>
         /// <returns></returns>
-        public static string GetDefaultDirectory()
+        protected internal virtual ICommandJournal CreateCommandJournal()
         {
-
-            string result = Directory.GetCurrentDirectory();
-
-            //Attempt web
-            try
-            {
-                string typeName = "System.Web.HttpContext, System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
-                Type type = Type.GetType(typeName);
-                object httpContext = type.GetProperty("Current").GetGetMethod().Invoke(null, null);
-                object httpServer = type.GetProperty("Server").GetGetMethod().Invoke(httpContext, null);
-                result = (string)httpServer.GetType().GetMethod("MapPath").Invoke(httpServer, new object[] { "~/App_Data" });
-            }
-            catch { }
-            return result;
+            if(_commandJournalCreated) throw new InvalidOperationException();
+            _commandJournalCreated = true;
+            return _registry.Resolve<ICommandJournal>();
         }
 
-        public bool HasLocation 
-        { 
-            get 
-            {
-                return !String.IsNullOrEmpty(_location);
-            }
-        }
-
-        internal void SetLocationFromType<M>()
+        /// <summary>
+        /// Inject a custom command journal factory. 
+        /// Will throw if called after journal has been created.
+        /// </summary>
+        /// <param name="factory"></param>
+        public void SetCommandJournalFactory(Func<ICommandJournal> factory)
         {
-            Location = typeof (M).Name;
+            if (_commandJournalCreated) throw new InvalidOperationException();
+            _registry.Register<ICommandJournal>((c, p) => factory.Invoke());
         }
     }
-
 }

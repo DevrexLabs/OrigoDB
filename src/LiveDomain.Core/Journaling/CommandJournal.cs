@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using LiveDomain.Core.Configuration;
 using LiveDomain.Core.Logging;
 
 namespace LiveDomain.Core
@@ -21,7 +20,7 @@ namespace LiveDomain.Core
 		private IStorage _storage;
         private JournalState _state;
         private EngineConfiguration _engineConfig;
-	    private static ILog _log = EngineConfiguration.Current.GetLogFactory().GetLogForCallingType();
+	    private static ILog _log = Log.GetLogFactory().GetLogForCallingType();
 
 
         public CommandJournal(EngineConfiguration engineConfig, IStorage storage)

@@ -3,7 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 namespace LiveDomain.Core
 {
-    interface ISerializer
+    public interface ISerializer
     {
         object Clone(object graph);
         T Clone<T>(T graph);

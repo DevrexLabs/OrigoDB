@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
-using LiveDomain.Core.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Threading;
 using LiveDomain.Core.Logging;
+using TinyIoC;
 
 namespace LiveDomain.Core.Test
 {
@@ -58,7 +58,7 @@ namespace LiveDomain.Core.Test
 
         static EngineTest()
         {
-            EngineConfiguration.Current.SetLogFactory(new SingletonLogFactory(_logger));
+            Log.SetLogFactory(new SingletonLogFactory(_logger));
         }
 
          static InMemoryLogger _logger = new InMemoryLogger();
@@ -267,6 +267,34 @@ namespace LiveDomain.Core.Test
             Assert.IsTrue(_logger.Messages.Any(m => m.Contains("BeginSnapshot")));
             Assert.IsTrue(_logger.Messages.Any(m => m.Contains("EndSnapshot")));
         }
+
+        [TestMethod]
+        public void TinyIocResolvesNamedRegistration()
+        {
+            var registry = new TinyIoCContainer();
+            string name = StorageMode.FileSystem.ToString();
+            registry.Register<IStorage>((c,p) => new FileStorage(new EngineConfiguration()), name);
+            var result = registry.Resolve<IStorage>(name);
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public void InjectedLogFactoryIsResolved()
+        {
+            Log.SetLogFactory(new SingletonLogFactory(new InMemoryLogger()));
+            var logger = Log.GetLogFactory().GetLogForCallingType();
+            Assert.IsNotNull(logger);
+            Assert.IsTrue(logger is InMemoryLogger);
+        }
+
+        [TestMethod]
+        public void CreateSerializerResolvesToDefault()
+        {
+            var config = new EngineConfiguration();
+            var serializer = config.CreateSerializer();
+            Assert.IsTrue(serializer is Serializer);
+        }
+
 
         private void ExecuteCommands(int count)
         {

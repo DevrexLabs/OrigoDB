@@ -85,7 +85,7 @@
     <Compile Include="Security\Authenticator.cs" />
     <Compile Include="Security\TypeBasedPermissionSet.cs" />
     <Compile Include="Security\TypeBasedRule.cs" />
-    <Compile Include="Storage\IStorageFactory.cs" />
+    <Compile Include="TinyIoC.cs" />
     <Compile Include="Utilities\TypeExtensions.cs" />
     <Compile Include="Security\User.cs" />
     <Compile Include="Storage\StorageMode.cs" />
@@ -122,6 +122,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
+    <None Include="packages.config" />
     <None Include="Security\ClassDiagram2.cd" />
   </ItemGroup>
   <ItemGroup>

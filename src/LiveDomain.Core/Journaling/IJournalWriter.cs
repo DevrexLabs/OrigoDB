@@ -1,7 +1,7 @@
 ﻿using System;
 namespace LiveDomain.Core
 {
-	interface IJournalWriter : IDisposable
+	public interface IJournalWriter : IDisposable
     {
         long Length { get; }
         void Write(JournalEntry item);

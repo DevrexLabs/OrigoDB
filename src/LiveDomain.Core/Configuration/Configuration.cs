@@ -14,7 +14,7 @@ namespace LiveDomain.Core
             get { return "LiveDb.{0}"; }
         }
 
-        protected virtual T LoadFromConfigOrDefault<T>(Func<T> @default = null)
+        protected T LoadFromConfigOrDefault<T>(Func<T> @default = null)
         {
             @default = @default ?? (() => (T)Activator.CreateInstance(typeof(T)));
             string configKey = ConfigKeyFromType(typeof(T));

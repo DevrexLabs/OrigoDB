@@ -7,6 +7,7 @@ namespace LiveDomain.Core
 {
     public enum SerializationMethod
     {
-        NetBinaryFormatter
+        NetBinaryFormatter,
+        Custom
     }
 }

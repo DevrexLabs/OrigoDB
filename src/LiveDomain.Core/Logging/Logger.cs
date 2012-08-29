@@ -6,6 +6,26 @@ using LiveDomain.Core.Logging;
 
 namespace LiveDomain.Core
 {
+
+    public static class Log
+    {
+        private static ILogFactory _logFactory;
+
+        public static void SetLogFactory(ILogFactory logFactory)
+        {
+            _logFactory = logFactory;
+        }
+
+        public static ILogFactory GetLogFactory()
+        {
+            lock (typeof(Log))
+            {
+                if(_logFactory == null) _logFactory = new InternalLogFactory();
+            }
+            return _logFactory;
+        }
+    }
+
     public abstract class Logger : ILog
     {
 

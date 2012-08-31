@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{AFA306
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveDomain.Modules.Blackbox", "Livedomain.Modules.Blackbox\LiveDomain.Modules.Blackbox.csproj", "{86F16DB8-22E9-483A-A752-87CE48D4DF18}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveDomain.Modules.SqlStorage", "LiveDomain.Modules.SqlStorage\LiveDomain.Modules.SqlStorage.csproj", "{0524D08D-149D-4199-89D8-DF75E77D6638}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = LiveDomain.Core.vsmdi
@@ -79,6 +81,16 @@ Global
 		{86F16DB8-22E9-483A-A752-87CE48D4DF18}.Release|Mixed Platforms.Build.0 = Release|x86
 		{86F16DB8-22E9-483A-A752-87CE48D4DF18}.Release|x86.ActiveCfg = Release|x86
 		{86F16DB8-22E9-483A-A752-87CE48D4DF18}.Release|x86.Build.0 = Release|x86
+		{0524D08D-149D-4199-89D8-DF75E77D6638}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0524D08D-149D-4199-89D8-DF75E77D6638}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0524D08D-149D-4199-89D8-DF75E77D6638}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{0524D08D-149D-4199-89D8-DF75E77D6638}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{0524D08D-149D-4199-89D8-DF75E77D6638}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0524D08D-149D-4199-89D8-DF75E77D6638}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0524D08D-149D-4199-89D8-DF75E77D6638}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0524D08D-149D-4199-89D8-DF75E77D6638}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{0524D08D-149D-4199-89D8-DF75E77D6638}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{0524D08D-149D-4199-89D8-DF75E77D6638}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,5 +99,6 @@ Global
 		{2D4BC073-024F-480A-ABEC-E9C4E10653CB} = {EA6598CF-C4E9-4E79-8378-4A8792286E96}
 		{C85316AC-9295-4D8D-9511-637B7C876EBD} = {EA6598CF-C4E9-4E79-8378-4A8792286E96}
 		{86F16DB8-22E9-483A-A752-87CE48D4DF18} = {3CCC7D34-4E0C-4603-BC0C-65EFAFBBF920}
+		{0524D08D-149D-4199-89D8-DF75E77D6638} = {3CCC7D34-4E0C-4603-BC0C-65EFAFBBF920}
 	EndGlobalSection
 EndGlobal

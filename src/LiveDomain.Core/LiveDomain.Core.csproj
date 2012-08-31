@@ -57,6 +57,7 @@
     <Compile Include="Logging\ILogFactory.cs" />
     <Compile Include="Logging\InternalLogFactory.cs" />
     <Compile Include="Logging\SingletonLogFactory.cs" />
+    <Compile Include="RolloverStrategy.cs" />
     <Compile Include="Security\NullAuthorizer.cs" />
     <Compile Include="Security\IAuthenticator.cs" />
     <Compile Include="Security\IAuthorizer.cs" />
@@ -85,15 +86,14 @@
     <Compile Include="Security\Authenticator.cs" />
     <Compile Include="Security\TypeBasedPermissionSet.cs" />
     <Compile Include="Security\TypeBasedRule.cs" />
+    <Compile Include="Storage\JournalFile.cs" />
+    <Compile Include="Storage\Snapshot.cs" />
     <Compile Include="TinyIoC.cs" />
+    <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Utilities\TypeExtensions.cs" />
     <Compile Include="Security\User.cs" />
     <Compile Include="Storage\StorageType.cs" />
-    <Compile Include="Storage\JournalSegmentInfo.cs" />
     <Compile Include="Storage\ISerializer.cs" />
-    <Compile Include="Storage\NullStorage.cs" />
-    <Compile Include="Storage\NullWriterStream.cs" />
-    <Compile Include="Storage\StorageBase.cs" />
     <Compile Include="Configuration\ObjectFormatting.cs" />
     <Compile Include="Configuration\SnapshotBehavior.cs" />
     <Compile Include="Storage\StorageBlobIdentifier.cs" />
@@ -102,7 +102,6 @@
     <Compile Include="Storage\IStorage.cs" />
     <Compile Include="ITransactionHandler.cs" />
     <Compile Include="Journaling\JournalEntry.cs" />
-    <Compile Include="Journaling\JournalWriter.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="Synchronization\NullSynchronizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -112,7 +111,7 @@
     <Compile Include="ServerResponse.cs" />
     <Compile Include="Synchronization\ExclusiveSynchronizer.cs" />
     <Compile Include="Storage\FileStorage.cs" />
-    <Compile Include="Journaling\SynchronousJournalWriter.cs" />
+    <Compile Include="Journaling\StreamJournalWriter.cs" />
     <Compile Include="Utilities\PasswordHasher.cs" />
     <Compile Include="Utilities\DirectoryEx.cs" />
   </ItemGroup>

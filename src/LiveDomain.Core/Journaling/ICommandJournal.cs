@@ -5,34 +5,27 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
-	public interface ICommandJournal
+	public interface ICommandJournal : IDisposable
 	{
 
 
         /// <summary>
-        /// Creates next empty journal segment
-        /// </summary>
-        void CreateNextSegment();
-
-        /// <summary>
-        /// return the entire sequence of journalentries
+        /// Iterator over the entire sequence of journalentries in order.
         /// </summary>
         /// <returns></returns>
         IEnumerable<JournalEntry<Command>> GetAllEntries();
 
 
-        /// <summary>
-        /// Get entries from a specified position. 
-        /// Used when restoring from a snapshot
+	    /// <summary>
+        /// Returns journal entries in order created on or after the specified point in time
         /// </summary>
-        /// <param name="position"></param>
-        /// <returns></returns>
-        IEnumerable<JournalEntry<Command>> GetEntriesFrom(JournalSegmentInfo position);
+        IEnumerable<JournalEntry<Command>> GetEntriesFrom(DateTime pointInTime);
 
         /// <summary>
-        /// Open for appending
+        /// Returns an iterator over the journal entires in order starting with a specific sequence number
         /// </summary>
-		void Open();
+	    IEnumerable<JournalEntry<Command>> GetEntriesFrom(long sequenceNumber);
+
 
         /// <summary>
         /// Write a command to the log
@@ -40,8 +33,8 @@ namespace LiveDomain.Core
         void Append(Command command);
 
         /// <summary>
-        /// Close for writing
+        /// Id of the last entry written to the log
         /// </summary>
-		void Close();
-	}
+        long LastEntryId { get; }
+    }
 }

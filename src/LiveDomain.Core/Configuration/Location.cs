@@ -19,7 +19,7 @@ namespace LiveDomain.Core
         /// </summary>
         public string Location
         {
-            get { return Path.Combine(GetDefaultDirectory(), _location); }
+            get { return _location != null ? Path.Combine(GetDefaultDirectory(), _location) : _location; }
             set { _location = value; }
         }
 

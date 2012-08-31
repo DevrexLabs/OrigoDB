@@ -50,13 +50,13 @@ namespace LiveDomain.Core
                     //Allow reading while snapshot is being taken
                     //but no modifications after that
                     _lock.EnterUpgrade(); 
-                    CreateSnapshotImpl("auto");
+                    CreateSnapshotImpl();
 
                 }
                 _lock.EnterWrite();
                 _isDisposed = true;
-                _commandJournal.Close();        
-                    
+                _commandJournal.Dispose();
+
             }
         }
 
@@ -64,9 +64,8 @@ namespace LiveDomain.Core
         private void Restore<M>(Func<M> constructor) where M : Model
         {
 
-            JournalSegmentInfo segment;
-
-            _theModel = _storage.GetMostRecentSnapshot(out segment);
+            long lastSequenceNumber;
+            _theModel = _storage.LoadMostRecentSnapshot(out lastSequenceNumber);
 
             if (_theModel == null) 
             {
@@ -75,7 +74,7 @@ namespace LiveDomain.Core
             }
             
             _theModel.SnapshotRestored();
-            foreach (var command in _commandJournal.GetEntriesFrom(segment).Select(entry => entry.Item))
+            foreach (var command in _commandJournal.GetEntriesFrom(lastSequenceNumber).Select(entry => entry.Item))
             {
                 command.Redo(_theModel);
             }
@@ -93,23 +92,21 @@ namespace LiveDomain.Core
         {
             _serializer = config.CreateSerializer();
             
-            //prevent outside modification after engine initialization
-            //_config = _serializer.Clone(config);
             _config = config;
 
             _storage = _config.CreateStorage();
+            _storage.Load();
             _lock = _config.CreateSynchronizer();
 
             _commandJournal = _config.CreateCommandJournal();
             Restore(constructor);
             _authorizer = _config.CreateAuthorizer();
-            _commandJournal.Open();
             
             if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)
             {
                 _log.Info("Starting snaphot job on threadpool");
                 
-                ThreadPool.QueueUserWorkItem((o) => CreateSnapshot("auto"));
+                ThreadPool.QueueUserWorkItem((o) => CreateSnapshot());
 
                 //Give the snapshot thread a chance to start and aquire the readlock
                 Thread.Sleep(TimeSpan.FromMilliseconds(10));
@@ -228,17 +225,13 @@ namespace LiveDomain.Core
         #endregion
 
         #region Snapshot methods
-        public void CreateSnapshot()
-        {
-            CreateSnapshot(String.Empty);
-        }
 
-        public void CreateSnapshot(string name)
+        public void CreateSnapshot()
         {
             try
             {
                 _lock.EnterRead();
-                CreateSnapshotImpl(name);
+                CreateSnapshotImpl();
             }
             catch (Exception)
             {
@@ -250,12 +243,12 @@ namespace LiveDomain.Core
             }
         }
 
-        private void CreateSnapshotImpl(string name)
+        private void CreateSnapshotImpl()
         {
-            _log.Info("BeginSnapshot:" + name);
-            _storage.WriteSnapshot(_theModel, name);
-            _commandJournal.CreateNextSegment();
-            _log.Info("EndSnapshot:" + name);
+            long lastEntryId = _commandJournal.LastEntryId;
+            _log.Info("BeginSnapshot:" + lastEntryId);
+            _storage.WriteSnapshot(_theModel, lastEntryId);
+            _log.Info("EndSnapshot:" + lastEntryId);
         }
 
         #endregion
@@ -397,12 +390,11 @@ namespace LiveDomain.Core
                 result = Load<M>(config);
                 _log.Trace("Engine Loaded");
             }
-            else if (storage.CanCreate)
+            else
             {
                 result = Create<M>(constructor.Invoke(), config);
                 _log.Trace("Engine Created");
             }
-            else throw new ApplicationException("Couldn't load or create");
             return result;
         }
 

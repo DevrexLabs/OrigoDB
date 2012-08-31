@@ -17,12 +17,10 @@ namespace LiveDomain.Core
 
 
     /// <summary>
-    /// Responsible for reading/writing files and keeping track of Sequencing
+    /// Responsible for persistent storage of the command journal and snapshots
     /// </summary>
 	public interface IStorage
 	{
-
-        IEnumerable<JournalEntry<Command>> GetJournalEntries(JournalSegmentInfo position);
         
 
         /// <summary>
@@ -30,22 +28,19 @@ namespace LiveDomain.Core
         /// </summary>
         void VerifyCanLoad();
 
-        /// <summary>
-        /// Should return null if no snapshot exists. Used as base image when 
-        /// restoring to latest state.
-        /// </summary>
-        /// <param name="state">A reference to the first segment in the sequence following the returned snapshot</param>
-        /// <returns></returns>
-        Model GetMostRecentSnapshot(out JournalSegmentInfo journalState);
+
+        
+        Model LoadMostRecentSnapshot(out long lastEntryId);
 
         /// <summary>
-        /// Write a snapshot to disk
+        /// Create a snapshot of the provided model and save to storage
         /// </summary>
-        /// <param name="model"></param>
-        /// <param name="name"></param>
-        void WriteSnapshot(Model model, string name);
+        void WriteSnapshot(Model model, long lastEntryId);
 
-        Stream CreateJournalWriterStream(JournalWriterCreateOptions options);
+        Stream CreateJournalWriterStream(long firstEntryId);
+
+
+        //IJournalWriter CreateJournalWriter();
 
         /// <summary>
         /// Checks the integrity of the configuration and throw if Create() will fail
@@ -60,6 +55,16 @@ namespace LiveDomain.Core
 
         bool Exists { get; }
 
-        bool CanCreate { get; }
+        IEnumerable<JournalEntry<Command>> GetJournalEntries();
+
+        /// <summary>
+        /// Retrieve journal entries with an Id >= the given entryId
+        /// </summary>
+        IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(long entryId);
+        IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(DateTime pointInTime);
+
+        IJournalWriter CreateJournalWriter(long lastEntryId);
+
+        void Load();
     }
 }

@@ -167,9 +167,25 @@ namespace LiveDomain.Core.Test
 
 
         [TestMethod]
-        public void JournalRollsOver()
+        public void JournalRollsOverWhenEntryCountExceedsLimit()
         {
-            CanCreateEngine();
+            var config = CreateConfig();
+            config.MaxEntriesPerJournalSegment = 90;
+            Engine = Engine.LoadOrCreate<TestModel>(config);
+            for (int i = 0; i < 100; i++)
+            {
+                Command command = new TestCommandWithResult() { Payload = new byte[100000] };
+                this.Engine.Execute(command);
+            }
+            Assert.IsTrue(_logger.Messages.Count(m => m.Contains("NewJournalSegment")) > 0);
+        }
+
+        [TestMethod]
+        public void JournalRollsOverWhenSegmentSizeExceedsLimit()
+        {
+            var config = CreateConfig();
+            config.MaxBytesPerJournalSegment = 1024 * 1024;
+            Engine = Engine.LoadOrCreate<TestModel>(config);
             for (int i = 0; i < 100; i++)
             {
                 Command command = new TestCommandWithResult() { Payload = new byte[100000] };
@@ -196,23 +212,23 @@ namespace LiveDomain.Core.Test
             Assert.IsTrue(onLoadWasCalled);
         }
 
-        string _name;
-        [TestMethod]
-        public void CanCreateSnapshotWithGuidAsName()
-        {
-            CanCreateEngine();
-            _name = Guid.NewGuid().ToString();
-            Engine.CreateSnapshot(_name);
-        }
+        //string _name;
+        //[TestMethod]
+        //public void CanCreateSnapshotWithGuidAsName()
+        //{
+        //    CanCreateEngine();
+        //    _name = Guid.NewGuid().ToString();
+        //    Engine.CreateSnapshot(_name);
+        //}
 
-        [TestMethod]
-        public void CanCreateSnapshotWithEmptyName()
-        {
-            CanCreateEngine();
-            Engine.CreateSnapshot(String.Empty);
+        //[TestMethod]
+        //public void CanCreateSnapshotWithEmptyName()
+        //{
+        //    CanCreateEngine();
+        //    Engine.CreateSnapshot(String.Empty);
 
-            Engine.CreateSnapshot();
-        }
+        //    Engine.CreateSnapshot();
+        //}
 
         [TestMethod]
         public void LoadOrCreateCreatesWhenNotExists()

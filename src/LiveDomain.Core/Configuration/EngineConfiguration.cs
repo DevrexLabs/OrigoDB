@@ -101,7 +101,7 @@ namespace LiveDomain.Core
             _registry.Register<ISerializer>((c,p) => new Serializer(CreateFormatter()));
 
             InitSynchronizers();
-            InitJournalWriters();
+            //InitJournalWriters();
             InitStorageTypes();
             InitFormatters();
         }
@@ -125,15 +125,15 @@ namespace LiveDomain.Core
         /// <summary>
         /// Created a named registration for each JournalWriterPerformance enumeration value
         /// </summary>
-        private void InitJournalWriters()
-        {
-            _registry.Register<IJournalWriter>(
-                (c, p) => new AsynchronousJournalWriter(new SynchronousJournalWriter(p["stream"] as Stream, CreateSerializer())),
-                JournalWriterMode.Asynchronous.ToString());
-            _registry.Register<IJournalWriter>(
-                (c, p) => new SynchronousJournalWriter(p["stream"] as Stream, CreateSerializer()),
-                JournalWriterMode.Synchronous.ToString());
-        }
+        //private void InitJournalWriters()
+        //{
+        //    _registry.Register<IJournalWriter>(
+        //        (c, p) => new AsynchronousJournalWriter(new StreamJournalWriter(p["stream"] as Stream, CreateSerializer())),
+        //        JournalWriterMode.Asynchronous.ToString());
+        //    _registry.Register<IJournalWriter>(
+        //        (c, p) => new StreamJournalWriter(p["stream"] as Stream, CreateSerializer()),
+        //        JournalWriterMode.Synchronous.ToString());
+        //}
 
         private void InitFormatters()
         {
@@ -149,9 +149,8 @@ namespace LiveDomain.Core
         /// </summary>
         private void InitStorageTypes()
         {
-
             _registry.Register<IStorage>((c, p) => new FileStorage(this), StorageType.FileSystem.ToString());
-            _registry.Register<IStorage, NullStorage>(StorageType.None.ToString());
+            //_registry.Register<IStorage, NullStorage>(StorageType.None.ToString());
 
             //If StorageMode is set to custom and no factory has been injected, the fully qualified type 
             //name will be resolved from the app configuration file.
@@ -173,12 +172,12 @@ namespace LiveDomain.Core
         }
 
         #region Factory methods
-        protected internal virtual ISerializer CreateSerializer()
+        public virtual ISerializer CreateSerializer()
         {
             return _registry.Resolve<ISerializer>();
         }
 
-        protected internal virtual IFormatter CreateFormatter()
+        public virtual IFormatter CreateFormatter()
         {
             string name = ObjectFormatting.ToString();
             return _registry.Resolve<IFormatter>(name);
@@ -188,26 +187,26 @@ namespace LiveDomain.Core
         /// Gets a synchronizer based on the SynchronizationMode property
         /// </summary>
         /// <returns></returns>
-        protected internal virtual ISynchronizer CreateSynchronizer()
+        public virtual ISynchronizer CreateSynchronizer()
         {
             string registrationName = Synchronization.ToString();
             return _registry.Resolve<ISynchronizer>(registrationName);
         }
 
-        protected internal virtual IJournalWriter CreateJournalWriter(Stream stream)
-        {
-            string registrationName = JournalWriterMode.ToString();
-            var args = new NamedParameterOverloads { { "stream", stream } };
-            return _registry.Resolve<IJournalWriter>(registrationName, args);
-        }
+        //public virtual IJournalWriter CreateJournalWriter(Stream stream)
+        //{
+        //    string registrationName = JournalWriterMode.ToString();
+        //    var args = new NamedParameterOverloads { { "stream", stream } };
+        //    return _registry.Resolve<IJournalWriter>(registrationName, args);
+        //}
 
 
-        protected internal virtual IAuthorizer<Type> CreateAuthorizer()
+        public virtual IAuthorizer<Type> CreateAuthorizer()
         {
             return _registry.Resolve<IAuthorizer<Type>>();
         }
 
-        protected internal virtual IStorage CreateStorage()
+        public virtual IStorage CreateStorage()
         {
             string name = StorageType.ToString();
             return _registry.Resolve<IStorage>(name);
@@ -219,7 +218,7 @@ namespace LiveDomain.Core
         /// calling SetCommandJournalFactory()
         /// </summary>
         /// <returns></returns>
-        protected internal virtual ICommandJournal CreateCommandJournal()
+        public virtual ICommandJournal CreateCommandJournal()
         {
             if (_commandJournalCreated) throw new InvalidOperationException();
             _commandJournalCreated = true;
@@ -275,5 +274,9 @@ namespace LiveDomain.Core
             _registry.Register<ISerializer>((c, p) => factory.Invoke(this));
         } 
         #endregion
+
+        public int MaxEntriesPerJournalSegment { get; set; }
+
+        public int MaxBytesPerJournalSegment { get; set; }
     }
 }

@@ -19,18 +19,17 @@ namespace LiveDomain.Core
         //TODO: Add some fault tolerance, exception handling, and engine notification so it can choose to shutdown if the journal isn't working.
 		AutoResetEvent _closeWaitHandle = new AutoResetEvent(false);
 		BlockingCollection<JournalEntry> _queue;
-		IJournalWriter _wrappedWriter;
+		IJournalWriter _decoratedWriter;
 		Thread _writerThread;
 
 		public AsynchronousJournalWriter(IJournalWriter writer)
 		{
-			_wrappedWriter = writer;
+			_decoratedWriter = writer;
 			_writerThread = new Thread(WriteBackground) {IsBackground = false};
 			_queue = new BlockingCollection<JournalEntry>(new ConcurrentQueue<JournalEntry>());
 			_writerThread.Start();
 		}
 
-		#region IJournalWriter Members
 
 		public void Write(JournalEntry item)
 		{
@@ -43,21 +42,15 @@ namespace LiveDomain.Core
 
 			_queue.CompleteAdding();
 			_closeWaitHandle.WaitOne();
-			_wrappedWriter.Close();
+			_decoratedWriter.Close();
 		}
 
     	void IDisposable.Dispose()
 		{
 			Close();
-			_wrappedWriter.Dispose();
+			_decoratedWriter.Dispose();
 		}
 
-        public long Length
-        {
-            get { return _wrappedWriter.Length; }
-        }
-
-		#endregion
 
 		void WriteBackground()
 		{
@@ -65,7 +58,7 @@ namespace LiveDomain.Core
 			while (!_queue.IsCompleted)
 			{
 				JournalEntry item;
-				if (_queue.TryTake(out item, Timeout.Infinite)) _wrappedWriter.Write(item);
+				if (_queue.TryTake(out item, Timeout.Infinite)) _decoratedWriter.Write(item);
 			}
 			_closeWaitHandle.Set();
 		}

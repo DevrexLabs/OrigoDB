@@ -5,6 +5,10 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
+
+    /// <summary>
+    /// On disk, the command journal is split up in sequential segments.
+    /// </summary>
     public class JournalSegmentInfo
     {
         public readonly int SequenceNumber;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text.RegularExpressions;
 using LiveDomain.Core.Storage;
 
 namespace LiveDomain.Core
@@ -10,22 +11,200 @@ namespace LiveDomain.Core
     /// <summary>
     /// File system based Storage implementation
     /// </summary>
-    internal class FileStorage : StorageBase
+    public class FileStorage : IStorage
     {
 
-        internal FileStorage(EngineConfiguration config) : base(config)
+        EngineConfiguration _config;
+        ISerializer _serializer;
+
+        private List<FileSnapshot> _fileSnapshots;
+        private List<JournalFile> _journalFiles; 
+
+
+        public IEnumerable<Snapshot> Snapshots
         {
+            get
+            {
+                foreach (var snapshot in Snapshots)
+                {
+                    yield return snapshot;
+                }
+            }
         }
 
-        public override void Initialize()
+
+        //public static FileStorage Create(EngineConfiguration config, Model initialModel)
+        //{
+        //    var storage = new FileStorage(config);
+        //    storage.Create(initialModel);
+        //    return storage;
+        //}
+
+        //public static FileStorage Load(EngineConfiguration config)
+        //{
+        //    var storage = new FileStorage(config);
+        //    storage.LoadMetadata();
+        //    return storage;
+        //}
+
+        public FileStorage(EngineConfiguration config)
         {
+            _config = config;
+            _serializer = _config.CreateSerializer();
+        }
+
+
+        /// <summary>
+        /// Read physical storage and populate metadata collections
+        /// </summary>
+        public void Load()
+        {
+            _journalFiles = new List<JournalFile>();
+            foreach (var file in Directory.GetFiles(_config.Location, "*.journal"))
+            {
+                string fileName = new FileInfo(file).Name;
+                _journalFiles.Add(JournalFile.Parse(fileName));
+            }
+
+            _journalFiles.Sort((a,b) => a.FileSequenceNumber.CompareTo(b.FileSequenceNumber));
+
+            _fileSnapshots = new List<FileSnapshot>();
+            foreach (var file in Directory.GetFiles(_config.SnapshotLocation, "*.snapshot"))
+            {
+                var fileInfo = new FileInfo(file);
+                _fileSnapshots.Add(FileSnapshot.FromFileInfo(fileInfo));
+            }
+
+            _fileSnapshots.Sort((a,b) => a.LastSequenceNumber.CompareTo(b.LastSequenceNumber));
+        }
+
+
+        public void WriteSnapshot(Model model, long lastEntryId)
+        {
+            //TODO: unused datetime is smelly. refactor.
+            var fileSnapshot = new FileSnapshot(DateTime.MinValue, lastEntryId);
+            var fileName = Path.Combine(_config.SnapshotLocation, fileSnapshot.Name);
+            using (Stream stream = GetWriteStream(fileName, append:false))
+            {
+                _serializer.Write(model, stream);
+            }
+        }
+
+        public IEnumerable<JournalEntry<Command>> GetJournalEntries()
+        {
+            return GetJournalEntriesFrom(1);
+        }
+
+
+        public IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(long sequenceNumber)
+        {
+            int offset = 0;
+            foreach (var journalFile in _journalFiles)
+            {
+                if (journalFile.StartingSequenceNumber > sequenceNumber) break;
+                offset++;
+            }
+            //_journalFiles
+            //        .Where((jf, idx) => jf.StartingSequenceNumber <= sequenceNumber)
+            //        .Select((jf, idx) => idx).
+            //        LastOrDefault();
+
+            foreach (var journalFile in _journalFiles.Skip(offset))
+            {
+                string path = Path.Combine(_config.Location, journalFile.Name);
+                using (Stream stream = GetReadStream(path))
+                {
+                    foreach (var entry in _serializer.ReadToEnd<JournalEntry<Command>>(stream))
+                    {
+                        if (entry.Id < sequenceNumber) continue;
+                        yield return entry;
+                    }
+                }
+            }
+
+        }
+
+        public IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(DateTime pointInTime)
+        {
+            //TODO: implement this when together with point in time recovery
+            throw new NotImplementedException();
+        }
+
+
+
+        public Model LoadMostRecentSnapshot(out long lastSequenceNumber)
+        {
+            lastSequenceNumber = 0;
+            var snapshot = _fileSnapshots.LastOrDefault();
+            if (snapshot == null) return null;
+            var directory = _config.SnapshotLocation;
+            var fileName = Path.Combine(directory, snapshot.Name);
+            lastSequenceNumber = snapshot.LastSequenceNumber;
+            using (Stream stream = GetReadStream(fileName))
+            {
+                return _serializer.Read<Model>(stream);
+            }
+        }
+
+        /// <summary>
+        /// Create a new journal writer stream. The first entry written to the 
+        /// stream will have the specified sequenceNumber
+        /// </summary>
+        /// <returns>An open stream</returns>
+        public Stream CreateJournalWriterStream(long firstEntryId = 1)
+        {
+            var journalFile = _journalFiles.LastOrDefault() ?? new JournalFile(0, 0);
+            string fileName = journalFile.Successsor(firstEntryId).Name;
+            string path = Path.Combine(_config.Location, fileName);
+            return GetWriteStream(path,  append : true);
+        }
+
+        public void Create(Model initialModel)
+        {
+            VerifyCanCreate();
             EnsureDirectoryExists(_config.Location);
 
             if (_config.HasAlternativeSnapshotLocation)
             {
-                EnsureDirectoryExists(_config.SnapshotLocation); 
+                EnsureDirectoryExists(_config.SnapshotLocation);
+            }
+            WriteSnapshot(initialModel, 0);
+            Load();
+        }
+
+
+        bool IStorage.Exists
+        {
+            get 
+            {
+                try
+                {
+                    VerifyCanLoad();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
             }
         }
+
+        public bool CanCreate
+        {
+            get
+            {
+                try
+                {
+                    VerifyCanCreate();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+        }
+
 
 
         private void EnsureDirectoryExists(string directory)
@@ -36,46 +215,24 @@ namespace LiveDomain.Core
             }
         }
 
-        /// <summary>
-        /// List all the files in the snapshot and journal directories
-        /// </summary>
-        /// <returns></returns>
-        protected override IEnumerable<string> GetItemIdentifiers()
-        {
-            foreach (string fileName in Directory.GetFiles(_config.Location))
-            {
-                yield return new FileInfo(fileName).Name;
-            }
-
-            if (_config.HasAlternativeSnapshotLocation)
-            {
-                foreach (string fileName in Directory.GetFiles(_config.SnapshotLocation))
-                {
-                    yield return new FileInfo(fileName).Name;
-                }
-            }
-        }
-
-        protected override void RemoveSnapshot(string id)
+        protected void RemoveSnapshot(string id)
         {
             string path = Path.Combine(_config.SnapshotLocation, id);
             File.Delete(path);
         }
 
-        protected override Stream GetReadStream(string id)
+        private Stream GetReadStream(string fileName)
         {
-            string path = GetFullyQualifiedPath(id);
-            return File.OpenRead(path);
+            return File.OpenRead(fileName);
         }
 
-        protected override bool Exists(string id)
+        protected  bool Exists(string path)
         {
-            return File.Exists(GetFullyQualifiedPath(id));
+            return File.Exists(path);
         }
 
-        protected override Stream GetWriteStream(string id, bool append)
+        protected  Stream GetWriteStream(string path, bool append)
         {
-            string path = GetFullyQualifiedPath(id);
             var filemode = append ? FileMode.Append : FileMode.Create;
             return new FileStream(path, filemode, FileAccess.Write);
         }
@@ -95,39 +252,24 @@ namespace LiveDomain.Core
             }
         }
 
-        /// <summary>
-        /// Use correct directory based on filetype, journal or snapshot.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        private string GetFullyQualifiedPath(string id)
-        {
-            string directory = _config.Location;
-            if (id.EndsWith(StorageBlobIdentifier.SnapshotSuffix))
-            {
-                directory = _config.SnapshotLocation;
-            }
-            return Path.Combine(directory,id);
-        }
-
-        public override void VerifyCanCreate()
+        public void VerifyCanCreate()
         {
             VerifyDirectory(_config.Location);
             if (_config.HasAlternativeSnapshotLocation)
                 VerifyDirectory(_config.SnapshotLocation);
         }
 
-        public override void VerifyCanLoad()
+        public void VerifyCanLoad()
         {
             string error = String.Empty;
             if (!Directory.Exists(_config.Location))
             {
                 error = "Target directory does not exist\n";
             }
-            else if (!Directory.GetFiles(_config.Location, "*.journal").Any())
-            {
-                error += "No journal files found in target directory\n";
-            }
+            //else if (!Directory.GetFiles(_config.Location, "*.journal").Any())
+            //{
+            //    error += "No journal files found in target directory\n";
+            //}
 
 
             if (_config.HasAlternativeSnapshotLocation)
@@ -150,5 +292,22 @@ namespace LiveDomain.Core
             }
         }
 
+        public IJournalWriter CreateJournalWriter(long lastEntryId)
+        {
+
+            var compositeStrategy = new CompositeRolloverStrategy();
+            
+            if (_config.MaxBytesPerJournalSegment < int.MaxValue)
+            {
+                compositeStrategy.AddStrategy(new MaxBytesRolloverStrategy(_config.MaxBytesPerJournalSegment));
+            }
+            
+            if (_config.MaxEntriesPerJournalSegment < int.MaxValue)
+            {
+                compositeStrategy.AddStrategy(new MaxEntriesRolloverStrategy(_config.MaxEntriesPerJournalSegment));
+            }
+            
+            return new StreamJournalWriter(this, CreateJournalWriterStream(lastEntryId), _config, compositeStrategy);
+        }
     }
 }

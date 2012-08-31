@@ -86,8 +86,10 @@
     <Compile Include="Security\Authenticator.cs" />
     <Compile Include="Security\TypeBasedPermissionSet.cs" />
     <Compile Include="Security\TypeBasedRule.cs" />
+    <Compile Include="Storage\IStore.cs" />
     <Compile Include="Storage\JournalFile.cs" />
     <Compile Include="Storage\Snapshot.cs" />
+    <Compile Include="Storage\Store.cs" />
     <Compile Include="TinyIoC.cs" />
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Utilities\TypeExtensions.cs" />
@@ -99,7 +101,6 @@
     <Compile Include="Storage\StorageBlobIdentifier.cs" />
     <Compile Include="Synchronization\ISynchronizer.cs" />
     <Compile Include="Journaling\IJournalWriter.cs" />
-    <Compile Include="Storage\IStorage.cs" />
     <Compile Include="ITransactionHandler.cs" />
     <Compile Include="Journaling\JournalEntry.cs" />
     <Compile Include="Model.cs" />
@@ -110,7 +111,7 @@
     <Compile Include="Storage\Serializer.cs" />
     <Compile Include="ServerResponse.cs" />
     <Compile Include="Synchronization\ExclusiveSynchronizer.cs" />
-    <Compile Include="Storage\FileStorage.cs" />
+    <Compile Include="Storage\FileStore.cs" />
     <Compile Include="Journaling\StreamJournalWriter.cs" />
     <Compile Include="Utilities\PasswordHasher.cs" />
     <Compile Include="Utilities\DirectoryEx.cs" />

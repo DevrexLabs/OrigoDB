@@ -84,7 +84,7 @@ namespace LiveDomain.Core.Test
         {
             var config = new EngineConfiguration();
             config.Location = Path;
-            config.JournalWriterMode = JournalWriterMode.Asynchronous;
+            config.AsyncronousJournaling = true;
             config.StorageType = StorageType.FileSystem;
             config.SnapshotBehavior = SnapshotBehavior.AfterRestore;
             config.Synchronization = SynchronizationMode.Exclusive;
@@ -290,8 +290,8 @@ namespace LiveDomain.Core.Test
         {
             var registry = new TinyIoCContainer();
             string name = StorageType.FileSystem.ToString();
-            registry.Register<IStorage>((c,p) => new FileStorage(new EngineConfiguration()), name);
-            var result = registry.Resolve<IStorage>(name);
+            registry.Register<IStore>((c,p) => new FileStore(new EngineConfiguration()), name);
+            var result = registry.Resolve<IStore>(name);
             Assert.IsNotNull(result);
         }
 

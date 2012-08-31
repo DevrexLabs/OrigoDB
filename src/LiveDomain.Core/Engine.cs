@@ -27,7 +27,7 @@ namespace LiveDomain.Core
         /// All configuration settings, cloned in the constructor
         /// </summary>
         EngineConfiguration _config;
-        IStorage _storage;
+        IStore _storage;
         ISynchronizer _lock;
         ISerializer _serializer;
         bool _isDisposed = false;
@@ -255,7 +255,7 @@ namespace LiveDomain.Core
 
         public void Dispose()
         {
-            this.Close();
+            Close();
         }
 
 
@@ -350,7 +350,7 @@ namespace LiveDomain.Core
         public static Engine<M> Create<M>(M model, EngineConfiguration config) where M : Model
         {
             if (!config.HasLocation) config.SetLocationFromType<M>();
-            IStorage storage = config.CreateStorage();
+            IStore storage = config.CreateStorage();
             storage.Create(model);
             return Load<M>(config);
         }

@@ -21,7 +21,7 @@ namespace LiveDomain.Core
         }
 
         private IJournalWriter _writer;
-		protected IStorage _storage;
+		protected IStore _storage;
         private JournalState _state;
         protected EngineConfiguration _config;
 	    protected static ILog _log = Log.GetLogFactory().GetLogForCallingType();

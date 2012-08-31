@@ -17,7 +17,7 @@ namespace LiveDomain.Core
         ISerializer _serializer;
         Stream _stream;
         private EngineConfiguration _config;
-        private FileStorage _storage;
+        private FileStore _storage;
         private RolloverStrategy _rolloverStrategy;
         private static ILog _log = Log.GetLogFactory().GetLogForCallingType();
 
@@ -33,7 +33,7 @@ namespace LiveDomain.Core
             }
         }
 
-        public StreamJournalWriter(FileStorage storage, Stream stream, EngineConfiguration config, RolloverStrategy rolloverStrategy)
+        public StreamJournalWriter(FileStore storage, Stream stream, EngineConfiguration config, RolloverStrategy rolloverStrategy)
         {
             _config = config;
             _storage = storage;

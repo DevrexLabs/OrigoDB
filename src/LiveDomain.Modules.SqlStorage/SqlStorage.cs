@@ -149,11 +149,6 @@ namespace LiveDomain.Modules.SqlStorage
             }
         }
 
-        public System.IO.Stream CreateJournalWriterStream(JournalWriterCreateOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Database exists, but tables dont
         /// </summary>

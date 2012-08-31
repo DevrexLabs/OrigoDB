@@ -107,7 +107,7 @@ namespace LiveDomain.Core.Test
         {
             var config = new EngineConfiguration();
             var storage = config.CreateStorage();
-            Assert.IsTrue(storage is FileStorage);
+            Assert.IsTrue(storage is FileStore);
         }
 
         //[TestMethod()]
@@ -189,7 +189,7 @@ namespace LiveDomain.Core.Test
         public void SyncJournalingIsDefault()
         {
             var config = new EngineConfiguration();
-            Assert.AreEqual(JournalWriterMode.Synchronous, config.JournalWriterMode);
+            Assert.IsFalse(config.AsyncronousJournaling);
         }
 
 

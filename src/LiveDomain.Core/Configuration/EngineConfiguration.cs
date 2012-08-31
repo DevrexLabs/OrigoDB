@@ -22,13 +22,13 @@ namespace LiveDomain.Core
 
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
         public const string DefaultDateFormatString = "yyyy.MM.dd.hh.mm.ss.fff";
-        public const long DefaultJournalSegmentSizeInBytes = 1024 * 1024;
+        public const int DefaultMaxBytesPerJournalSegment = 1024 * 1024 * 8;
 
 
         /// <summary>
-        /// When segment exceeds this size a new segment is created
+        /// Write journal entries using a background thread
         /// </summary>
-        public long JournalSegmentSizeInBytes { get; set; }
+        public bool AsyncronousJournaling { get; set; }
 
 
         /// <summary>
@@ -71,10 +71,16 @@ namespace LiveDomain.Core
         public ObjectFormatting ObjectFormatting { get; set; }
 
         /// <summary>
-        /// Synchronous or Asynchronous journaling
+        /// Maximum number of journal entries per segment. Applies only to storage 
+        /// providers which split up the journal in segments and ignored by others.
         /// </summary>
-        public JournalWriterMode JournalWriterMode { get; set; }
+        public int MaxEntriesPerJournalSegment { get; set; }
 
+        /// <summary>
+        /// Maximum number of bytes entries per segment. Applies only to storage 
+        /// providers which split up the journal in segments and ignored by others.
+        /// </summary>
+        public int MaxBytesPerJournalSegment { get; set; }
 
         /// <summary>
         /// Create an EngineConfiguration instance using default values
@@ -89,9 +95,9 @@ namespace LiveDomain.Core
             LockTimeout = DefaultTimeout;
             Synchronization = SynchronizationMode.ReadWrite;
             ObjectFormatting = ObjectFormatting.NetBinaryFormatter;
-            JournalWriterMode = JournalWriterMode.Synchronous;
+            AsyncronousJournaling = false;
+            MaxBytesPerJournalSegment = DefaultMaxBytesPerJournalSegment;
             StorageType = StorageType.FileSystem;
-            JournalSegmentSizeInBytes = DefaultJournalSegmentSizeInBytes;
             CloneResults = true;
             CloneCommands = true;
 
@@ -101,7 +107,6 @@ namespace LiveDomain.Core
             _registry.Register<ISerializer>((c,p) => new Serializer(CreateFormatter()));
 
             InitSynchronizers();
-            //InitJournalWriters();
             InitStorageTypes();
             InitFormatters();
         }
@@ -122,19 +127,6 @@ namespace LiveDomain.Core
 
         }
 
-        /// <summary>
-        /// Created a named registration for each JournalWriterPerformance enumeration value
-        /// </summary>
-        //private void InitJournalWriters()
-        //{
-        //    _registry.Register<IJournalWriter>(
-        //        (c, p) => new AsynchronousJournalWriter(new StreamJournalWriter(p["stream"] as Stream, CreateSerializer())),
-        //        JournalWriterMode.Asynchronous.ToString());
-        //    _registry.Register<IJournalWriter>(
-        //        (c, p) => new StreamJournalWriter(p["stream"] as Stream, CreateSerializer()),
-        //        JournalWriterMode.Synchronous.ToString());
-        //}
-
         private void InitFormatters()
         {
             _registry.Register<IFormatter>((c, p) => new BinaryFormatter(),
@@ -149,12 +141,12 @@ namespace LiveDomain.Core
         /// </summary>
         private void InitStorageTypes()
         {
-            _registry.Register<IStorage>((c, p) => new FileStorage(this), StorageType.FileSystem.ToString());
+            _registry.Register<IStore>((c, p) => new FileStore(this), StorageType.FileSystem.ToString());
             //_registry.Register<IStorage, NullStorage>(StorageType.None.ToString());
 
             //If StorageMode is set to custom and no factory has been injected, the fully qualified type 
             //name will be resolved from the app configuration file.
-            _registry.Register<IStorage>((c, p) => LoadFromConfig<IStorage>(), StorageType.Custom.ToString());
+            _registry.Register<IStore>((c, p) => LoadFromConfig<IStore>(), StorageType.Custom.ToString());
         } 
         #endregion
 
@@ -206,10 +198,10 @@ namespace LiveDomain.Core
             return _registry.Resolve<IAuthorizer<Type>>();
         }
 
-        public virtual IStorage CreateStorage()
+        public virtual IStore CreateStorage()
         {
             string name = StorageType.ToString();
-            return _registry.Resolve<IStorage>(name);
+            return _registry.Resolve<IStore>(name);
         }
 
         /// <summary>
@@ -262,11 +254,11 @@ namespace LiveDomain.Core
         /// Inject your custom storage factory here. StorageMode property will be set to Custom
         /// </summary>
         /// <param name="factory"></param>
-        public void SetStorageFactory(Func<EngineConfiguration, IStorage> factory)
+        public void SetStorageFactory(Func<EngineConfiguration, IStore> factory)
         {
             StorageType = StorageType.Custom;
             string registrationName = StorageType.ToString();
-            _registry.Register<IStorage>((c, p) => factory.Invoke(this), registrationName);
+            _registry.Register<IStore>((c, p) => factory.Invoke(this), registrationName);
         }
 
         public void SetSerializerFactory(Func<EngineConfiguration, ISerializer> factory)
@@ -275,8 +267,21 @@ namespace LiveDomain.Core
         } 
         #endregion
 
-        public int MaxEntriesPerJournalSegment { get; set; }
 
-        public int MaxBytesPerJournalSegment { get; set; }
+        public RolloverStrategy CreateRolloverStrategy()
+        {
+            var compositeStrategy = new CompositeRolloverStrategy();
+
+            if (MaxBytesPerJournalSegment < int.MaxValue)
+            {
+                compositeStrategy.AddStrategy(new MaxBytesRolloverStrategy(MaxBytesPerJournalSegment));
+            }
+
+            if (MaxEntriesPerJournalSegment < int.MaxValue)
+            {
+                compositeStrategy.AddStrategy(new MaxEntriesRolloverStrategy(MaxEntriesPerJournalSegment));
+            }
+            return compositeStrategy;
+        }
     }
 }

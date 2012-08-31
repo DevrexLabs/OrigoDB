@@ -19,7 +19,7 @@ namespace LiveDomain.Core
     /// <summary>
     /// Responsible for persistent storage of the command journal and snapshots
     /// </summary>
-	public interface IStorage
+	public interface IStore
 	{
         
 

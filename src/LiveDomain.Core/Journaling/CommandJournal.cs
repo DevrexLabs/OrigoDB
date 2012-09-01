@@ -39,7 +39,7 @@ namespace LiveDomain.Core
         public CommandJournal(EngineConfiguration config)
         {
             _config = config;
-            _storage = config.CreateStorage();
+            _storage = config.CreateStore();
             _storage.Load();
         }
 

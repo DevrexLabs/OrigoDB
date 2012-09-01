@@ -23,6 +23,7 @@ namespace LiveDomain.Core
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
         public const string DefaultDateFormatString = "yyyy.MM.dd.hh.mm.ss.fff";
         public const int DefaultMaxBytesPerJournalSegment = 1024 * 1024 * 8;
+        public const int DefaultMaxCommandsPerJournalSegment = 10000;
 
 
         /// <summary>
@@ -58,7 +59,7 @@ namespace LiveDomain.Core
         /// </summary>
         public SnapshotBehavior SnapshotBehavior { get; set; }
 
-        public StorageType StorageType { get; set; }
+        public StoreType StoreType { get; set; }
 
         /// <summary>
         /// Effects which ISynchronizer is chosen by CreateSynchronizer()
@@ -97,7 +98,8 @@ namespace LiveDomain.Core
             ObjectFormatting = ObjectFormatting.NetBinaryFormatter;
             AsyncronousJournaling = false;
             MaxBytesPerJournalSegment = DefaultMaxBytesPerJournalSegment;
-            StorageType = StorageType.FileSystem;
+            MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
+            StoreType = StoreType.FileSystem;
             CloneResults = true;
             CloneCommands = true;
 
@@ -107,7 +109,7 @@ namespace LiveDomain.Core
             _registry.Register<ISerializer>((c,p) => new Serializer(CreateFormatter()));
 
             InitSynchronizers();
-            InitStorageTypes();
+            InitStoreTypes();
             InitFormatters();
         }
 
@@ -137,16 +139,16 @@ namespace LiveDomain.Core
 
 
         /// <summary>
-        /// Create a named registration for each StorageMode enumeration value
+        /// Create a named registration for each StoreMode enumeration value
         /// </summary>
-        private void InitStorageTypes()
+        private void InitStoreTypes()
         {
-            _registry.Register<IStore>((c, p) => new FileStore(this), StorageType.FileSystem.ToString());
+            _registry.Register<IStore>((c, p) => new FileStore(this), StoreType.FileSystem.ToString());
             //_registry.Register<IStorage, NullStorage>(StorageType.None.ToString());
 
             //If StorageMode is set to custom and no factory has been injected, the fully qualified type 
             //name will be resolved from the app configuration file.
-            _registry.Register<IStore>((c, p) => LoadFromConfig<IStore>(), StorageType.Custom.ToString());
+            _registry.Register<IStore>((c, p) => LoadFromConfig<IStore>(), StoreType.Custom.ToString());
         } 
         #endregion
 
@@ -198,9 +200,9 @@ namespace LiveDomain.Core
             return _registry.Resolve<IAuthorizer<Type>>();
         }
 
-        public virtual IStore CreateStorage()
+        public virtual IStore CreateStore()
         {
-            string name = StorageType.ToString();
+            string name = StoreType.ToString();
             return _registry.Resolve<IStore>(name);
         }
 
@@ -254,10 +256,10 @@ namespace LiveDomain.Core
         /// Inject your custom storage factory here. StorageMode property will be set to Custom
         /// </summary>
         /// <param name="factory"></param>
-        public void SetStorageFactory(Func<EngineConfiguration, IStore> factory)
+        public void SetStoreFactory(Func<EngineConfiguration, IStore> factory)
         {
-            StorageType = StorageType.Custom;
-            string registrationName = StorageType.ToString();
+            StoreType = StoreType.Custom;
+            string registrationName = StoreType.ToString();
             _registry.Register<IStore>((c, p) => factory.Invoke(this), registrationName);
         }
 

@@ -43,7 +43,7 @@
   <ItemGroup>
     <Compile Include="SqlCommandJournal.cs" />
     <Compile Include="SqlJournalWriter.cs" />
-    <Compile Include="SqlStorage.cs" />
+    <Compile Include="SqlStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

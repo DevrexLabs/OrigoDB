@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using LiveDomain.Core.Logging;
 
 namespace LiveDomain.Core.Storage
 {
@@ -9,6 +10,7 @@ namespace LiveDomain.Core.Storage
     {
         protected EngineConfiguration _config;
         protected ISerializer _serializer;
+        protected static ILog _log = Log.GetLogFactory().GetLogForCallingType();
 
         private List<Snapshot> _snapshots;
         public IEnumerable<Snapshot> Snapshots
@@ -45,6 +47,11 @@ namespace LiveDomain.Core.Storage
 
         public void WriteSnapshot(Model model, long lastEntryId)
         {
+            if(Snapshots.Any(ss => ss.LastSequenceNumber == lastEntryId))
+            {
+                _log.Debug("Snapshot already exists");
+                return;
+            }
             Snapshot snapshot = WriteSnapshotImpl(model, lastEntryId);
             _snapshots.Add(snapshot);
         }

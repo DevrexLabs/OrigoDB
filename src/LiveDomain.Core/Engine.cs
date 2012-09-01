@@ -27,7 +27,7 @@ namespace LiveDomain.Core
         /// All configuration settings, cloned in the constructor
         /// </summary>
         EngineConfiguration _config;
-        IStore _storage;
+        IStore _store;
         ISynchronizer _lock;
         ISerializer _serializer;
         bool _isDisposed = false;
@@ -65,7 +65,7 @@ namespace LiveDomain.Core
         {
 
             long lastSequenceNumber;
-            _theModel = _storage.LoadMostRecentSnapshot(out lastSequenceNumber);
+            _theModel = _store.LoadMostRecentSnapshot(out lastSequenceNumber);
 
             if (_theModel == null) 
             {
@@ -94,8 +94,8 @@ namespace LiveDomain.Core
             
             _config = config;
 
-            _storage = _config.CreateStorage();
-            _storage.Load();
+            _store = _config.CreateStore();
+            _store.Load();
             _lock = _config.CreateSynchronizer();
 
             _commandJournal = _config.CreateCommandJournal();
@@ -247,7 +247,7 @@ namespace LiveDomain.Core
         {
             long lastEntryId = _commandJournal.LastEntryId;
             _log.Info("BeginSnapshot:" + lastEntryId);
-            _storage.WriteSnapshot(_theModel, lastEntryId);
+            _store.WriteSnapshot(_theModel, lastEntryId);
             _log.Info("EndSnapshot:" + lastEntryId);
         }
 
@@ -271,7 +271,7 @@ namespace LiveDomain.Core
         public static Engine Load(EngineConfiguration config)
         {
             if (!config.HasLocation) throw new InvalidOperationException("Specify location to load from in non-generic load");
-            config.CreateStorage().VerifyCanLoad();
+            config.CreateStore().VerifyCanLoad();
             var engine = new Engine(null, config);
             return engine;
         }
@@ -318,7 +318,7 @@ namespace LiveDomain.Core
         {
             config = config ?? EngineConfiguration.Create();
             if (!config.HasLocation) config.SetLocationFromType<M>();
-            config.CreateStorage().VerifyCanLoad();
+            config.CreateStore().VerifyCanLoad();
 			var engine = new Engine<M>(config);
     		return engine;
     	}
@@ -350,8 +350,8 @@ namespace LiveDomain.Core
         public static Engine<M> Create<M>(M model, EngineConfiguration config) where M : Model
         {
             if (!config.HasLocation) config.SetLocationFromType<M>();
-            IStore storage = config.CreateStorage();
-            storage.Create(model);
+            IStore store = config.CreateStore();
+            store.Create(model);
             return Load<M>(config);
         }
 
@@ -383,9 +383,9 @@ namespace LiveDomain.Core
             if (!config.HasLocation) config.SetLocationFromType<M>();
             Engine<M> result = null;
 
-            var storage = config.CreateStorage();
+            var store = config.CreateStore();
 
-            if (storage.Exists)
+            if (store.Exists)
             {
                 result = Load<M>(config);
                 _log.Trace("Engine Loaded");

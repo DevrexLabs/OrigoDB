@@ -15,6 +15,14 @@ namespace LiveDomain.Core
     {
         private List<JournalFile> _journalFiles;
 
+        public IEnumerable<JournalFile> JournalFiles
+        {
+            get
+            {
+                foreach (var journalFile in _journalFiles) yield return journalFile;
+            }
+        }
+
         public FileStore(EngineConfiguration config) : base(config)
         {
         }
@@ -101,8 +109,10 @@ namespace LiveDomain.Core
         /// <returns>An open stream</returns>
         public Stream CreateJournalWriterStream(long firstEntryId = 1)
         {
-            var journalFile = _journalFiles.LastOrDefault() ?? new JournalFile(0, 0);
-            string fileName = journalFile.Successsor(firstEntryId).Name;
+            var current = _journalFiles.LastOrDefault() ?? new JournalFile(0, 0);
+            var next = current.Successsor(firstEntryId);
+            _journalFiles.Add(next);
+            string fileName = next.Name;
             string path = Path.Combine(_config.Location, fileName);
             return GetWriteStream(path,  append : true);
         }

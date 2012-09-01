@@ -98,15 +98,15 @@ namespace LiveDomain.Core.Test
         public void InjectingStorageSetsModeToCustom()
         {
             var config = new EngineConfiguration();
-            config.SetStorageFactory((c) => null);
-            Assert.AreEqual(StorageType.Custom, config.StorageType);
+            config.SetStoreFactory((c) => null);
+            Assert.AreEqual(StoreType.Custom, config.StoreType);
         }
 
         [TestMethod()]
         public void FileStorageIsDefault()
         {
             var config = new EngineConfiguration();
-            var storage = config.CreateStorage();
+            var storage = config.CreateStore();
             Assert.IsTrue(storage is FileStore);
         }
 

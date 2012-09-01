@@ -75,7 +75,7 @@ namespace LiveDomain.Core.Test
         public void VerifyCanCreateTest()
         {
             EngineConfiguration config = new EngineConfiguration();
-            SqlStorage target = new SqlStorage(config);
+            SqlStore target = new SqlStore(config);
             target.VerifyCanCreate();
         }
 
@@ -88,7 +88,7 @@ namespace LiveDomain.Core.Test
         {
             EngineConfiguration config = new EngineConfiguration();
             config.Location = "livedbstorage";
-            SqlStorage target = new SqlStorage(config);
+            SqlStore target = new SqlStore(config);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace LiveDomain.Core.Test
             TestModel model = new TestModel();
             var config = new EngineConfiguration();
             config.SnapshotLocation = "c:\\livedb\\sqlstorage";
-            var storage = new SqlStorage(config);
+            var storage = new SqlStore(config);
             storage.WriteSnapshot(model, "initial");
         }
         

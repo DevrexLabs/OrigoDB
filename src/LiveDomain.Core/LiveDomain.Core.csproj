@@ -94,7 +94,7 @@
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Utilities\TypeExtensions.cs" />
     <Compile Include="Security\User.cs" />
-    <Compile Include="Storage\StorageType.cs" />
+    <Compile Include="Storage\StoreType.cs" />
     <Compile Include="Storage\ISerializer.cs" />
     <Compile Include="Configuration\ObjectFormatting.cs" />
     <Compile Include="Configuration\SnapshotBehavior.cs" />
@@ -121,7 +121,7 @@
     <Content Include="License.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
+    <None Include="Core.Public.cd" />
     <None Include="packages.config" />
     <None Include="Security\ClassDiagram2.cd" />
   </ItemGroup>

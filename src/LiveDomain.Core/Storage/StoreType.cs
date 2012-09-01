@@ -6,7 +6,7 @@ using System.Text;
 namespace LiveDomain.Core
 {
     [Serializable]
-    public enum StorageType
+    public enum StoreType
     {
         FileSystem,
         None,

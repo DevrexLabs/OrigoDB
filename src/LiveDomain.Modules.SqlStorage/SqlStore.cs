@@ -13,13 +13,13 @@ using System.Data.Odbc;
 
 namespace LiveDomain.Modules.SqlStorage
 {
-    public class SqlStorage // : IStorage
+    public class SqlStore // : IStorage
     {
         private EngineConfiguration _config;
         private DbProviderFactory _dbProviderFactory;
         private string _connectionString;
 
-        public SqlStorage(EngineConfiguration config)
+        public SqlStore(EngineConfiguration config)
         {
             _config = config;
 

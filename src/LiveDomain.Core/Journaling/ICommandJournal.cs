@@ -7,8 +7,6 @@ namespace LiveDomain.Core
 {
 	public interface ICommandJournal : IDisposable
 	{
-
-
         /// <summary>
         /// Iterator over the entire sequence of journalentries in order.
         /// </summary>

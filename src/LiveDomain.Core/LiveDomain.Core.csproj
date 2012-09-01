@@ -54,6 +54,7 @@
     <Compile Include="Configuration\CompressionMethod.cs" />
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\Location.cs" />
+    <Compile Include="Journaling\NullJournalWriter.cs" />
     <Compile Include="Logging\ILogFactory.cs" />
     <Compile Include="Logging\InternalLogFactory.cs" />
     <Compile Include="Logging\SingletonLogFactory.cs" />
@@ -98,7 +99,6 @@
     <Compile Include="Storage\ISerializer.cs" />
     <Compile Include="Configuration\ObjectFormatting.cs" />
     <Compile Include="Configuration\SnapshotBehavior.cs" />
-    <Compile Include="Storage\StorageBlobIdentifier.cs" />
     <Compile Include="Synchronization\ISynchronizer.cs" />
     <Compile Include="Journaling\IJournalWriter.cs" />
     <Compile Include="ITransactionHandler.cs" />
@@ -121,6 +121,7 @@
     <Content Include="License.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Storage\Filestorage.cd" />
     <None Include="Core.Public.cd" />
     <None Include="packages.config" />
     <None Include="Security\ClassDiagram2.cd" />

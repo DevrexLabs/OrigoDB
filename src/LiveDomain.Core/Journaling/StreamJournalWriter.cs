@@ -19,9 +19,11 @@ namespace LiveDomain.Core
         private EngineConfiguration _config;
         private FileStore _storage;
         private RolloverStrategy _rolloverStrategy;
+        private long _entriesWrittenToCurrentStream;
+
         private static ILog _log = Log.GetLogFactory().GetLogForCallingType();
 
-        private long _entriesWritten = 0;
+
 
 
         public virtual void Dispose()
@@ -33,25 +35,26 @@ namespace LiveDomain.Core
             }
         }
 
-        public StreamJournalWriter(FileStore storage, Stream stream, EngineConfiguration config, RolloverStrategy rolloverStrategy)
+        public StreamJournalWriter(FileStore storage, EngineConfiguration config)
         {
             _config = config;
             _storage = storage;
             _serializer = _config.CreateSerializer();
-            _stream = stream;
-            _rolloverStrategy = rolloverStrategy;
+            _rolloverStrategy = _config.CreateRolloverStrategy();
         }
 
 		public void Write(JournalEntry item)
 		{
+            if (_stream == null) _stream = _storage.CreateJournalWriterStream(item.Id);
             _serializer.Write(item, _stream);
             _stream.Flush();
 
-		    if (_rolloverStrategy.Rollover(_stream.Position, _entriesWritten))
+		    if (_rolloverStrategy.Rollover(_stream.Position, _entriesWrittenToCurrentStream))
 		    {
                 _log.Debug("NewJournalSegment");
 		        Close();
                 _stream = _storage.CreateJournalWriterStream(item.Id + 1);
+		        _entriesWrittenToCurrentStream = 0;
 		    }
 
 		}

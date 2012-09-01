@@ -64,7 +64,7 @@ namespace LiveDomain.Core
 		}
 
 
-		public void Open()
+		private void Open()
 		{
 
             if (_state == JournalState.Open)
@@ -79,10 +79,6 @@ namespace LiveDomain.Core
 		public void Append(Command command)
 		{
             if (_state != JournalState.Open) Open();
-            //{
-            //    throw new InvalidOperationException("Can't append to journal when closed");
-            //}
-
 			var entry = new JournalEntry<Command>(++_lastEntryId, command);
 			_writer.Write(entry);
 		}

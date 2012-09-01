@@ -25,8 +25,6 @@ namespace LiveDomain.Core.Storage
         }
 
 
-        protected abstract IEnumerable<Snapshot> LoadSnapshots();
-
         protected Store(EngineConfiguration config)
         {
             _config = config;
@@ -39,6 +37,9 @@ namespace LiveDomain.Core.Storage
         public abstract IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(DateTime pointInTime);
         public abstract Model LoadMostRecentSnapshot(out long lastSequenceNumber);
         public abstract void VerifyCanLoad();
+        public abstract void VerifyCanCreate();
+        public abstract void Create(Model model);
+        protected abstract IEnumerable<Snapshot> LoadSnapshots();
 
         public virtual IEnumerable<JournalEntry<Command>> GetJournalEntries()
         {
@@ -56,7 +57,7 @@ namespace LiveDomain.Core.Storage
             _snapshots.Add(snapshot);
         }
 
-        public IJournalWriter CreateJournalWriter(long lastEntryId)
+        public virtual IJournalWriter CreateJournalWriter(long lastEntryId)
         {
             IJournalWriter writer = CreateStoreSpecificJournalWriter(lastEntryId);
             return _config.AsyncronousJournaling
@@ -90,11 +91,5 @@ namespace LiveDomain.Core.Storage
                 }
             }
         }
-
-
-
-        public abstract void VerifyCanCreate();
-
-        public abstract void Create(Model model);
     }
 }

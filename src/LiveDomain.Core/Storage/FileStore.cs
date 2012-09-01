@@ -27,6 +27,7 @@ namespace LiveDomain.Core
         {
         }
 
+
         /// <summary>
         /// Read physical storage and populate metadata collections
         /// </summary>
@@ -61,7 +62,7 @@ namespace LiveDomain.Core
             int offset = 0;
             foreach (var journalFile in _journalFiles)
             {
-                if (journalFile.StartingSequenceNumber > sequenceNumber) break;
+                if (journalFile.StartingSequenceNumber >= sequenceNumber) break;
                 offset++;
             }
 
@@ -132,23 +133,6 @@ namespace LiveDomain.Core
         }
 
 
-
-        //public override bool CanCreate
-        //{
-        //    get
-        //    {
-        //        try
-        //        {
-        //            VerifyCanCreate();
-        //            return true;
-        //        }
-        //        catch (Exception)
-        //        {
-        //            return false;
-        //        }
-        //    }
-        //}
-
         private void EnsureDirectoryExists(string directory)
         {
             if (!Directory.Exists(directory))
@@ -199,11 +183,6 @@ namespace LiveDomain.Core
             {
                 error = "Target directory does not exist\n";
             }
-            //else if (!Directory.GetFiles(_config.Location, "*.journal").Any())
-            //{
-            //    error += "No journal files found in target directory\n";
-            //}
-
 
             if (_config.HasAlternativeSnapshotLocation)
             {
@@ -227,8 +206,7 @@ namespace LiveDomain.Core
 
         protected override IJournalWriter CreateStoreSpecificJournalWriter(long lastEntryId)
         {
-            RolloverStrategy strategy = _config.CreateRolloverStrategy();
-            return new StreamJournalWriter(this, CreateJournalWriterStream(lastEntryId), _config, strategy);
+            return new StreamJournalWriter(this, _config);
         }
 
         protected override IEnumerable<Snapshot> LoadSnapshots()

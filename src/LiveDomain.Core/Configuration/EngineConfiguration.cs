@@ -15,11 +15,6 @@ namespace LiveDomain.Core
     {
         protected TinyIoCContainer _registry;
 
-        /// <summary>
-        /// Ensure command journal is created only once
-        /// </summary>
-        private bool _commandJournalCreated;
-
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
         public const string DefaultDateFormatString = "yyyy.MM.dd.hh.mm.ss.fff";
         public const int DefaultMaxBytesPerJournalSegment = 1024 * 1024 * 8;
@@ -187,14 +182,6 @@ namespace LiveDomain.Core
             return _registry.Resolve<ISynchronizer>(registrationName);
         }
 
-        //public virtual IJournalWriter CreateJournalWriter(Stream stream)
-        //{
-        //    string registrationName = JournalWriterMode.ToString();
-        //    var args = new NamedParameterOverloads { { "stream", stream } };
-        //    return _registry.Resolve<IJournalWriter>(registrationName, args);
-        //}
-
-
         public virtual IAuthorizer<Type> CreateAuthorizer()
         {
             return _registry.Resolve<IAuthorizer<Type>>();
@@ -214,8 +201,6 @@ namespace LiveDomain.Core
         /// <returns></returns>
         public virtual ICommandJournal CreateCommandJournal()
         {
-            if (_commandJournalCreated) throw new InvalidOperationException();
-            _commandJournalCreated = true;
             return _registry.Resolve<ICommandJournal>();
         }
 
@@ -229,7 +214,6 @@ namespace LiveDomain.Core
         /// <param name="factory"></param>
         public void SetCommandJournalFactory(Func<EngineConfiguration, ICommandJournal> factory)
         {
-            if (_commandJournalCreated) throw new InvalidOperationException();
             _registry.Register<ICommandJournal>((c, p) => factory.Invoke(this));
         }
 
@@ -263,14 +247,22 @@ namespace LiveDomain.Core
             _registry.Register<IStore>((c, p) => factory.Invoke(this), registrationName);
         }
 
+        /// <summary>
+        /// Inject a custom serializer factory
+        /// </summary>
+        /// <param name="factory"></param>
         public void SetSerializerFactory(Func<EngineConfiguration, ISerializer> factory)
         {
             _registry.Register<ISerializer>((c, p) => factory.Invoke(this));
         } 
         #endregion
 
-
-        public RolloverStrategy CreateRolloverStrategy()
+        /// <summary>
+        /// Rollover strategy is used by storage providers that split the journal into segments. The rollover strategy decides
+        /// when to create a new segment.
+        /// </summary>
+        /// <returns></returns>
+        public virtual RolloverStrategy CreateRolloverStrategy()
         {
             var compositeStrategy = new CompositeRolloverStrategy();
 

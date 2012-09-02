@@ -75,6 +75,8 @@ namespace LiveDomain.Core.Test
         public void VerifyCanCreateTest()
         {
             EngineConfiguration config = new EngineConfiguration();
+            config.Location = "livedbstorage"; //connectionstring name in app.config
+            config.SnapshotLocation = @"c:\livedb\sqlstorage";
             SqlStore target = new SqlStore(config);
             target.VerifyCanCreate();
         }
@@ -91,9 +93,6 @@ namespace LiveDomain.Core.Test
             SqlStore target = new SqlStore(config);
         }
 
-        /// <summary>
-        ///A test for SqlStorage Constructor
-        ///</summary>
         [TestMethod()]
         public void CanLoadSqlProviderFactory()
         {
@@ -118,20 +117,35 @@ namespace LiveDomain.Core.Test
         }
 
         [TestMethod]
-        public void CanWriteSnapshot()
+        public void CanCreate()
         {
             TestModel model = new TestModel();
             var config = new EngineConfiguration();
+            config.Location = "livedbstorage";
             config.SnapshotLocation = "c:\\livedb\\sqlstorage";
             var storage = new SqlStore(config);
-            storage.WriteSnapshot(model, "initial");
+            storage.Create(model);
         }
         
         [TestMethod]
         public void CanAppendCommand()
         {
-            ICommandJournal cj;
-            //cj.
+            var config = new SqlEngineConfiguration("livedbstorage");
+            config.SnapshotLocation = @"c:\livedb\sqlstorage";
+            config.SetStoreFactory(c => new SqlStore(c));
+            var journal = config.CreateCommandJournal();
+            var command = new TestCommandWithResult();
+            journal.Append(command);
         }
+
+        [TestMethod]
+        public void CanLoad()
+        {
+            var config = new EngineConfiguration("livedbstorage");
+            config.SnapshotLocation = @"c:\livedb\sqlstorage";
+            config.SetStoreFactory(c => new SqlStore(c));
+            var engine = Engine.Load<TestModel>(config);
+        }
+
     }
 }

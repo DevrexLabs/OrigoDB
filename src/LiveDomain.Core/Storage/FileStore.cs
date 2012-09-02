@@ -29,7 +29,7 @@ namespace LiveDomain.Core
 
 
         /// <summary>
-        /// Read physical storage and populate metadata collections
+        /// Read journal files
         /// </summary>
         public override void Load()
         {
@@ -47,8 +47,7 @@ namespace LiveDomain.Core
 
         protected override Snapshot WriteSnapshotImpl(Model model, long lastEntryId)
         {
-            //TODO: unused datetime is smelly. refactor.
-            var fileSnapshot = new FileSnapshot(DateTime.MinValue, lastEntryId);
+            var fileSnapshot = new FileSnapshot(DateTime.Now, lastEntryId);
             var fileName = Path.Combine(_config.SnapshotLocation, fileSnapshot.Name);
             using (Stream stream = GetWriteStream(fileName, append:false))
             {

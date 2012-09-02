@@ -10,61 +10,96 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Data.OleDb;
 using System.Data.Odbc;
+using LiveDomain.Core.Storage;
 
 namespace LiveDomain.Modules.SqlStorage
 {
-    public class SqlStore // : IStorage
+    public class SqlStore  : Store
     {
-        private EngineConfiguration _config;
         private DbProviderFactory _dbProviderFactory;
         private string _connectionString;
+        private FileStore _fileStore;
+        private string _tableName = SqlEngineConfiguration.DefaultJournalTableName;
 
-        public SqlStore(EngineConfiguration config)
+
+        public SqlStore(SqlEngineConfiguration config) : base(config)
         {
-            _config = config;
+            _tableName = config.JournalTableName;
+            if(config.LocationType == LocationType.ConnectionString)
+            {
+                ConfigureProviderFactory(config.RelativeLocation, config.ProviderName);
+            }
+            else
+            {
+                ConfigureProviderFromConnectionStringName();                
+            }
+            Configure();
+        }
 
-            string connectionStringName = "livedbstorage";//_config.Location;
+        private void ConfigureProviderFromConnectionStringName()
+        {
+            string connectionStringName = _config.RelativeLocation;
             var connectionString = ConfigurationManager.ConnectionStrings[connectionStringName];
-            string providerName = connectionString.ProviderName;
-            _connectionString = connectionString.ConnectionString;
-            //_connectionString = "Data Source=.;Initial Catalog=livedb;Integrated Security=True";
+            ConfigureProviderFactory(connectionString.ConnectionString, connectionString.ProviderName);
+            
+        }
+
+        private void ConfigureProviderFactory(string connectionString, string providerName)
+        {
+            _connectionString = connectionString;
             _dbProviderFactory = DbProviderFactories.GetFactory(providerName);
         }
+        
+        private void Configure()
+        {
+            var fileStoreConfig = new EngineConfiguration(_config.SnapshotLocation);
+            _fileStore = new FileStore(fileStoreConfig);
+        }
+
+        public SqlStore(EngineConfiguration config) : base(config)
+        {
+            ConfigureProviderFromConnectionStringName();
+            Configure();
+        }
+
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<JournalEntry<Command>> GetJournalEntries(long lastEntryId)
+        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(long lastEntryId)
         {
             ISerializer serializer = _config.CreateSerializer();
-            string sql = GetSelectStatement(lastEntryId);
-            IDbConnection conn = GetConnection();
-            using (conn)
+            string sql = GetEntrySelectStatement(lastEntryId);
+            var dbCommand = CreateSqlCommand(sql);
+            var connection = dbCommand.Connection;
+            
+            using (connection)
             {
-                conn.Open();
-                IDbCommand dbCommand = conn.CreateCommand(); 
-                dbCommand.CommandText = sql;
                 var reader = dbCommand.ExecuteReader();
                 while (reader.Read())
                 {
-                    int length = reader.GetInt32(0);
+                    long entryId = reader.GetInt64(0);
+                    long length = reader.GetInt64(1);
+                    if(length > Int32.MaxValue) throw new OverflowException("serialized journal entry is too big");
                     byte[] buffer = new byte[length];
-                    reader.GetBytes(1, 0, buffer, 0, length);
+                    reader.GetBytes(2, 0, buffer, 0, (int)length);
                     var entry = serializer.Deserialize<JournalEntry<Command>>(buffer);
+                    if(entry.Id != entryId) throw new Exception("EntryId mismatch in database, id =" + entryId);
                     yield return entry;
                 }
             }
         }
 
-        private string GetSelectStatement(long sequenceNumber)
+
+        private string GetEntrySelectStatement(long sequenceNumber)
         {
             string sql = null;
-            if (_dbProviderFactory is SqlClientFactory) sql = "SELECT len(JournalEntry), JournalEntry FROM CommandJournal WHERE Id > {0} order by Id";
-            else if (_dbProviderFactory is OleDbFactory) sql = "SELECT len(JournalEntry), JournalEntry FROM CommandJournal WHERE Id > {0} order by Id";
-            else if (_dbProviderFactory is OdbcFactory) sql = "SELECT len(JournalEntry), JournalEntry FROM CommandJournal WHERE Id > {0} order by Id";
+            if (_dbProviderFactory is SqlClientFactory) sql = "SELECT id, len(Entry), Entry FROM [{0}] WHERE Id >= {1} order by Id";
+            else if (_dbProviderFactory is OleDbFactory) sql = "SELECT id, len(Entry), Entry FROM [{0}] WHERE Id >= {1} order by Id";
+            else if (_dbProviderFactory is OdbcFactory) sql = "SELECT id, len(Entry), Entry FROM [{0}] WHERE Id >= {1} order by Id";
             else throw new NotSupportedException("The database provider is not supported");
-            return String.Format(sql, sequenceNumber);
+            return String.Format(sql, _tableName, sequenceNumber);
         }
 
         private IDbConnection GetConnection()
@@ -75,20 +110,17 @@ namespace LiveDomain.Modules.SqlStorage
         }
 
         /// <summary>
-        /// Can connect to database, tables exist and contain data (?)
+        /// Can connect to database, tables exist
         /// </summary>
-        public void VerifyCanLoad()
+        public override void VerifyCanLoad()
         {
             try
             {
-                string sql = "SELECT Count(*) From CommandJournal";
-                var connection = GetConnection();
-                using (connection)
+                string sql = string.Format("SELECT Count(*) From [{0}]", _tableName);
+                var command = CreateSqlCommand(sql);
+                using (command.Connection)
                 {
-                    var cmd = connection.CreateCommand();
-                    cmd.CommandText = sql;
-                    connection.Open();
-                    cmd.ExecuteScalar();
+                    command.ExecuteScalar();
                 }
             }
             catch (Exception ex)
@@ -96,86 +128,138 @@ namespace LiveDomain.Modules.SqlStorage
                 throw new Exception("cant restore database from storage", ex);
             }
         }
+        
+        public override Model LoadMostRecentSnapshot(out long lastEntryId)
+        {
+            return _fileStore.LoadMostRecentSnapshot(out lastEntryId);
+        }
 
-        public Model GetMostRecentSnapshot(out long lastEntryId)
+
+        private Model LoadMostRecentSnapshotFromDb(out long lastEntryId)
         {
             lastEntryId = -1;
-            string sql = "select id, path from Snapshots order by id desc";
-            var conn = GetConnection();
-            using (conn)
+            string sql = "select id from Snapshots order by id desc";
+            var cmd = CreateSqlCommand(sql);
+            using (cmd.Connection)
             {
-                conn.Open();
-                var cmd = conn.CreateCommand();
-                cmd.CommandText = sql;
+                cmd.Connection.Open();
                 var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    int id = reader.GetInt32(0);
-                    lastEntryId = id;
-                    string path = reader.GetString(1);
-                    if(File.Exists(path))
+                    long id = reader.GetInt64(0);
+                    var snapshot = new FileSnapshot(DateTime.MinValue, id);
+                    string path = Path.Combine(_config.SnapshotLocation, snapshot.Name);
+                    if (File.Exists(path))
                     {
-                        
+                        lastEntryId = id;
                         using (var stream = File.OpenRead(path))
                         {
                             return _config.CreateSerializer().Read<Model>(stream);
-
                         }
-                        
                     }
                 }
             }
             return null;
         }
 
-        public void WriteSnapshot(Model model, string name)
+        protected override Snapshot WriteSnapshotImpl(Model model, long lastEntryId)
         {
-            string path = Path.Combine(_config.SnapshotLocation, name + ".snapshot");
-            var stream = File.OpenWrite(path);
-            using (stream)
-            {
-                _config.CreateSerializer().Write(model, stream);
-            }
-            
-            //add a row in the database
-            string sql = String.Format("INSERT Snapshots VALUES({0}, getdate(), '{1}')", 42, path);
-            var connection = GetConnection();
-            using (connection)
-            {
-                connection.Open();
-                var cmd = connection.CreateCommand();
-                cmd.CommandText = sql;
-                cmd.ExecuteNonQuery();
-            }
+            _fileStore.WriteSnapshot(model, lastEntryId);
+            return _fileStore.Snapshots.Last();
+
+            //var snapshot = new FileSnapshot(DateTime.Now, lastEntryId);
+            //string path = Path.Combine(_config.SnapshotLocation, snapshot.Name);
+            //var stream = File.OpenWrite(path);
+            //using (stream)
+            //{
+            //    _config.CreateSerializer().Write(model, stream);
+            //}
+
+            ////add a row in the database
+            //string sql = String.Format("INSERT Snapshots VALUES({0}, getdate(), '{1}')", lastEntryId, path);
+            //var connection = GetConnection();
+            //using (connection)
+            //{
+            //    connection.Open();
+            //    var cmd = connection.CreateCommand();
+            //    cmd.CommandText = sql;
+            //    cmd.ExecuteNonQuery();
+            //}
+            //return snapshot;
         }
 
         /// <summary>
         /// Database exists, but tables dont
         /// </summary>
-        public void VerifyCanCreate()
+        public override void VerifyCanCreate()
         {
-            
-        }
-
-        public void Initialize(Model model)
-        {
-            
-        }
-
-        public bool Exists
-        {
-            get
+            string sql = string.Format("SELECT count(*) FROM sys.tables where name = '{0}'", _tableName);
+            var cmd = CreateSqlCommand(sql);
+            using (cmd.Connection)
             {
-                throw new NotImplementedException();
+                int rows = (int) cmd.ExecuteScalar();
+                if (rows > 0) throw new Exception("Cant create storage, already exists");
             }
         }
 
-        public bool CanCreate
+        protected override IJournalWriter CreateStoreSpecificJournalWriter(long lastEntryId)
         {
-            get
+           return new SqlJournalWriter(this);
+        }
+
+        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(DateTime pointInTime)
+        {
+            foreach (JournalEntry<Command> journalEntry in GetJournalEntriesFrom(1))
             {
-                throw new NotImplementedException();
+                if (journalEntry.Created >= pointInTime) yield return journalEntry;
             }
         }
+
+        public override void Create(Model model)
+        {
+            string sql = string.Format(CreateCommandJournalTableStatement, _tableName);
+            var command = CreateSqlCommand(sql);
+            using(command.Connection) command.ExecuteNonQuery();
+
+            _fileStore.Create(model);
+            _fileStore.Load();
+            Load();
+        }
+
+        protected override IEnumerable<Snapshot> LoadSnapshots()
+        {
+            _fileStore.Load();
+            return _fileStore.Snapshots;
+        }
+
+        private IDbCommand CreateSqlCommand(string sql)
+        {
+            var connection = GetConnection();
+            var command = connection.CreateCommand();
+            command.CommandText = sql;
+            connection.Open();
+            return command;
+        }
+
+        internal void WriteEntry(JournalEntry item)
+        {
+            string commandName = ((JournalEntry<Command>) item).Item.GetType().Name;
+            string sql = String.Format("insert [{0}] values({1},'{2}',getdate(),@entry)", _tableName, item.Id, commandName, item.Created);
+            var command = CreateSqlCommand(sql);
+            var param = command.CreateParameter();
+            param.ParameterName = "@entry";
+            param.Value = _serializer.Serialize(item);
+            command.Parameters.Add(param);
+            using (command.Connection) command.ExecuteNonQuery();
+        }
+
+
+        private const string CreateCommandJournalTableStatement = @"create table [{0}](
+	Id bigint NOT NULL primary key,
+	CommandName varchar(500) NOT NULL,
+	Created datetime NOT NULL,
+	Entry varbinary(max) NOT NULL)";
+
+
     }
 }

@@ -8,20 +8,26 @@ namespace LiveDomain.Modules.SqlStorage
 {
     public class SqlJournalWriter : IJournalWriter
     {
+        private SqlStore _store;
+
+        public SqlJournalWriter(SqlStore store)
+        {
+            _store = store;
+        }
 
         public void Write(JournalEntry item)
         {
-            throw new NotImplementedException();
+            _store.WriteEntry(item);
         }
 
         public void Close()
         {
-            throw new NotImplementedException();
+            
         }
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

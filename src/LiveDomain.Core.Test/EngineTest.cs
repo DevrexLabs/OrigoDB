@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using LiveDomain.Modules.SqlStorage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Threading;
@@ -96,10 +97,12 @@ namespace LiveDomain.Core.Test
          
         public EngineConfiguration CreateConfig()
         {
-            var config = new EngineConfiguration();
-            config.Location = Path;
+            var config = new SqlEngineConfiguration();
+            config.Location = "livedbstorage";
+            config.SnapshotLocation = Path;
             config.AsyncronousJournaling = false;
-            config.StoreType = StoreType.FileSystem;
+            config.JournalTableName = Path;
+            
             config.SnapshotBehavior = SnapshotBehavior.None;
             config.Synchronization = SynchronizationMode.ReadWrite;
             return config;
@@ -344,9 +347,12 @@ namespace LiveDomain.Core.Test
                 Assert.AreEqual(expected, journalEntry.Id);
                 expected++;
             }
-            foreach (var file in (storage as FileStore).JournalFiles)
+            if (storage is FileStore)
             {
-                Console.WriteLine(file);
+                foreach (var file in (storage as FileStore).JournalFiles)
+                {
+                    Console.WriteLine(file);
+                }
             }
         }
 
@@ -372,9 +378,12 @@ namespace LiveDomain.Core.Test
                 expected++;
             }
             Assert.AreEqual(expected, 121);
-            foreach (var file in ((FileStore)store).JournalFiles)
+            if (store is FileStore)
             {
-                Console.WriteLine(file);
+                foreach (var file in ((FileStore) store).JournalFiles)
+                {
+                    Console.WriteLine(file);
+                }
             }
         }
 
@@ -386,9 +395,12 @@ namespace LiveDomain.Core.Test
             Engine.Close();
             Engine = Engine.Load(config);
             Engine.Close();
-            var store = (FileStore) config.CreateStore();
-            store.Load();
-            Assert.IsFalse(store.JournalFiles.Any());
+            var store = config.CreateStore() as FileStore;
+            if (store != null)
+            {
+                store.Load();
+                Assert.IsFalse(store.JournalFiles.Any());
+            }
         }
 
         [TestMethod]
@@ -399,15 +411,18 @@ namespace LiveDomain.Core.Test
             Engine = Engine.Create(new TestModel(), config);
             ExecuteCommands(3);
             Engine.Close();
-            var store = (FileStore)config.CreateStore();
-            store.Load();
-            Assert.IsTrue(store.JournalFiles.Count() == 1);
-            foreach (var file in ((FileStore)store).JournalFiles)
+            var store = config.CreateStore() as FileStore;
+
+            if (store != null)
             {
-                Console.WriteLine(file);
+                store.Load();
+                Assert.IsTrue(store.JournalFiles.Count() == 1);
+                foreach (var file in ((FileStore)store).JournalFiles)
+                {
+                    Console.WriteLine(file);
+                }
             }
         }
-
 
         private void ExecuteCommands(int count)
         {

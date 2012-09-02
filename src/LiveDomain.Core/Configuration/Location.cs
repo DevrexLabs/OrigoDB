@@ -24,6 +24,11 @@ namespace LiveDomain.Core
         }
 
         /// <summary>
+        /// Gets the location without combining to an absolute location relative to the default directory
+        /// </summary>
+        public string RelativeLocation { get { return _location; } }
+
+        /// <summary>
         /// Same as TargetLocation unless set to some other location
         /// </summary>
         public string SnapshotLocation

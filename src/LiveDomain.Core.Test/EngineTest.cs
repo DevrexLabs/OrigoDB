@@ -155,15 +155,6 @@ namespace LiveDomain.Core.Test
         }
 
         [TestMethod]
-        public void Example()
-        {
-            var config = new SqlEngineConfiguration("connectionStringName");
-            config.SnapshotLocation = @"c:\\temp";
-            config.LocationType = LocationType.ConnectionString;
-            var engine = Engine.LoadOrCreate<MyModel>(config);
-        }
-
-        [TestMethod]
         public void CanLoadEngine()
         {
             CanCreateEngine();

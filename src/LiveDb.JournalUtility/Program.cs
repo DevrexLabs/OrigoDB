@@ -8,6 +8,7 @@ using LiveDomain.Core.Storage;
 using LiveDomain.Core;
 using LiveDomain.Modules.SqlStorage;
 using System.IO;
+using System.Reflection;
 
 namespace LiveDb.JournalUtility
 {
@@ -16,22 +17,66 @@ namespace LiveDb.JournalUtility
         static Model initialModel;
         static void Main(string[] args)
         {
+
+            //file-v0.4 -> file
+            //args = new[]
+            //           {
+            //               @"-source=c:\livedb\freedb.001", 
+            //               @"-destination=c:\livedb\freedb.003", 
+            //               "-source-type=file-v0.4", 
+            //               "-destination-type=file", 
+            //               @"-assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll"
+            //           };
+
+            //file -> sql
+            //args = new[]
+            //           {
+            //               @"-source=c:\livedb\freedb.003", 
+            //               @"-destination=livedbstorage", 
+            //               "-source-type=file", 
+            //               "-destination-type=sql", 
+            //               @"-assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll", 
+            //               @"-destination-snapshots=c:\livedb\freedb.ss.001"
+            //           };
             
-            //args = new[] {@"-source=c:\livedb\freedb.002", @"-destination=c:\livedb\freedb.003", "-source-type=file-v0.4", "-destination-type=file"};
+            //file-v0.4 -> sql
+            //args = new[]
+            //           {
+            //               @"-source=c:\livedb\freedb.001", 
+            //               @"-destination=livedbstorage", 
+            //               "-source-type=file-v0.4", 
+            //               "-destination-type=sql", 
+            //               @"-destination-snapshots=c:\livedb\freedb.ss.001", 
+            //               @"-assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll"
+            //           };
 
-            //args = new[] { @"-source=c:\livedb\freedb.002", @"-destination=livedbstorage", "-source-type=file-v0.4", "-destination-type=sql" };
-
-            args = new[] { @"-source=c:\livedb\freedb.003", @"-destination=livedbstorage", "-source-type=file", "-destination-type=sql" };
+            //sql -> file
+            //args = new[]
+            //           {
+            //               @"-destination=c:\livedb\freedb.004", 
+            //               @"-source=livedbstorage", 
+            //               "-source-type=sql", 
+            //               "-destination-type=file" , 
+            //               @"-source-snapshots=c:\livedb\freedb.ss.001", 
+            //               @"-assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll"
+            //           };
 
             var parsedArgs = ParseArgs(args);
 
-            Store destination = CreateStore(parsedArgs["destination"], parsedArgs["destination-type"]);
-            IterateSource(parsedArgs["source"], parsedArgs["source-type"], destination);
+            //LoadAssembly(parsedArgs["assembly"]);
+
+            Store destination = CreateStore(parsedArgs["destination"], parsedArgs["destination-type"], parsedArgs["destination-snapshots"]);
+            IterateSource(parsedArgs["source"], parsedArgs["source-type"], parsedArgs["source-snapshots"], destination);
             
             
         }
 
-        private static void IterateSource(string location, string sourceType,  Store destination )
+        private static void LoadAssembly(string assemblyFile)
+        {
+            Assembly.LoadFrom(assemblyFile);
+        }
+
+        private static void IterateSource(string location, string sourceType, string snapshotLocation, Store destination )
         {
             var writer = destination.CreateJournalWriter(0);
 
@@ -48,25 +93,29 @@ namespace LiveDb.JournalUtility
             else if (sourceType == "file")
             {
                 var config = new EngineConfiguration(location);
+                config.SnapshotLocation = snapshotLocation;
                 var store = new FileStore(config);
                 store.Load();
-                initialModel = LoadSnapshot(Path.Combine(location, "000000000.snapshot"));
+                initialModel = LoadSnapshot(Path.Combine(config.SnapshotLocation, "000000000.snapshot"));
                 destination.Create(initialModel);
                 foreach (var journalEntry in store.GetJournalEntries())
                 {
+                    Console.WriteLine(journalEntry.Id);
                     writer.Write(journalEntry);
                 }
             }
             else if (sourceType == "sql")
             {
                 var config = new SqlEngineConfiguration(location);
+                config.SnapshotLocation = snapshotLocation;
                 var store = new SqlStore(config);
                 store.Load();
-                initialModel = LoadSnapshot(Path.Combine(location, "000000000.snapshot"));
+                initialModel = LoadSnapshot(Path.Combine(config.SnapshotLocation, "000000000.snapshot"));
                 destination.Create(initialModel);
                 
                 foreach (var journalEntry in store.GetJournalEntries())
                 {
+                    Console.WriteLine(journalEntry.Id);
                     writer.Write(journalEntry);
                 }
             }
@@ -75,9 +124,9 @@ namespace LiveDb.JournalUtility
 
         }
 
-        private static Model LoadSnapshot(string path)
+        private static Model LoadSnapshot(string absolutePath)
         {
-            Stream stream = File.OpenRead(path);
+            Stream stream = File.OpenRead(absolutePath);
             var serializer = new EngineConfiguration().CreateSerializer();
             var model = serializer.Read<Model>(stream);
             stream.Dispose();
@@ -104,10 +153,20 @@ namespace LiveDb.JournalUtility
 
         }
 
-        private static Store CreateStore(string location, string type)
+        private static Store CreateStore(string location, string type, string snapshotLocation)
         {
-            if(type == "file") return new FileStore(new EngineConfiguration(location));
-            else if (type == "sql") return new SqlStore(new SqlEngineConfiguration(location));
+            if(type == "file")
+            {
+                var config = new EngineConfiguration(location);
+                config.SnapshotLocation = snapshotLocation;
+                return new FileStore(config);
+            }
+            else if (type == "sql")
+            {
+                var config = new SqlEngineConfiguration(location);
+                config.SnapshotLocation = snapshotLocation;
+                return new SqlStore(config);
+            }
             else throw new ArgumentException("Invalid destination type");
         }
 
@@ -126,13 +185,15 @@ namespace LiveDb.JournalUtility
             }
 
             //Validate
-            var required = new []{"source", "destination"};
-            var allowed = new[] {"source", "source-type", "destination", "destination-type"};
+            var required = new []{"source", "destination", "assembly"};
+            var allowed = new[] {"source", "source-type", "destination", "destination-type", "source-snapshots", "destination-snapshots", "assembly"};
             Validate(dictionary.Keys.ToArray(), allowed, required);
 
             //set defaults
             if (!dictionary.ContainsKey("source-type")) dictionary["source-type"] = "file";
             if (!dictionary.ContainsKey("destination-type")) dictionary["destination-type"] = "file";
+            if (!dictionary.ContainsKey("destination-snapshots")) dictionary["destination-snapshots"] = dictionary["destination"];
+            if (!dictionary.ContainsKey("source-snapshots")) dictionary["source-snapshots"] = dictionary["source"];
 
             if(dictionary["source-type"] == dictionary["destination-type"]) throw new ArgumentException("source and destination types must be different");
 
@@ -152,11 +213,6 @@ namespace LiveDb.JournalUtility
             {
                 if(!keysGiven.Contains(key)) throw new ArgumentException("key required: " + key);
             }
-        }
-
-        static void Usage()
-        {
-            Console.WriteLine("usage:");
         }
     }
 }

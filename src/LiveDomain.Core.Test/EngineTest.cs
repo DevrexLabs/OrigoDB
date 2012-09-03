@@ -92,17 +92,42 @@ namespace LiveDomain.Core.Test
         
         #endregion
 
-         public Engine Engine { get; set; }
-         public String Path { get; set; }
-         
+        public Engine Engine { get; set; }
+        public String Path { get; set; }
+        
+        /// <summary>
+        /// modify this method to switch between sql and file store tests
+        /// </summary>
+        /// <returns></returns>
         public EngineConfiguration CreateConfig()
         {
+            //return CreateSqlConfig();
+            return CreateFileConfig();
+        }
+
+        private EngineConfiguration CreateFileConfig()
+        {
+            var config = new EngineConfiguration();
+
+            //Connection string name in app.config file
+            config.Location = Path;
+            config.SnapshotBehavior = SnapshotBehavior.None;
+            config.Synchronization = SynchronizationMode.ReadWrite;
+            return config;
+            
+        }
+
+        private SqlEngineConfiguration CreateSqlConfig()
+        {
             var config = new SqlEngineConfiguration();
+            
+            //Connection string name in app.config file
             config.Location = "livedbstorage";
             config.SnapshotLocation = Path;
-            config.AsyncronousJournaling = false;
+
+            //new table for every test. Cleanup your test database later
             config.JournalTableName = Path;
-            
+
             config.SnapshotBehavior = SnapshotBehavior.None;
             config.Synchronization = SynchronizationMode.ReadWrite;
             return config;

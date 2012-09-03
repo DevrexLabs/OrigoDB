@@ -12,6 +12,12 @@ using System.Reflection;
 
 namespace LiveDb.JournalUtility
 {
+    /// <summary>
+    /// To use the conversion utility, you need to add references to your model assembly. Lame,
+    /// but we are having a problem with the dynamic assembly loading and resolution at the moment, expect
+    /// a fix soon.
+    /// Tweak the args array below, and the app.config if either source or destination type is sql. 
+    /// </summary>
     class Program
     {
         static Model initialModel;
@@ -24,8 +30,7 @@ namespace LiveDb.JournalUtility
             //               @"-source=c:\livedb\freedb.001", 
             //               @"-destination=c:\livedb\freedb.003", 
             //               "-source-type=file-v0.4", 
-            //               "-destination-type=file", 
-            //               @"-assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll"
+            //               "-destination-type=file"
             //           };
 
             //file -> sql
@@ -34,8 +39,7 @@ namespace LiveDb.JournalUtility
             //               @"-source=c:\livedb\freedb.003", 
             //               @"-destination=livedbstorage", 
             //               "-source-type=file", 
-            //               "-destination-type=sql", 
-            //               @"-assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll", 
+            //               "-destination-type=sql",  
             //               @"-destination-snapshots=c:\livedb\freedb.ss.001"
             //           };
             
@@ -46,8 +50,7 @@ namespace LiveDb.JournalUtility
             //               @"-destination=livedbstorage", 
             //               "-source-type=file-v0.4", 
             //               "-destination-type=sql", 
-            //               @"-destination-snapshots=c:\livedb\freedb.ss.001", 
-            //               @"-assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll"
+            //               @"-destination-snapshots=c:\livedb\freedb.ss.001"
             //           };
 
             //sql -> file
@@ -57,8 +60,7 @@ namespace LiveDb.JournalUtility
             //               @"-source=livedbstorage", 
             //               "-source-type=sql", 
             //               "-destination-type=file" , 
-            //               @"-source-snapshots=c:\livedb\freedb.ss.001", 
-            //               @"-assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll"
+            //               @"-source-snapshots=c:\livedb\freedb.ss.001"
             //           };
 
             var parsedArgs = ParseArgs(args);

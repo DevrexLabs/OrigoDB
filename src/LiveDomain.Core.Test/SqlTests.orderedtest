@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<OrderedTest name="SqlTests" storage="c:\git\livedomain\src\livedomain.core.test\sqltests.orderedtest" id="2d85917a-0c64-40ee-9adc-c1eb3b6c0e2b" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
-  <TestLinks>
-    <TestLink id="728c7a20-a70f-0649-412a-b6cfa02ced42" name="CanCreate" storage="bin\debug\livedomain.core.test.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-    <TestLink id="7e4872c1-ee2d-039c-9957-e0316dd6d310" name="CanLoad" storage="bin\debug\livedomain.core.test.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-    <TestLink id="bb8725a9-95b6-22ff-3029-a454bb78650d" name="CanAppendCommand" storage="bin\debug\livedomain.core.test.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  </TestLinks>
-</OrderedTest>

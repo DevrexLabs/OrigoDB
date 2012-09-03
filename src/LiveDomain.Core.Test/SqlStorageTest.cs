@@ -4,6 +4,7 @@ using System;
 using LiveDomain.Core;
 using System.Data;
 using System.Data.Common;
+using System.IO;
 
 namespace LiveDomain.Core.Test
 {
@@ -68,31 +69,6 @@ namespace LiveDomain.Core.Test
 
 
 
-        /// <summary>
-        ///A test for VerifyCanCreate
-        ///</summary>
-        [TestMethod()]
-        public void VerifyCanCreateTest()
-        {
-            EngineConfiguration config = new EngineConfiguration();
-            config.Location = "livedbstorage"; //connectionstring name in app.config
-            config.SnapshotLocation = @"c:\livedb\sqlstorage";
-            SqlStore target = new SqlStore(config);
-            target.VerifyCanCreate();
-        }
-
-
-        /// <summary>
-        ///A test for SqlStorage Constructor
-        ///</summary>
-        [TestMethod()]
-        public void SqlStorageConstructorTest()
-        {
-            EngineConfiguration config = new EngineConfiguration();
-            config.Location = "livedbstorage";
-            SqlStore target = new SqlStore(config);
-        }
-
         [TestMethod()]
         public void CanLoadSqlProviderFactory()
         {
@@ -115,37 +91,5 @@ namespace LiveDomain.Core.Test
             var factory = DbProviderFactories.GetFactory("System.Data.SqlClient");
             Assert.IsNotNull(factory);
         }
-
-        [TestMethod]
-        public void CanCreate()
-        {
-            TestModel model = new TestModel();
-            var config = new EngineConfiguration();
-            config.Location = "livedbstorage";
-            config.SnapshotLocation = "c:\\livedb\\sqlstorage";
-            var storage = new SqlStore(config);
-            storage.Create(model);
-        }
-        
-        [TestMethod]
-        public void CanAppendCommand()
-        {
-            var config = new SqlEngineConfiguration("livedbstorage");
-            config.SnapshotLocation = @"c:\livedb\sqlstorage";
-            config.SetStoreFactory(c => new SqlStore(c));
-            var journal = config.CreateCommandJournal();
-            var command = new TestCommandWithResult();
-            journal.Append(command);
-        }
-
-        [TestMethod]
-        public void CanLoad()
-        {
-            var config = new EngineConfiguration("livedbstorage");
-            config.SnapshotLocation = @"c:\livedb\sqlstorage";
-            config.SetStoreFactory(c => new SqlStore(c));
-            var engine = Engine.Load<TestModel>(config);
-        }
-
     }
 }

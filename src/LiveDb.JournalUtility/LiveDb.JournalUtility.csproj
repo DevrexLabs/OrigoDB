@@ -53,9 +53,6 @@
     <StartupObject>LiveDb.JournalUtility.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FreeDb.Core">
-      <HintPath>..\..\..\..\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />

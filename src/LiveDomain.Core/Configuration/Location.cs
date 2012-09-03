@@ -19,9 +19,14 @@ namespace LiveDomain.Core
         /// </summary>
         public string Location
         {
-            get { return Path.Combine(GetDefaultDirectory(), _location); }
+            get { return _location != null ? Path.Combine(GetDefaultDirectory(), _location) : _location; }
             set { _location = value; }
         }
+
+        /// <summary>
+        /// Gets the location without combining to an absolute location relative to the default directory
+        /// </summary>
+        public string RelativeLocation { get { return _location; } }
 
         /// <summary>
         /// Same as TargetLocation unless set to some other location

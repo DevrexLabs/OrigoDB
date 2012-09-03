@@ -1,10 +1,12 @@
 ﻿using LiveDomain.Core;
+using LiveDomain.Core.Journaling;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Runtime.Serialization;
 using System.IO;
 using LiveDomain.Core.Security;
 using System.Runtime.Serialization.Formatters.Binary;
+using LiveDomain.Core.Storage;
 
 namespace LiveDomain.Core.Test
 {
@@ -91,33 +93,33 @@ namespace LiveDomain.Core.Test
             var expected = new BinaryFormatter();
             config.SetFormatterFactory((c) => expected);
             var actual = config.CreateFormatter();
-            Assert.AreEqual(expected, actual);
+            Assert.AreSame(expected, actual);
         }
         
         [TestMethod()]
         public void InjectingStorageSetsModeToCustom()
         {
             var config = new EngineConfiguration();
-            config.SetStorageFactory((c) => null);
-            Assert.AreEqual(StorageType.Custom, config.StorageType);
+            config.SetStoreFactory((c) => null);
+            Assert.AreEqual(StoreType.Custom, config.StoreType);
         }
 
         [TestMethod()]
         public void FileStorageIsDefault()
         {
             var config = new EngineConfiguration();
-            var storage = config.CreateStorage();
-            Assert.IsTrue(storage is FileStorage);
+            var storage = config.CreateStore();
+            Assert.IsTrue(storage is FileStore);
         }
 
         [TestMethod()]
         public void InjectedStorageIsResolved()
         {
             var config = new EngineConfiguration();
-            var expected = new NullStorage();
-            config.SetStorageFactory((c) => expected);
-            var actual = config.CreateStorage();
-            Assert.AreEqual(expected,actual);
+            var expected = new FileStore(config);
+            config.SetStoreFactory((c) => expected);
+            var actual = config.CreateStore();
+            Assert.AreSame(expected, actual);
         }
 
         [TestMethod()]
@@ -143,7 +145,7 @@ namespace LiveDomain.Core.Test
             var expected = new NullSynchronizer();
             config.SetSynchronizerFactory((c) => expected);
             var actual = config.CreateSynchronizer();
-            Assert.AreEqual(expected,actual);
+            Assert.AreSame(expected,actual);
         }
 
         [TestMethod()]
@@ -153,7 +155,7 @@ namespace LiveDomain.Core.Test
             var expected = new Serializer(new BinaryFormatter());
             config.SetSerializerFactory((c) => expected);
             var actual = config.CreateSerializer();
-            Assert.AreEqual(expected, actual);
+            Assert.AreSame(expected, actual);
         }
 
         [TestMethod()]
@@ -163,16 +165,70 @@ namespace LiveDomain.Core.Test
             var expected = new TypeBasedPermissionSet();
             config.SetAuthorizerFactory((c) => expected);
             var actual = config.CreateAuthorizer();
-            Assert.AreEqual(expected,actual);
+            Assert.AreSame(expected,actual);
         }
 
+        class MockStore : Store
+        {
+            public MockStore(EngineConfiguration config) : base(config)
+            {
+                
+            }
 
+            protected override IJournalWriter CreateStoreSpecificJournalWriter(long lastEntryId)
+            {
+                return new NullJournalWriter();
+            }
+
+            protected override Snapshot WriteSnapshotImpl(Model model, long lastEntryId)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override System.Collections.Generic.IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(long sequenceNumber)
+            {
+                yield break;
+            }
+
+            public override System.Collections.Generic.IEnumerable<JournalEntry<Command>> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
+            {
+                yield break;
+            }
+
+            public override Model LoadMostRecentSnapshot(out long lastSequenceNumber)
+            {
+                lastSequenceNumber = 1;
+                return null;
+            }
+
+            public override void VerifyCanLoad()
+            {
+                
+            }
+
+            public override void VerifyCanCreate()
+            {
+                
+            }
+
+            public override void Create(Model model)
+            {
+               
+            }
+
+            protected override System.Collections.Generic.IEnumerable<Snapshot> LoadSnapshots()
+            {
+                yield break;
+            }
+        }
         [TestMethod()]
         public void AsyncJournalingYieldsAsyncWriter()
         {
             var config = new EngineConfiguration();
-            config.JournalWriterMode = JournalWriterMode.Asynchronous;
-            var writer = config.CreateJournalWriter(new MemoryStream());
+            config.AsyncronousJournaling = true;
+            config.SetStoreFactory(c => new MockStore(c));
+            var store = config.CreateStore();
+            var writer = store.CreateJournalWriter(1);
             Assert.IsTrue(writer is AsynchronousJournalWriter);
         }
 
@@ -180,16 +236,18 @@ namespace LiveDomain.Core.Test
         public void SyncJournalingYieldsSyncWriter()
         {
             var config = new EngineConfiguration();
-            config.JournalWriterMode = JournalWriterMode.Synchronous;
-            var writer = config.CreateJournalWriter(new MemoryStream());
-            Assert.IsTrue(writer is SynchronousJournalWriter);
+            config.AsyncronousJournaling = false;
+            config.SetStoreFactory(c => new MockStore(c));
+            var store = config.CreateStore();
+            var writer = store.CreateJournalWriter(1);
+            Assert.IsTrue(writer is NullJournalWriter);
         }
 
         [TestMethod()]
         public void SyncJournalingIsDefault()
         {
             var config = new EngineConfiguration();
-            Assert.AreEqual(JournalWriterMode.Synchronous, config.JournalWriterMode);
+            Assert.IsFalse(config.AsyncronousJournaling);
         }
 
 

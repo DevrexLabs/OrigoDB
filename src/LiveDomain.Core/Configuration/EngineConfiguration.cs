@@ -15,20 +15,16 @@ namespace LiveDomain.Core
     {
         protected TinyIoCContainer _registry;
 
-        /// <summary>
-        /// Ensure command journal is created only once
-        /// </summary>
-        private bool _commandJournalCreated;
-
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
         public const string DefaultDateFormatString = "yyyy.MM.dd.hh.mm.ss.fff";
-        public const long DefaultJournalSegmentSizeInBytes = 1024 * 1024;
+        public const int DefaultMaxBytesPerJournalSegment = 1024 * 1024 * 8;
+        public const int DefaultMaxCommandsPerJournalSegment = 10000;
 
 
         /// <summary>
-        /// When segment exceeds this size a new segment is created
+        /// Write journal entries using a background thread
         /// </summary>
-        public long JournalSegmentSizeInBytes { get; set; }
+        public bool AsyncronousJournaling { get; set; }
 
 
         /// <summary>
@@ -58,7 +54,7 @@ namespace LiveDomain.Core
         /// </summary>
         public SnapshotBehavior SnapshotBehavior { get; set; }
 
-        public StorageType StorageType { get; set; }
+        public StoreType StoreType { get; set; }
 
         /// <summary>
         /// Effects which ISynchronizer is chosen by CreateSynchronizer()
@@ -71,10 +67,16 @@ namespace LiveDomain.Core
         public ObjectFormatting ObjectFormatting { get; set; }
 
         /// <summary>
-        /// Synchronous or Asynchronous journaling
+        /// Maximum number of journal entries per segment. Applies only to storage 
+        /// providers which split up the journal in segments and ignored by others.
         /// </summary>
-        public JournalWriterMode JournalWriterMode { get; set; }
+        public int MaxEntriesPerJournalSegment { get; set; }
 
+        /// <summary>
+        /// Maximum number of bytes entries per segment. Applies only to storage 
+        /// providers which split up the journal in segments and ignored by others.
+        /// </summary>
+        public int MaxBytesPerJournalSegment { get; set; }
 
         /// <summary>
         /// Create an EngineConfiguration instance using default values
@@ -89,9 +91,10 @@ namespace LiveDomain.Core
             LockTimeout = DefaultTimeout;
             Synchronization = SynchronizationMode.ReadWrite;
             ObjectFormatting = ObjectFormatting.NetBinaryFormatter;
-            JournalWriterMode = JournalWriterMode.Synchronous;
-            StorageType = StorageType.FileSystem;
-            JournalSegmentSizeInBytes = DefaultJournalSegmentSizeInBytes;
+            AsyncronousJournaling = false;
+            MaxBytesPerJournalSegment = DefaultMaxBytesPerJournalSegment;
+            MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
+            StoreType = StoreType.FileSystem;
             CloneResults = true;
             CloneCommands = true;
 
@@ -101,8 +104,7 @@ namespace LiveDomain.Core
             _registry.Register<ISerializer>((c,p) => new Serializer(CreateFormatter()));
 
             InitSynchronizers();
-            InitJournalWriters();
-            InitStorageTypes();
+            InitStoreTypes();
             InitFormatters();
         }
 
@@ -122,19 +124,6 @@ namespace LiveDomain.Core
 
         }
 
-        /// <summary>
-        /// Created a named registration for each JournalWriterPerformance enumeration value
-        /// </summary>
-        private void InitJournalWriters()
-        {
-            _registry.Register<IJournalWriter>(
-                (c, p) => new AsynchronousJournalWriter(new SynchronousJournalWriter(p["stream"] as Stream, CreateSerializer())),
-                JournalWriterMode.Asynchronous.ToString());
-            _registry.Register<IJournalWriter>(
-                (c, p) => new SynchronousJournalWriter(p["stream"] as Stream, CreateSerializer()),
-                JournalWriterMode.Synchronous.ToString());
-        }
-
         private void InitFormatters()
         {
             _registry.Register<IFormatter>((c, p) => new BinaryFormatter(),
@@ -145,17 +134,16 @@ namespace LiveDomain.Core
 
 
         /// <summary>
-        /// Create a named registration for each StorageMode enumeration value
+        /// Create a named registration for each StoreMode enumeration value
         /// </summary>
-        private void InitStorageTypes()
+        private void InitStoreTypes()
         {
-
-            _registry.Register<IStorage>((c, p) => new FileStorage(this), StorageType.FileSystem.ToString());
-            _registry.Register<IStorage, NullStorage>(StorageType.None.ToString());
+            _registry.Register<IStore>((c, p) => new FileStore(this), StoreType.FileSystem.ToString());
+            //_registry.Register<IStorage, NullStorage>(StorageType.None.ToString());
 
             //If StorageMode is set to custom and no factory has been injected, the fully qualified type 
             //name will be resolved from the app configuration file.
-            _registry.Register<IStorage>((c, p) => LoadFromConfig<IStorage>(), StorageType.Custom.ToString());
+            _registry.Register<IStore>((c, p) => LoadFromConfig<IStore>(), StoreType.Custom.ToString());
         } 
         #endregion
 
@@ -173,12 +161,12 @@ namespace LiveDomain.Core
         }
 
         #region Factory methods
-        protected internal virtual ISerializer CreateSerializer()
+        public virtual ISerializer CreateSerializer()
         {
             return _registry.Resolve<ISerializer>();
         }
 
-        protected internal virtual IFormatter CreateFormatter()
+        public virtual IFormatter CreateFormatter()
         {
             string name = ObjectFormatting.ToString();
             return _registry.Resolve<IFormatter>(name);
@@ -188,29 +176,21 @@ namespace LiveDomain.Core
         /// Gets a synchronizer based on the SynchronizationMode property
         /// </summary>
         /// <returns></returns>
-        protected internal virtual ISynchronizer CreateSynchronizer()
+        public virtual ISynchronizer CreateSynchronizer()
         {
             string registrationName = Synchronization.ToString();
             return _registry.Resolve<ISynchronizer>(registrationName);
         }
 
-        protected internal virtual IJournalWriter CreateJournalWriter(Stream stream)
-        {
-            string registrationName = JournalWriterMode.ToString();
-            var args = new NamedParameterOverloads { { "stream", stream } };
-            return _registry.Resolve<IJournalWriter>(registrationName, args);
-        }
-
-
-        protected internal virtual IAuthorizer<Type> CreateAuthorizer()
+        public virtual IAuthorizer<Type> CreateAuthorizer()
         {
             return _registry.Resolve<IAuthorizer<Type>>();
         }
 
-        protected internal virtual IStorage CreateStorage()
+        public virtual IStore CreateStore()
         {
-            string name = StorageType.ToString();
-            return _registry.Resolve<IStorage>(name);
+            string name = StoreType.ToString();
+            return _registry.Resolve<IStore>(name);
         }
 
         /// <summary>
@@ -219,10 +199,8 @@ namespace LiveDomain.Core
         /// calling SetCommandJournalFactory()
         /// </summary>
         /// <returns></returns>
-        protected internal virtual ICommandJournal CreateCommandJournal()
+        public virtual ICommandJournal CreateCommandJournal()
         {
-            if (_commandJournalCreated) throw new InvalidOperationException();
-            _commandJournalCreated = true;
             return _registry.Resolve<ICommandJournal>();
         }
 
@@ -236,7 +214,6 @@ namespace LiveDomain.Core
         /// <param name="factory"></param>
         public void SetCommandJournalFactory(Func<EngineConfiguration, ICommandJournal> factory)
         {
-            if (_commandJournalCreated) throw new InvalidOperationException();
             _registry.Register<ICommandJournal>((c, p) => factory.Invoke(this));
         }
 
@@ -263,17 +240,42 @@ namespace LiveDomain.Core
         /// Inject your custom storage factory here. StorageMode property will be set to Custom
         /// </summary>
         /// <param name="factory"></param>
-        public void SetStorageFactory(Func<EngineConfiguration, IStorage> factory)
+        public void SetStoreFactory(Func<EngineConfiguration, IStore> factory)
         {
-            StorageType = StorageType.Custom;
-            string registrationName = StorageType.ToString();
-            _registry.Register<IStorage>((c, p) => factory.Invoke(this), registrationName);
+            StoreType = StoreType.Custom;
+            string registrationName = StoreType.ToString();
+            _registry.Register<IStore>((c, p) => factory.Invoke(this), registrationName);
         }
 
+        /// <summary>
+        /// Inject a custom serializer factory
+        /// </summary>
+        /// <param name="factory"></param>
         public void SetSerializerFactory(Func<EngineConfiguration, ISerializer> factory)
         {
             _registry.Register<ISerializer>((c, p) => factory.Invoke(this));
         } 
         #endregion
+
+        /// <summary>
+        /// Rollover strategy is used by storage providers that split the journal into segments. The rollover strategy decides
+        /// when to create a new segment.
+        /// </summary>
+        /// <returns></returns>
+        public virtual RolloverStrategy CreateRolloverStrategy()
+        {
+            var compositeStrategy = new CompositeRolloverStrategy();
+
+            if (MaxBytesPerJournalSegment < int.MaxValue)
+            {
+                compositeStrategy.AddStrategy(new MaxBytesRolloverStrategy(MaxBytesPerJournalSegment));
+            }
+
+            if (MaxEntriesPerJournalSegment < int.MaxValue)
+            {
+                compositeStrategy.AddStrategy(new MaxEntriesRolloverStrategy(MaxEntriesPerJournalSegment));
+            }
+            return compositeStrategy;
+        }
     }
 }

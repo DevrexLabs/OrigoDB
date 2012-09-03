@@ -10,6 +10,7 @@ namespace LiveDomain.Core
     public static class Log
     {
         private static ILogFactory _logFactory;
+        private static object locker = new object();
 
         public static void SetLogFactory(ILogFactory logFactory)
         {
@@ -18,7 +19,7 @@ namespace LiveDomain.Core
 
         public static ILogFactory GetLogFactory()
         {
-            lock (typeof(Log))
+            lock (locker)
             {
                 if(_logFactory == null) _logFactory = new InternalLogFactory();
             }

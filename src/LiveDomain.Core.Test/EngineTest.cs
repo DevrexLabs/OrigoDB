@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
+using LiveDomain.Modules.SqlStorage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Threading;
@@ -56,6 +58,17 @@ namespace LiveDomain.Core.Test
              _logger.Clear();
          }
 
+        public void WriteLog()
+        {
+            Console.WriteLine("------------------------------");
+            Console.WriteLine(" LOG");
+            Console.WriteLine("------------------------------");
+            foreach (var message in _logger.Messages)
+            {
+                Console.WriteLine(message);
+            }
+        }
+
         static EngineTest()
         {
             Log.SetLogFactory(new SingletonLogFactory(_logger));
@@ -73,6 +86,8 @@ namespace LiveDomain.Core.Test
                  Thread.Sleep(50);
                  if (Directory.Exists(Path)) new DirectoryInfo(Path).Delete(true);
              }
+             Console.WriteLine("Path:" + Path);
+             WriteLog();
          }
         
         #endregion
@@ -82,12 +97,14 @@ namespace LiveDomain.Core.Test
          
         public EngineConfiguration CreateConfig()
         {
-            var config = new EngineConfiguration();
-            config.Location = Path;
-            config.JournalWriterMode = JournalWriterMode.Asynchronous;
-            config.StorageType = StorageType.FileSystem;
-            config.SnapshotBehavior = SnapshotBehavior.AfterRestore;
-            config.Synchronization = SynchronizationMode.Exclusive;
+            var config = new SqlEngineConfiguration();
+            config.Location = "livedbstorage";
+            config.SnapshotLocation = Path;
+            config.AsyncronousJournaling = false;
+            config.JournalTableName = Path;
+            
+            config.SnapshotBehavior = SnapshotBehavior.None;
+            config.Synchronization = SynchronizationMode.ReadWrite;
             return config;
         }
 
@@ -167,9 +184,27 @@ namespace LiveDomain.Core.Test
 
 
         [TestMethod]
-        public void JournalRollsOver()
+        public void JournalRollsOverWhenEntryCountExceedsLimit()
         {
-            CanCreateEngine();
+            var config = CreateConfig();
+            if (config.CreateStore() is SqlStore) return;
+            config.MaxEntriesPerJournalSegment = 90;
+            Engine = Engine.LoadOrCreate<TestModel>(config);
+            for (int i = 0; i < 100; i++)
+            {
+                Command command = new TestCommandWithResult() { Payload = new byte[100000] };
+                this.Engine.Execute(command);
+            }
+            Assert.IsTrue(_logger.Messages.Count(m => m.Contains("NewJournalSegment")) > 0);
+        }
+
+        [TestMethod]
+        public void JournalRollsOverWhenSegmentSizeExceedsLimit()
+        {
+            var config = CreateConfig();
+            if (config.CreateStore() is SqlStore) return;
+            config.MaxBytesPerJournalSegment = 1024 * 1024;
+            Engine = Engine.LoadOrCreate<TestModel>(config);
             for (int i = 0; i < 100; i++)
             {
                 Command command = new TestCommandWithResult() { Payload = new byte[100000] };
@@ -196,23 +231,7 @@ namespace LiveDomain.Core.Test
             Assert.IsTrue(onLoadWasCalled);
         }
 
-        string _name;
-        [TestMethod]
-        public void CanCreateSnapshotWithGuidAsName()
-        {
-            CanCreateEngine();
-            _name = Guid.NewGuid().ToString();
-            Engine.CreateSnapshot(_name);
-        }
 
-        [TestMethod]
-        public void CanCreateSnapshotWithEmptyName()
-        {
-            CanCreateEngine();
-            Engine.CreateSnapshot(String.Empty);
-
-            Engine.CreateSnapshot();
-        }
 
         [TestMethod]
         public void LoadOrCreateCreatesWhenNotExists()
@@ -223,17 +242,17 @@ namespace LiveDomain.Core.Test
         }
 
 
-        [TestMethod]
-        public void LoadOrCreateCreatesInWebContext()
-        {
-            Assert.Inconclusive();
-        }
+        //[TestMethod]
+        //public void LoadOrCreateCreatesInWebContext()
+        //{
+        //    Assert.Inconclusive();
+        //}
 
-        [TestMethod]
-        public void LoadOrCreateLoadsInWebContext()
-        {
-            Assert.Inconclusive();
-        }
+        //[TestMethod]
+        //public void LoadOrCreateLoadsInWebContext()
+        //{
+        //    Assert.Inconclusive();
+        //}
 
         [TestMethod]
         public void LoadOrCreateLoadsWhenExists()
@@ -273,9 +292,9 @@ namespace LiveDomain.Core.Test
         public void TinyIocResolvesNamedRegistration()
         {
             var registry = new TinyIoCContainer();
-            string name = StorageType.FileSystem.ToString();
-            registry.Register<IStorage>((c,p) => new FileStorage(new EngineConfiguration()), name);
-            var result = registry.Resolve<IStorage>(name);
+            string name = StoreType.FileSystem.ToString();
+            registry.Register<IStore>((c,p) => new FileStore(new EngineConfiguration()), name);
+            var result = registry.Resolve<IStore>(name);
             Assert.IsNotNull(result);
         }
 
@@ -296,6 +315,100 @@ namespace LiveDomain.Core.Test
             Assert.IsTrue(serializer is Serializer);
         }
 
+        [TestMethod]
+        public void JournalEntriesAreSequentiallyNumberedFromOne()
+        {
+            var config = CreateConfig();
+            config.MaxEntriesPerJournalSegment = 50;
+            Engine = Engine.Create(new TestModel(), config);
+
+            ExecuteCommands(1000);
+
+            Engine.Close();
+            var storage = config.CreateStore();
+            storage.Load();
+            int expected = 1;
+            foreach (var journalEntry in storage.GetJournalEntries())
+            {
+                Assert.AreEqual(expected, journalEntry.Id);
+                expected++;
+            }
+            if (storage is FileStore)
+            {
+                foreach (var file in (storage as FileStore).JournalFiles)
+                {
+                    Console.WriteLine(file);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void EntriesAreSequentiallyNumberedAfterReload()
+        {
+            var config = CreateConfig();
+            config.MaxEntriesPerJournalSegment = 50;
+            Engine = Engine.Create(new TestModel(), config);
+            ExecuteCommands(60);
+            Engine.Close();
+            Engine = Engine.Load(config);
+            ExecuteCommands(60);
+            Engine.Close();
+
+            //We should have 120 commands in the journal, numbered from 1 to 120
+            var store = config.CreateStore();
+            store.Load();
+            int expected = 1;
+            foreach (var journalEntry in store.GetJournalEntries())
+            {
+                Assert.AreEqual(expected, journalEntry.Id);
+                expected++;
+            }
+            Assert.AreEqual(expected, 121);
+            if (store is FileStore)
+            {
+                foreach (var file in ((FileStore) store).JournalFiles)
+                {
+                    Console.WriteLine(file);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void NoEmptyJournalFiles()
+        {
+            var config = CreateConfig();
+            Engine = Engine.Create(new TestModel(), config);
+            Engine.Close();
+            Engine = Engine.Load(config);
+            Engine.Close();
+            var store = config.CreateStore() as FileStore;
+            if (store != null)
+            {
+                store.Load();
+                Assert.IsFalse(store.JournalFiles.Any());
+            }
+        }
+
+        [TestMethod]
+        public void NoEmptyJournalFileOnRollover()
+        {
+            var config = CreateConfig();
+            config.MaxEntriesPerJournalSegment = 2;
+            Engine = Engine.Create(new TestModel(), config);
+            ExecuteCommands(3);
+            Engine.Close();
+            var store = config.CreateStore() as FileStore;
+
+            if (store != null)
+            {
+                store.Load();
+                Assert.IsTrue(store.JournalFiles.Count() == 1);
+                foreach (var file in ((FileStore)store).JournalFiles)
+                {
+                    Console.WriteLine(file);
+                }
+            }
+        }
 
         private void ExecuteCommands(int count)
         {

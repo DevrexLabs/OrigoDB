@@ -21,15 +21,15 @@ namespace LiveDomain.Core.Storage
 
 
         /// <summary>
-        /// The sequence number of the last command executed
+        /// The id of the journal entry containing the last command applied to this snapshot
         /// </summary>
-        public readonly long LastSequenceNumber;
+        public readonly long LastEntryId;
 
 
-        public Snapshot(DateTime created, long lastSequenceNumber)
+        public Snapshot(DateTime created, long lastEntryId)
         {
             Created = created;
-            LastSequenceNumber = lastSequenceNumber;
+            LastEntryId = lastEntryId;
         }
     }
 
@@ -38,7 +38,7 @@ namespace LiveDomain.Core.Storage
         public string Name { get { return ToString(); } }
 
 
-        public FileSnapshot(DateTime created, long lastSequenceNumber) : base(created, lastSequenceNumber)
+        public FileSnapshot(DateTime created, long lastEntryId) : base(created, lastEntryId)
         {
          
         }
@@ -56,7 +56,7 @@ namespace LiveDomain.Core.Storage
 
         public override string ToString()
         {
-            return String.Format("{0:000000000}.snapshot", LastSequenceNumber);
+            return String.Format("{0:000000000}.snapshot", LastEntryId);
         }
     }
 }

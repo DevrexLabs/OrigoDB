@@ -61,7 +61,7 @@ namespace LiveDomain.Core
             int offset = 0;
             foreach (var journalFile in _journalFiles)
             {
-                if (journalFile.StartingSequenceNumber >= sequenceNumber) break;
+                if (journalFile.StartingEntryId >= sequenceNumber) break;
                 offset++;
             }
 
@@ -95,7 +95,7 @@ namespace LiveDomain.Core
             if (snapshot == null) return null;
             var directory = _config.SnapshotLocation;
             var fileName = Path.Combine(directory, snapshot.Name);
-            lastSequenceNumber = snapshot.LastSequenceNumber;
+            lastSequenceNumber = snapshot.LastEntryId;
             using (Stream stream = GetReadStream(fileName))
             {
                 return _serializer.Read<Model>(stream);
@@ -217,7 +217,7 @@ namespace LiveDomain.Core
                 snapshots.Add(FileSnapshot.FromFileInfo(fileInfo));
             }
 
-            snapshots.Sort((a, b) => a.LastSequenceNumber.CompareTo(b.LastSequenceNumber));
+            snapshots.Sort((a, b) => a.LastEntryId.CompareTo(b.LastEntryId));
             return snapshots;
         }
     }

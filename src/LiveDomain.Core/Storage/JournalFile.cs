@@ -9,7 +9,7 @@ namespace LiveDomain.Core
 
     /// <summary>
     /// Represents a journal file name. The name is composed of the 
-    /// file sequence number and the sequence number of the first journal entry in the file
+    /// file sequence number and the id of the first journal entry in the file
     /// </summary>
     public class JournalFile
     {
@@ -22,9 +22,9 @@ namespace LiveDomain.Core
         }
 
         /// <summary>
-        /// Sequence number of the first journal entry in the file
+        /// Id of the first journal entry in the file
         /// </summary>
-        public readonly long StartingSequenceNumber;
+        public readonly long StartingEntryId;
 
 
         /// <summary>
@@ -34,10 +34,10 @@ namespace LiveDomain.Core
 
 
 
-        public JournalFile(long fileSequenceNumber, long startingEntrySequenceNr )
+        public JournalFile(long fileSequenceNumber, long startingEntryId )
         {
             FileSequenceNumber = fileSequenceNumber;
-            StartingSequenceNumber = startingEntrySequenceNr;
+            StartingEntryId = startingEntryId;
         }
 
         static Regex journalFilenameParser = new Regex(@"^(?<fileNr>\d{9}).(?<entryNr>\d{9}).journal$");
@@ -59,7 +59,7 @@ namespace LiveDomain.Core
         public override string ToString()
         {
             const string template = "{0:000000000}.{1:000000000}.journal";
-            return String.Format(template, FileSequenceNumber, StartingSequenceNumber);
+            return String.Format(template, FileSequenceNumber, StartingEntryId);
         }
 
 

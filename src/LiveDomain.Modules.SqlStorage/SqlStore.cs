@@ -92,14 +92,14 @@ namespace LiveDomain.Modules.SqlStorage
         }
 
 
-        private string GetEntrySelectStatement(long sequenceNumber)
+        private string GetEntrySelectStatement(long startingEntryId)
         {
             string sql = null;
             if (_dbProviderFactory is SqlClientFactory) sql = "SELECT id, len(Entry), Entry FROM [{0}] WHERE Id >= {1} order by Id";
             else if (_dbProviderFactory is OleDbFactory) sql = "SELECT id, len(Entry), Entry FROM [{0}] WHERE Id >= {1} order by Id";
             else if (_dbProviderFactory is OdbcFactory) sql = "SELECT id, len(Entry), Entry FROM [{0}] WHERE Id >= {1} order by Id";
             else throw new NotSupportedException("The database provider is not supported");
-            return String.Format(sql, _tableName, sequenceNumber);
+            return String.Format(sql, _tableName, startingEntryId);
         }
 
         private IDbConnection GetConnection()
@@ -193,7 +193,7 @@ namespace LiveDomain.Modules.SqlStorage
         /// </summary>
         public override void VerifyCanCreate()
         {
-            string sql = string.Format("SELECT count(*) FROM sys.tables where name = '{0}'", _tableName);
+            string sql = string.Format("select count(*) from information_schema.tables where table_name = '{0}'", _tableName);
             var cmd = CreateSqlCommand(sql);
             using (cmd.Connection)
             {
@@ -217,7 +217,7 @@ namespace LiveDomain.Modules.SqlStorage
 
         public override void Create(Model model)
         {
-            string sql = string.Format(CreateCommandJournalTableStatement, _tableName);
+            string sql = GetCreateStatement();
             var command = CreateSqlCommand(sql);
             using(command.Connection) command.ExecuteNonQuery();
 
@@ -244,21 +244,34 @@ namespace LiveDomain.Modules.SqlStorage
         internal void WriteEntry(JournalEntry item)
         {
             string commandName = ((JournalEntry<Command>) item).Item.GetType().Name;
-            string sql = String.Format("insert [{0}] values({1},'{2}',getdate(),@entry)", _tableName, item.Id, commandName, item.Created);
+            string sqlTemplate = "insert [{0}] values({1}, '{2}', @created, @entry)";
+            string sql = String.Format(sqlTemplate, _tableName, item.Id, commandName);
             var command = CreateSqlCommand(sql);
-            var param = command.CreateParameter();
-            param.ParameterName = "@entry";
-            param.Value = _serializer.Serialize(item);
-            command.Parameters.Add(param);
+
+            var createdParam = command.CreateParameter();
+            createdParam.ParameterName = "@created";
+            createdParam.Value = item.Created;
+            command.Parameters.Add(createdParam);
+
+            var entryParam = command.CreateParameter();
+            entryParam.ParameterName = "@entry";
+            entryParam.Value = _serializer.Serialize(item);
+            command.Parameters.Add(entryParam);
+
             using (command.Connection) command.ExecuteNonQuery();
         }
 
 
-        private const string CreateCommandJournalTableStatement = @"create table [{0}](
-	Id bigint NOT NULL primary key,
-	CommandName varchar(500) NOT NULL,
-	Created datetime NOT NULL,
-	Entry varbinary(max) NOT NULL)";
+        private string GetCreateStatement()
+        {
+            return String.Format(CreateTableCommand, _tableName);
+        }
+
+        private const string CreateTableCommand = @"create table [{0}](
+	Id bigint not null primary key,
+	CommandName varchar(500) not null,
+	Created datetime not null,
+	Entry varbinary(max) not null)";
 
 
     }

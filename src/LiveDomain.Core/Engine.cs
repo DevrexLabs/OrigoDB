@@ -64,8 +64,8 @@ namespace LiveDomain.Core
         private void Restore<M>(Func<M> constructor) where M : Model
         {
 
-            long lastSequenceNumber;
-            _theModel = _store.LoadMostRecentSnapshot(out lastSequenceNumber);
+            long lastEntryIdExecuted;
+            _theModel = _store.LoadMostRecentSnapshot(out lastEntryIdExecuted);
 
             if (_theModel == null) 
             {
@@ -74,7 +74,7 @@ namespace LiveDomain.Core
             }
             
             _theModel.SnapshotRestored();
-            foreach (var command in _commandJournal.GetEntriesFrom(lastSequenceNumber).Select(entry => entry.Item))
+            foreach (var command in _commandJournal.GetEntriesFrom(lastEntryIdExecuted).Select(entry => entry.Item))
             {
                 command.Redo(_theModel);
             }

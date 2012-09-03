@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="LiveDomain.Core.JournalFile">
+    <Position X="10.75" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAAQEAAAAACQAAAAgAAQAAAAAAAAAAAA=</HashCode>
+      <FileName>Storage\JournalFile.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LiveDomain.Core.Storage.Snapshot">
+    <Position X="8.5" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAACAAAAAAAAAAAAAQAAAAAAAAAAAA=</HashCode>
+      <FileName>Storage\Snapshot.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LiveDomain.Core.Storage.FileSnapshot">
+    <Position X="8.5" Y="2.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAQQAAEAAAAEAAAAAAAAAAA=</HashCode>
+      <FileName>Storage\Snapshot.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LiveDomain.Core.Storage.Store">
+    <Position X="3.25" Y="0.5" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAooAEMAAAgAEAAAAAAAIAgAACBCEAAACAAAAEAIAA=</HashCode>
+      <FileName>Storage\Store.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="LiveDomain.Core.FileStore">
+    <Position X="5.75" Y="0.5" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAgqAEIBAAABAAAAAQAAIEAAACAAEAAAAAAEAAAIAA=</HashCode>
+      <FileName>Storage\FileStore.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="LiveDomain.Core.IStore">
+    <Position X="0.5" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAoAEEAAAAAAAAAAAAAIAAAACBAEAAACAAAAEAAAA=</HashCode>
+      <FileName>Storage\IStore.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="LiveDomain.Core.StoreType">
+    <Position X="0.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>Storage\StoreType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -4,85 +4,83 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using LiveDomain.Core.Logging;
 
 namespace LiveDomain.Core
 {
-	internal class CommandJournal : ICommandJournal
+
+    /// <summary>
+    /// CommandJournal is responsible for reading and writing journal entries to the journal
+    /// </summary>
+	public class CommandJournal : ICommandJournal
 	{
-        enum JournalState
+        protected enum JournalState
         {
             Closed,
             Open
         }
 
         private IJournalWriter _writer;
-		private IStorage _storage;
+		protected IStore _storage;
         private JournalState _state;
-        private EngineConfiguration _config;
+        protected EngineConfiguration _config;
+	    protected static ILog _log = Log.GetLogFactory().GetLogForCallingType();
+        private long _lastEntryId;
 
-
-		public CommandJournal(EngineConfiguration config, IStorage storage)
-		{
-            _config = config;
-			_storage = storage;
-		}
-
-
-        public void CreateNextSegment()
+        /// <summary>
+        /// Id of the last entry written to the journal
+        /// </summary>
+        public long LastEntryId
         {
-            if (_state == JournalState.Closed) throw new InvalidOperationException("Cant create journal segment when journal is closed");
-            Log.Write("NewJournalSegment");
-            _writer.Dispose();
-
-            Stream stream = _storage.CreateJournalWriterStream(JournalWriterCreateOptions.NextSegment);
-            _writer = _config.CreateJournalWriter(stream);
+            get { return _lastEntryId; }
         }
 
-        public IEnumerable<JournalEntry<Command>> GetEntriesFrom(JournalSegmentInfo segment)
+
+        public CommandJournal(EngineConfiguration config)
+        {
+            _config = config;
+            _storage = config.CreateStore();
+            _storage.Load();
+        }
+
+
+        public IEnumerable<JournalEntry<Command>> GetEntriesFrom(long entryId)
         {
             JournalState preState = _state;
             SetState(JournalState.Closed);
 
-            foreach (var journalEntry in _storage.GetJournalEntries(segment))
+            foreach (var journalEntry in _storage.GetJournalEntriesFrom(entryId))
             {
+                _lastEntryId = journalEntry.Id;
                 yield return journalEntry;
             }
 
-            SetState(preState);			
+            SetState(preState);
         }
 
 		public IEnumerable<JournalEntry<Command>> GetAllEntries()
 		{
-            return GetEntriesFrom(JournalSegmentInfo.Initial);
+            return GetEntriesFrom(1);
 		}
 
 
-		public void Open()
+		private void Open()
 		{
 
             if (_state == JournalState.Open)
             {
                 throw new InvalidOperationException("Can't open command journal, already open");
             }
-            
-            Stream stream = _storage.CreateJournalWriterStream(JournalWriterCreateOptions.Append);
-            _writer = _config.CreateJournalWriter(stream);
+
+            _writer = _storage.CreateJournalWriter(LastEntryId + 1);
             _state = JournalState.Open;
 		}
 
 		public void Append(Command command)
 		{
-            if (_state != JournalState.Open)
-            {
-                throw new InvalidOperationException("Can't append to journal when closed");
-            }
-
-			var entry = new JournalEntry<Command>(command);
+            if (_state != JournalState.Open) Open();
+			var entry = new JournalEntry<Command>(++_lastEntryId, command);
 			_writer.Write(entry);
-            if (_writer.Length >= _config.JournalSegmentSizeInBytes)
-            {
-                CreateNextSegment();
-            }
 		}
 
 		public void Close()
@@ -104,6 +102,28 @@ namespace LiveDomain.Core
                 if (state == JournalState.Open) Open();
                 else Close();
             }
+        }
+
+
+        public IEnumerable<JournalEntry<Command>> GetEntriesFrom(DateTime pointInTime)
+        {
+            lock (this)
+            {
+                JournalState preState = _state;
+                SetState(JournalState.Closed);
+
+                foreach (var journalEntry in _storage.GetJournalEntriesBeforeOrAt(pointInTime))
+                {
+                    yield return journalEntry;
+                }
+
+                SetState(preState);    
+            }         
+        }
+
+        public void Dispose()
+        {
+            Close();
         }
     }
 }

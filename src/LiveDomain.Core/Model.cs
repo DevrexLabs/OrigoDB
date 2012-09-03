@@ -1,4 +1,5 @@
 ﻿using System;
+using LiveDomain.Core.Security;
 
 namespace LiveDomain.Core
 {
@@ -6,7 +7,7 @@ namespace LiveDomain.Core
     /// Derive your model from this class, mark it serializable.
     /// </summary>
     [Serializable]
-    public abstract class Model
+    public abstract class Model : MarshalByRefObject
     {
 
         /// <summary>

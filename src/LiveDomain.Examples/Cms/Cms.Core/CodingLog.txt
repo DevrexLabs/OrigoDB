@@ -1,4 +1,0 @@
-28/9 0:40	Initial model, Blog, BlogEntry,BlogModel,Comment,HtmlMarkup,User
-29/9 0:20	searchindex, tagcloud in domain
-29/9 1:00	web app
-29/9 0:10	Fixed bugs while testing web app(null collections)

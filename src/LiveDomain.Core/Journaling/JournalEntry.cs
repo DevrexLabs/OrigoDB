@@ -7,24 +7,30 @@ namespace LiveDomain.Core
 {
 
     [Serializable]
-    abstract class JournalEntry
+    public abstract class JournalEntry
     {
-        protected internal readonly DateTime Created;
-        public JournalEntry()
+        public readonly long Id;
+
+        public readonly DateTime Created;
+
+        public JournalEntry(long id, DateTime? created  = null)
         {
-            Created = DateTime.Now;
+            Created = created ?? DateTime.Now;
+            Id = id;
         }
 
     }
 
 	[Serializable]
-	class JournalEntry<T> : JournalEntry
+	public class JournalEntry<T> : JournalEntry
 	{
         public T Item { get; protected internal set; }
 		
-		internal JournalEntry(T item)
+		public JournalEntry(long id, T item, DateTime? created = null) : base(id, created)
 		{
             Item = item;
 		}
 	}
+
+
 }

@@ -13,18 +13,18 @@ namespace LiveDomain.Core
     /// <remarks>Throwing any other exception from within Command.Execute() will trigger a rollback, 
     /// restoring the model to the consistent state prior to the command</remarks>
     /// </summary>
-    [Serializable]
+	[Serializable]
     public class CommandAbortedException : Exception
     {
         /// <summary>
         /// Needed to deserialize because Exception implements ISerializable
         /// </summary>
         protected CommandAbortedException(SerializationInfo info, StreamingContext ctx)
-            : base(info, ctx) { }
+            : base(info, ctx){}
 
-        public CommandAbortedException() { }
-        public CommandAbortedException(string message) : base(message) { }
-        public CommandAbortedException(string message, Exception innerException)
-            : base(message, innerException) { }
+        public CommandAbortedException(){}
+        public CommandAbortedException(string message):base(message){}
+        public CommandAbortedException(string message, Exception innerException) 
+            : base(message, innerException){}
     }
 }

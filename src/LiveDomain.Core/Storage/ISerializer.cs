@@ -3,7 +3,11 @@ using System.IO;
 using System.Collections.Generic;
 namespace LiveDomain.Core
 {
-    interface ISerializer
+
+    /// <summary>
+    /// Some high level serialization services
+    /// </summary>
+    public interface ISerializer
     {
         object Clone(object graph);
         T Clone<T>(T graph);

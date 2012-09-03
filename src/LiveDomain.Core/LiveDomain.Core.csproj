@@ -59,6 +59,11 @@
     <Compile Include="Logging\InternalLogFactory.cs" />
     <Compile Include="Logging\SingletonLogFactory.cs" />
     <Compile Include="RolloverStrategy.cs" />
+    <Compile Include="Proxy\ModelProxy.cs" />
+    <Compile Include="Proxy\ProxyMethodAttribute.cs" />
+    <Compile Include="Proxy\ReflectionCommand.cs" />
+    <Compile Include="Proxy\ReflectionHelper.cs" />
+    <Compile Include="Proxy\ReflectionQuery.cs" />
     <Compile Include="Security\NullAuthorizer.cs" />
     <Compile Include="Security\IAuthenticator.cs" />
     <Compile Include="Security\IAuthorizer.cs" />

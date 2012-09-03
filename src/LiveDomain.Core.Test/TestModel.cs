@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using LiveDomain.Core.Proxy;
 
 namespace LiveDomain.Core.Test
 {
@@ -17,6 +18,46 @@ namespace LiveDomain.Core.Test
             OnLoadExecuted = true;
         }
 
+		/// <summary>
+		/// This will be a Command if called via Proxy
+		/// </summary>
+    	public void IncreaseNumber()
+    	{
+    		CommandsExecuted++;
+    	}
+
+		/// <summary>
+		/// This will be a CommandWithResult if called via Proxy
+		/// </summary>
+		/// <param name="livedb"></param>
+		/// <returns></returns>
+		[ProxyMethod(ProxyMethodType.Command)]
+    	public string Uppercase(string livedb)
+		{
+			CommandsExecuted++;
+    		return livedb.ToUpper();
+    	}
+
+		/// <summary>
+		/// This is only for test and should return SerializationException since we can't use IEnumerable with yield.
+		/// </summary>
+		/// <returns></returns>
+    	public IEnumerable<string> GetNames()
+    	{
+    		for (int i = 0; i < 10; i++)
+    		{
+    			yield return i.ToString();
+    		}
+    	}
+
+		/// <summary>
+		/// This will be a Query if called via Proxy.
+		/// </summary>
+		/// <returns></returns>
+    	public int GetNumber()
+    	{
+    		return CommandsExecuted;
+    	}
     }
 
 

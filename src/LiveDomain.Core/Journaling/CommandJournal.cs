@@ -112,7 +112,7 @@ namespace LiveDomain.Core
                 JournalState preState = _state;
                 SetState(JournalState.Closed);
 
-                foreach (var journalEntry in _storage.GetJournalEntriesFrom(pointInTime))
+                foreach (var journalEntry in _storage.GetJournalEntriesBeforeOrAt(pointInTime))
                 {
                     yield return journalEntry;
                 }

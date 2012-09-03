@@ -34,7 +34,7 @@ namespace LiveDomain.Core.Storage
         protected abstract IJournalWriter CreateStoreSpecificJournalWriter(long lastEntryId);
         protected abstract Snapshot WriteSnapshotImpl(Model model, long lastEntryId);
         public abstract IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(long entryId);
-        public abstract IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(DateTime pointInTime);
+        public abstract IEnumerable<JournalEntry<Command>> GetJournalEntriesBeforeOrAt(DateTime pointInTime);
         public abstract Model LoadMostRecentSnapshot(out long lastEntryId);
         public abstract void VerifyCanLoad();
         public abstract void VerifyCanCreate();

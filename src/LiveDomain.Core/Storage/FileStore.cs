@@ -80,10 +80,12 @@ namespace LiveDomain.Core
 
         }
 
-        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(DateTime pointInTime)
+        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
         {
-            //TODO: implement this when together with point in time recovery
-            throw new NotImplementedException();
+            foreach (var journalEntry in GetJournalEntries())
+            {
+                if (journalEntry.Created <= pointInTime) yield return journalEntry;
+            }
         }
 
 

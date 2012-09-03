@@ -17,7 +17,12 @@ namespace LiveDb.JournalUtility
         static void Main(string[] args)
         {
             
-            args = new[] {@"-source=c:\livedb\freedb.002", @"-destination=c:\livedb\freedb.003", "-source-type=file-v0.4", "-destination-type=file"};
+            //args = new[] {@"-source=c:\livedb\freedb.002", @"-destination=c:\livedb\freedb.003", "-source-type=file-v0.4", "-destination-type=file"};
+
+            //args = new[] { @"-source=c:\livedb\freedb.002", @"-destination=livedbstorage", "-source-type=file-v0.4", "-destination-type=sql" };
+
+            args = new[] { @"-source=c:\livedb\freedb.003", @"-destination=livedbstorage", "-source-type=file", "-destination-type=sql" };
+
             var parsedArgs = ParseArgs(args);
 
             Store destination = CreateStore(parsedArgs["destination"], parsedArgs["destination-type"]);
@@ -45,7 +50,8 @@ namespace LiveDb.JournalUtility
                 var config = new EngineConfiguration(location);
                 var store = new FileStore(config);
                 store.Load();
-                initialModel = LoadSnapshot(Path.Combine(location, "000000000.000000000.snapshot"));
+                initialModel = LoadSnapshot(Path.Combine(location, "000000000.snapshot"));
+                destination.Create(initialModel);
                 foreach (var journalEntry in store.GetJournalEntries())
                 {
                     writer.Write(journalEntry);
@@ -55,7 +61,10 @@ namespace LiveDb.JournalUtility
             {
                 var config = new SqlEngineConfiguration(location);
                 var store = new SqlStore(config);
-                //store.Load();
+                store.Load();
+                initialModel = LoadSnapshot(Path.Combine(location, "000000000.snapshot"));
+                destination.Create(initialModel);
+                
                 foreach (var journalEntry in store.GetJournalEntries())
                 {
                     writer.Write(journalEntry);

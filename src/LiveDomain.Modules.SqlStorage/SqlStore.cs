@@ -207,11 +207,11 @@ namespace LiveDomain.Modules.SqlStorage
            return new SqlJournalWriter(this);
         }
 
-        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(DateTime pointInTime)
+        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
         {
             foreach (JournalEntry<Command> journalEntry in GetJournalEntriesFrom(1))
             {
-                if (journalEntry.Created >= pointInTime) yield return journalEntry;
+                if (journalEntry.Created <= pointInTime) yield return journalEntry;
             }
         }
 

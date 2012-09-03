@@ -43,10 +43,17 @@ namespace LiveDomain.Core
         IEnumerable<JournalEntry<Command>> GetJournalEntries();
 
         /// <summary>
-        /// Retrieve journal entries with an Id >= the given entryId
+        /// Retrieve journal entries with an Id >= the given entryId. Used when restoring a snapshot
         /// </summary>
         IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(long entryId);
-        IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(DateTime pointInTime);
+
+        /// <summary>
+        /// Return journal entries at or before a specific point in time. Used for point in time recovert
+        /// </summary>
+        /// <param name="pointInTime"></param>
+        /// <returns></returns>
+        IEnumerable<JournalEntry<Command>> GetJournalEntriesBeforeOrAt(DateTime pointInTime);
+
         IJournalWriter CreateJournalWriter(long lastEntryId);
     }
 }

@@ -37,16 +37,18 @@ namespace LiveDomain.Modules.SqlStorage
 
         public string ProviderName { get; set; }
 
-        public SqlEngineConfiguration()
+        public SqlEngineConfiguration() : this(null)
+        {
+            
+        }
+ 
+        public SqlEngineConfiguration(string connectionStringName) : base(connectionStringName)
         {
             LocationType = LocationType.ConnectionStringName;
             ProviderName = "System.Data.SqlClient";
             JournalTableName = DefaultJournalTableName;
             base.SetStoreFactory(c => new SqlStore((SqlEngineConfiguration)c));
         }
- 
-        public SqlEngineConfiguration(string connectionStringName) : base(connectionStringName)
-        {
-        }
+
     }
 }

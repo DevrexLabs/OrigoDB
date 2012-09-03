@@ -190,7 +190,7 @@ namespace LiveDomain.Core.Test
                 yield break;
             }
 
-            public override System.Collections.Generic.IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(DateTime pointInTime)
+            public override System.Collections.Generic.IEnumerable<JournalEntry<Command>> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
             {
                 yield break;
             }

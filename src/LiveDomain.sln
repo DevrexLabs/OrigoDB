@@ -30,7 +30,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveDomain.Modules.SqlStora
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{134C2803-9F83-4988-B7D4-3051ADB616F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveDb.JournalUtility", "LiveDb.JournalUtility\LiveDb.JournalUtility.csproj", "{92154F54-3EDB-45D1-9B4D-7CA54D9F0EE8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveDomain.StoreUtility", "LiveDomain.StoreUtility\LiveDomain.StoreUtility.csproj", "{92154F54-3EDB-45D1-9B4D-7CA54D9F0EE8}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution

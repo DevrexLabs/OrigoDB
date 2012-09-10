@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using CommandLine;
 
-namespace LiveDb.JournalUtility
+namespace LiveDomain.StoreUtility
 {
-	public class Arguments
+	public class ConverterArguments : Arguments
 	{
 		[Option(null, "assembly", Required = true)]
 		public string Assembly { get; set; }
@@ -30,7 +30,7 @@ namespace LiveDb.JournalUtility
 		public string DestinationSnapshots { get; set; }
 
 
-		public void Validate()
+		public override void Validate()
 		{
 			if (SourceType == DestinationType)
 				throw new ArgumentException("source and destination types must be different");

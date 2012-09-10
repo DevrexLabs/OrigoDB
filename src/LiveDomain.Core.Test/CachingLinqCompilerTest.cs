@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace LiveDomain.Core.Test
 {
@@ -12,7 +13,7 @@ namespace LiveDomain.Core.Test
     ///to contain all CachingLinqCompilerTest Unit Tests
     ///</summary>
     [TestClass()]
-    public class CachingLinqCompilerTest
+    public class CachingLinqCompilerTest : EngineTestBase
     {
 
 
@@ -65,26 +66,18 @@ namespace LiveDomain.Core.Test
         #endregion
 
 
-        /// <summary>
-        ///A test for CachingLinqCompiler Constructor
-        ///</summary>
         [TestMethod()]
-        public void CanCreateCompilerInstance()
-        {
-            new CachingLinqCompiler<TestModel>();
-        }
-
-        [TestMethod()]
-        public void CanCompileValidQueries()
+        public void CanCompileAllQueries()
         {
             int failedQueries = 0;
-            for (int i = 0; i < validQueries.Length;i++)
+            for (int i = 0; i < allQueries.Length; i++)
             {
-                QueryDefinition queryDefinition = validQueries[i];
                 try
                 {
-                    CachingLinqCompiler<TestModel> target = new CachingLinqCompiler<TestModel>();
-                    var methodInfo = target.GetCompiledQuery(queryDefinition.Query, queryDefinition.Args);
+                    var target = new CachingLinqCompiler<TestModel>();
+                    var args = new object[] {"a string", 42};
+                    target.GetCompiledQuery(allQueries[i], args);
+
                 }
                 catch (Exception ex)
                 {
@@ -93,45 +86,45 @@ namespace LiveDomain.Core.Test
                     Console.WriteLine(ex);
                 }
             }
-
             Assert.AreEqual(0, failedQueries);
-
         }
 
         [TestMethod]
         public void RepeatedQueryIsCached()
         {
-            CachingLinqCompiler<TestModel> target = new CachingLinqCompiler<TestModel>();
-            var queryDefinition = validQueries[0];
+            var target = new CachingLinqCompiler<TestModel>();
+            var query = FirstCustomersNameStartingWithArg0;
+            var args = new object[]{"H"};
             Assert.AreEqual(0, target.CompilerInvocations);
-            target.GetCompiledQuery(queryDefinition.Query, queryDefinition.Args);
+            target.GetCompiledQuery(query, args);
             Assert.AreEqual(1, target.CompilerInvocations);
-            target.GetCompiledQuery(queryDefinition.Query, queryDefinition.Args);
+            target.GetCompiledQuery(query, args);
             Assert.AreEqual(1, target.CompilerInvocations);
         }
 
         [TestMethod]
         public void RepeatedQueryIsCachedWhenParametersDiffer()
         {
-            CachingLinqCompiler<TestModel> target = new CachingLinqCompiler<TestModel>();
-            var queryDefinition = validQueries[0];
+            var target = new CachingLinqCompiler<TestModel>();
+            var query = FirstCustomersNameStartingWithArg0;
             Assert.AreEqual(0, target.CompilerInvocations);
-            target.GetCompiledQuery(queryDefinition.Query, new object[] { "H" });
+            target.GetCompiledQuery(query, new object[] { "H" });
             Assert.AreEqual(1, target.CompilerInvocations);
-            target.GetCompiledQuery(queryDefinition.Query, new object[]{"R"});
+            target.GetCompiledQuery(query, new object[] { "R" });
             Assert.AreEqual(1, target.CompilerInvocations);
         }
 
         [TestMethod]
         public void RepeatedQueryIsCompiledWhenCompilationIsForced()
         {
-            CachingLinqCompiler<TestModel> target = new CachingLinqCompiler<TestModel>();
+            var target = new CachingLinqCompiler<TestModel>();
             target.ForceCompilation = true;
-            var queryDefinition = validQueries[0];
+            var query = allQueries[0];
+            var args = new object[] {"a"};
             Assert.AreEqual(0, target.CompilerInvocations);
-            target.GetCompiledQuery(queryDefinition.Query, queryDefinition.Args);
+            target.GetCompiledQuery(query, args);
             Assert.AreEqual(1, target.CompilerInvocations);
-            target.GetCompiledQuery(queryDefinition.Query, queryDefinition.Args);
+            target.GetCompiledQuery(query, args);
             Assert.AreEqual(2, target.CompilerInvocations);
         }
 
@@ -141,64 +134,47 @@ namespace LiveDomain.Core.Test
             string expected0 = "Homer Simpson";
             string expected1 = "Robert Friberg";
 
-            var queryDef = validQueries[0];
-            Engine<TestModel> engine = Engine.LoadOrCreate<TestModel>();
+            var query = allQueries[0];
 
-            //mutate model using a lambda, Dont ever do this unless testing, modification will not be journaled!
-            engine.Execute(m =>
-            {
-                m.AddCustomer(expected0);
-                return 1;
-            });
-            engine.Execute(m =>
-            {
-                m.AddCustomer(expected1);
-                return 1;
-            });
-           
-            string actual = engine.Execute<TestModel, string>(queryDef.Query, "Ho");
+            var model = new TestModel();
+            model.AddCustomer(expected0);
+            model.AddCustomer(expected1);
+            Engine<TestModel> engine = Engine.Create(model);
+
+            string actual = engine.Execute<TestModel, string>(query, "Ho");
             Assert.AreEqual(expected0, actual);
-            actual = (string) engine.Execute(queryDef.Query, "Ro");
+            actual = (string)engine.Execute(query, "Ro");
             Assert.AreEqual(actual, expected1);
+            DeleteFromDefaultLocation<TestModel>();
         }
 
         [TestMethod]
-        public void CanExecuteValidQueries()
+        public void CanExecuteFirstCustomerStartingWithArg0()
         {
             string expected = "Homer Simpson";
 
-            var queryDef = validQueries[0];
-            Engine<TestModel> engine = Engine.LoadOrCreate<TestModel>();
+            var query = FirstCustomersNameStartingWithArg0;
+            TestModel model = new TestModel();
+            model.AddCustomer(expected);
+            Engine<TestModel> engine = Engine.Create(model);
 
-            //mutate model using a lambda, Dont ever do this unless testing, modification will not be journaled!
-            engine.Execute(m => { m.AddCustomer(expected);
-                                          return 1;
-            });
-
-            
-            string actual = engine.Execute<TestModel, string>(queryDef.Query, queryDef.Args);
+            string actual = engine.Execute<TestModel, string>(query, "Ho");
             Assert.AreEqual(expected, actual);
+            DeleteFromDefaultLocation<TestModel>();
         }
 
-        private QueryDefinition[] validQueries = new QueryDefinition[]
-                                                     {
-                                                         new QueryDefinition
-                                                             {
-                                                                 Query = @"
-(from customer in db.Customers
-where customer.Name.StartsWith(@arg0)
-orderby customer.Name
-select customer.Name)
-.First()",
-                              Args = new object[]{"H"}
+        private const string FirstCustomersNameStartingWithArg0 =
+           @"(from customer in db.Customers " +
+            "where customer.Name.StartsWith(@arg0) " +
+            "orderby customer.Name " +
+            "select customer.Name).First()";
 
-                                                             }
-                                                     };
+        private const string ListOfCustomerNames =
+            @"(from customer in db.Customers " +
+            "select customer.Name).ToList()";
 
-        class QueryDefinition
-        {
-            public string Query;
-            public object[] Args;
-        }
+        string[] allQueries = new string[]{
+            FirstCustomersNameStartingWithArg0,
+            ListOfCustomerNames};
     }
 }

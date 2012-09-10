@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,35 +12,30 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace LiveDomain.Core.Test
 {
 	[TestClass]
-	public class ProxyTest
+	public class ProxyTest : EngineTestBase
 	{
 		Engine<TestModel> _engine;
 		TestModel _proxy;
-		InMemoryLogger _logger;
-		public string Path { get; set; }
 
-		[TestInitialize]
-		public void MyTestInitialize()
-		{
-			_logger = new InMemoryLogger();
-			//Log.SetLogger(_logger);
-			Path = Guid.NewGuid().ToString();
-		}
-
-		public EngineConfiguration CreateConfig()
-		{
-			var config = new EngineConfiguration();
-			config.Location = Path;
-			config.SnapshotBehavior = SnapshotBehavior.AfterRestore;
-			config.Synchronization = SynchronizationMode.Exclusive;
-			return config;
-		}
 
 		[TestMethod]
 		public void CanCreateEngine()
 		{
 			_engine = Engine.Create(new TestModel(), CreateConfig());
-		}
+        }
+
+
+        [TestMethod]
+        public void CanCloneMarshalByRefModel()
+        {
+            var model = new TestModel();
+            model.AddCustomer("Zippy");
+            var serializer = new Serializer(new BinaryFormatter());
+            var clone = serializer.Clone(model);
+            model.AddCustomer("asfafse");
+            Assert.IsTrue(clone.Customers.Count() == 1);
+        }
+
 
 		[TestMethod]
 		public void CanCreateProxy()
@@ -78,17 +74,6 @@ namespace LiveDomain.Core.Test
 			CanCreateProxy();
 			var number = _proxy.GetNumber();
 			Assert.AreEqual(number,0);
-		}
-
-		[TestCleanup()]
-		public void MyTestCleanup()
-		{
-			if (_engine != null)
-			{
-				_engine.Close();
-				Thread.Sleep(500);
-				if (Directory.Exists(Path)) new DirectoryInfo(Path).Delete(true);
-			}
 		}
 	}
 }

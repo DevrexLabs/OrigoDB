@@ -1,9 +1,0 @@
-﻿1/12	Decided to keep a change log
-1/12	Basic logging facade added
-1/12	Added SnapshotBehavior to EngineConfiguration. OnLoad, OnShutdown
-1/12	Added convenience overloads to Engine.LoadOrCreate, Engine.Create and Engine.Load methods
-14/1	Made configuration factory methods virtual, enabling extension
-14/1	Added StorageMode enum and configuration property for future storage extensions SQL and Azure
-10/2	Logging
-10/2	Blackbox logging library integration
-24/2	IPrincipal Authorization support

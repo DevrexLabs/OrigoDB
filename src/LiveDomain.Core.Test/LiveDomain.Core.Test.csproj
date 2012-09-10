@@ -64,6 +64,8 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CachingLinqCompilerTest.cs" />
+    <Compile Include="Customer.cs" />
     <Compile Include="EngineConfigurationTest.cs">
       <SubType>Code</SubType>
     </Compile>

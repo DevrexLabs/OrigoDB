@@ -14,7 +14,7 @@ namespace LiveDomain.Core.Test
     /// Summary description for UnitTest1
     /// </summary>
     [TestClass]
-    public class EngineTest
+    public class EngineTest : EngineTestBase
     {
         public EngineTest()
         {
@@ -51,87 +51,12 @@ namespace LiveDomain.Core.Test
         // public static void MyClassCleanup() { }
         //
          //Use TestInitialize to run code before running each test 
-         [TestInitialize]
-         public void MyTestInitialize() 
-         {
-             Path = Guid.NewGuid().ToString();
-             _logger.Clear();
-         }
 
-        public void WriteLog()
-        {
-            Console.WriteLine("------------------------------");
-            Console.WriteLine(" LOG");
-            Console.WriteLine("------------------------------");
-            foreach (var message in _logger.Messages)
-            {
-                Console.WriteLine(message);
-            }
-        }
 
-        static EngineTest()
-        {
-            Log.SetLogFactory(new SingletonLogFactory(_logger));
-        }
 
-         static InMemoryLogger _logger = new InMemoryLogger();
+        //Use TestCleanup to run code after each test has run
 
-         //Use TestCleanup to run code after each test has run
-         [TestCleanup()]
-         public void MyTestCleanup() 
-         {
-             if (Engine != null)
-             {
-                 Engine.Close();
-                 Thread.Sleep(50);
-                 if (Directory.Exists(Path)) new DirectoryInfo(Path).Delete(true);
-             }
-             Console.WriteLine("Path:" + Path);
-             WriteLog();
-         }
-        
         #endregion
-
-        public Engine Engine { get; set; }
-        public String Path { get; set; }
-        
-        /// <summary>
-        /// modify this method to switch between sql and file store tests
-        /// </summary>
-        /// <returns></returns>
-        public EngineConfiguration CreateConfig()
-        {
-            //return CreateSqlConfig();
-            return CreateFileConfig();
-        }
-
-        private EngineConfiguration CreateFileConfig()
-        {
-            var config = new EngineConfiguration();
-
-            //Connection string name in app.config file
-            config.Location = Path;
-            config.SnapshotBehavior = SnapshotBehavior.None;
-            config.Synchronization = SynchronizationMode.ReadWrite;
-            return config;
-            
-        }
-
-        private SqlEngineConfiguration CreateSqlConfig()
-        {
-            var config = new SqlEngineConfiguration();
-            
-            //Connection string name in app.config file
-            config.Location = "livedbstorage";
-            config.SnapshotLocation = Path;
-
-            //new table for every test. Cleanup your test database later
-            config.JournalTableName = Path;
-
-            config.SnapshotBehavior = SnapshotBehavior.None;
-            config.Synchronization = SynchronizationMode.ReadWrite;
-            return config;
-        }
 
         [TestMethod]
         public void CanCreateEngine()
@@ -156,18 +81,6 @@ namespace LiveDomain.Core.Test
             config.CloneCommands = false;
             var engine = Engine.Create<TestModel>(config);
             engine.Close();
-        }
-
-        private void DeleteFromDefaultLocation<M>() where M : Model
-        {
-            var config = new EngineConfiguration();
-            config.SetLocationFromType<M>();
-            var dirInfo = new DirectoryInfo(config.Location);
-            if (dirInfo.Exists)
-            {
-                dirInfo.Delete(recursive: true);
-                Thread.Sleep(TimeSpan.FromMilliseconds(200));
-            }
         }
 
 

@@ -55,6 +55,8 @@
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\Location.cs" />
     <Compile Include="Journaling\NullJournalWriter.cs" />
+    <Compile Include="Linq\CachingLinqCompiler.cs" />
+    <Compile Include="Linq\CompiledLinqExtensions.cs" />
     <Compile Include="Logging\ILogFactory.cs" />
     <Compile Include="Logging\InternalLogFactory.cs" />
     <Compile Include="Logging\SingletonLogFactory.cs" />

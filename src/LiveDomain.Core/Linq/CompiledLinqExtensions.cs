@@ -20,7 +20,7 @@ namespace LiveDomain.Core.Linq
 
         public static R Execute<M,R>(this Engine<M> engine, string query, params object[] args ) where M : Model
         {
-            return (R) Execute<M>((Engine<M>)engine, query,args);
+            return (R) Execute<M>(engine, query,args);
         }
 
         public static object Execute<M>(this Engine<M> engine, string query, params object[] args) where M : Model

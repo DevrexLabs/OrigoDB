@@ -32,7 +32,7 @@ namespace LiveDomain.Core.Linq
                 class CompiledQuery
                 {{
 
-                    public static object QueryExpr({0} db, {1})
+                    public static object QueryExpr({0} db{1})
                     {{
                         return {2};
                     }}
@@ -40,7 +40,7 @@ namespace LiveDomain.Core.Linq
                     public static object Execute(Engine<{0}> engine, params object[] args)
                     {{
                         
-                        return engine.Execute(model => QueryExpr(model, {3}));
+                        return engine.Execute(model => QueryExpr(model{3}));
                     }}
                 }}
             }}";
@@ -79,7 +79,8 @@ namespace LiveDomain.Core.Linq
 
         private string BuildArgsInvocation(object[] args)
         {
-            List<string> castExpressions = new List<string>(args.Length);
+            //begin with an emtpy string so we get a leading comma or nothing if args is zero length
+            List<string> castExpressions = new List<string>(args.Length+1){""};
             int idx = 0;
             foreach (object arg in args)
             {
@@ -93,7 +94,8 @@ namespace LiveDomain.Core.Linq
 
         private string BuildArgsDeclaration(object[] args)
         {
-            List<string> declarations = new List<string>(args.Length);
+            //begin with an emtpy string so we get a leading comma or nothing if args is zero length
+            List<string> declarations = new List<string>(args.Length + 1) {""};
             int idx = 0;
             foreach (object arg in args)
             {

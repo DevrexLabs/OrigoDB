@@ -16,7 +16,6 @@ namespace LiveDb.JournalUtility
 {
 	internal class Program
 	{
-		static Model initialModel;
 		static Dictionary<string, Assembly> _assemblies = new Dictionary<string, Assembly>();
 
 		static void Main(string[] args)
@@ -36,44 +35,44 @@ namespace LiveDb.JournalUtility
 			//file-v0.4 -> file
 			//args = new[]
 			//           {
-			//               @"-source=c:\livedb\freedb.001", 
-			//               @"-destination=c:\livedb\freedb.003", 
-			//               "-source-type=file-v0.4", 
-			//               "-destination-type=file", 
-			//               @"-assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll"
+			//               @"--source=c:\livedb\freedb.001", 
+			//               @"--destination=c:\livedb\freedb.003", 
+			//               "--source-type=file-v0.4", 
+			//               "--destination-type=file", 
+			//               @"--assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll"
 			//           };
 
 			//file -> sql
 			//args = new[]
 			//           {
-			//               @"-source=c:\livedb\freedb.003", 
-			//               @"-destination=livedbstorage", 
-			//               "-source-type=file", 
-			//               "-destination-type=sql", 
-			//               @"-assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll", 
-			//               @"-destination-snapshots=c:\livedb\freedb.ss.001"
+			//               @"--source=c:\livedb\freedb.003", 
+			//               @"--destination=livedbstorage", 
+			//               "--source-type=file-v0.5", 
+			//               "--destination-type=sql", 
+			//               @"--assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll", 
+			//               @"--destination-snapshots=c:\livedb\freedb.ss.001"
 			//           };
 
 			//file-v0.4 -> sql
 			//args = new[]
 			//           {
-			//               @"-source=c:\livedb\freedb.001", 
-			//               @"-destination=livedbstorage", 
-			//               "-source-type=file-v0.4", 
-			//               "-destination-type=sql", 
-			//               @"-destination-snapshots=c:\livedb\freedb.ss.001", 
-			//               @"-assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll"
+			//               @"--source=c:\livedb\freedb.001", 
+			//               @"--destination=livedbstorage", 
+			//               "--source-type=file-v0.4", 
+			//               "--destination-type=sql", 
+			//               @"--destination-snapshots=c:\livedb\freedb.ss.001", 
+			//               @"--assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll"
 			//           };
 
 			//sql -> file
 			//args = new[]
 			//           {
-			//               @"-destination=c:\livedb\freedb.004", 
-			//               @"-source=livedbstorage", 
-			//               "-source-type=sql", 
-			//               "-destination-type=file" , 
-			//               @"-source-snapshots=c:\livedb\freedb.ss.001", 
-			//               @"-assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll"
+			//               @"--destination=c:\livedb\freedb.004", 
+			//               @"--source=livedbstorage", 
+			//               "--source-type=sql", 
+			//               "--destination-type=file-v0.5" , 
+			//               @"--source-snapshots=c:\livedb\freedb.ss.001", 
+			//               @"--assembly=C:\temp\FreeDb\FreeDb.Core\bin\Debug\FreeDb.Core.dll"
 			//           };
 			#endregion
 
@@ -89,7 +88,7 @@ namespace LiveDb.JournalUtility
 
 			// Do the thing we do!
 			var destination = CreateStore(arguments.Destination, arguments.DestinationType, arguments.DestinationSnapshots);
-			IterateSource(arguments.Source, arguments.SourceType, arguments.SourceSnapshots, destination);
+			TransformJournal(arguments.Source, arguments.SourceType, arguments.SourceSnapshots, destination);
 		}
 
 		static Assembly CurrentDomainAssemblyResolve(object sender, ResolveEventArgs args)
@@ -106,22 +105,22 @@ namespace LiveDb.JournalUtility
 			_assemblies[assembly.FullName] = assembly;
 		}
 
-		static void IterateSource(string location, string sourceType, string snapshotLocation, Store destination)
+		static void TransformJournal(string location, string sourceType, string snapshotLocation, Store destination)
 		{		
-			var writer = destination.CreateJournalWriter(0);
-			var journal = GetJournalEntries(location, sourceType, snapshotLocation);
-			initialModel = LoadSnapshot(Path.Combine(snapshotLocation, "000000000.snapshot"));
+			var initialModel = LoadSnapshot(Path.Combine(snapshotLocation, "000000000.snapshot"));
 			destination.Create(initialModel);
 
-			foreach (var journalEntry in journal)
+			var destinationJournal = destination.CreateJournalWriter(0);
+			var sourceJournal = GetSourceJournalEntries(location, sourceType, snapshotLocation);
+			foreach (var journalEntry in sourceJournal)
 			{
 				Console.WriteLine(journalEntry.Id);
-				writer.Write(journalEntry);
+				destinationJournal.Write(journalEntry);
 			}
-			writer.Close();
+			destinationJournal.Close();
 		}
 
-		static IEnumerable<JournalEntry> GetJournalEntries(string location, string sourceType, string snapshotLocation)
+		static IEnumerable<JournalEntry> GetSourceJournalEntries(string location, string sourceType, string snapshotLocation)
 		{
 			EngineConfiguration config;
 			Store store;

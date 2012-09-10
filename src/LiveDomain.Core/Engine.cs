@@ -276,15 +276,17 @@ namespace LiveDomain.Core
             return engine;
         }
 
-        public static Engine Create(Model model, string location)
+        public static Engine Create(Model model, string location = null)
         {
             var config = EngineConfiguration.Create();
             config.Location = location;
             return Create(model, config);
         }
 
-        public static Engine Create(Model model, EngineConfiguration config)
+        public static Engine Create(Model model, EngineConfiguration config = null)
         {
+
+            config = config ?? EngineConfiguration.Create();
             if (!config.HasLocation) config.Location = model.GetType().Name;
             return Create<Model>(model, config);
 
@@ -333,7 +335,7 @@ namespace LiveDomain.Core
             return Create<M>(config);
         }
 
-        public static Engine<M> Create<M>(M model, string location) where M : Model
+        public static Engine<M> Create<M>(M model, string location = null) where M : Model
         {
             var config = EngineConfiguration.Create();
             config.Location = location;
@@ -360,14 +362,14 @@ namespace LiveDomain.Core
         #region Static generic LoadOrCreate methods
 
 
-        public static Engine<M> LoadOrCreate<M>(string location) where M : Model, new()
+        public static Engine<M> LoadOrCreate<M>(string location=null) where M : Model, new()
         {
             var config = EngineConfiguration.Create();
             config.Location = location;
             return LoadOrCreate<M>(config);
         }
 
-        public static Engine<M> LoadOrCreate<M>(EngineConfiguration config = null) where M : Model, new()
+        public static Engine<M> LoadOrCreate<M>(EngineConfiguration config) where M : Model, new()
         {
 
             config = config ?? EngineConfiguration.Create();

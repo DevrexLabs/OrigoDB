@@ -8,6 +8,7 @@ namespace LiveDomain.Core.Linq
 {
     public static class CompiledLinqExtensions
     {
+        //One compiler per model type, normally just one per process
         static Dictionary<Type, object> _compilers = new Dictionary<Type, object>();
 
         private static CachingLinqCompiler<M> GetCompilerFor<M>(M model = null) where M : Model
@@ -29,7 +30,7 @@ namespace LiveDomain.Core.Linq
         {
             MethodInfo methodInfo = GetCompilerFor<M>().GetCompiledQuery(query, args);
 
-            //insert the handler as first argument
+            //insert the  engine as first argument
             object[] methodArgs = new object[]{engine, args};
             return methodInfo.Invoke(null, methodArgs);
         }

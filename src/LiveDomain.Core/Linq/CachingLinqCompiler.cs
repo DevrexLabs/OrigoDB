@@ -5,12 +5,15 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Microsoft.CSharp;
+using LiveDomain.Core.Logging;
+using System.Text.RegularExpressions;
 
 namespace LiveDomain.Core.Linq
 {
 
-    class CachingLinqCompiler<M> where M : Model
+    public class CachingLinqCompiler<M> where M : Model
     {
+        private static ILog _logger = Log.GetLogFactory().GetLogForCallingType();
 
         /// <summary>
         /// Bypass cache. Mainly so we can run performance tests
@@ -22,7 +25,7 @@ namespace LiveDomain.Core.Linq
         private CodeDomProvider _compiler;
         private CompilerParameters _compilerParameters;
 
-        public const string WrapperTemplate = @"
+        public const string DefaultWrapperTemplate = @"
             using System;
             using System.Linq;
             using LiveDomain.Core;
@@ -64,23 +67,28 @@ namespace LiveDomain.Core.Linq
 
         private MethodInfo CompileQuery(string query, object[] args)
         {
-            string modelTypeName = typeof (M).FullName;
+            string modelTypeName = typeof(M).FullName;
             string argsDeclaration = BuildArgsDeclaration(args);
             string argsInvocation = BuildArgsInvocation(args);
-            string code = String.Format(WrapperTemplate, modelTypeName, argsDeclaration, query, argsInvocation);
-#if DEBUG
-            Console.WriteLine("-------------------- Begin generated code ----------------------------------------");
-            Console.WriteLine(code);
-            Console.WriteLine("-------------------- End generated code ----------------------------------------");
-#endif
+            string code = String.Format(DefaultWrapperTemplate, modelTypeName, argsDeclaration, query, argsInvocation);
+
+            var debugCode = code.Replace("{", "{{").Replace("}", "}}");
+            _logger.Debug("\n-------------------- Begin generated code ----------------------------------------"
+                   + debugCode + "-------------------- End generated code ----------------------------------------");
+
             var assembly = CompileCode(code);
             return assembly.GetType("Generated.CompiledQuery").GetMethod("Execute");
         }
 
+        /// <summary>
+        /// Cast each args array value from System.Object to the actual type of the value
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         private string BuildArgsInvocation(object[] args)
         {
             //begin with an emtpy string so we get a leading comma or nothing if args is zero length
-            List<string> castExpressions = new List<string>(args.Length+1){""};
+            List<string> castExpressions = new List<string>(args.Length + 1) { "" };
             int idx = 0;
             foreach (object arg in args)
             {
@@ -95,12 +103,12 @@ namespace LiveDomain.Core.Linq
         private string BuildArgsDeclaration(object[] args)
         {
             //begin with an emtpy string so we get a leading comma or nothing if args is zero length
-            List<string> declarations = new List<string>(args.Length + 1) {""};
+            List<string> declarations = new List<string>(args.Length + 1) { "" };
             int idx = 0;
             foreach (object arg in args)
             {
                 string fullTypeName = arg.GetType().FullName;
-                declarations.Add(fullTypeName + " @arg" + idx++ );
+                declarations.Add(fullTypeName + " @arg" + idx++);
             }
             return String.Join(", ", declarations);
         }
@@ -108,17 +116,11 @@ namespace LiveDomain.Core.Linq
 
         private void InitializeCompiler()
         {
-            // set interface for compilation
             _compiler = new CSharpCodeProvider();
-            
-
-            // Define parameters to invoke a compiler
             _compilerParameters = new CompilerParameters();
-
 
             _compilerParameters.GenerateExecutable = false;
             _compilerParameters.GenerateInMemory = true;
-            //_compilerParameters.ReferencedAssemblies.Add("System.Core.dll");
 
             //reference the assembly where the model is defined
             _compilerParameters.ReferencedAssemblies.Add(typeof(M).Assembly.Location);
@@ -126,16 +128,14 @@ namespace LiveDomain.Core.Linq
             //reference all the assemblies referenced by the model assembly avoiding duplicaties
             foreach (AssemblyName referencedAssembly in typeof(M).Assembly.GetReferencedAssemblies())
             {
-                if(!_compilerParameters.ReferencedAssemblies.Contains(referencedAssembly.Name))
+                if (!_compilerParameters.ReferencedAssemblies.Contains(referencedAssembly.Name))
                 {
                     string candidateAssemblyLocation = Assembly.Load(referencedAssembly).Location;
-                    if(!_compilerParameters.ReferencedAssemblies.Contains(candidateAssemblyLocation))
+                    if (!_compilerParameters.ReferencedAssemblies.Contains(candidateAssemblyLocation))
                     {
                         _compilerParameters.ReferencedAssemblies.Add(candidateAssemblyLocation);
                     }
                 }
-
-                
             }
 
 #if DEBUG
@@ -145,13 +145,9 @@ namespace LiveDomain.Core.Linq
             _compilerParameters.TreatWarningsAsErrors = false;
             _compilerParameters.CompilerOptions = "/optimize";
 
-            _compilerParameters.TempFiles = new TempFileCollection(".", keepFiles:false);
+            _compilerParameters.TempFiles = new TempFileCollection(".", keepFiles: false);
         }
 
-        /// <summary>
-        /// Function to compile .Net C#/VB source codes at runtime
-        /// </summary>
-        /// <param name="source">C# or VB source code as a string</param>
         private Assembly CompileCode(string source)
         {
             CompilerInvocations++;
@@ -159,7 +155,7 @@ namespace LiveDomain.Core.Linq
 
             try
             {
-                var compilerResults = 
+                var compilerResults =
                     _compiler.CompileAssemblyFromSource(_compilerParameters, source);
 
                 if (compilerResults.Errors.Count > 0)
@@ -180,7 +176,7 @@ namespace LiveDomain.Core.Linq
             {
                 throw;
             }
-
         }
     }
+
 }

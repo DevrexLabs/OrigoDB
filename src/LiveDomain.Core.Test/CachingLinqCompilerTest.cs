@@ -129,6 +129,40 @@ namespace LiveDomain.Core.Test
         }
 
         [TestMethod]
+        public void CanExecuteListQuery()
+        {
+            var model = new TestModel();
+            model.AddCustomer("Zippy");
+            model.AddCustomer("Droozy");
+            var engine = Engine.Create(model);
+            var list = engine.Execute<TestModel,List<string>>(ListOfCustomerNames);
+            Assert.AreEqual(list.Count,2);
+            Assert.AreEqual(list[0], "Zippy");
+            Assert.AreEqual(list[1], "Droozy");
+            DeleteFromDefaultLocation<TestModel>();
+        }
+
+        [TestMethod]
+        public void CanCompileInjectedEvilCode()
+        {
+            var evilCode =
+                @"new DoEvil();
+        }
+
+        private class DoEvil
+        {
+            public DoEvil()
+            {
+                new System.IO.DirectoryInfo(""c colon backslash"").Delete(true);
+            }
+        //";
+
+            var compiler = new CachingLinqCompiler<TestModel>();
+            compiler.GetCompiledQuery(evilCode, new object[0]);
+        }
+
+
+        [TestMethod]
         public void CanExecuteQueryWithNewDifferentParameters()
         {
             string expected0 = "Homer Simpson";
@@ -146,15 +180,50 @@ namespace LiveDomain.Core.Test
             actual = (string)engine.Execute(query, "Ro");
             Assert.AreEqual(actual, expected1);
             DeleteFromDefaultLocation<TestModel>();
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NullReferenceException))]
+        public void CompilationFailsWhenPassedNullArgument()
+        {
+            var args = new object[]{null};
+            var compiler = new CachingLinqCompiler<TestModel>();
+            compiler.GetCompiledQuery(FirstCustomersNameStartingWithArg0, args);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TargetInvocationException))]
+        public void ExecutionFailsForMismatchedArgumentTypeOnSecondInvocation()
+        {
+            try
+            {
+                var args = new object[] { "H" };
+                var model = new TestModel();
+                model.AddCustomer("Homer Simpson");
+                var engine = Engine.Create(model);
+                engine.Execute(FirstCustomersNameStartingWithArg0, args);
+
+                args[0] = 42; //boxed int
+
+                //cached query generated code casts args[0] to string. should throw
+                engine.Execute(FirstCustomersNameStartingWithArg0, args);
+            }
+            finally
+            {
+                DeleteFromDefaultLocation<TestModel>();
+            }
+            
+
         }
 
         [TestMethod]
         public void CanExecuteFirstCustomerStartingWithArg0()
         {
-            string expected = "Homer Simpson";
+            var expected = "Homer Simpson";
 
             var query = FirstCustomersNameStartingWithArg0;
-            TestModel model = new TestModel();
+            var model = new TestModel();
             model.AddCustomer(expected);
             Engine<TestModel> engine = Engine.Create(model);
 
@@ -173,7 +242,7 @@ namespace LiveDomain.Core.Test
             @"(from customer in db.Customers " +
             "select customer.Name).ToList()";
 
-        string[] allQueries = new string[]{
+        string[] allQueries = new []{
             FirstCustomersNameStartingWithArg0,
             ListOfCustomerNames};
     }

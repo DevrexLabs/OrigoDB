@@ -124,7 +124,6 @@
     <Compile Include="Utilities\DirectoryEx.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Changes.txt" />
     <Content Include="License.txt" />
   </ItemGroup>
   <ItemGroup>

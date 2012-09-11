@@ -8,8 +8,8 @@
     <ProjectGuid>{92154F54-3EDB-45D1-9B4D-7CA54D9F0EE8}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LiveDb.JournalUtility</RootNamespace>
-    <AssemblyName>LiveDb.JournalUtility</AssemblyName>
+    <RootNamespace>LiveDomain.StoreUtility</RootNamespace>
+    <AssemblyName>LiveDomain.StoreUtility</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -52,7 +52,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>LiveDb.JournalUtility.Program</StartupObject>
+    <StartupObject>LiveDomain.StoreUtility.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommandLine">
@@ -68,8 +68,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arguments.cs" />
+    <Compile Include="ConverterArguments.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StoreConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LiveDomain.Core\LiveDomain.Core.csproj">

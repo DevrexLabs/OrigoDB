@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Devrex")]
 [assembly: AssemblyProduct("LiveDomain.Core")]
-[assembly: AssemblyCopyright("Copyright © Robert Friberg 2009-2011")]
+[assembly: AssemblyCopyright("Copyright © Robert Friberg")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

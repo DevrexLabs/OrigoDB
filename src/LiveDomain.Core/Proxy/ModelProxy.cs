@@ -46,11 +46,12 @@ namespace LiveDomain.Core.Proxy
 		}
 	}
 
-	public static class ModelExtensions
+	public static class ModelProxyExtensions
 	{
-		 public static T GetProxy<T>(this IEngine<T> instance) where T : Model
-		 {
-		 	return (T)new ModelProxy<T>(instance).GetTransparentProxy();
-		 }
+		public static M GetProxy<M>(this IEngine<M> engine) where M : Model
+		{
+			return (M)new ModelProxy<M>(engine).GetTransparentProxy();
+		}
 	}
+
 }

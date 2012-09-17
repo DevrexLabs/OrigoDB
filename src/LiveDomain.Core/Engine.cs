@@ -15,7 +15,7 @@ namespace LiveDomain.Core
     /// Engine is responsible for executing commands and queries against
     /// the model while conforming to ACID.
     /// </summary>
-	public class Engine : IDisposable
+	public partial class Engine : IDisposable
     {
 
         /// <summary>

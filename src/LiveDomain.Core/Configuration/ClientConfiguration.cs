@@ -2,37 +2,59 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Woocode.Utils;
 
 namespace LiveDomain.Core
 {
-
     public abstract class ClientConfiguration : ConfigurationBase
     {
-        public static ClientConfiguration Create()
-        {
-            throw new NotImplementedException();
-        }
+	    enum Mode
+	    {
+			Missing,
+		    Embedded,
+			Remote
+	    }
 
-        public abstract IEngine<M> GetClient<M>(string engineIdentifier) where M : Model, new();
-    }
+	    class Settings
+	    {
+			public Mode Mode { get; set; } 
+	    }
 
-    public class LocalClientConfiguration : ClientConfiguration
-    {
-        private EngineConfiguration _engineConfiguration;
+		public static ClientConfiguration Create(string clientIdentifier = null)
+		{
+			if(clientIdentifier == null)
+				return new LocalClientConfiguration(EngineConfiguration.Create());
+		
+			var isConnectionString = clientIdentifier.Contains("=");
+			if(isConnectionString)
+				 return GetConfigFromConnectionString(clientIdentifier);
 
-        public LocalClientConfiguration(EngineConfiguration engineConfiguration)
-        {
-            _engineConfiguration = engineConfiguration;
-        }
+			return null;
+		}
 
-        public bool CreateWhenNotExists { get; set; }
+	    static ClientConfiguration GetConfigFromConnectionString(string connectionstring)
+	    {
+		    var baseSettings = new Settings();
+			var mapper = new StringToPropertiesMapper();
+			
+			mapper.MapProperties(connectionstring,baseSettings,false);
 
+			if(baseSettings.Mode == Mode.Embedded)
+			{
+				var config = EngineConfiguration.Create();
+				mapper.MapProperties(connectionstring,config);
+				return new LocalClientConfiguration(config);
+			}
+			else if(baseSettings.Mode == Mode.Remote)
+			{
+				var config = new RemoteClientConfiguration();
+				mapper.MapProperties(connectionstring,config);
+				return config;
+			}
 
-        public override IEngine<M> GetClient<M>(string engineIdentifier)
-        {
-            //TODO: do smart stuff with engineIdentifier. name from config, connectionstring or location.
-            if (CreateWhenNotExists) return Engine.LoadOrCreate<M>(engineIdentifier);
-            else return Engine.Load<M>(engineIdentifier);
-        }
+		    throw new InvalidOperationException();
+	    }
+
+	    public abstract IEngine<M> GetClient<M>() where M : Model, new();
     }
 }

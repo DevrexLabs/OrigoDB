@@ -49,12 +49,24 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clients\ConnectionPool.cs" />
+    <Compile Include="Clients\DedicatedConnectionRequestContextFactory.cs" />
+    <Compile Include="Clients\IRequestContextFactory.cs" />
+    <Compile Include="Clients\NetworkMessage.cs" />
+    <Compile Include="Clients\PooledConnectionRequestContextFactory.cs" />
+    <Compile Include="Clients\RemoteEngineClient.cs" />
+    <Compile Include="Clients\RequestContext.cs" />
     <Compile Include="Command[M].cs" />
     <Compile Include="CommandWithResult[M,R].cs" />
     <Compile Include="Configuration\ClientConfiguration.cs" />
     <Compile Include="Configuration\CompressionMethod.cs" />
     <Compile Include="Configuration\Configuration.cs" />
+    <Compile Include="Configuration\LocalClientConfiguration.cs" />
+    <Compile Include="Configuration\RemoteClientConfiguration.cs" />
     <Compile Include="Configuration\Location.cs" />
+    <Compile Include="Engine.For.cs" />
+    <Compile Include="Db.cs" />
+    <Compile Include="Utilities\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />
     <Compile Include="Journaling\NullJournalWriter.cs" />
     <Compile Include="Linq\CachingLinqCompiler.cs" />
@@ -103,6 +115,8 @@
     <Compile Include="Storage\JournalFile.cs" />
     <Compile Include="Storage\Snapshot.cs" />
     <Compile Include="Storage\Store.cs" />
+    <Compile Include="Utilities\ResourcePool.cs" />
+    <Compile Include="Utilities\StringToPropertiesMapper.cs" />
     <Compile Include="Utilities\TinyIoC.cs" />
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Utilities\TypeExtensions.cs" />

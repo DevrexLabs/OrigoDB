@@ -7,9 +7,9 @@ namespace LiveDomain.Core.Proxy
 {
 	public class ModelProxy<T> : RealProxy where T : Model
 	{
-		ITransactionHandler<T> _handler;  
+		IEngine<T> _handler;  
 
-        public ModelProxy(ITransactionHandler<T> handler) : base(typeof(T))
+        public ModelProxy(IEngine<T> handler) : base(typeof(T))
         {
         	_handler = handler;
         }
@@ -48,7 +48,7 @@ namespace LiveDomain.Core.Proxy
 
 	public static class ModelExtensions
 	{
-		 public static T GetProxy<T>(this ITransactionHandler<T> instance) where T : Model
+		 public static T GetProxy<T>(this IEngine<T> instance) where T : Model
 		 {
 		 	return (T)new ModelProxy<T>(instance).GetTransparentProxy();
 		 }

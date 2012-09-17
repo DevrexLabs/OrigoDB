@@ -54,7 +54,7 @@
     <Compile Include="Configuration\CompressionMethod.cs" />
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\Location.cs" />
-    <Compile Include="Disposable.cs" />
+    <Compile Include="Disposable[T].cs" />
     <Compile Include="Journaling\NullJournalWriter.cs" />
     <Compile Include="Linq\CachingLinqCompiler.cs" />
     <Compile Include="Linq\CompiledLinqExtensions.cs" />
@@ -109,7 +109,7 @@
     <Compile Include="Configuration\SnapshotBehavior.cs" />
     <Compile Include="Synchronization\ISynchronizer.cs" />
     <Compile Include="Journaling\IJournalWriter.cs" />
-    <Compile Include="ITransactionHandler.cs" />
+    <Compile Include="IEngine.cs" />
     <Compile Include="Journaling\JournalEntry.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="Synchronization\NullSynchronizer.cs" />

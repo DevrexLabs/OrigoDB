@@ -12,7 +12,6 @@ namespace LiveDomain.Core
 	public class RemoteEngineClient<M> : IEngine<M>, IDisposable where M : Model
 	{
 		readonly IRequestContextFactory _requestContextFactory;
-
 		public RemoteEngineClient(IRequestContextFactory requestContext)
 		{
 			_requestContextFactory = requestContext;

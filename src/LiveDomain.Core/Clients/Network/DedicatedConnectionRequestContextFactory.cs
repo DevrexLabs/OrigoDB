@@ -11,7 +11,9 @@ namespace LiveDomain.Core
 		public DedicatedConnectionRequestContextFactory(string host,int port)
 		{
 			_client = new TcpClient(host,port);
+
 		}
+
 
 		public RequestContext GetContext()
 		{

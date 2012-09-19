@@ -9,14 +9,19 @@ namespace LiveDomain.Core
 {
 	public class PartitionClusterClient<M> : IEngine<M> where M :Model
 	{
-		public List<ClusterClient<M>> Clusters { get; set; }
+		public Dictionary<int, IEngine<M>> Clusters { get; internal set; }
 
 		Dictionary<Type,object> _mergers = new Dictionary<Type,object>();
 		Dictionary<Type, object> _dispatchers = new Dictionary<Type, object>();
 		
 		public PartitionClusterClient()
 		{
-			Clusters = new List<ClusterClient<M>>();
+			Clusters = new Dictionary<int, IEngine<M>>();
+		}
+
+		public void AddClusterNode(int id, IEngine<M> node)
+		{
+			Clusters.Add(id,node);
 		}
 
 		public void Register<T,R>(Func<T, int[]> dispatcher, Func<R[], R> responseMerger)
@@ -35,7 +40,10 @@ namespace LiveDomain.Core
 		{
 			var key = typeof(T);
 			if (!_dispatchers.ContainsKey(key))
-				throw new InstanceNotFoundException("Dispatcher for type not found");
+			{
+				return (e) => Clusters.Keys.ToArray();// Select(c => c.Key).ToArray();
+				//throw new InstanceNotFoundException("Dispatcher for type not found");
+			}
 
 			return (Func<T, int[]>)_dispatchers[key];
 		}
@@ -49,11 +57,11 @@ namespace LiveDomain.Core
 			return (Func<R[], R>) _mergers[key];
 		}
 
-		public ClusterClient<M>[] GetNodesFor<T>(T obj)
+		public IEngine<M>[] GetNodesFor<T>(T obj)
 		{
 			var dispatcher = GetDispatcherFor<T>();
 			var nodes = dispatcher.Invoke(obj);
-			return Clusters.Where(n => nodes.Contains(n.Id)).ToArray();
+			return Clusters.Where(n => nodes.Contains(n.Key)).Select(n => n.Value).ToArray();
 		}
 
 		R MergeResults<T, R>(T obj, R[] results)

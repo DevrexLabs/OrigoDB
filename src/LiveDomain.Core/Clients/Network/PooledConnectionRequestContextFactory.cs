@@ -10,7 +10,7 @@ namespace LiveDomain.Core
 		public PooledConnectionRequestContextFactory(string host,int port,int maxPoolConnections)
 		{
 			_pool = ConnectionPools.GetPoolFor(host, port, maxPoolConnections);
-		}
+    	}
 
 		public RequestContext GetContext()
 		{

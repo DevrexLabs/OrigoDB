@@ -54,7 +54,7 @@
     <Compile Include="Clients\Network\DedicatedConnectionRequestContextFactory.cs" />
     <Compile Include="Clients\Network\IRequestContextFactory.cs" />
     <Compile Include="Clients\Network\Messages\ClusterInfo.cs" />
-    <Compile Include="Clients\Network\NetworkMessage.cs" />
+    <Compile Include="Clients\Network\Messages\NetworkMessage.cs" />
     <Compile Include="Clients\Network\PooledConnectionRequestContextFactory.cs" />
     <Compile Include="Clients\PartitionClusterClient.cs" />
     <Compile Include="Clients\RemoteEngineClient.cs" />

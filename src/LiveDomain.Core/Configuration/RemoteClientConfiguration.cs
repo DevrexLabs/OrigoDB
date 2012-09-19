@@ -9,26 +9,27 @@ namespace LiveDomain.Core
         public string Host { get; set; }
         public int Port { get; set; }
         public bool ConnectionPooling { get; set; }
-        public int MaxPoolConnections { get; set; }
+        //public int MaxPoolConnections { get; set; } Todo: This will be supported later!
 
         public RemoteClientConfiguration()
         {
             Host = "localhost";
             Port = 9292;
             ConnectionPooling = true;
-            MaxPoolConnections = 10;
         }
 
 	    #region Overrides of ClientConfiguration
 
 		public override IEngine<M> GetClient<M>()
 		{
-			var requestContextFactory = ConnectionPooling
-									? (IRequestContextFactory)
-									  new PooledConnectionRequestContextFactory(Host, Port, MaxPoolConnections)
-									: new DedicatedConnectionRequestContextFactory(Host, Port);
-
+			var requestContextFactory = RequestContextFactory(Host, Port, ConnectionPooling);
 			return new RemoteEngineClient<M>(requestContextFactory);
+		}
+
+		internal static IRequestContextFactory RequestContextFactory(string host, int port, bool pooled, int maxPoolConnections = 10)
+		{
+			return pooled ? (IRequestContextFactory)new PooledConnectionRequestContextFactory(host, port,maxPoolConnections)
+											: new DedicatedConnectionRequestContextFactory(host, port);
 		}
 
 	    #endregion

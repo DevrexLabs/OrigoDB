@@ -13,7 +13,11 @@ namespace LiveDomain.Core
 	[Serializable]
 	public class ClusterInfoResponse : NetworkMessage
 	{
-		public int Id { get; set; }
+		public ClusterInfoResponse()
+		{
+			Slaves = new List<Tuple<string, int>>();
+		}
+
 		public string MasterHost { get; set; }
 		public int MasterPort { get; set; }
 

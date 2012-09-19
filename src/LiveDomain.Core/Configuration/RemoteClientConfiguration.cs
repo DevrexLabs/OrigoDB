@@ -25,8 +25,8 @@ namespace LiveDomain.Core
 		{
 			var requestContextFactory = ConnectionPooling
 									? (IRequestContextFactory)
-									  new PooledConnectionRequestContextFactory(ConnectionPools.GetPoolFor(Host, Port, MaxPoolConnections))
-									: new DedicatedConnectionRequestContextFactory(new TcpClient(Host, Port));
+									  new PooledConnectionRequestContextFactory(Host, Port, MaxPoolConnections)
+									: new DedicatedConnectionRequestContextFactory(Host, Port);
 
 			return new RemoteEngineClient<M>(requestContextFactory);
 		}

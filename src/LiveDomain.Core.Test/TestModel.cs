@@ -78,7 +78,7 @@ namespace LiveDomain.Core.Test
         }
     }
 
-
+	[Serializable]
     public class GetNumberOfCommandsExecutedQuery : Query<TestModel, int>
     {
         protected override int Execute(TestModel model)

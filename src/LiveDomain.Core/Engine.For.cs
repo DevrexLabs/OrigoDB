@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,9 +15,13 @@ namespace LiveDomain.Core
 
 		public static IEngine<M> For<M>(string clientIdentifier) where M : Model, new()
 		{
-			//Could return an EnterpriseClientConfiguration
 			var config = ClientConfiguration.Create(clientIdentifier);
 			return config.GetClient<M>();
+		}
+
+		public static IEngine<M> For<M>(EngineConfiguration configuration) where M : Model, new()
+		{
+			return new LocalClientConfiguration(configuration).GetClient<M>();
 		}
 	}
 }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
-    public class LocalEngineClient<M> : IEngine<M> where M : Model
+    public class LocalEngineClient<M> : ILocalEngine<M> where M : Model
     {
 
         public readonly Engine<M> Engine;
@@ -29,5 +29,10 @@ namespace LiveDomain.Core
         {
             return Engine.Execute(command);
         }
+
+	    public T Execute<T>(Func<M, T> query)
+	    {
+		    return Engine.Execute(query);
+	    }
     }
 }

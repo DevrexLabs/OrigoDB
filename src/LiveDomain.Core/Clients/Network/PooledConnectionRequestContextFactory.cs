@@ -7,9 +7,9 @@ namespace LiveDomain.Core
 	{
 		readonly ConnectionPool _pool;
 
-		public PooledConnectionRequestContextFactory(ConnectionPool pool)
+		public PooledConnectionRequestContextFactory(string host,int port,int maxPoolConnections)
 		{
-			_pool = pool;
+			_pool = ConnectionPools.GetPoolFor(host, port, maxPoolConnections);
 		}
 
 		public RequestContext GetContext()

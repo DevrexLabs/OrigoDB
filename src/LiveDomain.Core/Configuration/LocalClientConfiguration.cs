@@ -7,6 +7,7 @@ namespace LiveDomain.Core
 		public LocalClientConfiguration(EngineConfiguration engineConfiguration)
 		{
 			_engineConfiguration = engineConfiguration;
+			CreateWhenNotExists = true;
 		}
 
 		public bool CreateWhenNotExists { get; set; }

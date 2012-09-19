@@ -6,8 +6,6 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using LiveDomain.Core;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace LiveDomain.Core
 {
@@ -29,26 +27,31 @@ namespace LiveDomain.Core
 
 		#endregion
 
-		#region ITransactionHandler<M> Members
+		#region IEngine<M> Members
 
 		public T Execute<T>(Query<M, T> query)
 		{
-			return (T) SendAndRecieve(query);
+			return SendAndRecieve<T>(query);
 		}
 
 		public void Execute(Command<M> command)
 		{
-			SendAndRecieve(command);
+			SendAndRecieve<object>(command);
 		}
 
 		public T Execute<T>(CommandWithResult<M, T> command)
 		{
-			return (T) SendAndRecieve(command);
+			return SendAndRecieve<T>(command);
 		}
 
 		#endregion
 
-		object SendAndRecieve(object request)
+		internal R SendMessage<R>(NetworkMessage<R> message) where R : NetworkMessage
+		{
+			return SendAndRecieve<R>(message);
+		}
+
+		R SendAndRecieve<R>(object request)
 		{
 			using (var ctx = _requestContextFactory.GetContext())
 			{
@@ -62,10 +65,10 @@ namespace LiveDomain.Core
 					if (!message.Succeeded)
 						throw message.Error;
 
-					return message.Payload;
+					return (R)message.Payload;
 				}
 
-				return response;
+				return (R)response;
 			}
 		}
 	}

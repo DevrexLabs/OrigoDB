@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace LiveDomain.Core
 {
@@ -15,6 +16,12 @@ namespace LiveDomain.Core
             }
         }
     }
+
+	[Serializable]
+	public class NetworkMessage<R> where R : NetworkMessage
+	{
+
+	}
 
     [Serializable]
     public class RedirectMessage : NetworkMessage
@@ -61,4 +68,6 @@ namespace LiveDomain.Core
     public class SwitchoverResponse : NetworkMessage
     {
     }
+
+
 }

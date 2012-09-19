@@ -8,9 +8,9 @@ namespace LiveDomain.Core
 		readonly TcpClient _client;
 		bool _disposed;
 
-		public DedicatedConnectionRequestContextFactory(TcpClient client)
+		public DedicatedConnectionRequestContextFactory(string host,int port)
 		{
-			_client = client;
+			_client = new TcpClient(host,port);
 		}
 
 		public RequestContext GetContext()

@@ -64,16 +64,58 @@ namespace LiveDomain.Core.Test
 		public void CanCreateAndUseDispatcherAndMerger()
 		{
 			// Todo: This test should be a series of smaller tests
-			var client = new PartitionClusterClient<TestModel>();
-			client.Register<GetNumberOfCommandsExecutedQuery, int>(obj => new[] {1, 2, 3}, ints => ints[1]);
+			//var client = new PartitionClient<TestModel>();
+			//client.Register<GetNumberOfCommandsExecutedQuery, int>(obj => new[] {1, 2, 3}, ints => ints[1]);
 
-			var dispatcher = client.GetDispatcherFor<GetNumberOfCommandsExecutedQuery>();
-			var merger = client.GetMergerFor<GetNumberOfCommandsExecutedQuery, int>();
+			//var dispatcher = client.GetDispatcherFor<GetNumberOfCommandsExecutedQuery>();
+			//var merger = client.GetMergerFor<int>();
 
-			var nodeIds = dispatcher.Invoke(new GetNumberOfCommandsExecutedQuery());
-			var result = merger.Invoke(nodeIds);
+			//var nodeIds = dispatcher.Invoke(new GetNumberOfCommandsExecutedQuery());
+			//var result = merger.Invoke(nodeIds);
 
-			Assert.AreEqual(2,result);
+			//Assert.AreEqual(2,result);
+		}
+
+		[TestMethod]
+		public void LocalEngineClientReusesEngineReferences()
+		{
+			var localConfig1 = new LocalClientConfiguration(CreateConfig());
+			var localConfig2 = new LocalClientConfiguration(CreateConfig());
+			var engine1 = (LocalEngineClient<TestModel>)localConfig1.GetClient<TestModel>();
+			var engine2 = (LocalEngineClient<TestModel>)localConfig2.GetClient<TestModel>();
+
+			Assert.AreSame(engine1.Engine,engine2.Engine);
+		}
+
+		[TestMethod]
+		public void PartitionClient()
+		{
+			var client = new PartitionClient<TestModel>();
+			client[0] = Engine.For<TestModel>("mode=embedded;location=" + _path);
+			client[1] = Engine.For<TestModel>("mode=embedded;location=" + _pathForConnectionString);
+
+			// Register partition mapping
+			client.Register<GetNumberOfCommandsExecutedQuery,int>(query => new[] {0},values => values[0]);
+			client.Register<TestCommandWithoutResult>(query => new[] { 1 });
+			client.Register<TestCommandWithResult, int>(query => new[] { 0,1 }, values => values[0] + values[1]);
+			
+			var response = client.Execute(new TestCommandWithResult());
+			
+			Assert.AreEqual(2,response);
+
+			// Check model values
+			var response1 = client[0].Execute(new GetNumberOfCommandsExecutedQuery());
+			var response2 = client[1].Execute(new GetNumberOfCommandsExecutedQuery());
+
+			Assert.AreEqual(1, response1);
+			Assert.AreEqual(1, response2);
+			
+			client.Execute(new TestCommandWithoutResult());
+			response1 = client[0].Execute(new GetNumberOfCommandsExecutedQuery());
+			response2 = client[1].Execute(new GetNumberOfCommandsExecutedQuery());
+
+			Assert.AreEqual(1,response1);
+			Assert.AreEqual(2, response2);
 		}
 
 		/// <summary>

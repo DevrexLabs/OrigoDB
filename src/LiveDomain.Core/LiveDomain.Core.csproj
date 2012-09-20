@@ -50,15 +50,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Clients\ClusterClient.cs" />
-    <Compile Include="Clients\Network\ConnectionPool.cs" />
-    <Compile Include="Clients\Network\DedicatedConnectionRequestContextFactory.cs" />
-    <Compile Include="Clients\Network\IRequestContextFactory.cs" />
-    <Compile Include="Clients\Network\Messages\ClusterInfo.cs" />
-    <Compile Include="Clients\Network\Messages\NetworkMessage.cs" />
-    <Compile Include="Clients\Network\PooledConnectionRequestContextFactory.cs" />
-    <Compile Include="Clients\PartitionClusterClient.cs" />
+    <Compile Include="Clients\Remote\ConnectionPool.cs" />
+    <Compile Include="Clients\Remote\DedicatedConnectionRequestContextFactory.cs" />
+    <Compile Include="Clients\Remote\IRequestContextFactory.cs" />
+    <Compile Include="Clients\Remote\Messages\ClusterInfo.cs" />
+    <Compile Include="Clients\Remote\Messages\NetworkMessage.cs" />
+    <Compile Include="Clients\Remote\PooledConnectionRequestContextFactory.cs" />
+    <Compile Include="Clients\PartitionClient.cs" />
     <Compile Include="Clients\RemoteEngineClient.cs" />
-    <Compile Include="Clients\Network\RequestContext.cs" />
+    <Compile Include="Clients\Remote\RequestContext.cs" />
     <Compile Include="Command[M].cs" />
     <Compile Include="CommandWithResult[M,R].cs" />
     <Compile Include="Configuration\ClientConfiguration.cs" />
@@ -69,6 +69,7 @@
     <Compile Include="Configuration\Location.cs" />
     <Compile Include="Engine.For.cs" />
     <Compile Include="Db.cs" />
+    <Compile Include="Engines.cs" />
     <Compile Include="Utilities\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />
     <Compile Include="Journaling\NullJournalWriter.cs" />

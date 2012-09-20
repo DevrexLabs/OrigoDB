@@ -7,7 +7,7 @@ namespace LiveDomain.Core
     public class NetworkMessage
     {
         public object Payload { get; set; }
-        public Exception Error { get; set; }
+		public Exception Error { get; set; }
         public bool Succeeded
         {
             get
@@ -18,7 +18,7 @@ namespace LiveDomain.Core
     }
 
 	[Serializable]
-	public class NetworkMessage<R> where R : NetworkMessage
+	public class NetworkMessage<R>
 	{
 
 	}
@@ -49,15 +49,6 @@ namespace LiveDomain.Core
     {
     }
 
-    [Serializable]
-    public class SnapshotRequest : NetworkMessage
-    {
-    }
-
-    [Serializable]
-    public class SnapshotResponse : NetworkMessage
-    {
-    }
 
     [Serializable]
     public class SwitchoverRequest : NetworkMessage

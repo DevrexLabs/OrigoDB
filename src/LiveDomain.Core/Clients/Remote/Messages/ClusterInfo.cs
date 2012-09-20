@@ -11,7 +11,7 @@ namespace LiveDomain.Core
 	}
 
 	[Serializable]
-	public class ClusterInfoResponse : NetworkMessage
+	public class ClusterInfoResponse
 	{
 		public ClusterInfoResponse()
 		{

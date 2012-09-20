@@ -90,6 +90,9 @@ namespace LiveDomain.Core.Test
 		[TestMethod]
 		public void PartitionClient()
 		{
+			Engines.CloseAll();
+			DeleteOldTestdata();
+
 			var client = new PartitionClient<TestModel>();
 			client[0] = Engine.For<TestModel>("mode=embedded;location=" + _path);
 			client[1] = Engine.For<TestModel>("mode=embedded;location=" + _pathForConnectionString);
@@ -118,6 +121,8 @@ namespace LiveDomain.Core.Test
 			Assert.AreEqual(2, response2);
 		}
 
+		
+
 		/// <summary>
 		/// modify this method to switch between sql and file store tests
 		/// </summary>
@@ -140,6 +145,11 @@ namespace LiveDomain.Core.Test
 
 		[ClassInitialize()]
 		public static void MyClassInitialize(TestContext testContext)
+		{
+			DeleteOldTestdata();
+		}
+
+		static void DeleteOldTestdata()
 		{
 			if (Directory.Exists(_path)) new DirectoryInfo(_path).Delete(true);
 			if (Directory.Exists(_pathForConnectionString)) new DirectoryInfo(_pathForConnectionString).Delete(true);

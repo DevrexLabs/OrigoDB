@@ -32,5 +32,14 @@ namespace LiveDomain.Core
 			var key = typeof(M).Name + identifier;
 			return _engines.ContainsKey(key);
 		}
+
+		internal static void CloseAll()
+		{
+			foreach (var engine in _engines.Select(k => k.Value))
+			{
+				engine.Close();
+			}
+			_engines.Clear();
+		}
 	}
 }

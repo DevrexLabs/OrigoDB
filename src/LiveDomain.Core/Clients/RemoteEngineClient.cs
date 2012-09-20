@@ -45,7 +45,7 @@ namespace LiveDomain.Core
 
 		#endregion
 
-		internal R SendMessage<R>(NetworkMessage<R> message) where R : NetworkMessage
+		internal R SendMessage<R>(NetworkMessage<R> message)
 		{
 			return SendAndRecieve<R>(message);
 		}

@@ -7,55 +7,15 @@ namespace LiveDomain.Core
 {
 	public class ClusterClient<M> : IEngine<M>, IDisposable where M : Model, new()
 	{
-		public RemoteEngineClient<M> MasterNode { get; internal set; }
-		public List<RemoteEngineClient<M>> SlaveNodes { get; internal set; }
-		
-		public void Init(string initHost, int initPort, bool connectionPooling)
-		{
-			if(SlaveNodes != null)
-				throw new NotSupportedException();
-			
-			var requestContext = RemoteClientConfiguration.RequestContextFactory(initHost, initPort,connectionPooling);
-			var initNode = new RemoteEngineClient<M>(requestContext);
-			// Request Information
-			var response = initNode.SendMessage(new ClusterInfoRequest());
-			// Process Master
-			if (initHost == response.MasterHost && initPort == response.MasterPort)
-				MasterNode = initNode;
-			else
-			{
-				requestContext = RemoteClientConfiguration.RequestContextFactory(response.MasterHost, response.MasterPort, connectionPooling);
-				MasterNode = new RemoteEngineClient<M>(requestContext);
-			}
-			// Process Slaves
-			SlaveNodes = new List<RemoteEngineClient<M>>();
-			var config = new RemoteClientConfiguration();
-			config.ConnectionPooling = connectionPooling;
-			foreach (var slave in response.Slaves)
-			{
-				config.Host = slave.Item1;
-				config.Port = slave.Item2;
-				
-				if (initHost == config.Host && initPort == config.Port && !SlaveNodes.Contains(initNode))
-				{
-					SlaveNodes.Add(initNode);
-					continue;
-				}
-				SlaveNodes.Add((RemoteEngineClient<M>) config.GetClient<M>());
-			}
-		}
-
-		
-
 		int _slaveCirkus;
+		public RemoteEngineClient<M> MasterNode { get; internal set; }
+		public List<RemoteEngineClient<M>> AllNodes { get; internal set; }
+
+		#region IEngine<M> Members
+
 		public T Execute<T>(Query<M, T> query)
 		{
-			RemoteEngineClient<M> node;
-			lock (SlaveNodes)
-			{
-				var id = Interlocked.Increment(ref _slaveCirkus);
-				node = SlaveNodes[id % SlaveNodes.Count];	
-			}
+			var node = GetQueryNode();
 			return node.Execute(query);
 		}
 
@@ -64,20 +24,22 @@ namespace LiveDomain.Core
 			MasterNode.Execute(command);
 		}
 
-		
 		public T Execute<T>(CommandWithResult<M, T> command)
 		{
 			return MasterNode.Execute(command);
 		}
 
+		#endregion
+
 		#region Implementation of IDisposable
 
 		bool _disposed;
+
 		public virtual void Dispose()
 		{
-			if(_disposed) return;
+			if (_disposed) return;
 			MasterNode.Dispose();
-			foreach (var slave in SlaveNodes)
+			foreach (var slave in AllNodes)
 			{
 				slave.Dispose();
 			}
@@ -85,5 +47,58 @@ namespace LiveDomain.Core
 		}
 
 		#endregion
+
+		public void Init(string initHost, int initPort, bool connectionPooling)
+		{
+			if (AllNodes != null)
+				throw new NotSupportedException();
+
+			AllNodes = new List<RemoteEngineClient<M>>();
+			var requestContext = RemoteClientConfiguration.RequestContextFactory(initHost, initPort, connectionPooling);
+			var initNode = new RemoteEngineClient<M>(requestContext);
+			// Request Information
+			var response = initNode.SendMessage(new ClusterInfoRequest());
+			// Process Master
+			if (initHost == response.MasterHost && initPort == response.MasterPort)
+			{
+				MasterNode = initNode;
+			}
+			else
+			{
+				AllNodes.Add(initNode);
+				requestContext = RemoteClientConfiguration.RequestContextFactory(response.MasterHost, response.MasterPort,
+																				 connectionPooling);
+				MasterNode = new RemoteEngineClient<M>(requestContext);
+			}
+			AllNodes.Add(MasterNode);
+			// Process Slaves
+			var config = new RemoteClientConfiguration();
+			config.ConnectionPooling = connectionPooling;
+			foreach (var slave in response.Slaves)
+			{
+				config.Host = slave.Item1;
+				config.Port = slave.Item2;
+
+				if (initHost != config.Host && 
+					initPort != config.Port &&
+					response.MasterHost != config.Host &&
+					response.MasterPort != config.Port)
+				{
+					AllNodes.Add((RemoteEngineClient<M>)config.GetClient<M>());
+				}
+			}
+		}
+
+		RemoteEngineClient<M> GetQueryNode()
+		{
+			if (AllNodes == null || AllNodes.Count == 0)
+				return MasterNode;
+
+			lock (AllNodes)
+			{
+				_slaveCirkus++;
+				return AllNodes[_slaveCirkus % AllNodes.Count];
+			}
+		}
 	}
 }

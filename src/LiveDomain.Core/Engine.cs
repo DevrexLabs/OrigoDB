@@ -97,7 +97,7 @@ namespace LiveDomain.Core
             _store = _config.CreateStore();
             _store.Load();
             _lock = _config.CreateSynchronizer();
-
+			
             _commandJournal = _config.CreateCommandJournal();
             Restore(constructor);
             _authorizer = _config.CreateAuthorizer();
@@ -111,6 +111,8 @@ namespace LiveDomain.Core
                 //Give the snapshot thread a chance to start and aquire the readlock
                 Thread.Sleep(TimeSpan.FromMilliseconds(10));
             }
+			
+			LiveDomain.Core.Config.Engines.AddEngine(config.Location,this);
         }
 
 

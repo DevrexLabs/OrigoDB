@@ -1,37 +1,42 @@
-using System;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using LiveDomain.Core;
+using Woocode.Utils;
 
 namespace LiveDomain.Core
 {
-    public class RemoteClientConfiguration : ClientConfiguration
+	public class RemoteClientConfiguration : ClientConfiguration
     {
-        public string Host { get; set; }
-        public int Port { get; set; }
-        public bool ConnectionPooling { get; set; }
-        //public int MaxPoolConnections { get; set; } Todo: This will be supported later!
+		public static readonly RemoteClientConfiguration Default = new RemoteClientConfiguration(); 
+	    public const int DefaultMaxConnections = 10;
+	    public const string DefaultHost = "localhost";
+	    public const int DefaultPort = 9292;
+		
+		public string Host { get; internal set; }
+		public int Port { get; internal set; }
+		/// <summary>
+		/// Maximum number of open Tcp connections to Host per pool.
+		/// </summary>
+        public int MaxConnections { get; internal set; }
+		public bool DedicatedPool { get; internal set; }
 
         public RemoteClientConfiguration()
         {
-            Host = "localhost";
-            Port = 9292;
-            ConnectionPooling = true;
+	        Host = DefaultHost;
+            Port = DefaultPort;
+			MaxConnections = DefaultMaxConnections;
         }
 
-	    #region Overrides of ClientConfiguration
+		public override string ToString()
+		{
+			return new StringToPropertiesMapper().ToPropertiesString(this, Default);
+		}
 
 		public override IEngine<M> GetClient<M>()
 		{
-			var requestContextFactory = RequestContextFactory(Host, Port, ConnectionPooling);
+			var pool = ConnectionPools.PoolFor(this);
+			var requestContextFactory = new PooledConnectionRequestContextFactory(pool);
 			return new RemoteEngineClient<M>(requestContextFactory);
-		}
-
-		internal static IRequestContextFactory RequestContextFactory(string host, int port, bool pooled, int maxPoolConnections = 10)
-		{
-			return pooled ? (IRequestContextFactory)new PooledConnectionRequestContextFactory(host, port,maxPoolConnections)
-											: new DedicatedConnectionRequestContextFactory(host, port);
-		}
-
-	    #endregion
+		} 
     }
 }

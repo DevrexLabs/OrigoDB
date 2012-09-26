@@ -10,115 +10,120 @@ using System.Threading.Tasks;
 
 namespace LiveDomain.Core
 {
-	public class PartitionClient<M> : IEngine<M> where M : Model
+	public class PartitionClusterClient<M> : ClusterClient<M> where M : Model
 	{
-		readonly Func<object, int[]> _defaultPartitionDispatcher;
-		Dictionary<string, MulticastDelegate> _dispatchers = new Dictionary<string, MulticastDelegate>();
-		Dictionary<string, object> _mergers = new Dictionary<string, object>();
-		Dictionary<int, IEngine<M>> _partitions;
+		readonly Func<object, int[]> _allNodesDispatcher;
+		Dictionary<string, Delegate> _dispatchers = new Dictionary<string, Delegate>();
+		Dictionary<string, Delegate> _mergers = new Dictionary<string, Delegate>();
 
-		public PartitionClient()
+		public PartitionClusterClient()
 		{
-			_partitions = new Dictionary<int, IEngine<M>>();
-			_defaultPartitionDispatcher = _ => _partitions.Keys.ToArray();
+			_allNodesDispatcher = _ => Enumerable.Range(0, Nodes.Count).ToArray();
 		}
 
-		/// <summary>
-		/// Set/Get Partition
-		/// </summary>
-		/// <param name="index">Partition ID</param>
-		/// <returns>Engine/Client for partition</returns>
-		public IEngine<M> this[int index]
+		public void SetDispatcherFor<T>(Func<T, int> dispatcher)
 		{
-			get { return _partitions.ContainsKey(index) ? _partitions[index] : null; }
-			set { _partitions[index] = value; }
+			var key = typeof(T).Name;
+			var func = new Func<T, int[]>(o => new[] { dispatcher.Invoke(o) });
+
+			_dispatchers[key] = func;
 		}
 
-		public void SetPartition(int id, IEngine<M> client)
+		public void SetDispatcherFor<T>(Func<T, int[]> dispatcher)
 		{
-			this[id] = client;
-		}
-
-		public IEngine<M> GetPartition(int id)
-		{
-			return this[id];
-		}
-
-		public void Register<T, R>(Func<T, int[]> dispatcher, Func<R[], R> responseMerger)
-		{
-			var key = typeof (T).Name;
+			var key = typeof(T).Name;
 			_dispatchers[key] = dispatcher;
-			_mergers[key] = responseMerger;
 		}
 
-		public void Register<T>(Func<T, int[]> dispatcher) where T : Command<M>
+		public void SetMergerFor<T, R>(Func<R[], R> merger)
 		{
-			_dispatchers[typeof (T).Name] = dispatcher;
+			var key = typeof(T).Name;
+			_mergers[key] = merger;
 		}
 
-		public MulticastDelegate GetDispatcherFor<T>(T obj)
+		public void SetMergerFor<R>(Func<R[], R> merger)
+		{
+			var key = typeof(R).Name;
+			_mergers[key] = merger;
+		}
+
+		private Delegate GetDispatcherFor<T>(T obj)
 		{
 			var key = obj.GetType().Name;
-			if (!_dispatchers.ContainsKey(key))
+			if (!_dispatchers.ContainsKey(key) || _dispatchers[key] == null)
 			{
-				return _defaultPartitionDispatcher;
-				//or if we want to be hard ~> throw new InstanceNotFoundException("Dispatcher for type not found");
+				return _allNodesDispatcher;
 			}
 
 			return _dispatchers[key];
 		}
 
-		public Func<R[], R> GetMergerFor<T, R>(T obj)
+		private Func<R[], R> GetMergerFor<T, R>(T obj)
 		{
 			var key = obj.GetType().Name;
-			if (!_mergers.ContainsKey(key))
-				throw new InstanceNotFoundException("Merger for type not found");
+			if (_mergers.ContainsKey(key))
+			{
+				return (Func<R[], R>)_mergers[key];
+			}
 
-			return (Func<R[], R>) _mergers[key];
+			key = typeof(R).Name;
+			if (_mergers.ContainsKey(key))
+			{
+				return (Func<R[], R>)_mergers[key];
+			}
+			throw new InstanceNotFoundException("Merger for type not found");
 		}
 
-		public IEngine<M>[] GetNodesFor<T>(T obj)
+		private IEngine<M>[] GetNodesFor<T>(T obj)
 		{
 			var dispatcher = GetDispatcherFor(obj);
-			var nodes = (int[]) dispatcher.DynamicInvoke(obj);
-			return _partitions.Where(p => nodes.Contains(p.Key)).Select(n => n.Value).ToArray();
+			var nodeIds = (int[])dispatcher.DynamicInvoke(obj);
+			return nodeIds.Select(id => Nodes[id]).ToArray();
 		}
 
-		R MergeResults<T, R>(T obj, R[] results)
+		private R MergeResults<T, R>(T obj, R[] results)
 		{
 			var merger = GetMergerFor<T, R>(obj);
 			return merger.Invoke(results);
 		}
 
-		#region Implementation of IDisposable
-
-		public void Dispose()
-		{
-		}
-
-		#endregion
-
 		#region Implementation of IEngine<M>
-
-		public T Execute<T>(Query<M, T> query)
+		
+		public override T Execute<T>(Query<M, T> query)
 		{
 			var nodes = GetNodesFor(query);
+			if(nodes.Length == 1) return nodes[0].Execute(query);
+
 			var queryResults = nodes.AsParallel().Select(n => n.Execute(query)).ToArray();
-			var result = MergeResults(query, queryResults);
-			return result;
+			return MergeResults(query, queryResults);
 		}
 
-		public void Execute(Command<M> command)
+		public override void Execute(Command<M> command)
 		{
 			Parallel.ForEach(GetNodesFor(command), node => node.Execute(command));
 		}
 
-		public T Execute<T>(CommandWithResult<M, T> command)
+		public override T Execute<T>(CommandWithResult<M, T> command)
 		{
 			var nodes = GetNodesFor(command);
+			if (nodes.Length == 1) return nodes[0].Execute(command);
 			var commandResults = nodes.AsParallel().Select(n => n.Execute(command)).ToArray();
-			var result = MergeResults(command, commandResults);
-			return result;
+			return MergeResults(command, commandResults);
+		}
+
+		public T Execute<T>(Query<M, T> query,int partition)
+		{
+			return Nodes[partition].Execute(query);
+		}
+
+		public void Execute(Command<M> command, int partition)
+		{
+			Nodes[partition].Execute(command);
+		}
+
+		public T Execute<T>(CommandWithResult<M, T> command, int partition)
+		{
+			return Nodes[partition].Execute(command);
 		}
 
 		#endregion

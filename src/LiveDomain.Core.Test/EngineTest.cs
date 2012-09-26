@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using LiveDomain.Core.TinyIoC;
 using LiveDomain.Modules.SqlStorage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Threading;
 using LiveDomain.Core.Logging;
-using TinyIoC;
 
 namespace LiveDomain.Core.Test
 {

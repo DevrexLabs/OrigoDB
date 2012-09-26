@@ -14,17 +14,16 @@ namespace LiveDomain.Core
 
 		public override IEngine<M> GetClient<M>()
 		{
-			Engine<M> engine;
-			if (Engines.HasEngine<M>(_engineConfiguration.Location))
-			{	
-				engine = Engines.GetEngine<M>(_engineConfiguration.Location);
-				return new LocalEngineClient<M>(engine);
-			}
+			if(string.IsNullOrEmpty(_engineConfiguration.Location))
+				_engineConfiguration.Location = typeof (M).Name;
 
-			if (CreateWhenNotExists) engine = Engine.LoadOrCreate<M>(_engineConfiguration);
-			else engine = Engine.Load<M>(_engineConfiguration);
-			Engines.AddEngine<M>(_engineConfiguration.Location,engine);
-			return new LocalEngineClient<M>(engine);
+			Engine engine;
+			if (!Engines.TryGetEngine(_engineConfiguration.Location, out engine))
+			{
+				if (CreateWhenNotExists) engine = Engine.LoadOrCreate<M>(_engineConfiguration);
+				else engine = Engine.Load<M>(_engineConfiguration);
+			}
+			return new LocalEngineClient<M>((Engine<M>)engine);
 		}
 	}
 }

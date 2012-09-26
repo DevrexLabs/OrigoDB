@@ -6,7 +6,7 @@ using Woocode.Utils;
 
 namespace LiveDomain.Core
 {
-    public abstract class ClientConfiguration : ConfigurationBase
+    public abstract class ClientConfiguration : Config
     {
 	    private enum Mode
 	    {
@@ -27,9 +27,10 @@ namespace LiveDomain.Core
 
 	    public static ClientConfiguration Create(string clientIdentifier = null)
 		{
-			if(clientIdentifier == null)
+			if(string.IsNullOrEmpty(clientIdentifier))
 				return new LocalClientConfiguration(EngineConfiguration.Create());
-		
+			// Todo: Check config for client identifier.
+
 			var isConnectionString = clientIdentifier.Contains("=");
 			if(isConnectionString)
 				 return CreateConfigFromConnectionString(clientIdentifier);

@@ -5,41 +5,68 @@ using System.Linq;
 
 namespace LiveDomain.Core
 {
-	public static class Engines
+	public class Engines
 	{
-		static ConcurrentDictionary<string, Engine> _engines = new ConcurrentDictionary<string, Engine>();
-		
-		public static IEnumerable<Engine> All { get { return _engines.Select(engine => engine.Value); } }
+		static Dictionary<string, Engine> _engines = new Dictionary<string, Engine>();
 
-		internal static void AddEngine<M>(string identifier, Engine<M> engine) where M : Model
+		public IEnumerable<Engine> All { get { return _engines.Select(kv => kv.Value); } }
+
+		public void AddEngine(string identifier, Engine engine)
 		{
-			var key = typeof(M).Name + identifier;
-			if (_engines.ContainsKey(key))
-				throw new NotSupportedException();
-			_engines[key] = engine;
+			lock (_engines)
+			{
+				if (_engines.ContainsKey(identifier))
+					throw new NotSupportedException();
+				_engines[identifier] = engine;
+			}
 		}
 
-		internal static Engine<M> GetEngine<M>(string identifier) where M : Model
+		public Engine<M> GetEngine<M>(string identifier) where M : Model
 		{
-			var key = typeof(M).Name + identifier;
-			if (!_engines.ContainsKey(key))
-				throw new NotSupportedException();
-			return (Engine<M>)_engines[key];
+			lock (_engines)
+			{
+				if (!_engines.ContainsKey(identifier))
+					throw new NotSupportedException();
+				return (Engine<M>)_engines[identifier];
+			}
 		}
 
-		internal static bool HasEngine<M>(string identifier) where M : Model
+		public bool HasEngine(string identifier)
 		{
-			var key = typeof(M).Name + identifier;
-			return _engines.ContainsKey(key);
+			lock (_engines)
+			{
+				return _engines.ContainsKey(identifier);
+			}
 		}
 
-		internal static void CloseAll()
+		internal bool TryGetEngine(string identifier,out Engine engine)
 		{
-			foreach (var engine in _engines.Select(k => k.Value))
+			return _engines.TryGetValue(identifier, out engine);
+		}
+
+		public void CloseAll()
+		{
+			lock (_engines)
+			{
+				foreach (var engine in _engines.Select(k => k.Value))
+				{
+					engine.Close();
+				}
+				_engines.Clear();
+			}
+		}
+
+		internal void Close(Engine engine)
+		{
+			lock (_engines)
 			{
 				engine.Close();
+				var keys = _engines.Where(kv => kv.Value == engine);
+				foreach (var kv in keys)
+				{
+					_engines.Remove(kv.Key);
+				}
 			}
-			_engines.Clear();
 		}
 	}
 }

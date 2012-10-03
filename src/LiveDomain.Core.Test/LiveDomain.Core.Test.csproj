@@ -71,6 +71,7 @@
     </Compile>
     <Compile Include="EngineClientTest.cs" />
     <Compile Include="EngineTestBase.cs" />
+    <Compile Include="FileStoreTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EngineTest.cs" />
     <Compile Include="Properties\Settings.Designer.cs">

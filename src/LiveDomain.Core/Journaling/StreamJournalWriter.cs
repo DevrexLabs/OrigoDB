@@ -48,8 +48,8 @@ namespace LiveDomain.Core
             if (_stream == null) _stream = _storage.CreateJournalWriterStream(item.Id);
             _serializer.Write(item, _stream);
             _stream.Flush();
-
-		    if (_rolloverStrategy.Rollover(_stream.Position, _entriesWrittenToCurrentStream))
+			
+		    if (_rolloverStrategy.Rollover(_stream.Position, ++_entriesWrittenToCurrentStream))
 		    {
                 _log.Debug("NewJournalSegment");
 		        Close();

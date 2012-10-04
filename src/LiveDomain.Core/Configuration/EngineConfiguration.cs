@@ -6,12 +6,12 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using LiveDomain.Core.Logging;
 using LiveDomain.Core.Security;
-using TinyIoC;
+using LiveDomain.Core.TinyIoC;
 
 namespace LiveDomain.Core
 {
 
-    public partial class EngineConfiguration : ConfigurationBase
+    public partial class EngineConfiguration : Config
     {
         protected TinyIoCContainer _registry;
 

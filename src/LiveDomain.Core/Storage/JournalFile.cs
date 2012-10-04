@@ -63,7 +63,7 @@ namespace LiveDomain.Core
         }
 
 
-        public JournalFile Successsor(long startingEntryId)
+        public JournalFile Successor(long startingEntryId)
         {
             return new JournalFile(FileSequenceNumber +1, startingEntryId);
         }

@@ -15,7 +15,7 @@ namespace LiveDomain.Core
     /// Engine is responsible for executing commands and queries against
     /// the model while conforming to ACID.
     /// </summary>
-	public class Engine : IDisposable
+	public partial class Engine : IDisposable
     {
 
         /// <summary>
@@ -36,15 +36,18 @@ namespace LiveDomain.Core
         IAuthorizer<Type> _authorizer;
 
         public EngineConfiguration Config { get { return _config; } }
+		internal ICommandJournal CommandJournal {get { return _commandJournal; }}
+		internal IStore Store { get { return _store; } }
 
- 
-        /// <summary>
+	    /// <summary>
         /// Shuts down the engine
         /// </summary>
         public void Close()
         {
             if (!_isDisposed)
             {
+				Core.Config.Engines.Remove(this);
+
                 if (_config.SnapshotBehavior == SnapshotBehavior.OnShutdown)
                 {
                     //Allow reading while snapshot is being taken
@@ -56,7 +59,7 @@ namespace LiveDomain.Core
                 _lock.EnterWrite();
                 _isDisposed = true;
                 _commandJournal.Dispose();
-
+				
             }
         }
 
@@ -97,7 +100,7 @@ namespace LiveDomain.Core
             _store = _config.CreateStore();
             _store.Load();
             _lock = _config.CreateSynchronizer();
-
+			
             _commandJournal = _config.CreateCommandJournal();
             Restore(constructor);
             _authorizer = _config.CreateAuthorizer();
@@ -111,6 +114,8 @@ namespace LiveDomain.Core
                 //Give the snapshot thread a chance to start and aquire the readlock
                 Thread.Sleep(TimeSpan.FromMilliseconds(10));
             }
+			
+			Core.Config.Engines.AddEngine(config.Location,this);
         }
 
 

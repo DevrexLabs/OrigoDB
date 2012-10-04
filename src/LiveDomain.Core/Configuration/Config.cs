@@ -7,11 +7,14 @@ using System.Text;
 namespace LiveDomain.Core
 {
     [Serializable]
-    public abstract class ConfigurationBase
+    public abstract class Config
     {
+		static Engines _engines = new Engines();
+	    public static Engines Engines { get { return _engines; } }
+
         public virtual string KeyTemplate
         {
-            get { return "LiveDb.{0}"; }
+            get { return "LiveDomain.{0}"; }
         }
 
         protected T LoadFromConfigOrDefault<T>(Func<T> @default = null)

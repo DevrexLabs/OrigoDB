@@ -9,16 +9,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace LiveDomain.Core.Test
 {
 	[TestClass]
-	public class EngineClientTest
+	public class EngineClientTest : EngineTestBase
 	{
-		static string _path = "c:\\db\\engineClientDb";
-		static string _pathForConnectionString = "c:\\db\\engineClientDb2";
-
 		[TestMethod]
 		public void CanCreateLocalEngineClientFromConnectionString()
 		{
-			ResetData();
-			var engine = Engine.For<TestModel>("mode=embedded;location=" + _pathForConnectionString);
+			var engine = Engine.For<TestModel>("mode=embedded;location=" + Guid.NewGuid().ToString());
 			Assert.IsNotNull(engine);
 			Assert.IsInstanceOfType(engine, typeof(ILocalEngine<TestModel>));
 		}
@@ -26,7 +22,6 @@ namespace LiveDomain.Core.Test
 		[TestMethod]
 		public void CanCreateLocalEngineClientFromModel()
 		{
-			ResetData();
 			var engine = Engine.For<TestModel>();
 			Assert.IsNotNull(engine);
 			Assert.IsInstanceOfType(engine, typeof(LocalEngineClient<TestModel>));
@@ -35,7 +30,6 @@ namespace LiveDomain.Core.Test
 		[TestMethod]
 		public void CanCreateLocalEngineClientFromConfig()
 		{
-			ResetData();
 			var engine = Engine.For<TestModel>(CreateConfig());
 			Assert.IsNotNull(engine);
 			Assert.IsInstanceOfType(engine, typeof(LocalEngineClient<TestModel>));
@@ -44,7 +38,6 @@ namespace LiveDomain.Core.Test
 		[TestMethod]
 		public void CanCreateRemoteEngineClientFromConnectionString()
 		{
-			ResetData();
 			var engine = Engine.For<TestModel>("mode=remote;");
 			Assert.IsNotNull(engine);
 			Assert.IsInstanceOfType(engine,typeof(RemoteEngineClient<TestModel>));
@@ -53,7 +46,6 @@ namespace LiveDomain.Core.Test
 		[TestMethod]
 		public void CanExecuteQuery()
 		{
-			ResetData();
 			var engine = Engine.For<TestModel>(CreateConfig());
 			var count = engine.Execute(new GetNumberOfCommandsExecutedQuery());
 			Assert.AreEqual(0, count);
@@ -61,7 +53,6 @@ namespace LiveDomain.Core.Test
 		[TestMethod]
 		public void CanExecuteCommand()
 		{
-			ResetData();
 			var engine = Engine.For<TestModel>(CreateConfig());
 			var count = engine.Execute(new TestCommandWithResult());
 			Assert.AreEqual(1, count);
@@ -70,23 +61,21 @@ namespace LiveDomain.Core.Test
 		[TestMethod]
 		public void LocalEngineClientReusesEngineReferences()
 		{
-			ResetData(); // Close all engines and delete model data.
-			var localConfig1 = new LocalClientConfiguration(CreateConfig());
-			var localConfig2 = new LocalClientConfiguration(CreateConfig());
+			var config = CreateConfig();
+			var localConfig1 = new LocalClientConfiguration(config);
+			var localConfig2 = new LocalClientConfiguration(config);
 			var client1 = (LocalEngineClient<TestModel>)localConfig1.GetClient<TestModel>();
 			var client2 = (LocalEngineClient<TestModel>)localConfig2.GetClient<TestModel>();
-			
 			Assert.AreSame(client1.Engine,client2.Engine);
 		}
 
 		[TestMethod]
 		public void PartitionClient()
 		{
-			ResetData(); // Close all engines and delete model data.
 			
 			var client = new PartitionClusterClient<TestModel>();
-			var engine1 = Engine.For<TestModel>("mode=embedded;location=" + _path);
-			var engine2 = Engine.For<TestModel>("mode=embedded;location=" + _pathForConnectionString);
+			var engine1 = Engine.For<TestModel>("mode=embedded;location=" + Guid.NewGuid());
+			var engine2 = Engine.For<TestModel>("mode=embedded;location=" + Guid.NewGuid());
 
 			client.Nodes.Add(engine1);
 			client.Nodes.Add(engine2);
@@ -123,28 +112,18 @@ namespace LiveDomain.Core.Test
 		/// <returns></returns>
 		public EngineConfiguration CreateConfig()
 		{
-		
-			var config = new EngineConfiguration();
+			var config = EngineConfiguration.Create();
 			//Connection string name in app.config file
-			config.Location = _path;
+			config.Location = Guid.NewGuid().ToString();
 			config.SnapshotBehavior = SnapshotBehavior.None;
 			config.Synchronization = SynchronizationMode.ReadWrite;
 			return config;
 		}
-
-		//[ClassInitialize()]
-		//public static void MyClassInitialize(TestContext testContext)
-		//{
-		//    ResetData();
-		//}
-
-		static void ResetData()
+		
+		[TestCleanup()]
+		public void TestCleanup()
 		{
 			Config.Engines.CloseAll();
-			if (Directory.Exists(_path)) new DirectoryInfo(_path).Delete(true);
-			if (Directory.Exists(_pathForConnectionString)) new DirectoryInfo(_pathForConnectionString).Delete(true);
-			//Console.WriteLine("Path:" + _path);
-			//Console.WriteLine("PathForConnectionString:" + _pathForConnectionString);
 		}
 	}
 }

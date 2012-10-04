@@ -17,12 +17,6 @@ namespace LiveDomain.Core
         }
     }
 
-	[Serializable]
-	public class NetworkMessage<R>
-	{
-
-	}
-
     [Serializable]
     public class RedirectMessage : NetworkMessage
     {
@@ -30,35 +24,25 @@ namespace LiveDomain.Core
         public int Port { get; set; }
     }
     
-    [Serializable]
-    public class TransitioningMessage : NetworkMessage
-    {
-        public TransitioningMessage(int waitTime)
-        {
-            Payload = waitTime;
-        }
 
-        public int WaitTime
-        {
-            get { return (int) Payload; }
-        }
-    }
 
     [Serializable]
     public class Heartbeat : NetworkMessage
     {
     }
 
+	[Serializable]
+	public class TransitioningMessage : NetworkMessage
+	{
+		public TransitioningMessage(int waitTime)
+		{
+			Payload = waitTime;
+		}
 
-    [Serializable]
-    public class SwitchoverRequest : NetworkMessage
-    {
-    }
-
-    [Serializable]
-    public class SwitchoverResponse : NetworkMessage
-    {
-    }
-
+		public int WaitTime
+		{
+			get { return (int)Payload; }
+		}
+	}
 
 }

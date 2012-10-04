@@ -6,7 +6,7 @@ using System.Text;
 namespace LiveDomain.Core
 {
 	[Serializable]
-	public class ClusterInfoRequest : NetworkMessage<ClusterInfoResponse>
+	public class ClusterInfoRequest : NetworkMessage
 	{
 	}
 

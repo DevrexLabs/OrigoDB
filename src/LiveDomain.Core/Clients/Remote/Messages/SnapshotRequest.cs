@@ -3,7 +3,7 @@ using System;
 namespace LiveDomain.Core
 {
 	[Serializable]
-	public class SnapshotRequest : NetworkMessage<SnapshotResponse>
+	public class SnapshotRequest : NetworkMessage
 	{
 	}
 

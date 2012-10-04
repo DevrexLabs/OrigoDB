@@ -39,7 +39,7 @@ namespace LiveDomain.Core
 			}
 		}
 
-		internal bool TryGetEngine(string identifier,out Engine engine)
+		internal bool TryGetEngine(string identifier, out Engine engine)
 		{
 			return _engines.TryGetValue(identifier, out engine);
 		}
@@ -48,7 +48,7 @@ namespace LiveDomain.Core
 		{
 			lock (_engines)
 			{
-				foreach (var engine in _engines.Select(k => k.Value))
+				foreach (var engine in _engines.Select(k => k.Value).ToList())
 				{
 					engine.Close();
 				}
@@ -58,15 +58,21 @@ namespace LiveDomain.Core
 
 		internal void Close(Engine engine)
 		{
+			Remove(engine);
+			engine.Close();
+		}
+
+		internal void Remove(Engine engine)
+		{
 			lock (_engines)
 			{
-				engine.Close();
-				var keys = _engines.Where(kv => kv.Value == engine);
-				foreach (var kv in keys)
+				if (_engines.ContainsValue(engine))
 				{
-					_engines.Remove(kv.Key);
+					var key = _engines.First(kv => kv.Value == engine).Key;
+					_engines.Remove(key);
 				}
 			}
 		}
+
 	}
 }

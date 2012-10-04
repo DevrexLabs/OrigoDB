@@ -15,8 +15,7 @@ namespace LiveDomain.Core
 
         public FileLogger(string path)
         {
-			_writer = new StreamWriter(new MemoryStream());
-//            _writer = new StreamWriter(File.Open(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
+			_writer = new StreamWriter(File.Open(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
         }
 
         public FileLogger() : this("log.txt")

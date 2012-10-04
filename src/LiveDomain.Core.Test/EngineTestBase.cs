@@ -20,7 +20,9 @@ namespace LiveDomain.Core.Test
         public Engine Engine { get; set; }
         public String Path { get; set; }
 
-        [TestInitialize]
+		
+
+	    [TestInitialize]
         public void MyTestInitialize() 
         {
             Path = Guid.NewGuid().ToString();
@@ -63,7 +65,7 @@ namespace LiveDomain.Core.Test
 
         private EngineConfiguration CreateFileConfig()
         {
-            var config = new EngineConfiguration();
+            var config = EngineConfiguration.Create();
 
             //Connection string name in app.config file
             config.Location = Path;

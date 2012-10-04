@@ -36,15 +36,18 @@ namespace LiveDomain.Core
         IAuthorizer<Type> _authorizer;
 
         public EngineConfiguration Config { get { return _config; } }
+		internal ICommandJournal CommandJournal {get { return _commandJournal; }}
+		internal IStore Store { get { return _store; } }
 
- 
-        /// <summary>
+	    /// <summary>
         /// Shuts down the engine
         /// </summary>
         public void Close()
         {
             if (!_isDisposed)
             {
+				Core.Config.Engines.Remove(this);
+
                 if (_config.SnapshotBehavior == SnapshotBehavior.OnShutdown)
                 {
                     //Allow reading while snapshot is being taken
@@ -56,7 +59,7 @@ namespace LiveDomain.Core
                 _lock.EnterWrite();
                 _isDisposed = true;
                 _commandJournal.Dispose();
-
+				
             }
         }
 
@@ -112,7 +115,7 @@ namespace LiveDomain.Core
                 Thread.Sleep(TimeSpan.FromMilliseconds(10));
             }
 			
-			LiveDomain.Core.Config.Engines.AddEngine(config.Location,this);
+			Core.Config.Engines.AddEngine(config.Location,this);
         }
 
 

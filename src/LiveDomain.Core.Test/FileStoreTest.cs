@@ -21,7 +21,7 @@ namespace LiveDomain.Core.Test
 		private TestContext testContextInstance;
 	    static IStore _store;
 	    EngineConfiguration _config;
-	    static string _livedbFilestoretest = "C:/livedb/filestoreTest";
+	    static string _path = Guid.NewGuid().ToString();
 
 	    /// <summary>
 		///Gets or sets the test context which provides
@@ -47,8 +47,8 @@ namespace LiveDomain.Core.Test
 		[ClassInitialize()]
 		public static void MyClassInitialize(TestContext testContext)
 		{
-			if(Directory.Exists(_livedbFilestoretest)) Directory.Delete(_livedbFilestoretest, true);
-			Directory.CreateDirectory(_livedbFilestoretest);
+			if (Directory.Exists(_path)) 
+				Directory.Delete(_path, true);
 		}
 		//
 		//Use ClassCleanup to run code after all tests in a class have run
@@ -61,9 +61,9 @@ namespace LiveDomain.Core.Test
 		[TestInitialize()]
 		public void MyTestInitialize()
 		{
-			if (!Directory.Exists(_livedbFilestoretest)) Directory.CreateDirectory(_livedbFilestoretest);
+			Directory.CreateDirectory(_path);
 			_config = EngineConfiguration.Create();
-			_config.Location = _livedbFilestoretest;
+			_config.Location = _path;
 			_config.MaxEntriesPerJournalSegment = 10;
 			_store = new FileStore(_config);
 			_store.Load();
@@ -80,17 +80,20 @@ namespace LiveDomain.Core.Test
 		[TestCleanup()]
 		public void MyTestCleanup()
 		{
-			Directory.Delete(_livedbFilestoretest, true);
+			if (Directory.Exists(_path)) 
+				Directory.Delete(_path, true);
 		}
 		
 		#endregion
 
-		[TestMethod(), ExpectedException(typeof(FileNotFoundException))]
+		[TestMethod(), ExpectedException(typeof(NotSupportedException))]
 		public void JournalReadThrowsIfSequenceStartIsMissing()
 		{
-			var files = Directory.GetFiles(_livedbFilestoretest).OrderBy(f => f).ToArray();
+			var files = Directory.GetFiles(_path).OrderBy(f => f).ToArray();
 			File.Delete(files[0]);
-			Assert.AreEqual(30, _store.GetJournalEntriesFrom(1).Count());
+			_store.Load(); // Reload store to update journalfile list.
+			_store.GetJournalEntriesFrom(1).Count();
+			Assert.Fail();
 		}
 
 		[TestMethod()]

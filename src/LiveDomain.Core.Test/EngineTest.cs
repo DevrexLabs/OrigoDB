@@ -43,8 +43,8 @@ namespace LiveDomain.Core.Test
         // You can use the following additional attributes as you write your tests:
         //
         // Use ClassInitialize to run code before running the first test in the class
-        // [ClassInitialize()]
-        // public static void MyClassInitialize(TestContext testContext) { }
+		//[ClassInitialize()]
+		//public static void MyClassInitialize(TestContext testContext) { }
         //
         // Use ClassCleanup to run code after all tests in a class have run
         // [ClassCleanup()]
@@ -333,19 +333,21 @@ namespace LiveDomain.Core.Test
             var config = CreateConfig();
             config.MaxEntriesPerJournalSegment = 2;
             Engine = Engine.Create(new TestModel(), config);
-            ExecuteCommands(3);
+            ExecuteCommands(2);
+			Assert.IsFalse(_logger.Messages.Any(m => m.Contains("NewJournalSegment")));
+			ExecuteCommands(1);
+			Assert.IsTrue(_logger.Messages.Any(m => m.Contains("NewJournalSegment")));
             Engine.Close();
+			
             var store = config.CreateStore() as FileStore;
-
-            if (store != null)
-            {
-                store.Load();
-                Assert.IsTrue(store.JournalFiles.Count() == 1);
-                foreach (var file in ((FileStore)store).JournalFiles)
-                {
-                    Console.WriteLine(file);
-                }
-            }
+	        Assert.IsNotNull(store);
+	        store.Load();
+			Assert.AreEqual(2, store.JournalFiles.Count());
+			foreach (var file in store.JournalFiles)
+			{
+				Console.WriteLine(file);
+			}
+            
         }
 
         private void ExecuteCommands(int count)

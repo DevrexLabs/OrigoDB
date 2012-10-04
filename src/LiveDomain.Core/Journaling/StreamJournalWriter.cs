@@ -45,23 +45,23 @@ namespace LiveDomain.Core
 
 		public void Write(JournalEntry item)
 		{
-            if (_stream == null) _stream = _storage.CreateJournalWriterStream(item.Id);
+			if (_stream == null) _stream = _storage.CreateJournalWriterStream(item.Id);
+			if (_rolloverStrategy.Rollover(_stream.Position, _entriesWrittenToCurrentStream))
+			{
+				_log.Debug("NewJournalSegment");
+				Close();
+				_stream = _storage.CreateJournalWriterStream(item.Id + 1);
+				_entriesWrittenToCurrentStream = 0;
+			}
+			
             _serializer.Write(item, _stream);
             _stream.Flush();
-			
-		    if (_rolloverStrategy.Rollover(_stream.Position, ++_entriesWrittenToCurrentStream))
-		    {
-                _log.Debug("NewJournalSegment");
-		        Close();
-                _stream = _storage.CreateJournalWriterStream(item.Id + 1);
-		        _entriesWrittenToCurrentStream = 0;
-		    }
-
+			_entriesWrittenToCurrentStream++;
 		}
 
 		public void Close()
 		{
-			if(_stream.CanRead || _stream.CanWrite)
+			if(_stream != null && (_stream.CanRead || _stream.CanWrite))
 				_stream.Close();
 		}
 	}

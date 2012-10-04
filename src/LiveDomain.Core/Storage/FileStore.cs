@@ -56,15 +56,15 @@ namespace LiveDomain.Core
             return fileSnapshot;
         }
 
-        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(long sequenceNumber)
+        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(long entryId)
         {
-            int offset = 0;
-            foreach (var journalFile in _journalFiles)
-            {
-                if (journalFile.StartingEntryId >= sequenceNumber) break;
-                offset++;
-            }
+			if (entryId != 0 && entryId < _journalFiles[0].StartingEntryId)
+				throw new NotSupportedException("Journal file missing");
 
+            int offset = 0;
+	        while (_journalFiles.Count > offset + 1 && _journalFiles[offset + 1].StartingEntryId < entryId)
+				offset++;
+			
             foreach (var journalFile in _journalFiles.Skip(offset))
             {
                 string path = Path.Combine(_config.Location, journalFile.Name);
@@ -72,7 +72,7 @@ namespace LiveDomain.Core
                 {
                     foreach (var entry in _serializer.ReadToEnd<JournalEntry<Command>>(stream))
                     {
-                        if (entry.Id < sequenceNumber) continue;
+                        if (entry.Id < entryId) continue;
                         yield return entry;
                     }
                 }
@@ -112,7 +112,7 @@ namespace LiveDomain.Core
         public Stream CreateJournalWriterStream(long firstEntryId = 1)
         {
             var current = _journalFiles.LastOrDefault() ?? new JournalFile(0, 0);
-            var next = current.Successsor(firstEntryId);
+            var next = current.Successor(firstEntryId);
             _journalFiles.Add(next);
             string fileName = next.Name;
             string path = Path.Combine(_config.Location, fileName);

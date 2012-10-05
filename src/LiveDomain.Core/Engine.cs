@@ -5,7 +5,10 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using LiveDomain.Core.Logging;
+using LiveDomain.Core.Proxy;
 using LiveDomain.Core.Security;
+using System.Collections;
+using LiveDomain.Core.Utilities;
 
 namespace LiveDomain.Core
 {
@@ -167,7 +170,7 @@ namespace LiveDomain.Core
             {
                 _lock.EnterRead();
                 object result = query.Invoke(_theModel as M);
-                if (_config.CloneResults && result != null) result = _serializer.Clone(result);
+                EnsureResultIsDisconnected(ref result, query as ITransactionWithResult);
                 return (T) result;
             }
             catch (TimeoutException)
@@ -196,7 +199,7 @@ namespace LiveDomain.Core
                 object result = command.ExecuteStub(_theModel);
                 //TODO: We might benefit from downgrading the lock at this point
                 //TODO: We could run the 2 following statements in parallel
-                if (_config.CloneResults && result != null) result = _serializer.Clone(result);
+                EnsureResultIsDisconnected(ref result, command as ITransactionWithResult);
                 _commandJournal.Append(commandToSerialize);
                 return result;
             }
@@ -217,9 +220,28 @@ namespace LiveDomain.Core
             }
         }
 
+        /// <summary>
+        /// Make sure we don't return direct references to objects within the model
+        /// </summary>
+        /// <param name="graph">The object graph to be disconnected</param>
+        /// <param name="transaction">The current command or query</param>
+        private void EnsureResultIsDisconnected(ref object graph, ITransactionWithResult transaction)
+        {
+            if(_config.EnsureResultsAreDisconnected && graph != null)
+            {
+                bool transactionIsResponsible = transaction != null && transaction.EnsuresResultIsDisconnected;
+                ;
+                if (!transactionIsResponsible && !graph.GetType().IsImmutable())
+                {
+                    if (graph is ICloneable) graph = (graph as ICloneable).Clone();
+                    else graph = _serializer.Clone(graph);
+                }
+            }
+        }
+
+
         private void ThrowUnlessAuthenticated(Type transactionType)
         {
-            
             if (!_authorizer.Allows(transactionType, Thread.CurrentPrincipal))
             {
                 var msg = String.Format("Access denied to type {0}", transactionType);

@@ -71,6 +71,7 @@
     <Compile Include="Engine.For.cs" />
     <Compile Include="Db.cs" />
     <Compile Include="Engines.cs" />
+    <Compile Include="ITransactionWithResult.cs" />
     <Compile Include="Utilities\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />
     <Compile Include="Journaling\NullJournalWriter.cs" />

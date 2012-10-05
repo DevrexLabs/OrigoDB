@@ -7,7 +7,7 @@ using System.Text;
 namespace LiveDomain.Core.Proxy
 {
 	[Serializable]
-	public class ReflectionCommand<T> : CommandWithResult<T, object> where T : Model
+    public class ReflectionCommand<M> : CommandWithResult<M, object> where M : Model
 	{
 		public string MethodName { get; set; }
 		public object[] Arguments { get; set; }
@@ -20,7 +20,7 @@ namespace LiveDomain.Core.Proxy
 
 		#region Overrides of CommandWithResult<T,object>
 
-		protected internal override object Execute(T model)
+		protected internal override object Execute(M model)
 		{
 			var method = ReflectionHelper.ResolveMethod(model.GetType(), MethodName);
 			return method.Invoke(model, Arguments);

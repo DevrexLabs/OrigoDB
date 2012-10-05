@@ -3,7 +3,7 @@ using System;
 namespace LiveDomain.Core.Proxy
 {
 	[Serializable]
-	public class ReflectionQuery<T> : Query<T,object> where T : Model
+	public class ReflectionQuery<M> : Query<M,object> where M : Model
 	{
 		public string MethodName { get; set; }
 		public object[] Arguments { get; set; }
@@ -16,7 +16,7 @@ namespace LiveDomain.Core.Proxy
 
 		#region Overrides of Query<Model,object>
 
-		protected override object Execute(T m)
+		protected override object Execute(M m)
 		{
 			var method = ReflectionHelper.ResolveMethod(m.GetType(), MethodName);
 			return method.Invoke(m, Arguments);

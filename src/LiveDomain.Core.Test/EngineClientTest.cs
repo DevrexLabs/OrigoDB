@@ -50,6 +50,7 @@ namespace LiveDomain.Core.Test
 			var count = engine.Execute(new GetNumberOfCommandsExecutedQuery());
 			Assert.AreEqual(0, count);
 		}
+
 		[TestMethod]
 		public void CanExecuteCommand()
 		{
@@ -104,21 +105,6 @@ namespace LiveDomain.Core.Test
 			Assert.AreEqual(2, response2);
 		}
 
-		
-
-		/// <summary>
-		/// modify this method to switch between sql and file store tests
-		/// </summary>
-		/// <returns></returns>
-		public EngineConfiguration CreateConfig()
-		{
-			var config = EngineConfiguration.Create();
-			//Connection string name in app.config file
-			config.Location = Guid.NewGuid().ToString();
-			config.SnapshotBehavior = SnapshotBehavior.None;
-			config.Synchronization = SynchronizationMode.ReadWrite;
-			return config;
-		}
 		
 		[TestCleanup()]
 		public void TestCleanup()

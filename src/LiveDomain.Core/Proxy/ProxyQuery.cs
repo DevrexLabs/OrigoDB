@@ -14,15 +14,11 @@ namespace LiveDomain.Core.Proxy
 			Arguments = inArgs;
 		}
 
-		#region Overrides of Query<Model,object>
-
 		protected override object Execute(M m)
 		{
             var proxyMethod = ProxyMethodMap.GetProxyMethodMap<M>().GetProxyMethodInfo(MethodName);
 		    var method = proxyMethod.MethodInfo;
 			return method.Invoke(m, Arguments);
 		}
-
-		#endregion
 	}
 }

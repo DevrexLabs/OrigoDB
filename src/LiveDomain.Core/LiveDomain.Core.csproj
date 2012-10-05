@@ -69,6 +69,7 @@
     <Compile Include="Configuration\PartitionClusterClientConfiguration.cs" />
     <Compile Include="Configuration\RemoteClientConfiguration.cs" />
     <Compile Include="Configuration\Location.cs" />
+    <Compile Include="DelegateQuery.cs" />
     <Compile Include="Engine.For.cs" />
     <Compile Include="Db.cs" />
     <Compile Include="Engines.cs" />

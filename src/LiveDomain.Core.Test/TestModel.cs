@@ -51,6 +51,17 @@ namespace LiveDomain.Core.Test
             return livedb.ToUpper();
         }
 
+        public Customer[] GetCustomers()
+        {
+            return _customers.ToArray();
+        }
+
+        [ProxyMethod(EnsuresResultIsDisconnected = true)]
+        public Customer[] GetCustomersCloned()
+        {
+            return _customers.Select(c => (Customer)c.Clone()).ToArray();
+        }
+
         /// <summary>
         /// This is only for test and should return SerializationException since we can't use IEnumerable with yield.
         /// </summary>
@@ -67,7 +78,7 @@ namespace LiveDomain.Core.Test
         /// This will be a Query if called via Proxy.
         /// </summary>
         /// <returns></returns>
-        public int GetNumber()
+        public int GetCommandsExecuted()
         {
             return CommandsExecuted;
         }
@@ -81,6 +92,11 @@ namespace LiveDomain.Core.Test
 	[Serializable]
     public class GetNumberOfCommandsExecutedQuery : Query<TestModel, int>
     {
+	    public GetNumberOfCommandsExecutedQuery()
+	    {
+	        EnsuresResultIsDisconnected = true;
+	    }
+
         protected override int Execute(TestModel model)
         {
             return model.CommandsExecuted;
@@ -101,11 +117,12 @@ namespace LiveDomain.Core.Test
     {
         public byte[] Payload { get; set; }
         public bool ThrowInPrepare { get; set; }
-        public bool ThrowExceptionInExecute { get; set; }
-        public bool ThrowCommandFailedExceptionFromExecute { get; set; }
+        public bool ThrowExceptionWhenExecuting { get; set; }
+        public bool ThrowCommandAbortedWhenExecuting { get; set; }
 
         protected internal override void Prepare(TestModel model)
         {
+            EnsuresResultIsDisconnected = true;
             if (ThrowInPrepare)
             {
                 throw new Exception();
@@ -113,11 +130,11 @@ namespace LiveDomain.Core.Test
         }
         protected internal override int Execute(TestModel model)
         {
-            if (ThrowCommandFailedExceptionFromExecute)
+            if (ThrowCommandAbortedWhenExecuting)
             {
                 throw new CommandAbortedException();
             }
-            if (ThrowExceptionInExecute)
+            if (ThrowExceptionWhenExecuting)
             {
                 throw new Exception();
             }

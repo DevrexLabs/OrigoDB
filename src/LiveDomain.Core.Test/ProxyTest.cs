@@ -72,8 +72,45 @@ namespace LiveDomain.Core.Test
 		public void CanExecuteQueryMethod()
 		{
 			CanCreateProxy();
-			var number = _proxy.GetNumber();
+			var number = _proxy.GetCommandsExecuted();
 			Assert.AreEqual(number,0);
 		}
-	}
+
+        [TestMethod]
+        public void QueryResultsAreCloned()
+        {
+            CanCreateProxy();
+            _proxy.AddCustomer("Robert");
+            _logger.Clear();
+            Customer robert = _proxy.GetCustomers().First();
+            Customer robert2 = _proxy.GetCustomers().First();
+            Assert.AreNotEqual(robert, robert2);
+            Assert.IsTrue(_logger.Messages.Any(m => m.IndexOf("Cloned results with serializer: ") >= 0));
+        }
+
+
+        [TestMethod]
+        public void IntResultIsNotCloned()
+        {
+            CanCreateProxy();
+            _proxy.AddCustomer("Robert");
+            _logger.Clear();
+            int commandExecuted = _proxy.GetCommandsExecuted();
+            Assert.IsTrue(_logger.Messages.Count(m => m.IndexOf("Cloned") >= 0) == 0);
+
+        }
+
+	    [TestMethod]
+        public void SafeQueryResultsAreNotCloned()
+        {
+            CanCreateProxy();
+            _proxy.AddCustomer("Robert");
+            _logger.Clear();
+            Customer robert = _proxy.GetCustomersCloned().First();
+            Customer robert2 = _proxy.GetCustomersCloned().First();
+            Assert.AreNotEqual(robert, robert2);
+            Assert.IsTrue(_logger.Messages.Count(m => m.IndexOf("Cloned") >= 0) == 0);
+        }
+
+    }
 }

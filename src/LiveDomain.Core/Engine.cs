@@ -152,25 +152,30 @@ namespace LiveDomain.Core
         
         public object Execute(Query query)
         {
-            ThrowIfDisposed();
-            ThrowUnlessAuthenticated(query.GetType());
-        	return ExecuteQuery<Model, object>(model => query.ExecuteStub(model));
+        	return Execute<Model, object>(model => query.ExecuteStub(model));
         }
 
-        public T Execute<M,T>(Func<M,T> query) where M : Model
+        public T Execute<M,T>(Func<M,T> lambdaQuery) where M : Model
+        {
+            ThrowIfDisposed();
+            ThrowUnlessAuthenticated(lambdaQuery.GetType());
+            return (T)ExecuteQuery(new DelegateQuery<M, T>(lambdaQuery));
+        }
+
+        public T Execute<M, T>(Query<M, T> query) where M : Model
         {
             ThrowIfDisposed();
             ThrowUnlessAuthenticated(query.GetType());
             return ExecuteQuery(query);
-
         }
-		private T ExecuteQuery<M, T>(Func<M, T> query) where M : Model
+
+        private T ExecuteQuery<M, T>(Query<M,T> query) where M : Model
         {
             try
             {
                 _lock.EnterRead();
-                object result = query.Invoke(_theModel as M);
-                EnsureResultIsDisconnected(ref result, query as ITransactionWithResult);
+                object result = query.ExecuteStub(_theModel as M);
+                EnsureResultIsDisconnected(ref result, query);
                 return (T) result;
             }
             catch (TimeoutException)
@@ -233,8 +238,8 @@ namespace LiveDomain.Core
                 ;
                 if (!transactionIsResponsible && !graph.GetType().IsImmutable())
                 {
-                    if (graph is ICloneable) graph = (graph as ICloneable).Clone();
-                    else graph = _serializer.Clone(graph);
+                        graph = _serializer.Clone(graph);
+                        _log.Debug("Cloned results with serializer: " + graph.GetType().FullName);
                 }
             }
         }

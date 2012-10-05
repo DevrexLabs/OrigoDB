@@ -19,15 +19,11 @@ namespace LiveDomain.Core.Proxy
 			Arguments = inArgs;
 		}
 
-		#region Overrides of CommandWithResult<T,object>
-
 		protected internal override object Execute(M model)
 		{
 		    var proxyMethod = ProxyMethodMap.GetProxyMethodMap<M>().GetProxyMethodInfo(MethodName);
 		    MethodInfo methodInfo = proxyMethod.MethodInfo;
-			return   methodInfo.Invoke(model, Arguments);
+			return methodInfo.Invoke(model, Arguments);
 		}
-
-		#endregion
 	}
 }

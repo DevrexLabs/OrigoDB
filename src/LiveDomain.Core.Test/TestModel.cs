@@ -44,7 +44,7 @@ namespace LiveDomain.Core.Test
         /// </summary>
         /// <param name="livedb"></param>
         /// <returns></returns>
-        [ProxyMethod(ProxyMethodType.Command)]
+        [ProxyMethod(TransactionType=TransactionType.Command, EnsuresResultIsDisconnected = true)]
         public string Uppercase(string livedb)
         {
             CommandsExecuted++;

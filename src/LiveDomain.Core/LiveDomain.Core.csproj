@@ -73,6 +73,7 @@
     <Compile Include="Db.cs" />
     <Compile Include="Engines.cs" />
     <Compile Include="ITransactionWithResult.cs" />
+    <Compile Include="Proxy\ProxyMethodInfo.cs" />
     <Compile Include="Utilities\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />
     <Compile Include="Journaling\NullJournalWriter.cs" />
@@ -87,9 +88,9 @@
     <Compile Include="RolloverStrategy.cs" />
     <Compile Include="Proxy\ModelProxy.cs" />
     <Compile Include="Proxy\ProxyMethodAttribute.cs" />
-    <Compile Include="Proxy\ReflectionCommand.cs" />
-    <Compile Include="Proxy\ReflectionHelper.cs" />
-    <Compile Include="Proxy\ReflectionQuery.cs" />
+    <Compile Include="Proxy\ProxyCommand.cs" />
+    <Compile Include="Proxy\ProxyMethodMap.cs" />
+    <Compile Include="Proxy\ProxyQuery.cs" />
     <Compile Include="Security\NullAuthorizer.cs" />
     <Compile Include="Security\IAuthenticator.cs" />
     <Compile Include="Security\IAuthorizer.cs" />

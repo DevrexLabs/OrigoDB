@@ -3,12 +3,12 @@ using System;
 namespace LiveDomain.Core.Proxy
 {
 	[Serializable]
-	public class ReflectionQuery<M> : Query<M,object> where M : Model
+	public class ProxyQuery<M> : Query<M,object> where M : Model
 	{
 		public string MethodName { get; set; }
 		public object[] Arguments { get; set; }
 
-		public ReflectionQuery(string methodName, object[] inArgs)
+		public ProxyQuery(string methodName, object[] inArgs)
 		{
 			MethodName = methodName;
 			Arguments = inArgs;
@@ -18,7 +18,8 @@ namespace LiveDomain.Core.Proxy
 
 		protected override object Execute(M m)
 		{
-			var method = ReflectionHelper.ResolveMethod(m.GetType(), MethodName);
+            var proxyMethod = ProxyMethodMap.GetProxyMethodMap<M>().GetProxyMethodInfo(MethodName);
+		    var method = proxyMethod.MethodInfo;
 			return method.Invoke(m, Arguments);
 		}
 

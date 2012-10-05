@@ -2,8 +2,9 @@ using System;
 
 namespace LiveDomain.Core.Proxy
 {
-	public enum ProxyMethodType
+	public enum TransactionType
 	{
+        Unspecified,
 		Command,
 		Query
 	}
@@ -11,11 +12,8 @@ namespace LiveDomain.Core.Proxy
 	[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
 	public sealed class ProxyMethodAttribute : Attribute
 	{
-	
-		public ProxyMethodType MethodType { get; private set; }
-		public ProxyMethodAttribute(ProxyMethodType proxyMethodType)
-		{
-			MethodType = proxyMethodType;
-		}
+		public TransactionType TransactionType { get; set; }
+	    public bool EnsuresResultIsDisconnected { get; set; }
+
 	}
 }

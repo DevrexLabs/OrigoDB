@@ -7,8 +7,15 @@ namespace LiveDomain.Core
 {
 	public class Engines
 	{
-		static Dictionary<string, Engine> _engines = new Dictionary<string, Engine>();
 
+        private Dictionary<string, Engine> _engines = new Dictionary<string, Engine>();
+
+	    internal Engines()
+	    {
+	        
+	    }
+
+	
 		public IEnumerable<Engine> All { get { return _engines.Select(kv => kv.Value); } }
 
 		public void AddEngine(string identifier, Engine engine)
@@ -16,7 +23,7 @@ namespace LiveDomain.Core
 			lock (_engines)
 			{
 				if (_engines.ContainsKey(identifier))
-					throw new NotSupportedException();
+					throw new NotSupportedException("Attempt to load or create Engine failed, already loaded. identifier:" + identifier);
 				_engines[identifier] = engine;
 			}
 		}

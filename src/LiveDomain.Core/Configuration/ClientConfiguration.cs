@@ -6,7 +6,7 @@ using Woocode.Utils;
 
 namespace LiveDomain.Core
 {
-    public abstract class ClientConfiguration : Config
+    public abstract class ClientConfiguration : ConfigurationBase
     {
 	    private enum Mode
 	    {

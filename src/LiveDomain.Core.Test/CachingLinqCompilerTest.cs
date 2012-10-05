@@ -139,6 +139,7 @@ namespace LiveDomain.Core.Test
             Assert.AreEqual(list.Count,2);
             Assert.AreEqual(list[0], "Zippy");
             Assert.AreEqual(list[1], "Droozy");
+            engine.Close();
             DeleteFromDefaultLocation<TestModel>();
         }
 
@@ -179,6 +180,7 @@ namespace LiveDomain.Core.Test
             Assert.AreEqual(expected0, actual);
             actual = (string)engine.Execute(query, "Ro");
             Assert.AreEqual(actual, expected1);
+            engine.Close();
             DeleteFromDefaultLocation<TestModel>();
 
         }
@@ -196,12 +198,13 @@ namespace LiveDomain.Core.Test
         [ExpectedException(typeof(TargetInvocationException))]
         public void ExecutionFailsForMismatchedArgumentTypeOnSecondInvocation()
         {
+            Engine<TestModel> engine = null;
             try
             {
                 var args = new object[] { "H" };
                 var model = new TestModel();
                 model.AddCustomer("Homer Simpson");
-                var engine = Engine.Create(model);
+                engine = Engine.Create(model);
                 engine.Execute(FirstCustomersNameStartingWithArg0, args);
 
                 args[0] = 42; //boxed int
@@ -211,6 +214,7 @@ namespace LiveDomain.Core.Test
             }
             finally
             {
+                if (engine != null) engine.Close();
                 DeleteFromDefaultLocation<TestModel>();
             }
             

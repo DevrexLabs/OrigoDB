@@ -11,7 +11,7 @@ using LiveDomain.Core.TinyIoC;
 namespace LiveDomain.Core
 {
 
-    public partial class EngineConfiguration : Config
+    public partial class EngineConfiguration : ConfigurationBase
     {
         protected TinyIoCContainer _registry;
 
@@ -28,13 +28,14 @@ namespace LiveDomain.Core
 
 
         /// <summary>
-        /// Make a deep copy of all command and query results so no references are passed out from the model. Default is true.
+        /// Engine takes responsibility for ensuring no mutable object references are returned by command or queries. Default is true.
         /// <remarks>
-        /// Set to false if you are certain that results will not be modified by client code. Note also that 
-        /// the state of the resultset can be modified by a subsequent command rendering the result graph inconsistent.</remarks>
+        /// Can safely be set to false if one of the following is true:
+        ///    1. You are running on a single thread and are certain that client code only reads results.
+        ///    2. You have designed every single query and command to not return any mutable object references
+        ///</remarks>
         /// </summary>
-        /// 
-        public bool CloneResults { get; set; }
+        public bool EnsureResultsAreDisconnected { get; set; }
 
         /// <summary>
         /// Make a deep copy of each command prior to execution. This will force a fast 
@@ -95,7 +96,7 @@ namespace LiveDomain.Core
             MaxBytesPerJournalSegment = DefaultMaxBytesPerJournalSegment;
             MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
             StoreType = StoreType.FileSystem;
-            CloneResults = true;
+            EnsureResultsAreDisconnected = true;
             CloneCommands = true;
 
             _registry = new TinyIoCContainer();

@@ -64,6 +64,7 @@
     <Compile Include="Configuration\ClientConfiguration.cs" />
     <Compile Include="Configuration\CompressionMethod.cs" />
     <Compile Include="Configuration\Config.cs" />
+    <Compile Include="Configuration\ConfigurationBase.cs" />
     <Compile Include="Configuration\LocalClientConfiguration.cs" />
     <Compile Include="Configuration\PartitionClusterClientConfiguration.cs" />
     <Compile Include="Configuration\RemoteClientConfiguration.cs" />

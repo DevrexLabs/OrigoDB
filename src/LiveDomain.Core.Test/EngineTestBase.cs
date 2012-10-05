@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using LiveDomain.Core.Logging;
 using LiveDomain.Modules.SqlStorage;
@@ -31,6 +32,8 @@ namespace LiveDomain.Core.Test
 
         public void WriteLog()
         {
+
+            if (!_logger.Messages.Any()) return;
             Console.WriteLine("------------------------------");
             Console.WriteLine(" LOG");
             Console.WriteLine("------------------------------");

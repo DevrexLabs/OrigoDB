@@ -8,19 +8,19 @@ namespace LiveDomain.Core
 {
 
     [Serializable]
-    public abstract class CommandWithResult<M, R> : Command, ITransactionWithResult where M : Model
+    public abstract class CommandWithResult<M, R> : Command, IOperationWithResult where M : Model
     {
 
         protected CommandWithResult(bool ensuresResultIsDisconnected = false)
         {
-            EnsuresResultIsDisconnected = ensuresResultIsDisconnected;
+            ResultIsSafe = ensuresResultIsDisconnected;
         }
         
         /// <summary>
         /// True if results are safe to return to client, default is false. Set to true if your command implementation 
         /// gaurantees no references to mutable objects within the model are returned.
         /// </summary>
-        public bool EnsuresResultIsDisconnected{ get; internal protected set; }
+        public bool ResultIsSafe{ get; internal protected set; }
 
 
         internal protected virtual void Prepare(M model) { }

@@ -27,6 +27,7 @@ namespace LiveDomain.Core.Proxy
 	internal class ProxyMethodMap<M> : ProxyMethodMap where M : Model
 	{
         //methods by name
+        //todo: add support for overloads?
 	    private readonly Dictionary<string, ProxyMethodInfo> _proxyMethodInfoMap;
 
 	    internal ProxyMethodMap()
@@ -47,18 +48,18 @@ namespace LiveDomain.Core.Proxy
                 .GetCustomAttributes(typeof(ProxyMethodAttribute), false)
                 .FirstOrDefault() ?? new ProxyMethodAttribute();
 
-            if (attribute.TransactionType == TransactionType.Unspecified)
+            if (attribute.OperationType == OperationType.Unspecified)
             {
-                attribute.TransactionType = GetTransactionTypeFromMethodInfo(methodInfo);
+                attribute.OperationType = GetOperationTypeFromMethodInfo(methodInfo);
             }
             return attribute;
         }
 
-        private TransactionType GetTransactionTypeFromMethodInfo(MethodInfo methodInfo)
+        private OperationType GetOperationTypeFromMethodInfo(MethodInfo methodInfo)
         {
             return methodInfo.ReturnType == typeof(void)
-                ? TransactionType.Command
-                : TransactionType.Query;
+                ? OperationType.Command
+                : OperationType.Query;
         }
 
 

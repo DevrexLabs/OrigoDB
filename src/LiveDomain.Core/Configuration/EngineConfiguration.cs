@@ -35,7 +35,7 @@ namespace LiveDomain.Core
         ///    2. You have designed every single query and command to not return any mutable object references
         ///</remarks>
         /// </summary>
-        public bool EnsureResultsAreDisconnected { get; set; }
+        public bool EnsureSafeResults { get; set; }
 
         /// <summary>
         /// Make a deep copy of each command prior to execution. This will force a fast 
@@ -96,7 +96,7 @@ namespace LiveDomain.Core
             MaxBytesPerJournalSegment = DefaultMaxBytesPerJournalSegment;
             MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
             StoreType = StoreType.FileSystem;
-            EnsureResultsAreDisconnected = true;
+            EnsureSafeResults = true;
             CloneCommands = true;
 
             _registry = new TinyIoCContainer();

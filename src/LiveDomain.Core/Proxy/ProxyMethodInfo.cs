@@ -18,7 +18,7 @@ namespace LiveDomain.Core.Proxy
         {
             get
             {
-                return ProxyMethodAttribute.TransactionType == TransactionType.Command;
+                return ProxyMethodAttribute.OperationType == OperationType.Command;
             }
         }
 
@@ -26,7 +26,7 @@ namespace LiveDomain.Core.Proxy
         {
             get
             {
-                return ProxyMethodAttribute.TransactionType == TransactionType.Query;
+                return ProxyMethodAttribute.OperationType == OperationType.Query;
             }
         }
     }

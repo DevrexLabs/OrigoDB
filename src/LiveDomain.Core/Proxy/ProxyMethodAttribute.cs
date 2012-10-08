@@ -2,18 +2,17 @@ using System;
 
 namespace LiveDomain.Core.Proxy
 {
-	public enum TransactionType
-	{
-        Unspecified,
-		Command,
-		Query
-	}
-
-	[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
 	public sealed class ProxyMethodAttribute : Attribute
 	{
-		public TransactionType TransactionType { get; set; }
-	    public bool EnsuresResultIsDisconnected { get; set; }
+		public OperationType OperationType { get; set; }
+	    
+        /// <summary>
+	    /// When set to true, tells the engine there is no way to modify the model through references
+	    /// contained in the return value nor can the results be modified by a subsequent command.
+	    /// <remarks>This is achieved by cloning, returning immutable objects or both</remarks>
+	    /// </summary>
+        public bool ResultIsSafe { get; set; }
 
 	}
 }

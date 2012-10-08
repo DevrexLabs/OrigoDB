@@ -44,7 +44,7 @@ namespace LiveDomain.Core.Test
         /// </summary>
         /// <param name="livedb"></param>
         /// <returns></returns>
-        [ProxyMethod(TransactionType=TransactionType.Command, EnsuresResultIsDisconnected = true)]
+        [ProxyMethod(OperationType=OperationType.Command, ResultIsSafe = true)]
         public string Uppercase(string livedb)
         {
             CommandsExecuted++;
@@ -56,7 +56,7 @@ namespace LiveDomain.Core.Test
             return _customers.ToArray();
         }
 
-        [ProxyMethod(EnsuresResultIsDisconnected = true)]
+        [ProxyMethod(ResultIsSafe = true)]
         public Customer[] GetCustomersCloned()
         {
             return _customers.Select(c => (Customer)c.Clone()).ToArray();
@@ -94,7 +94,7 @@ namespace LiveDomain.Core.Test
     {
 	    public GetNumberOfCommandsExecutedQuery()
 	    {
-	        EnsuresResultIsDisconnected = true;
+	        ResultIsSafe = true;
 	    }
 
         protected override int Execute(TestModel model)
@@ -122,7 +122,7 @@ namespace LiveDomain.Core.Test
 
         protected internal override void Prepare(TestModel model)
         {
-            EnsuresResultIsDisconnected = true;
+            ResultIsSafe = true;
             if (ThrowInPrepare)
             {
                 throw new Exception();

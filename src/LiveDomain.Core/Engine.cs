@@ -175,7 +175,7 @@ namespace LiveDomain.Core
             {
                 _lock.EnterRead();
                 object result = query.ExecuteStub(_theModel as M);
-                EnsureResultIsDisconnected(ref result, query);
+                EnsureResultIsSafe(ref result, query);
                 return (T) result;
             }
             catch (TimeoutException)
@@ -204,7 +204,7 @@ namespace LiveDomain.Core
                 object result = command.ExecuteStub(_theModel);
                 //TODO: We might benefit from downgrading the lock at this point
                 //TODO: We could run the 2 following statements in parallel
-                EnsureResultIsDisconnected(ref result, command as ITransactionWithResult);
+                EnsureResultIsSafe(ref result, command as IOperationWithResult);
                 _commandJournal.Append(commandToSerialize);
                 return result;
             }
@@ -226,17 +226,14 @@ namespace LiveDomain.Core
         }
 
         /// <summary>
-        /// Make sure we don't return direct references to objects within the model
+        /// Make sure we don't return direct references to mutable objects within the model
         /// </summary>
-        /// <param name="graph">The object graph to be disconnected</param>
-        /// <param name="transaction">The current command or query</param>
-        private void EnsureResultIsDisconnected(ref object graph, ITransactionWithResult transaction)
+        private void EnsureResultIsSafe(ref object graph, IOperationWithResult operation)
         {
-            if(_config.EnsureResultsAreDisconnected && graph != null)
+            if(_config.EnsureSafeResults && graph != null)
             {
-                bool transactionIsResponsible = transaction != null && transaction.EnsuresResultIsDisconnected;
-                ;
-                if (!transactionIsResponsible && !graph.GetType().IsImmutable())
+                bool operationIsResponsible = operation != null && operation.ResultIsSafe;
+                if (!operationIsResponsible && !graph.GetType().IsImmutable())
                 {
                         graph = _serializer.Clone(graph);
                         _log.Debug("Cloned results with serializer: " + graph.GetType().FullName);
@@ -245,11 +242,11 @@ namespace LiveDomain.Core
         }
 
 
-        private void ThrowUnlessAuthenticated(Type transactionType)
+        private void ThrowUnlessAuthenticated(Type operationType)
         {
-            if (!_authorizer.Allows(transactionType, Thread.CurrentPrincipal))
+            if (!_authorizer.Allows(operationType, Thread.CurrentPrincipal))
             {
-                var msg = String.Format("Access denied to type {0}", transactionType);
+                var msg = String.Format("Access denied to type {0}", operationType);
                 throw new UnauthorizedAccessException(msg);
             }
         }

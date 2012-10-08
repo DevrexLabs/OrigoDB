@@ -35,16 +35,16 @@ namespace LiveDomain.Core.Proxy
             if (proxyInfo.IsCommand)
             {
                 var command = new ProxyCommand<T>(methodCall.MethodName, methodCall.InArgs);
-                command.EnsuresResultIsDisconnected = proxyInfo.ProxyMethodAttribute.EnsuresResultIsDisconnected;
+                command.ResultIsSafe = proxyInfo.ProxyMethodAttribute.ResultIsSafe;
                 result = _handler.Execute(command);
             }
             else if (proxyInfo.IsQuery)
             {
                 var query = new ProxyQuery<T>(methodCall.MethodName, methodCall.InArgs);
-                query.EnsuresResultIsDisconnected = proxyInfo.ProxyMethodAttribute.EnsuresResultIsDisconnected;
+                query.ResultIsSafe = proxyInfo.ProxyMethodAttribute.ResultIsSafe;
                 result = _handler.Execute(query);
             }
-            else throw new InvalidEnumArgumentException("TransactionType not initialized");
+            else throw new InvalidEnumArgumentException("OperationType not initialized");
 
             return new ReturnMessage(result, null, 0, methodCall.LogicalCallContext, methodCall);
         }

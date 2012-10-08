@@ -73,6 +73,7 @@
     <Compile Include="Engine.For.cs" />
     <Compile Include="Db.cs" />
     <Compile Include="Engines.cs" />
+    <Compile Include="IImmutable.cs" />
     <Compile Include="IOperationWithResult.cs" />
     <Compile Include="Proxy\OperationType.cs" />
     <Compile Include="Proxy\ProxyMethodInfo.cs" />
@@ -129,7 +130,7 @@
     <Compile Include="Utilities\StringToPropertiesMapper.cs" />
     <Compile Include="Utilities\TinyIoC.cs" />
     <Compile Include="Utilities\Extensions.cs" />
-    <Compile Include="Utilities\TypeExtensions.cs" />
+    <Compile Include="Utilities\Immutable.cs" />
     <Compile Include="Security\User.cs" />
     <Compile Include="Storage\StoreType.cs" />
     <Compile Include="Storage\ISerializer.cs" />

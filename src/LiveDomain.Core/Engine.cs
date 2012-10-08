@@ -175,7 +175,7 @@ namespace LiveDomain.Core
             {
                 _lock.EnterRead();
                 object result = query.ExecuteStub(_theModel as M);
-                EnsureResultIsSafe(ref result, query);
+                EnsureSafeResults(ref result, query);
                 return (T) result;
             }
             catch (TimeoutException)
@@ -204,7 +204,7 @@ namespace LiveDomain.Core
                 object result = command.ExecuteStub(_theModel);
                 //TODO: We might benefit from downgrading the lock at this point
                 //TODO: We could run the 2 following statements in parallel
-                EnsureResultIsSafe(ref result, command as IOperationWithResult);
+                EnsureSafeResults(ref result, command as IOperationWithResult);
                 _commandJournal.Append(commandToSerialize);
                 return result;
             }
@@ -228,12 +228,13 @@ namespace LiveDomain.Core
         /// <summary>
         /// Make sure we don't return direct references to mutable objects within the model
         /// </summary>
-        private void EnsureResultIsSafe(ref object graph, IOperationWithResult operation)
+        private void EnsureSafeResults(ref object graph, IOperationWithResult operation)
         {
             if(_config.EnsureSafeResults && graph != null)
             {
                 bool operationIsResponsible = operation != null && operation.ResultIsSafe;
-                if (!operationIsResponsible && !graph.GetType().IsImmutable())
+                
+                if (!operationIsResponsible && !graph.IsImmutable())
                 {
                         graph = _serializer.Clone(graph);
                         _log.Debug("Cloned results with serializer: " + graph.GetType().FullName);

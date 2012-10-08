@@ -5,7 +5,10 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using LiveDomain.Core.Logging;
+using LiveDomain.Core.Proxy;
 using LiveDomain.Core.Security;
+using System.Collections;
+using LiveDomain.Core.Utilities;
 
 namespace LiveDomain.Core
 {
@@ -15,7 +18,7 @@ namespace LiveDomain.Core
     /// Engine is responsible for executing commands and queries against
     /// the model while conforming to ACID.
     /// </summary>
-	public class Engine : IDisposable
+	public partial class Engine : IDisposable
     {
 
         /// <summary>
@@ -36,15 +39,18 @@ namespace LiveDomain.Core
         IAuthorizer<Type> _authorizer;
 
         public EngineConfiguration Config { get { return _config; } }
+		internal ICommandJournal CommandJournal {get { return _commandJournal; }}
+		internal IStore Store { get { return _store; } }
 
- 
-        /// <summary>
+	    /// <summary>
         /// Shuts down the engine
         /// </summary>
         public void Close()
         {
             if (!_isDisposed)
             {
+				Core.Config.Engines.Remove(this);
+
                 if (_config.SnapshotBehavior == SnapshotBehavior.OnShutdown)
                 {
                     //Allow reading while snapshot is being taken
@@ -56,7 +62,7 @@ namespace LiveDomain.Core
                 _lock.EnterWrite();
                 _isDisposed = true;
                 _commandJournal.Dispose();
-
+				
             }
         }
 
@@ -97,7 +103,7 @@ namespace LiveDomain.Core
             _store = _config.CreateStore();
             _store.Load();
             _lock = _config.CreateSynchronizer();
-
+			
             _commandJournal = _config.CreateCommandJournal();
             Restore(constructor);
             _authorizer = _config.CreateAuthorizer();
@@ -111,6 +117,8 @@ namespace LiveDomain.Core
                 //Give the snapshot thread a chance to start and aquire the readlock
                 Thread.Sleep(TimeSpan.FromMilliseconds(10));
             }
+			
+			Core.Config.Engines.AddEngine(config.Location,this);
         }
 
 
@@ -144,25 +152,30 @@ namespace LiveDomain.Core
         
         public object Execute(Query query)
         {
-            ThrowIfDisposed();
-            ThrowUnlessAuthenticated(query.GetType());
-        	return ExecuteQuery<Model, object>(model => query.ExecuteStub(model));
+        	return Execute<Model, object>(model => query.ExecuteStub(model));
         }
 
-        public T Execute<M,T>(Func<M,T> query) where M : Model
+        public T Execute<M,T>(Func<M,T> lambdaQuery) where M : Model
+        {
+            ThrowIfDisposed();
+            ThrowUnlessAuthenticated(lambdaQuery.GetType());
+            return (T)ExecuteQuery(new DelegateQuery<M, T>(lambdaQuery));
+        }
+
+        public T Execute<M, T>(Query<M, T> query) where M : Model
         {
             ThrowIfDisposed();
             ThrowUnlessAuthenticated(query.GetType());
             return ExecuteQuery(query);
-
         }
-		private T ExecuteQuery<M, T>(Func<M, T> query) where M : Model
+
+        private T ExecuteQuery<M, T>(Query<M,T> query) where M : Model
         {
             try
             {
                 _lock.EnterRead();
-                object result = query.Invoke(_theModel as M);
-                if (_config.CloneResults && result != null) result = _serializer.Clone(result);
+                object result = query.ExecuteStub(_theModel as M);
+                EnsureSafeResults(ref result, query);
                 return (T) result;
             }
             catch (TimeoutException)
@@ -191,7 +204,7 @@ namespace LiveDomain.Core
                 object result = command.ExecuteStub(_theModel);
                 //TODO: We might benefit from downgrading the lock at this point
                 //TODO: We could run the 2 following statements in parallel
-                if (_config.CloneResults && result != null) result = _serializer.Clone(result);
+                EnsureSafeResults(ref result, command as IOperationWithResult);
                 _commandJournal.Append(commandToSerialize);
                 return result;
             }
@@ -212,12 +225,29 @@ namespace LiveDomain.Core
             }
         }
 
-        private void ThrowUnlessAuthenticated(Type transactionType)
+        /// <summary>
+        /// Make sure we don't return direct references to mutable objects within the model
+        /// </summary>
+        private void EnsureSafeResults(ref object graph, IOperationWithResult operation)
         {
-            
-            if (!_authorizer.Allows(transactionType, Thread.CurrentPrincipal))
+            if(_config.EnsureSafeResults && graph != null)
             {
-                var msg = String.Format("Access denied to type {0}", transactionType);
+                bool operationIsResponsible = operation != null && operation.ResultIsSafe;
+                
+                if (!operationIsResponsible && !graph.IsImmutable())
+                {
+                        graph = _serializer.Clone(graph);
+                        _log.Debug("Cloned results with serializer: " + graph.GetType().FullName);
+                }
+            }
+        }
+
+
+        private void ThrowUnlessAuthenticated(Type operationType)
+        {
+            if (!_authorizer.Allows(operationType, Thread.CurrentPrincipal))
+            {
+                var msg = String.Format("Access denied to type {0}", operationType);
                 throw new UnauthorizedAccessException(msg);
             }
         }

@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Configuration;
-using System.Linq;
-using System.Text;
 
 namespace LiveDomain.Core
 {
     [Serializable]
     public abstract class ConfigurationBase
     {
+
         public virtual string KeyTemplate
         {
-            get { return "LiveDb.{0}"; }
+            get { return "LiveDomain.{0}"; }
         }
 
         protected T LoadFromConfigOrDefault<T>(Func<T> @default = null)

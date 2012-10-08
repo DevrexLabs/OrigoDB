@@ -10,7 +10,6 @@ using LiveDomain.Core;
 using LiveDomain.Modules.SqlStorage;
 using System.IO;
 using System.Reflection;
-using TinyIoC;
 using CommandLine;
 
 namespace LiveDomain.StoreUtility

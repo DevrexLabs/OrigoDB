@@ -6,7 +6,7 @@ using System.Text;
 namespace LiveDomain.Core
 {
 
-    public class Engine<M> : Engine, ILocalTransactionHandler<M> where M : Model
+    public class Engine<M> : Engine, ILocalEngine<M> where M : Model
     {
 
         public Engine(EngineConfiguration config) : base(() => Activator.CreateInstance<M>(), config) { }
@@ -32,5 +32,4 @@ namespace LiveDomain.Core
             return (T)base.Execute(query);
         }
     }
-
 }

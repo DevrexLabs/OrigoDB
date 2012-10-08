@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using LiveDomain.Core.Logging;
 using LiveDomain.Modules.SqlStorage;
@@ -20,7 +21,9 @@ namespace LiveDomain.Core.Test
         public Engine Engine { get; set; }
         public String Path { get; set; }
 
-        [TestInitialize]
+		
+
+	    [TestInitialize]
         public void MyTestInitialize() 
         {
             Path = Guid.NewGuid().ToString();
@@ -29,6 +32,8 @@ namespace LiveDomain.Core.Test
 
         public void WriteLog()
         {
+
+            if (!_logger.Messages.Any()) return;
             Console.WriteLine("------------------------------");
             Console.WriteLine(" LOG");
             Console.WriteLine("------------------------------");
@@ -63,7 +68,7 @@ namespace LiveDomain.Core.Test
 
         private EngineConfiguration CreateFileConfig()
         {
-            var config = new EngineConfiguration();
+            var config = EngineConfiguration.Create();
 
             //Connection string name in app.config file
             config.Location = Path;

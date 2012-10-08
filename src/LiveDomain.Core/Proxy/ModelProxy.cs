@@ -1,56 +1,63 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
+using System.Collections.Generic;
 
 namespace LiveDomain.Core.Proxy
 {
-	public class ModelProxy<T> : RealProxy where T : Model
-	{
-		ITransactionHandler<T> _handler;  
+    public class ModelProxy<T> : RealProxy where T : Model
+    {
+        readonly IEngine<T> _handler;
+        private readonly ProxyMethodMap<T> _proxyMethods;
 
-        public ModelProxy(ITransactionHandler<T> handler) : base(typeof(T))
+        public ModelProxy(IEngine<T> handler)
+            : base(typeof(T))
         {
-        	_handler = handler;
+            _handler = handler;
+            _proxyMethods = ProxyMethodMap.GetProxyMethodMap<T>(); 
         }
-		
+
         public override IMessage Invoke(IMessage myIMessage)
         {
             var methodCall = myIMessage as IMethodCallMessage;
 
-			if (methodCall == null) // Todo : filter events etc.
-				throw new NotSupportedException("Only methodcalls supported");
+            if (methodCall == null)
+            {
+                throw new NotSupportedException("Only methodcalls supported");
+            }
+            
+            var proxyInfo = _proxyMethods.GetProxyMethodInfo(methodCall.MethodName);
 
-        	var methodInfo = ReflectionHelper.ResolveMethod(typeof(T), methodCall.MethodName);
+            object result;
+            if (proxyInfo.IsCommand)
+            {
+                var command = new ProxyCommand<T>(methodCall.MethodName, methodCall.InArgs);
+                command.ResultIsSafe = proxyInfo.ProxyMethodAttribute.ResultIsSafe;
+                result = _handler.Execute(command);
+            }
+            else if (proxyInfo.IsQuery)
+            {
+                var query = new ProxyQuery<T>(methodCall.MethodName, methodCall.InArgs);
+                query.ResultIsSafe = proxyInfo.ProxyMethodAttribute.ResultIsSafe;
+                result = _handler.Execute(query);
+            }
+            else throw new InvalidEnumArgumentException("OperationType not initialized");
 
-        	object result;
-			if (GetProxyType(methodInfo) == ProxyMethodType.Command)
-			{
-				var command = new ReflectionCommand<T>(methodCall.MethodName, methodCall.InArgs);
-				result = _handler.Execute(command);
-			}
-			else
-			{
-				var query = new ReflectionQuery<T>(methodCall.MethodName, methodCall.InArgs);
-				result = _handler.Execute(query);
-			}
-			
-			return new ReturnMessage(result, null, 0, methodCall.LogicalCallContext, methodCall);            	
+            return new ReturnMessage(result, null, 0, methodCall.LogicalCallContext, methodCall);
         }
 
-		ProxyMethodType GetProxyType(MethodInfo methodInfo)
-		{
-			var attributes = methodInfo.GetCustomAttributes(typeof(ProxyMethodAttribute), false);
-			if(attributes.Length == 1) return ((ProxyMethodAttribute) attributes[0]).MethodType;
-			return methodInfo.ReturnType == typeof(void) ? ProxyMethodType.Command : ProxyMethodType.Query;
-		}
-	}
 
-	public static class ModelExtensions
-	{
-		 public static T GetProxy<T>(this ITransactionHandler<T> instance) where T : Model
-		 {
-		 	return (T)new ModelProxy<T>(instance).GetTransparentProxy();
-		 }
-	}
+    }
+
+    public static class ModelProxyExtensions
+    {
+        public static M GetProxy<M>(this IEngine<M> engine) where M : Model
+        {
+            return (M)new ModelProxy<M>(engine).GetTransparentProxy();
+        }
+    }
+
 }

@@ -13,7 +13,8 @@ namespace LiveDomain.Core.Security
 
         protected override bool Matches(Type securable)
         {
-            return securable.InheritsOrImplements(this.Securable);
+            //return securable.InheritsOrImplements(this.Securable);
+            throw new NotImplementedException();
         }
 
     }

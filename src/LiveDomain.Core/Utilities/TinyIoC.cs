@@ -46,7 +46,7 @@
 #endif
 
 #endregion
-namespace TinyIoC
+namespace LiveDomain.Core.TinyIoC
 {
     using System;
     using System.Collections.Generic;

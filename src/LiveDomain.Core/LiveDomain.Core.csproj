@@ -49,23 +49,51 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clients\ClusterClient.cs" />
+    <Compile Include="Clients\Remote\ConnectionPool.cs" />
+    <Compile Include="Clients\Remote\IRequestContextFactory.cs" />
+    <Compile Include="Clients\Remote\Messages\ClusterInfo.cs" />
+    <Compile Include="Clients\Remote\Messages\NetworkMessage.cs" />
+    <Compile Include="Clients\Remote\Messages\SnapshotRequest.cs" />
+    <Compile Include="Clients\Remote\PooledConnectionRequestContextFactory.cs" />
+    <Compile Include="Clients\PartitionClient.cs" />
+    <Compile Include="Clients\RemoteEngineClient.cs" />
+    <Compile Include="Clients\Remote\RequestContext.cs" />
     <Compile Include="Command[M].cs" />
     <Compile Include="CommandWithResult[M,R].cs" />
+    <Compile Include="Configuration\ClientConfiguration.cs" />
     <Compile Include="Configuration\CompressionMethod.cs" />
-    <Compile Include="Configuration\Configuration.cs" />
+    <Compile Include="Configuration\Config.cs" />
+    <Compile Include="Configuration\ConfigurationBase.cs" />
+    <Compile Include="Configuration\LocalClientConfiguration.cs" />
+    <Compile Include="Configuration\PartitionClusterClientConfiguration.cs" />
+    <Compile Include="Configuration\RemoteClientConfiguration.cs" />
     <Compile Include="Configuration\Location.cs" />
+    <Compile Include="DelegateQuery.cs" />
+    <Compile Include="Engine.For.cs" />
+    <Compile Include="Db.cs" />
+    <Compile Include="Engines.cs" />
+    <Compile Include="IImmutable.cs" />
+    <Compile Include="IOperationWithResult.cs" />
+    <Compile Include="Proxy\OperationType.cs" />
+    <Compile Include="Proxy\ProxyMethodInfo.cs" />
+    <Compile Include="Utilities\ConnectionPool.cs" />
+    <Compile Include="Utilities\Disposable[T].cs" />
     <Compile Include="Journaling\NullJournalWriter.cs" />
     <Compile Include="Linq\CachingLinqCompiler.cs" />
     <Compile Include="Linq\CompiledLinqExtensions.cs" />
+    <Compile Include="Clients\LocalEngineClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Logging\ILogFactory.cs" />
     <Compile Include="Logging\InternalLogFactory.cs" />
     <Compile Include="Logging\SingletonLogFactory.cs" />
     <Compile Include="RolloverStrategy.cs" />
     <Compile Include="Proxy\ModelProxy.cs" />
     <Compile Include="Proxy\ProxyMethodAttribute.cs" />
-    <Compile Include="Proxy\ReflectionCommand.cs" />
-    <Compile Include="Proxy\ReflectionHelper.cs" />
-    <Compile Include="Proxy\ReflectionQuery.cs" />
+    <Compile Include="Proxy\ProxyCommand.cs" />
+    <Compile Include="Proxy\ProxyMethodMap.cs" />
+    <Compile Include="Proxy\ProxyQuery.cs" />
     <Compile Include="Security\NullAuthorizer.cs" />
     <Compile Include="Security\IAuthenticator.cs" />
     <Compile Include="Security\IAuthorizer.cs" />
@@ -98,9 +126,11 @@
     <Compile Include="Storage\JournalFile.cs" />
     <Compile Include="Storage\Snapshot.cs" />
     <Compile Include="Storage\Store.cs" />
-    <Compile Include="TinyIoC.cs" />
+    <Compile Include="Utilities\ResourcePool.cs" />
+    <Compile Include="Utilities\StringToPropertiesMapper.cs" />
+    <Compile Include="Utilities\TinyIoC.cs" />
     <Compile Include="Utilities\Extensions.cs" />
-    <Compile Include="Utilities\TypeExtensions.cs" />
+    <Compile Include="Utilities\Immutable.cs" />
     <Compile Include="Security\User.cs" />
     <Compile Include="Storage\StoreType.cs" />
     <Compile Include="Storage\ISerializer.cs" />
@@ -108,7 +138,7 @@
     <Compile Include="Configuration\SnapshotBehavior.cs" />
     <Compile Include="Synchronization\ISynchronizer.cs" />
     <Compile Include="Journaling\IJournalWriter.cs" />
-    <Compile Include="ITransactionHandler.cs" />
+    <Compile Include="IEngine.cs" />
     <Compile Include="Journaling\JournalEntry.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="Synchronization\NullSynchronizer.cs" />
@@ -116,7 +146,6 @@
     <Compile Include="Query.cs" />
     <Compile Include="Synchronization\ReadWriteSynchronizer.cs" />
     <Compile Include="Storage\Serializer.cs" />
-    <Compile Include="ServerResponse.cs" />
     <Compile Include="Synchronization\ExclusiveSynchronizer.cs" />
     <Compile Include="Storage\FileStore.cs" />
     <Compile Include="Journaling\StreamJournalWriter.cs" />
@@ -127,6 +156,7 @@
     <Content Include="License.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
     <None Include="Storage\Filestorage.cd" />
     <None Include="Core.Public.cd" />
     <None Include="packages.config" />

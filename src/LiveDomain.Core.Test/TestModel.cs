@@ -44,11 +44,22 @@ namespace LiveDomain.Core.Test
         /// </summary>
         /// <param name="livedb"></param>
         /// <returns></returns>
-        [ProxyMethod(ProxyMethodType.Command)]
+        [ProxyMethod(OperationType=OperationType.Command, ResultIsSafe = true)]
         public string Uppercase(string livedb)
         {
             CommandsExecuted++;
             return livedb.ToUpper();
+        }
+
+        public Customer[] GetCustomers()
+        {
+            return _customers.ToArray();
+        }
+
+        [ProxyMethod(ResultIsSafe = true)]
+        public Customer[] GetCustomersCloned()
+        {
+            return _customers.Select(c => (Customer)c.Clone()).ToArray();
         }
 
         /// <summary>
@@ -67,7 +78,7 @@ namespace LiveDomain.Core.Test
         /// This will be a Query if called via Proxy.
         /// </summary>
         /// <returns></returns>
-        public int GetNumber()
+        public int GetCommandsExecuted()
         {
             return CommandsExecuted;
         }
@@ -78,9 +89,14 @@ namespace LiveDomain.Core.Test
         }
     }
 
-
+	[Serializable]
     public class GetNumberOfCommandsExecutedQuery : Query<TestModel, int>
     {
+	    public GetNumberOfCommandsExecutedQuery()
+	    {
+	        ResultIsSafe = true;
+	    }
+
         protected override int Execute(TestModel model)
         {
             return model.CommandsExecuted;
@@ -101,11 +117,12 @@ namespace LiveDomain.Core.Test
     {
         public byte[] Payload { get; set; }
         public bool ThrowInPrepare { get; set; }
-        public bool ThrowExceptionInExecute { get; set; }
-        public bool ThrowCommandFailedExceptionFromExecute { get; set; }
+        public bool ThrowExceptionWhenExecuting { get; set; }
+        public bool ThrowCommandAbortedWhenExecuting { get; set; }
 
         protected internal override void Prepare(TestModel model)
         {
+            ResultIsSafe = true;
             if (ThrowInPrepare)
             {
                 throw new Exception();
@@ -113,11 +130,11 @@ namespace LiveDomain.Core.Test
         }
         protected internal override int Execute(TestModel model)
         {
-            if (ThrowCommandFailedExceptionFromExecute)
+            if (ThrowCommandAbortedWhenExecuting)
             {
                 throw new CommandAbortedException();
             }
-            if (ThrowExceptionInExecute)
+            if (ThrowExceptionWhenExecuting)
             {
                 throw new Exception();
             }

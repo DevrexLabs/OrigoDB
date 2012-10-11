@@ -18,7 +18,9 @@ namespace LiveDomain.Core
 
 				if (!_connectionPools.TryGetValue(key, out pool))
 				{
-					_connectionPools[key] = new ConnectionPool(() => new TcpClient(configuration.Host, configuration.Port), configuration.MaxConnections);
+					pool = new ConnectionPool(() => new TcpClient(configuration.Host, configuration.Port), configuration.MaxConnections);
+					_connectionPools[key] = pool;
+
 				}
 				return pool;
 			}

@@ -28,20 +28,22 @@ namespace LiveDomain.Core
 
 
         /// <summary>
-        /// Engine takes responsibility for ensuring no mutable object references are returned by command or queries. Default is true.
+        /// Engine takes responsibility for ensuring no mutable object references are returned by commands or queries. Default is true.
         /// <remarks>
         /// Can safely be set to false if one of the following is true:
         ///    1. You are running on a single thread and are certain that client code only reads results.
-        ///    2. You have designed every single query and command to not return any mutable object references
+        ///    2. You have designed every single query and command to not return any references to mutable objects
         ///</remarks>
         /// </summary>
         public bool EnsureSafeResults { get; set; }
 
         /// <summary>
-        /// Make a deep copy of each command prior to execution. This will force a fast 
-        /// failure of commands that wont serialize.
+        /// Engine will not trust commands and take measures to ensure they are handled in a thread safe manner. Default is true.
+        /// <remarks>
+        /// Can safely be set to false if each command is never modified after being submitted for execution.
+        /// </remarks>
         /// </summary>
-        public bool CloneCommands { get; set; }
+        public bool EnsureSafeCommands { get; set; }
 
 
         /// <summary>
@@ -97,7 +99,7 @@ namespace LiveDomain.Core
             MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
             StoreType = StoreType.FileSystem;
             EnsureSafeResults = true;
-            CloneCommands = true;
+            EnsureSafeCommands = true;
 
             _registry = new TinyIoCContainer();
             _registry.Register<ICommandJournal>((c, p) => new CommandJournal(this));

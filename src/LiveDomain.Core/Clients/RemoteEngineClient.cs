@@ -50,8 +50,16 @@ namespace LiveDomain.Core
 			return SendAndRecieve<R>(message);
 		}
 
-		R SendAndRecieve<R>(object request)
+		internal NetworkMessage SendMessage(NetworkMessage message)
 		{
+			return SendAndRecieve<NetworkMessage>(message);
+		}
+
+		internal R SendAndRecieve<R>(object request)
+		{
+			if(!(request is NetworkMessage))
+				request = new NetworkMessage() {Payload = request};
+
 			using (var ctx = _requestContextFactory.GetContext())
 			{
 				IFormatter formatter = new BinaryFormatter();
@@ -63,6 +71,9 @@ namespace LiveDomain.Core
 				{
 					if (!message.Succeeded)
 						throw message.Error;
+
+					if (response is R)
+						return (R)response;
 
 					return (R)message.Payload;
 				}

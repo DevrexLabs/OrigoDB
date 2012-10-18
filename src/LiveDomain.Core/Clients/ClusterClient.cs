@@ -1,15 +1,18 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
 namespace LiveDomain.Core
 {
-	public abstract class ClusterClient<M> : IEngine<M> where M : Model
+	public abstract class ClusterClient<M> : ClusterClient<M, IEngine<M>> where M : Model
 	{
-		List<IEngine<M>> _nodes = new List<IEngine<M>>();
+	}
 
-		public List<IEngine<M>> Nodes
+	public abstract class ClusterClient<M,N> : IEngine<M> where M : Model
+	{
+		List<N> _nodes = new List<N>();
+
+		public List<N> Nodes
 		{
 			get { return _nodes; }
 		}

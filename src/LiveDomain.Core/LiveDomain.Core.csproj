@@ -50,7 +50,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Clients\ClusterClient.cs" />
+    <Compile Include="Clients\Dispatching\DedicatedQueryDispatchStrategy.cs" />
+    <Compile Include="Clients\Dispatching\QueryDispatchStrategyBase.cs" />
+    <Compile Include="Clients\Dispatching\RandomQueryDispatchStrategy.cs" />
+    <Compile Include="Clients\Dispatching\RoundRobinQueryDispatchStrategy.cs" />
+    <Compile Include="Clients\FailoverClusterClient.cs" />
     <Compile Include="Clients\Remote\ConnectionPool.cs" />
+    <Compile Include="Clients\Dispatching\IClusterQueryDispatchStrategy.cs" />
     <Compile Include="Clients\Remote\IRequestContextFactory.cs" />
     <Compile Include="Clients\Remote\Messages\ClusterInfo.cs" />
     <Compile Include="Clients\Remote\Messages\NetworkMessage.cs" />
@@ -64,6 +70,7 @@
     <Compile Include="Configuration\ClientConfiguration.cs" />
     <Compile Include="Configuration\CompressionMethod.cs" />
     <Compile Include="Configuration\Config.cs" />
+    <Compile Include="Configuration\FailoverClusterClientConfiguration.cs" />
     <Compile Include="Configuration\LocalClientConfiguration.cs" />
     <Compile Include="Configuration\PartitionClusterClientConfiguration.cs" />
     <Compile Include="Configuration\RemoteClientConfiguration.cs" />

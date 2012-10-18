@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace LiveDomain.Core
 {
-	public class PartitionClusterClient<M> : ClusterClient<M> where M : Model
+	public class PartitionClient<M> : ClusterClient<M> where M : Model
 	{
 		readonly Func<object, int[]> _allNodesDispatcher;
 		Dictionary<string, Delegate> _dispatchers = new Dictionary<string, Delegate>();
 		Dictionary<string, Delegate> _mergers = new Dictionary<string, Delegate>();
 
-		public PartitionClusterClient()
+		public PartitionClient()
 		{
 			_allNodesDispatcher = _ => Enumerable.Range(0, Nodes.Count).ToArray();
 		}

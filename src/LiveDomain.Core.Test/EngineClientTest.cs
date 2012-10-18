@@ -74,7 +74,7 @@ namespace LiveDomain.Core.Test
 		public void PartitionClient()
 		{
 			
-			var client = new PartitionClusterClient<TestModel>();
+			var client = new PartitionClient<TestModel>();
 			var engine1 = Engine.For<TestModel>("mode=embedded;location=" + Guid.NewGuid());
 			var engine2 = Engine.For<TestModel>("mode=embedded;location=" + Guid.NewGuid());
 

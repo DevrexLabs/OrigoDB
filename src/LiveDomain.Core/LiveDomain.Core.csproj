@@ -77,7 +77,7 @@
     <Compile Include="IOperationWithResult.cs" />
     <Compile Include="Proxy\OperationType.cs" />
     <Compile Include="Proxy\ProxyMethodInfo.cs" />
-    <Compile Include="Utilities\ArrayFunctions.cs" />
+    <Compile Include="Clients\Merge.cs" />
     <Compile Include="Utilities\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />
     <Compile Include="Journaling\NullJournalWriter.cs" />

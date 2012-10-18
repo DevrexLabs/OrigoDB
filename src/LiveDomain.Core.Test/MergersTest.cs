@@ -13,7 +13,7 @@ namespace LiveDomain.Core.Test
     ///to contain all ArrayFunctionsTest Unit Tests
     ///</summary>
     [TestClass()]
-    public class ArrayFunctionsTest
+    public class MergersTest
     {
 
 
@@ -67,24 +67,24 @@ namespace LiveDomain.Core.Test
 
 
         [TestMethod()]
-        public void MergeSort_sorts()
+        public void OrderedArraysStreamed_results_are_ordered()
         {
             var arrays = RandomArrays(5);
-            int[] sorted = ArrayFunctions.MergeSort(arrays).ToArray();
+            int[] sorted = Merge.OrderedArraysStreamed(arrays).ToArray();
             Assert.IsTrue(IsOrdered(sorted));
         }
 
         [TestMethod()]
-        public void MergeSort_retains_correct_no_of_items()
+        public void OrderedArraysStreamed_retains_correct_no_of_items()
         {
             var arrays = RandomArrays(12);
             int numItems = arrays.Sum(a => a.Length);
-            int[] sorted = ArrayFunctions.MergeSort(arrays).ToArray();
+            int[] sorted = Merge.OrderedArraysStreamed(arrays).ToArray();
             Assert.AreEqual(numItems, sorted.Length);
         }
 
         [TestMethod()]
-        public void MergeSort_with_comparer_sorts()
+        public void OrderedArraysStreamed_results_are_ordered_with_comparer()
         {
             var arrays = RandomArrays(5);
             foreach (int[] array in arrays)
@@ -92,7 +92,7 @@ namespace LiveDomain.Core.Test
                 Array.Reverse(array);
             }
             Comparison<int> comparer = (a, b) => b.CompareTo(a);
-            int[] sorted = ArrayFunctions.MergeSort(arrays, comparer).ToArray();
+            int[] sorted = Merge.OrderedArraysStreamed(arrays, comparer).ToArray();
             Assert.IsTrue(IsOrdered(sorted, comparer));
         }
 
@@ -116,6 +116,7 @@ namespace LiveDomain.Core.Test
 
         private bool IsOrdered<T>(T[] array, Comparison<T> comparer )
         {
+            //if any two adjacent elements are out of order, the array is not in order
             for (int i = 0; i < array.Length - 1; i++)
             {
                 if (comparer.Invoke(array[i], array[i + 1]) > 0) return false;
@@ -124,6 +125,7 @@ namespace LiveDomain.Core.Test
         }
 
         Random random = new Random(42);
+
         private int[] RandomArray()
         {
             int size = random.Next() % 10;

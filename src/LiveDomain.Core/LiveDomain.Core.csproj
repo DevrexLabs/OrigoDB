@@ -77,6 +77,7 @@
     <Compile Include="IOperationWithResult.cs" />
     <Compile Include="Proxy\OperationType.cs" />
     <Compile Include="Proxy\ProxyMethodInfo.cs" />
+    <Compile Include="Utilities\ArrayFunctions.cs" />
     <Compile Include="Utilities\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />
     <Compile Include="Journaling\NullJournalWriter.cs" />
@@ -126,6 +127,7 @@
     <Compile Include="Storage\JournalFile.cs" />
     <Compile Include="Storage\Snapshot.cs" />
     <Compile Include="Storage\Store.cs" />
+    <Compile Include="Utilities\NonDestructiveArrayQueue.cs" />
     <Compile Include="Utilities\ResourcePool.cs" />
     <Compile Include="Utilities\StringToPropertiesMapper.cs" />
     <Compile Include="Utilities\TinyIoC.cs" />

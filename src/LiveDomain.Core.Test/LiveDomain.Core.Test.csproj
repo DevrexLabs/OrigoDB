@@ -83,6 +83,7 @@
     </Compile>
     <Compile Include="SqlStorageTest.cs" />
     <Compile Include="ProxyTest.cs" />
+    <Compile Include="SubmodelsTests.cs" />
     <Compile Include="TestModel.cs" />
   </ItemGroup>
   <ItemGroup>

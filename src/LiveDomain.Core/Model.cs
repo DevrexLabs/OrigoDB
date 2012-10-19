@@ -1,5 +1,6 @@
 ﻿using System;
 using LiveDomain.Core.Security;
+using System.Collections.Generic;
 
 namespace LiveDomain.Core
 {
@@ -9,6 +10,26 @@ namespace LiveDomain.Core
     [Serializable]
     public abstract class Model : MarshalByRefObject
     {
+
+        protected Dictionary<Type, Model> _childModels 
+            = new Dictionary<Type, Model>();
+
+        protected void AddChildModel(Model model)
+        {
+            _childModels.Add(model.GetType(), model);
+        }
+
+        public T ChildFor<T>() where T : Model
+        {
+            try
+            {
+                return (T)_childModels[typeof (T)];
+            }
+            catch (Exception)
+            {
+                throw new ArgumentException("No such child model", typeof(T).ToString());
+            }
+        }
 
         /// <summary>
         /// SnapshotRestored is called after the most recent snaphot has been loaded 

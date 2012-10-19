@@ -27,12 +27,28 @@ namespace LiveDomain.Core
 
         public T Execute<T>(CommandWithResult<M, T> command)
         {
-            return Engine.Execute(command);
+            return Engine.Execute<T>(command);
         }
 
 	    public T Execute<T>(Func<M, T> query)
 	    {
 		    return Engine.Execute(query);
 	    }
+
+
+        public T Execute<S, T>(Query<S, T> query) where S : Model
+        {
+            return Engine.Execute(query);
+        }
+
+        public void Execute<S>(Command<S> command) where S : Model
+        {
+            Engine.Execute(command);
+        }
+
+        public T Execute<S, T>(CommandWithResult<S, T> command) where S : Model
+        {
+            return Engine.Execute(command);
+        }
     }
 }

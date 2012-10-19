@@ -89,7 +89,7 @@ namespace LiveDomain.Core
 
 		#region Implementation of IEngine<M>
 		
-		public override T Execute<T>(Query<M, T> query)
+		public override T Execute<S,T>(Query<S, T> query)
 		{
 			var nodes = GetNodesFor(query);
 			if(nodes.Length == 1) return nodes[0].Execute(query);
@@ -98,12 +98,12 @@ namespace LiveDomain.Core
 			return MergeResults(query, queryResults);
 		}
 
-		public override void Execute(Command<M> command)
+		public override void Execute<S>(Command<S> command)
 		{
 			Parallel.ForEach(GetNodesFor(command), node => node.Execute(command));
 		}
 
-		public override T Execute<T>(CommandWithResult<M, T> command)
+		public override T Execute<S,T>(CommandWithResult<S, T> command)
 		{
 			var nodes = GetNodesFor(command);
 			if (nodes.Length == 1) return nodes[0].Execute(command);

@@ -18,7 +18,7 @@ namespace LiveDomain.Core
     /// Engine is responsible for executing commands and queries against
     /// the model while conforming to ACID.
     /// </summary>
-	public partial class Engine : IDisposable
+    public partial class Engine : IDisposable
     {
 
         /// <summary>
@@ -39,30 +39,30 @@ namespace LiveDomain.Core
         IAuthorizer<Type> _authorizer;
 
         public EngineConfiguration Config { get { return _config; } }
-		internal ICommandJournal CommandJournal {get { return _commandJournal; }}
-		internal IStore Store { get { return _store; } }
+        internal ICommandJournal CommandJournal { get { return _commandJournal; } }
+        internal IStore Store { get { return _store; } }
 
-	    /// <summary>
+        /// <summary>
         /// Shuts down the engine
         /// </summary>
         public void Close()
         {
             if (!_isDisposed)
             {
-				Core.Config.Engines.Remove(this);
+                Core.Config.Engines.Remove(this);
 
                 if (_config.SnapshotBehavior == SnapshotBehavior.OnShutdown)
                 {
                     //Allow reading while snapshot is being taken
                     //but no modifications after that
-                    _lock.EnterUpgrade(); 
+                    _lock.EnterUpgrade();
                     CreateSnapshotImpl();
 
                 }
                 _lock.EnterWrite();
                 _isDisposed = true;
                 _commandJournal.Dispose();
-				
+
             }
         }
 
@@ -73,12 +73,12 @@ namespace LiveDomain.Core
             long lastEntryIdExecuted;
             _theModel = _store.LoadMostRecentSnapshot(out lastEntryIdExecuted);
 
-            if (_theModel == null) 
+            if (_theModel == null)
             {
-                if(constructor == null)  throw new ApplicationException("No initial snapshot");
+                if (constructor == null) throw new ApplicationException("No initial snapshot");
                 _theModel = constructor.Invoke();
             }
-            
+
             _theModel.SnapshotRestored();
             foreach (var command in _commandJournal.GetEntriesFrom(lastEntryIdExecuted).Select(entry => entry.Item))
             {
@@ -97,28 +97,28 @@ namespace LiveDomain.Core
         protected Engine(Func<Model> constructor, EngineConfiguration config)
         {
             _serializer = config.CreateSerializer();
-            
+
             _config = config;
 
             _store = _config.CreateStore();
             _store.Load();
             _lock = _config.CreateSynchronizer();
-			
+
             _commandJournal = _config.CreateCommandJournal();
             Restore(constructor);
             _authorizer = _config.CreateAuthorizer();
-            
+
             if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)
             {
                 _log.Info("Starting snaphot job on threadpool");
-                
+
                 ThreadPool.QueueUserWorkItem((o) => CreateSnapshot());
 
                 //Give the snapshot thread a chance to start and aquire the readlock
                 Thread.Sleep(TimeSpan.FromMilliseconds(10));
             }
-			
-			Core.Config.Engines.AddEngine(config.Location,this);
+
+            Core.Config.Engines.AddEngine(config.Location, this);
         }
 
 
@@ -149,13 +149,13 @@ namespace LiveDomain.Core
         }
 
         #region Execute overloads
-        
+
         public object Execute(Query query)
         {
-        	return Execute<Model, object>(model => query.ExecuteStub(model));
+            return Execute<Model, object>(model => query.ExecuteStub(model));
         }
 
-        public T Execute<M,T>(Func<M,T> lambdaQuery) where M : Model
+        public T Execute<M, T>(Func<M, T> lambdaQuery) where M : Model
         {
             ThrowIfDisposed();
             ThrowUnlessAuthenticated(lambdaQuery.GetType());
@@ -169,14 +169,14 @@ namespace LiveDomain.Core
             return ExecuteQuery(query);
         }
 
-        private T ExecuteQuery<M, T>(Query<M,T> query) where M : Model
+        private T ExecuteQuery<M, T>(Query<M, T> query) where M : Model
         {
             try
             {
                 _lock.EnterRead();
                 object result = query.ExecuteStub(_theModel as M);
                 EnsureSafeResults(ref result, query);
-                return (T) result;
+                return (T)result;
             }
             catch (TimeoutException)
             {
@@ -193,9 +193,8 @@ namespace LiveDomain.Core
         {
             ThrowIfDisposed();
             ThrowUnlessAuthenticated(command.GetType());
-            Command commandToSerialize = command;
-            if (_config.CloneCommands) command = _serializer.Clone(command);
-            
+            EnsureSafeCommand(ref command);
+
             try
             {
                 _lock.EnterUpgrade();
@@ -205,16 +204,16 @@ namespace LiveDomain.Core
                 //TODO: We might benefit from downgrading the lock at this point
                 //TODO: We could run the 2 following statements in parallel
                 EnsureSafeResults(ref result, command as IOperationWithResult);
-                _commandJournal.Append(commandToSerialize);
+                _commandJournal.Append(command);
                 return result;
             }
             catch (TimeoutException)
             {
                 ThrowIfDisposed();
-                throw; 
+                throw;
             }
             catch (CommandAbortedException) { throw; }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Restore(() => (Model)Activator.CreateInstance(_theModel.GetType())); //TODO: Or shutdown based on setting
                 throw new CommandAbortedException("Command threw an exception, state was rolled back, see inner exception for details", ex);
@@ -225,19 +224,27 @@ namespace LiveDomain.Core
             }
         }
 
+        private void EnsureSafeCommand(ref Command command)
+        {
+            if (_config.EnsureSafeCommands && !command.IsImmutable())
+            {
+                command = _serializer.Clone(command);
+            }
+        }
+
         /// <summary>
         /// Make sure we don't return direct references to mutable objects within the model
         /// </summary>
         private void EnsureSafeResults(ref object graph, IOperationWithResult operation)
         {
-            if(_config.EnsureSafeResults && graph != null)
+            if (_config.EnsureSafeResults && graph != null)
             {
                 bool operationIsResponsible = operation != null && operation.ResultIsSafe;
-                
+
                 if (!operationIsResponsible && !graph.IsImmutable())
                 {
-                        graph = _serializer.Clone(graph);
-                        _log.Debug("Cloned results with serializer: " + graph.GetType().FullName);
+                    graph = _serializer.Clone(graph);
+                    _log.Debug("Cloned results with serializer: " + graph.GetType().FullName);
                 }
             }
         }
@@ -321,10 +328,10 @@ namespace LiveDomain.Core
             return Create<Model>(model, config);
 
         }
-        
+
 
         #endregion
-        
+
         #region Static generic Load methods
 
         /// <summary>
@@ -337,8 +344,8 @@ namespace LiveDomain.Core
         {
             var config = EngineConfiguration.Create();
             config.Location = location;
-    		return Load<M>(config);
-    	}
+            return Load<M>(config);
+        }
 
         /// <summary>
         /// Load using an explicit configuration.
@@ -346,14 +353,14 @@ namespace LiveDomain.Core
         /// <typeparam name="M"></typeparam>
         /// <param name="config"></param>
         /// <returns></returns>
-    	public static Engine<M> Load<M>(EngineConfiguration config = null) where M : Model
+        public static Engine<M> Load<M>(EngineConfiguration config = null) where M : Model
         {
             config = config ?? EngineConfiguration.Create();
             if (!config.HasLocation) config.SetLocationFromType<M>();
             config.CreateStore().VerifyCanLoad();
-			var engine = new Engine<M>(config);
-    		return engine;
-    	}
+            var engine = new Engine<M>(config);
+            return engine;
+        }
         #endregion
 
         #region Generic Create methods
@@ -392,7 +399,7 @@ namespace LiveDomain.Core
         #region Static generic LoadOrCreate methods
 
 
-        public static Engine<M> LoadOrCreate<M>(string location=null) where M : Model, new()
+        public static Engine<M> LoadOrCreate<M>(string location = null) where M : Model, new()
         {
             var config = EngineConfiguration.Create();
             config.Location = location;
@@ -411,7 +418,7 @@ namespace LiveDomain.Core
         {
             config = config ?? EngineConfiguration.Create();
             if (constructor == null) throw new ArgumentNullException("constructor");
-            if(config == null) throw new ArgumentNullException("config");
+            if (config == null) throw new ArgumentNullException("config");
             if (!config.HasLocation) config.SetLocationFromType<M>();
             Engine<M> result = null;
 

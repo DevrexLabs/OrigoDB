@@ -78,7 +78,7 @@ namespace LiveDomain.Core.Test
             //Test will fail if storage already exists
             DeleteFromDefaultLocation<TestModel>();
             var config = new EngineConfiguration();
-            config.CloneCommands = false;
+            config.EnsureSafeCommands = false;
             var engine = Engine.Create<TestModel>(config);
             engine.Close();
         }

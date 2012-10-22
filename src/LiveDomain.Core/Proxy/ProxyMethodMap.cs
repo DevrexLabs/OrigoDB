@@ -6,41 +6,41 @@ using System.Reflection;
 namespace LiveDomain.Core.Proxy
 {
 
-    internal abstract class ProxyMethodMap
+    internal class ProxyMethodMap
     {
-        private readonly static Dictionary<Type, ProxyMethodMap> _proxyMethodMaps 
+        private readonly static Dictionary<Type, ProxyMethodMap> _proxyMethodMaps
             = new Dictionary<Type, ProxyMethodMap>();
 
-        internal static ProxyMethodMap<M> GetProxyMethodMap<M>() where M : Model
+        internal static ProxyMethodMap MapFor<T>()
         {
-            Type modelType = typeof(M);
+            return MapFor(typeof(T));
+        }
+
+        internal static ProxyMethodMap MapFor(Type modelType)
+        {
             ProxyMethodMap proxyMethodMap;
             if (!_proxyMethodMaps.TryGetValue(modelType, out proxyMethodMap))
             {
-                proxyMethodMap = new ProxyMethodMap<M>();
+                proxyMethodMap = new ProxyMethodMap(modelType);
                 _proxyMethodMaps.Add(modelType, proxyMethodMap);
             }
-            return (ProxyMethodMap<M>) proxyMethodMap;
+            return proxyMethodMap;
         }
-    }
 
-	internal class ProxyMethodMap<M> : ProxyMethodMap where M : Model
-	{
         //methods by name
-        //todo: add support for overloads?
-	    private readonly Dictionary<string, ProxyMethodInfo> _proxyMethodInfoMap;
+        private readonly Dictionary<string, ProxyMethodInfo> _proxyMethodInfoMap;
 
-	    internal ProxyMethodMap()
-	    {
+        internal ProxyMethodMap(Type modelType)
+        {
             _proxyMethodInfoMap = new Dictionary<string, ProxyMethodInfo>();
-            foreach(var methodInfo in typeof(M).GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            foreach (var methodInfo in modelType.GetMethods(BindingFlags.Public | BindingFlags.Instance))
             {
                 var proxyMethodAttribute = GetProxyMethodAttribute(methodInfo);
                 string methodName = methodInfo.Name;
                 var proxyMethod = new ProxyMethodInfo(methodInfo, proxyMethodAttribute, "");
                 _proxyMethodInfoMap.Add(methodName, proxyMethod);
             }
-	    }
+        }
 
         private ProxyMethodAttribute GetProxyMethodAttribute(MethodInfo methodInfo)
         {

@@ -70,5 +70,21 @@ namespace LiveDomain.Core
 				return (R)response;
 			}
 		}
-	}
+
+
+        public T Execute<S, T>(Query<S, T> queryForSubModel) where S : Model
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Execute<S>(Command<S> commandForSubModel) where S : Model
+        {
+            throw new NotImplementedException();
+        }
+
+        public T Execute<S, T>(CommandWithResult<S, T> commandForSubModel) where S : Model
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

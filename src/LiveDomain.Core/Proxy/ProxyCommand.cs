@@ -21,7 +21,7 @@ namespace LiveDomain.Core.Proxy
 
 		protected internal override object Execute(M model)
 		{
-		    var proxyMethod = ProxyMethodMap.GetProxyMethodMap<M>().GetProxyMethodInfo(MethodName);
+		    var proxyMethod = ProxyMethodMap.MapFor<M>().GetProxyMethodInfo(MethodName);
 		    MethodInfo methodInfo = proxyMethod.MethodInfo;
 			return methodInfo.Invoke(model, Arguments);
 		}

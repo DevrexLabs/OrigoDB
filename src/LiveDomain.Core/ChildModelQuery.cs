@@ -5,6 +5,7 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
+    [Serializable]
     public class ChildModelQuery<M, C, T> : Query<M, T>
         where C : Model
         where M : Model

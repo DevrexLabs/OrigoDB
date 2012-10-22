@@ -6,54 +6,42 @@ using System.Text;
 namespace LiveDomain.Core
 {
 
-    public class Engine<M> : Engine, ILocalEngine<M> where M : Model
+    public class Engine<T> : Engine, ILocalEngine<T> where T : Model
     {
 
-        public Engine(EngineConfiguration config) : base(() => Activator.CreateInstance<M>(), config) { }
+        public Engine(EngineConfiguration config) : base(() => Activator.CreateInstance<T>(), config) { }
 
 
-        public T Execute<T>(Func<M, T> query)
+        public new R Execute<M,R>(Func<M, R> query) where M : Model
         {
-            return base.Execute(query);
+            if (typeof(M) == typeof(T)) return base.Execute(query);
+            else return base.Execute<T,R>(m => query.Invoke(m.ChildFor<M>()));
         }
 
-        public T Execute<T>(CommandWithResult<M, T> command)
+        public void Execute<M>(Command<M> command) where M : Model
         {
-            return (T)base.Execute(command);
-        }
-
-        public void Execute(Command<M> command)
-        {
-            base.Execute(command);
-        }
-
-        public void Execute<S>(Command<S> command) where S : Model
-        {
-            if (typeof(S) == typeof(M)) base.Execute(command);
+            if (typeof(M) == typeof(T)) base.Execute(command);
             else
             {
-                var wrapperCommand = new ChildModelCommand<M, S>(command);
+                var wrapperCommand = new ChildModelCommand<T, M>(command);
                 base.Execute(wrapperCommand);
             }
         }
 
-
-        public T Execute<T>(Query<M, T> query)
-        {
-            return (T)base.Execute(query);
+        public new R Execute<M,R>(Query<M, R> query) where M:Model
+        { 
+            if (typeof(M) == typeof(T)) return base.Execute(query);
+            else return base.Execute(new ChildModelQuery<T,M,R>(query));
         }
 
 
-        public R Execute<S, R>(CommandWithResult<S, R> command) where S : Model
+        public R Execute<M, R>(CommandWithResult<M, R> command) where M : Model
         {
-            if (typeof(S) == typeof(M))
-            {
-                return (R) base.Execute(command);
-            }
+            if (typeof(M) == typeof(T)) return (R) base.Execute(command);
             else
             {
-                var wrapperCommand = new ChildModelCommandWithResult<M, S, R>(command);
-                return this.Execute<R>(wrapperCommand);
+                var wrapperCommand = new ChildModelCommandWithResult<T, M, R>(command);
+                return (R) base.Execute(wrapperCommand);
             }
         }
     }

@@ -14,13 +14,6 @@ namespace LiveDomain.Core
             get { return _nodes; }
         }
 
-
-        //public abstract T Execute<T>(Query<M, T> query);
-        //public abstract void Execute(Command<M> command);
-        //public abstract T Execute<T>(CommandWithResult<M, T> command);
-
-
-
         public abstract T Execute<S, T>(Query<S, T> queryForSubModel) where S : Model;
         public abstract void Execute<T>(Command<T> command) where T : Model;
         public abstract T Execute<S, T>(CommandWithResult<S, T> command) where S : Model;

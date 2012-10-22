@@ -14,7 +14,7 @@ namespace LiveDomain.Core.Test
 	[TestClass]
 	public class ProxyTest : EngineTestBase
 	{
-		Engine<TestModel> _engine;
+		Engine<TestModel> _engine; 
 		TestModel _proxy;
 
 

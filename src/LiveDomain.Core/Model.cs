@@ -11,23 +11,44 @@ namespace LiveDomain.Core
     public abstract class Model : MarshalByRefObject
     {
 
-        protected Dictionary<Type, Model> _childModels 
+        private Dictionary<Type, Model> _children
             = new Dictionary<Type, Model>();
 
-        protected void AddChildModel(Model model)
+        protected IDictionary<Type, Model> Children
         {
-            _childModels.Add(model.GetType(), model);
+            get
+            {
+                if (_children == null) _children = new Dictionary<Type, Model>();
+                return _children;
+            }
         }
 
-        public T ChildFor<T>() where T : Model
+        protected void AddChild(Model model)
         {
+            _children.Add(model.GetType(), model);
+        }
+
+        /// <summary>
+        /// Get the child model of type M, creating one if it doesn't exists
+        /// </summary>
+        public virtual M ChildFor<M>() where M : Model
+        {
+            //TODO: design review. use SnapshotRestored?
             try
             {
-                return (T)_childModels[typeof (T)];
+                return (M)_children[typeof(M)];
             }
-            catch (Exception)
+            catch (NullReferenceException)
             {
-                throw new ArgumentException("No such child model", typeof(T).ToString());
+                //Child modules where introduced with version 0.8.0
+                if (_children == null) _children = new Dictionary<Type, Model>();
+                else throw;
+                return ChildFor<M>();
+            }
+            catch (KeyNotFoundException)
+            {
+                _children.Add(typeof(M), Activator.CreateInstance<M>());
+                return ChildFor<M>();
             }
         }
 
@@ -36,7 +57,7 @@ namespace LiveDomain.Core
         /// but before any commands are restored.
         /// </summary>
         protected internal virtual void SnapshotRestored() { }
-        
+
         /// <summary>
         /// This method is called after the model has been restored from 
         /// persistent storage and before the engine is available for transactions.

@@ -6,9 +6,9 @@ using System.Text;
 
 namespace LiveDomain.Core
 {
-	public class ConnectionPool : ResourcePool<TcpClient>
+	public class ConnectionPool : ResourcePool<RemoteConnection>
 	{
-		internal ConnectionPool(Func<TcpClient> constructor, int maxSize = 100)
+		internal ConnectionPool(Func<RemoteConnection> constructor, int maxSize = 100)
 			: base(constructor, maxSize)
 		{
 		}

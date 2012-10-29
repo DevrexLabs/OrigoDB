@@ -11,22 +11,15 @@ namespace LiveDomain.Core
 	public class RequestContext : IDisposable
 	{
 		bool _disposed;
-		readonly Disposable<TcpClient> _disposable;
-		public NetworkStream NetworkStream { get { return _disposable.Resource.GetStream(); }}
+		readonly Disposable<RemoteConnection> _disposable;
+		public RemoteConnection Connection { get { return _disposable.Resource; }}
 
-		public RequestContext(Disposable<TcpClient> disposable)
+
+		public RequestContext(Disposable<RemoteConnection> disposable)
 		{
 			_disposable = disposable;
 		}
-
-		public void EnsureConnected()
-		{
-			// Todo : reconnect.
-			if(_disposable.Resource.Client.IsConnected())
-			{
-			}
-		}
-
+		
 		#region Implementation of IDisposable
 
 		public void Dispose()

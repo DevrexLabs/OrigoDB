@@ -64,6 +64,7 @@
     <Compile Include="Clients\Remote\PooledConnectionRequestContextFactory.cs" />
     <Compile Include="Clients\PartitionClient.cs" />
     <Compile Include="Clients\RemoteEngineClient.cs" />
+    <Compile Include="Clients\Remote\RemoteConnection.cs" />
     <Compile Include="Clients\Remote\RequestContext.cs" />
     <Compile Include="Command[M].cs" />
     <Compile Include="CommandWithResult[M,R].cs" />

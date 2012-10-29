@@ -62,23 +62,8 @@ namespace LiveDomain.Core
 
 			using (var ctx = _requestContextFactory.GetContext())
 			{
-				IFormatter formatter = new BinaryFormatter();
-				formatter.Serialize(ctx.NetworkStream, request);
-				object response = formatter.Deserialize(ctx.NetworkStream);
-
-				var message = response as NetworkMessage;
-				if (message != null)
-				{
-					if (!message.Succeeded)
-						throw message.Error;
-
-					if (response is R)
-						return (R)response;
-
-					return (R)message.Payload;
-				}
-
-				return (R)response;
+				ctx.Connection.Write(request);
+				return ctx.Connection.Read<R>();
 			}
 		}
 	}

@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace LiveDomain.Core.Utilities
 {
-	static class SocketExtensions
+	public static class SocketExtensions
 	{
 		public static bool IsConnected(this Socket socket)
 		{

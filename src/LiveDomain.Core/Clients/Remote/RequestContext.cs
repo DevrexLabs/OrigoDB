@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using LiveDomain.Core;
+using LiveDomain.Core.Utilities;
 
 namespace LiveDomain.Core
 {
@@ -16,6 +17,14 @@ namespace LiveDomain.Core
 		public RequestContext(Disposable<TcpClient> disposable)
 		{
 			_disposable = disposable;
+		}
+
+		public void EnsureConnected()
+		{
+			// Todo : reconnect.
+			if(_disposable.Resource.Client.IsConnected())
+			{
+			}
 		}
 
 		#region Implementation of IDisposable

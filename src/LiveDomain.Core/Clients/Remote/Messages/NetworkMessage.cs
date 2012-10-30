@@ -6,6 +6,7 @@ namespace LiveDomain.Core
     [Serializable]
     public class NetworkMessage
     {
+		public bool RequiresAcknowledgement { get; set; }
         public object Payload { get; set; }
 		public Exception Error { get; set; }
         public bool Succeeded

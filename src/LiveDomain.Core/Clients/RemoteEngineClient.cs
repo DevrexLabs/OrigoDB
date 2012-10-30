@@ -50,24 +50,20 @@ namespace LiveDomain.Core
 			return SendAndRecieve<R>(message);
 		}
 
-		R SendAndRecieve<R>(object request)
+		internal NetworkMessage SendMessage(NetworkMessage message)
 		{
+			return SendAndRecieve<NetworkMessage>(message);
+		}
+
+		internal R SendAndRecieve<R>(object request)
+		{
+			if(!(request is NetworkMessage))
+				request = new NetworkMessage() {Payload = request};
+
 			using (var ctx = _requestContextFactory.GetContext())
 			{
-				IFormatter formatter = new BinaryFormatter();
-				formatter.Serialize(ctx.NetworkStream, request);
-				object response = formatter.Deserialize(ctx.NetworkStream);
-
-				var message = response as NetworkMessage;
-				if (message != null)
-				{
-					if (!message.Succeeded)
-						throw message.Error;
-
-					return (R)message.Payload;
-				}
-
-				return (R)response;
+				ctx.Connection.Write(request);
+				return ctx.Connection.Read<R>();
 			}
 		}
 

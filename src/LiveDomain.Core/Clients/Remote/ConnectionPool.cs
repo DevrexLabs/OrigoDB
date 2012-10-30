@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
 
 namespace LiveDomain.Core
 {
@@ -18,7 +17,9 @@ namespace LiveDomain.Core
 
 				if (!_connectionPools.TryGetValue(key, out pool))
 				{
-					_connectionPools[key] = new ConnectionPool(() => new TcpClient(configuration.Host, configuration.Port), configuration.MaxConnections);
+					pool = new ConnectionPool(() => new RemoteConnection(configuration.Host, configuration.Port), configuration.MaxConnections);
+					_connectionPools[key] = pool;
+
 				}
 				return pool;
 			}

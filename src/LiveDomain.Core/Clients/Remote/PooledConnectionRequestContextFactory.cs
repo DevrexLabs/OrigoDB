@@ -15,7 +15,7 @@ namespace LiveDomain.Core
 		public RequestContext GetContext()
 		{
 			var tcpClient = _pool.AquireResource();
-			var disposable = new Disposable<TcpClient>(tcpClient, () => _pool.Release(tcpClient));
+			var disposable = new Disposable<RemoteConnection>(tcpClient, () => _pool.Release(tcpClient));
 			return new RequestContext(disposable);
 		}
 

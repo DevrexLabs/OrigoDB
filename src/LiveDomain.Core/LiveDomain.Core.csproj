@@ -53,7 +53,13 @@
     <Compile Include="ChildModelDelegateCommandWithResult.cs" />
     <Compile Include="ChildModelQuery.cs" />
     <Compile Include="Clients\ClusterClient.cs" />
+    <Compile Include="Clients\Dispatching\DedicatedQueryDispatchStrategy.cs" />
+    <Compile Include="Clients\Dispatching\QueryDispatchStrategyBase.cs" />
+    <Compile Include="Clients\Dispatching\RandomQueryDispatchStrategy.cs" />
+    <Compile Include="Clients\Dispatching\RoundRobinQueryDispatchStrategy.cs" />
+    <Compile Include="Clients\FailoverClusterClient.cs" />
     <Compile Include="Clients\Remote\ConnectionPool.cs" />
+    <Compile Include="Clients\Dispatching\IClusterQueryDispatchStrategy.cs" />
     <Compile Include="Clients\Remote\IRequestContextFactory.cs" />
     <Compile Include="Clients\Remote\Messages\ClusterInfo.cs" />
     <Compile Include="Clients\Remote\Messages\NetworkMessage.cs" />
@@ -61,6 +67,7 @@
     <Compile Include="Clients\Remote\PooledConnectionRequestContextFactory.cs" />
     <Compile Include="Clients\PartitionClient.cs" />
     <Compile Include="Clients\RemoteEngineClient.cs" />
+    <Compile Include="Clients\Remote\RemoteConnection.cs" />
     <Compile Include="Clients\Remote\RequestContext.cs" />
     <Compile Include="Command[M].cs" />
     <Compile Include="CommandWithResult[M,R].cs" />
@@ -68,6 +75,7 @@
     <Compile Include="Configuration\CompressionMethod.cs" />
     <Compile Include="Configuration\Config.cs" />
     <Compile Include="Configuration\ConfigurationBase.cs" />
+    <Compile Include="Configuration\FailoverClusterClientConfiguration.cs" />
     <Compile Include="Configuration\LocalClientConfiguration.cs" />
     <Compile Include="Configuration\PartitionClusterClientConfiguration.cs" />
     <Compile Include="Configuration\RemoteClientConfiguration.cs" />
@@ -132,6 +140,7 @@
     <Compile Include="Storage\Store.cs" />
     <Compile Include="Utilities\NonDestructiveArrayQueue.cs" />
     <Compile Include="Utilities\ResourcePool.cs" />
+    <Compile Include="Utilities\SocketExtensions.cs" />
     <Compile Include="Utilities\StringToPropertiesMapper.cs" />
     <Compile Include="Utilities\TinyIoC.cs" />
     <Compile Include="Utilities\Extensions.cs" />

@@ -46,6 +46,8 @@ namespace LiveDomain.Core.Test
         [TestCleanup()]
         public void MyTestCleanup() 
         {
+			//Clear cached engines
+			Core.Config.Engines.CloseAll();
             if (Engine != null)
             {
                 Engine.Close();

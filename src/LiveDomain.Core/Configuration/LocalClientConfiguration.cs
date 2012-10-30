@@ -18,11 +18,9 @@ namespace LiveDomain.Core
 				_engineConfiguration.Location = typeof (M).Name;
 
 			Engine engine;
-			if (!Engines.TryGetEngine(_engineConfiguration.Location, out engine))
-			{
-				if (CreateWhenNotExists) engine = Engine.LoadOrCreate<M>(_engineConfiguration);
-				else engine = Engine.Load<M>(_engineConfiguration);
-			}
+			if (CreateWhenNotExists) engine = Engine.LoadOrCreate<M>(_engineConfiguration);
+			else engine = Engine.Load<M>(_engineConfiguration);
+
 			return new LocalEngineClient<M>((Engine<M>)engine);
 		}
 	}

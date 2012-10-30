@@ -276,9 +276,13 @@ namespace LiveDomain.Core
         public static Engine Load(EngineConfiguration config)
         {
             if (!config.HasLocation) throw new InvalidOperationException("Specify location to load from in non-generic load");
-            config.CreateStore().VerifyCanLoad();
-            var engine = new Engine(null, config);
-            return engine;
+	        Engine engine;
+			if (!Core.Config.Engines.TryGetEngine(config.Location,out engine))
+			{
+				config.CreateStore().VerifyCanLoad();
+				engine = new Engine(null, config);
+			}
+	        return engine;
         }
 
         public static Engine Create(Model model, string location = null)
@@ -325,9 +329,14 @@ namespace LiveDomain.Core
         {
             config = config ?? EngineConfiguration.Create();
             if (!config.HasLocation) config.SetLocationFromType<M>();
-            config.CreateStore().VerifyCanLoad();
-			var engine = new Engine<M>(config);
-    		return engine;
+
+	        Engine engine;
+			if (!Core.Config.Engines.TryGetEngine(config.Location,out engine))
+			{
+				config.CreateStore().VerifyCanLoad();
+				engine = new Engine<M>(config);
+			}
+    		return (Engine<M>) engine;
     	}
         #endregion
 

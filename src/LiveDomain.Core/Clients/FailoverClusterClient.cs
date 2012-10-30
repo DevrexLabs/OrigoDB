@@ -32,17 +32,17 @@ namespace LiveDomain.Core
 			}
 		}
 
-		public override T Execute<T>(Query<M, T> query)
+		public override T Execute<S,T>(Query<S, T> query)
 		{
 			return (T) Execute(_dispatchStrategy.GetDispatcher(), query);
 		}
 
-		public override void Execute(Command<M> command)
+		public override void Execute<S>(Command<S> command)
 		{
 			Execute(MasterNode, command);
 		}
 
-		public override T Execute<T>(CommandWithResult<M, T> command)
+		public override T Execute<S,T>(CommandWithResult<S, T> command)
 		{
 			return (T) Execute(MasterNode, command);
 		}

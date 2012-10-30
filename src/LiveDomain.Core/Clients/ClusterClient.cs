@@ -19,9 +19,9 @@ namespace LiveDomain.Core
 
 		#region Implementation of IEngine<M>
 
-		public abstract T Execute<T>(Query<M, T> query);
-		public abstract void Execute(Command<M> command);
-		public abstract T Execute<T>(CommandWithResult<M, T> command);
+		public abstract T Execute<S,T>(Query<S, T> query) where S : Model;
+		public abstract void Execute<S>(Command<S> command) where S : Model;
+		public abstract T Execute<S,T>(CommandWithResult<S, T> command) where S : Model;
 
 		#endregion
 	}

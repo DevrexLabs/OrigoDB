@@ -1,11 +1,9 @@
 ﻿using System;
 using BlackBox;
 using LiveDomain.Core.Logging;
-using System.ComponentModel.Composition;
 
 namespace Livedomain.Modules.Blackbox
 {
-    [Export(typeof(ILogFactory))]
     public class BlackBoxLogFactory : ILogFactory
     {
         readonly LogKernel _kernel;

@@ -26,25 +26,6 @@ namespace LiveDomain.Core
 
 		#endregion
 
-		#region IEngine<M> Members
-
-		public T Execute<T>(Query<M, T> query)
-		{
-			return SendAndRecieve<T>(query);
-		}
-
-		public void Execute(Command<M> command)
-		{
-			SendAndRecieve<object>(command);
-		}
-
-		public T Execute<T>(CommandWithResult<M, T> command)
-		{
-			return SendAndRecieve<T>(command);
-		}
-
-		#endregion
-
 		internal R SendMessage<R>(NetworkMessage message)
 		{
 			return SendAndRecieve<R>(message);
@@ -68,19 +49,19 @@ namespace LiveDomain.Core
 		}
 
 
-        public T Execute<S, T>(Query<S, T> queryForSubModel) where S : Model
+        public T Execute<S, T>(Query<S, T> query) where S : Model
         {
-            throw new NotImplementedException();
+			return SendAndRecieve<T>(query);
         }
 
-        public void Execute<S>(Command<S> commandForSubModel) where S : Model
+        public void Execute<S>(Command<S> command) where S : Model
         {
-            throw new NotImplementedException();
+			SendAndRecieve<object>(command);
         }
 
-        public T Execute<S, T>(CommandWithResult<S, T> commandForSubModel) where S : Model
+        public T Execute<S, T>(CommandWithResult<S, T> command) where S : Model
         {
-            throw new NotImplementedException();
+			return SendAndRecieve<T>(command);
         }
     }
 }

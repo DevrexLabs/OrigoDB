@@ -4,22 +4,17 @@ using LiveDomain.Core.Utilities;
 
 namespace LiveDomain.Core.Security
 {
+
     [Serializable]
     public class User
     {
-        public String Name { get; protected set; }
+        public readonly String Name;
         protected String PasswordHash { get; set; }
         public ISet<String> Roles { get; protected set; }
 
-
-        public void Rename(string newName)
-        {
-            if (String.IsNullOrWhiteSpace(newName)) throw new ArgumentException("Cant rename user: Invalid name");
-            Name = newName;
-        }
-
         public User(string name)
         {
+            if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Cant rename user: Invalid name");
             Roles = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
             PasswordHash = String.Empty;
         }

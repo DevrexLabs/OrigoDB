@@ -130,13 +130,14 @@
     <Compile Include="Security\LiveDomainPrincipal.cs" />
     <Compile Include="Security\Role.cs" />
     <Compile Include="Security\Rule[T].cs" />
-    <Compile Include="Security\Authenticator.cs" />
+    <Compile Include="Security\AuthenticationModel.cs" />
     <Compile Include="Security\TypeBasedPermissionSet.cs" />
     <Compile Include="Security\TypeBasedRule.cs" />
     <Compile Include="Storage\IStore.cs" />
     <Compile Include="Storage\JournalFile.cs" />
     <Compile Include="Storage\Snapshot.cs" />
     <Compile Include="Storage\Store.cs" />
+    <Compile Include="Utilities\Ensure.cs" />
     <Compile Include="Utilities\NonDestructiveArrayQueue.cs" />
     <Compile Include="Utilities\ResourcePool.cs" />
     <Compile Include="Utilities\SocketExtensions.cs" />

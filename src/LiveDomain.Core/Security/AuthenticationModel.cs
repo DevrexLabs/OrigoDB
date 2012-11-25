@@ -22,6 +22,17 @@ namespace LiveDomain.Core.Security
             _users = new Dictionary<string, User>(StringComparer.InvariantCultureIgnoreCase);
         }
 
+        public IEnumerable<Role> Roles
+        {
+            get
+            {
+                foreach (var role in _roles.Values)
+                {
+                    yield return role;
+                }
+            }
+        }
+
         public virtual void AddUser(User user)
         {
             if (_users.ContainsKey(user.Name)) throw new ArgumentException("Username already exists");

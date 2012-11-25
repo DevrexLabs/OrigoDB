@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using FakeItEasy;
 using LiveDomain.Core.Security;
 using NUnit.Framework;
 
@@ -16,17 +17,9 @@ namespace LiveDomain.Core.UnitTests
             new AuthenticationModel();
         }
 
-        [Test]
-        public void CanAddRole()
-        {
-            string role = Guid.NewGuid().ToString();
-            var target = new AuthenticationModel();
-            target.AddRole(role);
-        }
-
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void AddingNullRoleThrows()
         {
             new AuthenticationModel().AddRole(null);
@@ -49,7 +42,7 @@ namespace LiveDomain.Core.UnitTests
 
         [Test]
         [ExpectedException(typeof(ArgumentException))]
-        public void DuplicateRoleCannotBeAdded()
+        public void AddingDuplicateRoleThrows()
         {
             string role = Guid.NewGuid().ToString();
             var target = new AuthenticationModel();
@@ -59,13 +52,27 @@ namespace LiveDomain.Core.UnitTests
 
 
         [Test]
-        public void AddedRoleIsReturned()
+        public void CanAddRole()
         {
             string role = Guid.NewGuid().ToString();
             var target = new AuthenticationModel();
             target.AddRole(role);
 
             Assert.IsTrue(target.RoleExists(role));
+            Assert.AreEqual(1, target.Roles.Count());
+            Assert.AreEqual(role, target.Roles.First().Name);
+        }
+
+        [Test]
+        public void CanAddUserWithoutRoles()
+        {
+            var userMock = new Fake<User>(builder => builder.WithArgumentsForConstructor(() => new User("robert")));
+            var hashSet = new HashSet<string>();
+            A.CallTo(() => userMock.FakedObject.Roles).Returns(hashSet);
+            var target = new AuthenticationModel();
+            target.AddUser(userMock.FakedObject);
+
+            
         }
     }
 }

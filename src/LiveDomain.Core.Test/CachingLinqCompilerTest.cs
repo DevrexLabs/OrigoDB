@@ -221,7 +221,7 @@ namespace LiveDomain.Core.Test
 
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void CanExecuteFirstCustomerStartingWithArg0()
         {
             var expected = "Homer Simpson";

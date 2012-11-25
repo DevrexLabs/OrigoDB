@@ -14,8 +14,12 @@ namespace LiveDomain.Core
 
 		public override IEngine<M> GetClient<M>()
 		{
-			if(string.IsNullOrEmpty(_engineConfiguration.Location))
-				_engineConfiguration.Location = typeof (M).Name;
+
+		    var location = _engineConfiguration.Location;
+			if(!location.HasJournal)
+		    {
+		        location.SetLocationFromType<M>();
+		    }
 
 			Engine engine;
 			if (CreateWhenNotExists) engine = Engine.LoadOrCreate<M>(_engineConfiguration);

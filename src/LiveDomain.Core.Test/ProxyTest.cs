@@ -81,11 +81,9 @@ namespace LiveDomain.Core.Test
         {
             CanCreateProxy();
             _proxy.AddCustomer("Robert");
-            _logger.Clear();
             Customer robert = _proxy.GetCustomers().First();
             Customer robert2 = _proxy.GetCustomers().First();
             Assert.AreNotEqual(robert, robert2);
-            Assert.IsTrue(_logger.Messages.Any(m => m.IndexOf("Cloned results with serializer: ") >= 0));
         }
 
 
@@ -105,11 +103,9 @@ namespace LiveDomain.Core.Test
         {
             CanCreateProxy();
             _proxy.AddCustomer("Robert");
-            _logger.Clear();
             Customer robert = _proxy.GetCustomersCloned().First();
             Customer robert2 = _proxy.GetCustomersCloned().First();
-            Assert.AreNotEqual(robert, robert2);
-            Assert.IsTrue(_logger.Messages.Count(m => m.IndexOf("Cloned") >= 0) == 0);
+            Assert.AreEqual(robert, robert2);
         }
 
     }

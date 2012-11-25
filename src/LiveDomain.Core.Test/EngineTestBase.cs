@@ -22,6 +22,7 @@ namespace LiveDomain.Core.Test
         public String Path { get; set; }
 
 		
+            
 
 	    [TestInitialize]
         public void MyTestInitialize() 
@@ -64,7 +65,6 @@ namespace LiveDomain.Core.Test
         /// <returns></returns>
         public EngineConfiguration CreateConfig()
         {
-            //return CreateSqlConfig();
             return CreateFileConfig();
         }
 
@@ -73,7 +73,7 @@ namespace LiveDomain.Core.Test
             var config = EngineConfiguration.Create();
 
             //Connection string name in app.config file
-            config.Location = Path;
+            config.Location.OfJournal = Path;
             config.SnapshotBehavior = SnapshotBehavior.None;
             config.Synchronization = SynchronizationMode.ReadWrite;
             return config;
@@ -85,8 +85,8 @@ namespace LiveDomain.Core.Test
             var config = new SqlEngineConfiguration();
             
             //Connection string name in app.config file
-            config.Location = "livedbstorage";
-            config.SnapshotLocation = Path;
+            config.Location.OfJournal = "livedbstorage";
+            config.Location.OfSnapshots = Path;
 
             //new table for every test. Cleanup your test database later
             config.JournalTableName = Path;
@@ -99,8 +99,8 @@ namespace LiveDomain.Core.Test
         protected void DeleteFromDefaultLocation<M>() where M : Model
         {
             var config = new EngineConfiguration();
-            config.SetLocationFromType<M>();
-            var dirInfo = new DirectoryInfo(config.Location);
+            config.Location.SetLocationFromType<M>();
+            var dirInfo = new DirectoryInfo(config.Location.OfJournal);
             if (dirInfo.Exists)
             {
                 dirInfo.Delete(recursive: true);

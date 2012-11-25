@@ -118,7 +118,7 @@ namespace LiveDomain.Core
                 Thread.Sleep(TimeSpan.FromMilliseconds(10));
             }
 
-            Core.Config.Engines.AddEngine(config.Location, this);
+            Core.Config.Engines.AddEngine(config.Location.OfJournal, this);
         }
 
 
@@ -301,15 +301,15 @@ namespace LiveDomain.Core
         public static Engine Load(string location)
         {
             var config = EngineConfiguration.Create();
-            config.Location = location;
+            config.Location.OfJournal = location; //TODO: this smells
             return Load(config);
         }
 
         public static Engine Load(EngineConfiguration config)
         {
-            if (!config.HasLocation) throw new InvalidOperationException("Specify location to load from in non-generic load");
+            if (!config.Location.HasJournal) throw new InvalidOperationException("Specify location to load from in non-generic load");
 	        Engine engine;
-			if(!Core.Config.Engines.TryGetEngine(config.Location,out engine))
+			if(!Core.Config.Engines.TryGetEngine(config.Location.OfJournal,out engine))
 			{
 				config.CreateStore().VerifyCanLoad();
 				engine = new Engine(null, config);
@@ -320,7 +320,7 @@ namespace LiveDomain.Core
         public static Engine Create(Model model, string location = null)
         {
             var config = EngineConfiguration.Create();
-            config.Location = location;
+            config.Location.OfJournal = location;
             return Create(model, config);
         }
 
@@ -328,7 +328,7 @@ namespace LiveDomain.Core
         {
 
             config = config ?? EngineConfiguration.Create();
-            if (!config.HasLocation) config.Location = model.GetType().Name;
+            if (!config.Location.HasJournal) config.Location.SetLocationFromType(model.GetType());
             return Create<Model>(model, config);
 
         }
@@ -347,7 +347,7 @@ namespace LiveDomain.Core
         public static Engine<M> Load<M>(string location) where M : Model
         {
             var config = EngineConfiguration.Create();
-            config.Location = location;
+            config.Location.OfJournal = location;
             return Load<M>(config);
         }
 
@@ -360,9 +360,9 @@ namespace LiveDomain.Core
         public static Engine<M> Load<M>(EngineConfiguration config = null) where M : Model
         {
             config = config ?? EngineConfiguration.Create();
-            if (!config.HasLocation) config.SetLocationFromType<M>();
+            if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
 	        Engine engine;
-			if (!Core.Config.Engines.TryGetEngine(config.Location, out engine))
+			if (!Core.Config.Engines.TryGetEngine(config.Location.OfJournal, out engine))
 			{
 				config.CreateStore().VerifyCanLoad();
 				engine = new Engine<M>(config);
@@ -376,14 +376,14 @@ namespace LiveDomain.Core
         public static Engine<M> Create<M>(string location) where M : Model
         {
             var config = EngineConfiguration.Create();
-            config.Location = location;
+            config.Location.OfJournal = location;
             return Create<M>(config);
         }
 
         public static Engine<M> Create<M>(M model, string location = null) where M : Model
         {
             var config = EngineConfiguration.Create();
-            config.Location = location;
+            config.Location.OfJournal = location;
             return Create<M>(model, config);
         }
 
@@ -396,7 +396,7 @@ namespace LiveDomain.Core
 
         public static Engine<M> Create<M>(M model, EngineConfiguration config) where M : Model
         {
-            if (!config.HasLocation) config.SetLocationFromType<M>();
+            if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
             IStore store = config.CreateStore();
             store.Create(model);
             return Load<M>(config);
@@ -410,7 +410,7 @@ namespace LiveDomain.Core
         public static Engine<M> LoadOrCreate<M>(string location = null) where M : Model, new()
         {
             var config = EngineConfiguration.Create();
-            config.Location = location;
+            config.Location.OfJournal = location;
             return LoadOrCreate<M>(config);
         }
 
@@ -427,7 +427,7 @@ namespace LiveDomain.Core
             config = config ?? EngineConfiguration.Create();
             if (constructor == null) throw new ArgumentNullException("constructor");
             if (config == null) throw new ArgumentNullException("config");
-            if (!config.HasLocation) config.SetLocationFromType<M>();
+            if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
             Engine<M> result = null;
 
             var store = config.CreateStore();

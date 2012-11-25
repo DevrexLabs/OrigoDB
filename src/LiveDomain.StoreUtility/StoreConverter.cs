@@ -79,11 +79,13 @@ namespace LiveDomain.StoreUtility
                 case "file-v0.4":
                     return GetJournalEntries_v4();
                 case "file-v0.5":
-                    config = new EngineConfiguration(_args.Source) { SnapshotLocation = _args.SourceSnapshots };
+                    config = new EngineConfiguration(_args.Source);
+                    config.Location.OfSnapshots = _args.SourceSnapshots;
                     store = new FileStore(config);
                     break;
                 case "sql":
-                    config = new SqlEngineConfiguration(_args.Source) { SnapshotLocation = _args.SourceSnapshots };
+                    config = new SqlEngineConfiguration(_args.Source);
+                    config.Location.OfSnapshots = _args.SourceSnapshots;
                     store = new SqlStore(config);
                     break;
                 default:
@@ -127,13 +129,13 @@ namespace LiveDomain.StoreUtility
             if (_args.DestinationType == "file-v0.5")
             {
                 var config = new EngineConfiguration(_args.Destination);
-                config.SnapshotLocation = _args.DestinationSnapshots;
+                config.Location.OfSnapshots = _args.DestinationSnapshots;
                 store = new FileStore(config);
             }
             else if (_args.DestinationType == "sql")
             {
                 var config = new SqlEngineConfiguration(_args.Destination);
-                config.SnapshotLocation = _args.DestinationSnapshots;
+                config.Location.OfSnapshots = _args.DestinationSnapshots;
                 store = new SqlStore(config);
             }
             else throw new ArgumentException("Invalid destination type");

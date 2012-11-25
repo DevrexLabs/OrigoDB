@@ -16,9 +16,6 @@ namespace LiveDomain.Core.Test
     [TestClass]
     public class EngineTest : EngineTestBase
     {
-        public EngineTest()
-        {
-        }
 
         private TestContext testContextInstance;
 
@@ -28,10 +25,7 @@ namespace LiveDomain.Core.Test
         ///</summary>
         public TestContext TestContext
         {
-            get
-            {
-                return testContextInstance;
-            }
+            get { return testContextInstance; }
             set
             {
                 testContextInstance = value;
@@ -178,19 +172,6 @@ namespace LiveDomain.Core.Test
             this.Engine = Engine.LoadOrCreate<TestModel>();
             Assert.IsTrue(_logger.Messages.Any(m => m.Contains("Engine Created")));
         }
-
-
-        //[TestMethod]
-        //public void LoadOrCreateCreatesInWebContext()
-        //{
-        //    Assert.Inconclusive();
-        //}
-
-        //[TestMethod]
-        //public void LoadOrCreateLoadsInWebContext()
-        //{
-        //    Assert.Inconclusive();
-        //}
 
         [TestMethod]
         public void LoadOrCreateLoadsWhenExists()

@@ -7,50 +7,84 @@ using System.Text;
 namespace LiveDomain.Core
 {
 
-    //Location related parts of this class. promote to Location class later while implementing storage providers.
-    public partial class EngineConfiguration
+    public abstract class StorageLocation
     {
-        string _location, _snapshotLocation;
+        public abstract string OfJournal { get; set; }
+        public abstract string OfSnapshots { get; set; }
+
+        public abstract string RelativeLocation { get; }
+
+        internal virtual void SetLocationFromType<M>()
+        {
+            SetLocationFromType(typeof(M));
+        }
+
+
+        public bool HasJournal 
+        { 
+            get
+            {
+                return !String.IsNullOrEmpty(OfJournal);        
+            }
+        }
+
+        public abstract bool HasAlternativeSnapshotLocation { get; }
+
+        internal void SetLocationFromType(Type type)
+        {
+            OfJournal = type.Name;
+        }
+    }
+
+    public class FileStorageLocation : StorageLocation
+    {
+
+        private string _journalLocation;
+        private string _snapshotLocation;
+        
+
+        public FileStorageLocation(string location)
+        {
+            _journalLocation = location;
+        }
 
         /// <summary>
-        /// The location of the command journal and snapshots. A directory path when using FileStorage, 
+        /// The location of the command journal files. A directory path when using FileStorage, 
         /// a connection string when using SqlStorage.
         /// Assigning a relative path will resolve to current directory or App_Data if running in a web context
         /// </summary>
-        public string Location
+        public override string OfJournal
         {
-            get { return _location != null ? Path.Combine(GetDefaultDirectory(), _location) : _location; }
-            set { _location = value; }
+            get { return _journalLocation != null ? Path.Combine(GetDefaultDirectory(), _journalLocation) : _journalLocation; }
+            set { _journalLocation = value; }
         }
 
         /// <summary>
         /// Gets the location without combining to an absolute location relative to the default directory
         /// </summary>
-        public string RelativeLocation { get { return _location; } }
+        public override string RelativeLocation { get { return _journalLocation; } }
 
         /// <summary>
-        /// Same as TargetLocation unless set to some other location
+        /// Same as Journal unless specifically set
         /// </summary>
-        public string SnapshotLocation
+        public override string OfSnapshots
         {
             get
             {
-                return _snapshotLocation ?? Location;
+                return _snapshotLocation ?? OfJournal;
             }
             set
             {
-                if (value == null || value == Location) _snapshotLocation = null;
+                if (value == null || value == OfJournal) _snapshotLocation = null;
                 else _snapshotLocation = value;
             }
         }
 
 
-
-
         /// <summary>
         /// True if the snapshotlocation differs from the location of the journal
         /// </summary>
-        public bool HasAlternativeSnapshotLocation
+        public override bool HasAlternativeSnapshotLocation
         {
             get
             {
@@ -81,19 +115,5 @@ namespace LiveDomain.Core
             catch { }
             return result;
         }
-
-        public bool HasLocation
-        {
-            get
-            {
-                return !String.IsNullOrEmpty(_location);
-            }
-        }
-
-        internal void SetLocationFromType<M>()
-        {
-            Location = typeof(M).Name;
-        }
-
     }
 }

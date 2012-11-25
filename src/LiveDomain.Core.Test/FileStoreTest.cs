@@ -63,7 +63,7 @@ namespace LiveDomain.Core.Test
 		{
 			Directory.CreateDirectory(_path);
 			_config = EngineConfiguration.Create();
-			_config.Location = _path;
+			_config.Location.OfJournal = _path;
 			_config.MaxEntriesPerJournalSegment = 10;
 			_store = new FileStore(_config);
 			_store.Load();

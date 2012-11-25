@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections.Specialized;
 
 namespace LiveDomain.Core
 {
@@ -15,6 +16,27 @@ namespace LiveDomain.Core
             if (number == "") return 0;
             return Int32.Parse(number);
 
+        }
+
+        public static Dictionary<string,string> ParseProperties(this string @string)
+        {
+            var dictionary = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+
+            //Do some pre cleaning
+            @string = @string.Trim();
+            if (@string.EndsWith(";"))
+            {
+                @string = @string.Remove(@string.Length - 1);
+            }
+
+            var properties = @string.Split(';');
+            foreach (string property in properties)
+            {
+                var pair = property.Split('=');
+                if (pair.Length != 2) throw new InvalidOperationException("Invalid properties string");
+                dictionary[pair[0]] = pair[1];
+            }
+            return dictionary;
         }
     }
 }

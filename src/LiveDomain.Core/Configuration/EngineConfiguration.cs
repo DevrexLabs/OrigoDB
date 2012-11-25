@@ -81,6 +81,9 @@ namespace LiveDomain.Core
         /// </summary>
         public int MaxBytesPerJournalSegment { get; set; }
 
+
+        public StorageLocation Location { get; set; }
+
         /// <summary>
         /// Create an EngineConfiguration instance using default values
         /// </summary>
@@ -88,7 +91,7 @@ namespace LiveDomain.Core
         public EngineConfiguration(string targetLocation = null)
         {
 
-            Location = targetLocation;
+            Location = new FileStorageLocation(targetLocation);
 
             //Set default values
             LockTimeout = DefaultTimeout;

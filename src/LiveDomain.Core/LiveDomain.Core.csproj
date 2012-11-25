@@ -141,7 +141,7 @@
     <Compile Include="Utilities\NonDestructiveArrayQueue.cs" />
     <Compile Include="Utilities\ResourcePool.cs" />
     <Compile Include="Utilities\SocketExtensions.cs" />
-    <Compile Include="Utilities\StringToPropertiesMapper.cs" />
+    <Compile Include="Utilities\DictionaryMapper.cs" />
     <Compile Include="Utilities\TinyIoC.cs" />
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Utilities\Immutable.cs" />

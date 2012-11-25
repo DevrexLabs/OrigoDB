@@ -26,7 +26,7 @@ namespace LiveDomain.Core
 
 		public override string ToString()
 		{
-			return new StringToPropertiesMapper().ToPropertiesString(this, Default);
+			return DictionaryMapper.ToPropertiesString(this, Default);
 		}
 
 		public override IEngine<M> GetClient<M>()

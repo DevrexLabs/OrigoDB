@@ -249,11 +249,5 @@ namespace LiveDomain.Core.Test
             var config = new EngineConfiguration();
             Assert.IsFalse(config.AsyncronousJournaling);
         }
-
-
-        /*
-JournalWriter
-          */
-
     }
 }

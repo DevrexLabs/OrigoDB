@@ -24,7 +24,7 @@ namespace LiveDomain.Core
 		protected IStore _storage;
         private JournalState _state;
         protected EngineConfiguration _config;
-	    protected static ILog _log = Log.GetLogFactory().GetLogForCallingType();
+	    protected static ILog _log = LogProvider.Factory.GetLogForCallingType();
         private long _lastEntryId;
 
         /// <summary>

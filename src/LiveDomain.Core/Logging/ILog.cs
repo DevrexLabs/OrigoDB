@@ -3,20 +3,8 @@
 namespace LiveDomain.Core.Logging
 {
 
-    public enum LogMessageType
+    public interface ILog
     {
-        Trace,
-        Debug,
-        Info,
-        Warning,
-        Error,
-        Fatal
-    }
-
-    
-    public interface ILog : IDisposable
-    {
-        void Trace(string message, params object[] args);
         void Debug(string message, params object[] args);
         void Info(string message, params object[] args);
         void Warn(string message, params object[] args);
@@ -24,9 +12,4 @@ namespace LiveDomain.Core.Logging
         void Exception(Exception exception);
         void Fatal(string message, params object[] args);
     }
-
-
-
-
-
 }

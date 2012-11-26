@@ -21,7 +21,7 @@ namespace LiveDomain.Core
         private RolloverStrategy _rolloverStrategy;
         private long _entriesWrittenToCurrentStream;
 
-        private static ILog _log = Log.GetLogFactory().GetLogForCallingType();
+        private static ILog _log = LogProvider.Factory.GetLogForCallingType();
 
 
 

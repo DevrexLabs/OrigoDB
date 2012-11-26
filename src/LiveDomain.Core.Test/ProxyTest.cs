@@ -14,14 +14,16 @@ namespace LiveDomain.Core.Test
 	[TestClass]
 	public class ProxyTest : EngineTestBase
 	{
-		Engine<TestModel> _engine; 
-		TestModel _proxy;
+
+        TestModel _proxy;
+	    Engine<TestModel> _engine;
 
 
-		[TestMethod]
-		public void CanCreateEngine()
-		{
-			_engine = Engine.Create(new TestModel(), CreateConfig());
+        [TestInitialize]
+        public void TestSetup()
+        {
+            Engine =_engine = Engine.Create(new TestModel(), CreateConfig());
+            _proxy = _engine.GetProxy();
         }
 
 
@@ -38,16 +40,8 @@ namespace LiveDomain.Core.Test
 
 
 		[TestMethod]
-		public void CanCreateProxy()
-		{
-			CanCreateEngine();
-			_proxy = _engine.GetProxy();
-		}
-
-		[TestMethod]
 		public void CanExecuteCommandMethod()
 		{
-			CanCreateProxy();
 			_proxy.IncreaseNumber();
 			Assert.AreEqual(1, _proxy.CommandsExecuted);
 		}
@@ -55,7 +49,6 @@ namespace LiveDomain.Core.Test
 		[TestMethod]
 		public void CanExecuteCommandWithResultMethod()
 		{
-			CanCreateProxy();
 			Assert.AreEqual(_proxy.Uppercase("livedb"), "LIVEDB");
 			Assert.AreEqual(1, _proxy.CommandsExecuted);
 		}
@@ -63,7 +56,6 @@ namespace LiveDomain.Core.Test
 		[TestMethod, ExpectedException(typeof(SerializationException))]
 		public void ThrowsExceptionOnYieldQuery()
 		{
-			CanCreateProxy();
 			int i = _proxy.GetNames().Count();
 			Assert.IsTrue(i == 10);
 		}
@@ -71,7 +63,6 @@ namespace LiveDomain.Core.Test
 		[TestMethod]
 		public void CanExecuteQueryMethod()
 		{
-			CanCreateProxy();
 			var number = _proxy.GetCommandsExecuted();
 			Assert.AreEqual(number,0);
 		}
@@ -79,7 +70,6 @@ namespace LiveDomain.Core.Test
         [TestMethod]
         public void QueryResultsAreCloned()
         {
-            CanCreateProxy();
             _proxy.AddCustomer("Robert");
             Customer robert = _proxy.GetCustomers().First();
             Customer robert2 = _proxy.GetCustomers().First();
@@ -90,18 +80,16 @@ namespace LiveDomain.Core.Test
         [TestMethod]
         public void IntResultIsNotCloned()
         {
-            CanCreateProxy();
             _proxy.AddCustomer("Robert");
-            _logger.Clear();
+            _memoryLogWriter.Clear();
             int commandExecuted = _proxy.GetCommandsExecuted();
-            Assert.IsTrue(_logger.Messages.Count(m => m.IndexOf("Cloned") >= 0) == 0);
+            Assert.IsTrue(_memoryLogWriter.Messages.Count(m => m.IndexOf("Cloned") >= 0) == 0);
 
         }
 
 	    [TestMethod]
         public void SafeQueryResultsAreNotCloned()
         {
-            CanCreateProxy();
             _proxy.AddCustomer("Robert");
             Customer robert = _proxy.GetCustomersCloned().First();
             Customer robert2 = _proxy.GetCustomersCloned().First();

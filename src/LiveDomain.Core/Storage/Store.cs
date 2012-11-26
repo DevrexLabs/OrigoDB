@@ -10,7 +10,7 @@ namespace LiveDomain.Core.Storage
     {
         protected EngineConfiguration _config;
         protected ISerializer _serializer;
-        protected static ILog _log = Log.GetLogFactory().GetLogForCallingType();
+        protected static ILog _log = LogProvider.Factory.GetLogForCallingType();
 
         private List<Snapshot> _snapshots;
         public IEnumerable<Snapshot> Snapshots

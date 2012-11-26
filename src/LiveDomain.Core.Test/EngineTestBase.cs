@@ -11,34 +11,31 @@ namespace LiveDomain.Core.Test
     [TestClass]
     public class EngineTestBase
     {
-        protected static InMemoryLogger _logger = new InMemoryLogger();
+        protected MemorySink _memoryLogWriter = new MemorySink();
 
-        static EngineTestBase()
-        {
-            Log.SetLogFactory(new SingletonLogFactory(_logger));
-        }
 
         public Engine Engine { get; set; }
         public String Path { get; set; }
 
-		
-            
 
 	    [TestInitialize]
         public void MyTestInitialize() 
         {
             Path = Guid.NewGuid().ToString();
-            _logger.Clear();
+            
+            (LogProvider.Factory as LogFactory).Kernel.AddWriter(_memoryLogWriter);
+            _memoryLogWriter.Clear();
+            
         }
 
         public void WriteLog()
         {
 
-            if (!_logger.Messages.Any()) return;
+            if (!_memoryLogWriter.Messages.Any()) return;
             Console.WriteLine("------------------------------");
             Console.WriteLine(" LOG");
             Console.WriteLine("------------------------------");
-            foreach (var message in _logger.Messages)
+            foreach (var message in _memoryLogWriter.Messages)
             {
                 Console.WriteLine((string) message);
             }
@@ -48,7 +45,8 @@ namespace LiveDomain.Core.Test
         public void MyTestCleanup() 
         {
 			//Clear cached engines
-			Core.Config.Engines.CloseAll();
+			Config.Engines.CloseAll();
+
             if (Engine != null)
             {
                 Engine.Close();
@@ -57,6 +55,8 @@ namespace LiveDomain.Core.Test
             }
             Console.WriteLine("Path:" + Path);
             WriteLog();
+
+            (LogProvider.Factory as LogFactory).Kernel.RemoveWriter(_memoryLogWriter);
         }
 
         /// <summary>
@@ -69,6 +69,7 @@ namespace LiveDomain.Core.Test
         }
 
         private EngineConfiguration CreateFileConfig()
+
         {
             var config = EngineConfiguration.Create();
 

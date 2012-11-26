@@ -78,13 +78,24 @@
     <Compile Include="Configuration\LocalClientConfiguration.cs" />
     <Compile Include="Configuration\PartitionClusterClientConfiguration.cs" />
     <Compile Include="Configuration\RemoteClientConfiguration.cs" />
-    <Compile Include="Configuration\Location.cs" />
+    <Compile Include="Configuration\FileStorageLocation.cs" />
+    <Compile Include="Configuration\StorageLocation.cs" />
     <Compile Include="Linq\DelegateQuery.cs" />
     <Compile Include="Engine.For.cs" />
     <Compile Include="Db.cs" />
     <Compile Include="Engines.cs" />
     <Compile Include="IImmutable.cs" />
     <Compile Include="IOperationWithResult.cs" />
+    <Compile Include="Logging\ConsoleSink.cs" />
+    <Compile Include="Logging\LogConfiguration.cs" />
+    <Compile Include="Logging\LogFactory.cs" />
+    <Compile Include="Logging\FilteredSink.cs" />
+    <Compile Include="Logging\LogFormatter.cs" />
+    <Compile Include="Logging\LogKernel.cs" />
+    <Compile Include="Logging\LogLevel.cs" />
+    <Compile Include="Logging\LogProvider.cs" />
+    <Compile Include="Logging\LogSink.cs" />
+    <Compile Include="Logging\MultiSink.cs" />
     <Compile Include="Proxy\OperationType.cs" />
     <Compile Include="Proxy\ProxyMethodInfo.cs" />
     <Compile Include="Clients\Merge.cs" />
@@ -97,8 +108,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Logging\ILogFactory.cs" />
-    <Compile Include="Logging\InternalLogFactory.cs" />
-    <Compile Include="Logging\SingletonLogFactory.cs" />
     <Compile Include="RolloverStrategy.cs" />
     <Compile Include="Proxy\ModelProxy.cs" />
     <Compile Include="Proxy\ProxyMethodAttribute.cs" />
@@ -108,9 +117,9 @@
     <Compile Include="Security\NullAuthorizer.cs" />
     <Compile Include="Security\IAuthenticator.cs" />
     <Compile Include="Security\IAuthorizer.cs" />
-    <Compile Include="Logging\FileLogger.cs" />
-    <Compile Include="Logging\InMemoryLogger.cs" />
-    <Compile Include="Logging\Logger.cs" />
+    <Compile Include="Logging\FileSink.cs" />
+    <Compile Include="Logging\MemorySink.cs" />
+    <Compile Include="Logging\Log.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Journaling\AsynchronousJournalWriter.cs" />
     <Compile Include="Command.cs" />
@@ -122,7 +131,6 @@
     <Compile Include="Engine[M].cs" />
     <Compile Include="Journaling\ICommandJournal.cs" />
     <Compile Include="Configuration\JournalWriterMode.cs" />
-    <Compile Include="Logging\NullLogger.cs" />
     <Compile Include="Security\SecurityModel.cs" />
     <Compile Include="Security\MatchAllRule.cs" />
     <Compile Include="Security\Permission.cs" />

@@ -35,7 +35,7 @@ namespace LiveDomain.Core
         ISerializer _serializer;
         bool _isDisposed = false;
         ICommandJournal _commandJournal;
-        static ILog _log = Log.GetLogFactory().GetLogForCallingType();
+        static ILog _log = LogProvider.Factory.GetLogForCallingType();
         IAuthorizer<Type> _authorizer;
 
         public EngineConfiguration Config { get { return _config; } }
@@ -435,12 +435,12 @@ namespace LiveDomain.Core
             if (store.Exists)
             {
                 result = Load<M>(config);
-                _log.Trace("Engine Loaded");
+                _log.Debug("Engine Loaded");
             }
             else
             {
                 result = Create<M>(constructor.Invoke(), config);
-                _log.Trace("Engine Created");
+                _log.Debug("Engine Created");
             }
             return result;
         }

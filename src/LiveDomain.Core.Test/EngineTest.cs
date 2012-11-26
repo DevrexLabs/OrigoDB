@@ -127,7 +127,7 @@ namespace LiveDomain.Core.Test
                 Command command = new TestCommandWithResult() { Payload = new byte[100000] };
                 this.Engine.Execute(command);
             }
-            Assert.IsTrue(_logger.Messages.Count(m => m.Contains("NewJournalSegment")) > 0);
+            Assert.IsTrue(_memoryLogWriter.Messages.Count(m => m.Contains("NewJournalSegment")) > 0);
         }
 
         [TestMethod]
@@ -142,7 +142,7 @@ namespace LiveDomain.Core.Test
                 Command command = new TestCommandWithResult() { Payload = new byte[100000] };
                 this.Engine.Execute(command);
             }
-            Assert.IsTrue(_logger.Messages.Count(m => m.Contains("NewJournalSegment")) > 0);
+            Assert.IsTrue(_memoryLogWriter.Messages.Count(m => m.Contains("NewJournalSegment")) > 0);
         }
 
         [TestMethod]
@@ -170,7 +170,7 @@ namespace LiveDomain.Core.Test
         {
             DeleteFromDefaultLocation<TestModel>();
             this.Engine = Engine.LoadOrCreate<TestModel>();
-            Assert.IsTrue(_logger.Messages.Any(m => m.Contains("Engine Created")));
+            Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("Engine Created")));
         }
 
         [TestMethod]
@@ -180,7 +180,7 @@ namespace LiveDomain.Core.Test
             engine.Close();
             this.Engine = Engine.LoadOrCreate<TestModel>();
             
-            Assert.IsTrue(_logger.Messages.Any(m => m.Contains("Engine Loaded")));
+            Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("Engine Loaded")));
         }
 
         [TestMethod]
@@ -191,8 +191,8 @@ namespace LiveDomain.Core.Test
             config.SnapshotBehavior = SnapshotBehavior.AfterRestore;
             var engine = Engine.Create<TestModel>(config);
             engine.Close();
-            Assert.IsTrue(_logger.Messages.Any(m => m.Contains("BeginSnapshot")));
-            Assert.IsTrue(_logger.Messages.Any(m => m.Contains("EndSnapshot")));
+            Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("BeginSnapshot")));
+            Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("EndSnapshot")));
         }
 
         [TestMethod]
@@ -203,8 +203,8 @@ namespace LiveDomain.Core.Test
             config.SnapshotBehavior = SnapshotBehavior.OnShutdown;
             var engine = Engine.Create<TestModel>(config);
             engine.Close();
-            Assert.IsTrue(_logger.Messages.Any(m => m.Contains("BeginSnapshot")));
-            Assert.IsTrue(_logger.Messages.Any(m => m.Contains("EndSnapshot")));
+            Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("BeginSnapshot")));
+            Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("EndSnapshot")));
         }
 
         [TestMethod]
@@ -215,15 +215,6 @@ namespace LiveDomain.Core.Test
             registry.Register<IStore>((c,p) => new FileStore(new EngineConfiguration()), name);
             var result = registry.Resolve<IStore>(name);
             Assert.IsNotNull(result);
-        }
-
-        [TestMethod]
-        public void InjectedLogFactoryIsResolved()
-        {
-            Log.SetLogFactory(new SingletonLogFactory(new InMemoryLogger()));
-            var logger = Log.GetLogFactory().GetLogForCallingType();
-            Assert.IsNotNull(logger);
-            Assert.IsTrue(logger is InMemoryLogger);
         }
 
         [TestMethod]
@@ -315,9 +306,9 @@ namespace LiveDomain.Core.Test
             config.MaxEntriesPerJournalSegment = 2;
             Engine = Engine.Create(new TestModel(), config);
             ExecuteCommands(2);
-			Assert.IsFalse(_logger.Messages.Any(m => m.Contains("NewJournalSegment")));
+			Assert.IsFalse(_memoryLogWriter.Messages.Any(m => m.Contains("NewJournalSegment")));
 			ExecuteCommands(1);
-			Assert.IsTrue(_logger.Messages.Any(m => m.Contains("NewJournalSegment")));
+			Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("NewJournalSegment")));
             Engine.Close();
 			
             var store = config.CreateStore() as FileStore;

@@ -16,7 +16,8 @@ namespace LiveDomain.Core.Logging
         public static void SetLogFactory(ILogFactory logFactory)
         {
             Ensure.NotNull(logFactory, "logFactory");
-            if(_logFactory != null) throw new InvalidOperationException("Log factory can only be set once and must happen before the first call to LogProvider.Factory");
+            if(_logFactory != null) 
+                throw new InvalidOperationException("Log factory can only be set once and must happen before the first call to LogProvider.Factory");
             _logFactory = logFactory;
         }
 

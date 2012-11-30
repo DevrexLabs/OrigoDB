@@ -80,6 +80,7 @@
     <Compile Include="Configuration\RemoteClientConfiguration.cs" />
     <Compile Include="Configuration\FileStorageLocation.cs" />
     <Compile Include="Configuration\StorageLocation.cs" />
+    <Compile Include="Kernel.cs" />
     <Compile Include="Linq\DelegateQuery.cs" />
     <Compile Include="Engine.For.cs" />
     <Compile Include="Db.cs" />
@@ -96,9 +97,11 @@
     <Compile Include="Logging\LogProvider.cs" />
     <Compile Include="Logging\LogSink.cs" />
     <Compile Include="Logging\MultiSink.cs" />
+    <Compile Include="OptimizedKernel.cs" />
     <Compile Include="Proxy\OperationType.cs" />
     <Compile Include="Proxy\ProxyMethodInfo.cs" />
     <Compile Include="Clients\Merge.cs" />
+    <Compile Include="SimpleKernel.cs" />
     <Compile Include="Utilities\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />
     <Compile Include="Journaling\NullJournalWriter.cs" />

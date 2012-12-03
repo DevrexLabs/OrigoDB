@@ -75,11 +75,13 @@
     <Compile Include="Configuration\Config.cs" />
     <Compile Include="Configuration\ConfigurationBase.cs" />
     <Compile Include="Configuration\FailoverClusterClientConfiguration.cs" />
+    <Compile Include="Configuration\KernelMode.cs" />
     <Compile Include="Configuration\LocalClientConfiguration.cs" />
     <Compile Include="Configuration\PartitionClusterClientConfiguration.cs" />
     <Compile Include="Configuration\RemoteClientConfiguration.cs" />
     <Compile Include="Configuration\FileStorageLocation.cs" />
     <Compile Include="Configuration\StorageLocation.cs" />
+    <Compile Include="Journaling\RollbackMarker.cs" />
     <Compile Include="Kernel.cs" />
     <Compile Include="Linq\DelegateQuery.cs" />
     <Compile Include="Engine.For.cs" />
@@ -97,11 +99,11 @@
     <Compile Include="Logging\LogProvider.cs" />
     <Compile Include="Logging\LogSink.cs" />
     <Compile Include="Logging\MultiSink.cs" />
-    <Compile Include="OptimizedKernel.cs" />
+    <Compile Include="OptimisticKernel.cs" />
     <Compile Include="Proxy\OperationType.cs" />
     <Compile Include="Proxy\ProxyMethodInfo.cs" />
     <Compile Include="Clients\Merge.cs" />
-    <Compile Include="SimpleKernel.cs" />
+    <Compile Include="PessimisticKernel.cs" />
     <Compile Include="Utilities\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />
     <Compile Include="Journaling\NullJournalWriter.cs" />

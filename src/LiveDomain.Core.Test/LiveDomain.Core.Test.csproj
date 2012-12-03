@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assumptions.cs" />
+    <Compile Include="CommandJournalTest.cs" />
     <Compile Include="ExtensionsTest.cs" />
     <Compile Include="MergersTest.cs" />
     <Compile Include="CachingLinqCompilerTest.cs" />

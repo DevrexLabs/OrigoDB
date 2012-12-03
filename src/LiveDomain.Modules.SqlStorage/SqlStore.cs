@@ -67,7 +67,7 @@ namespace LiveDomain.Modules.SqlStorage
         /// 
         /// </summary>
         /// <returns></returns>
-        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(long lastEntryId)
+        public override IEnumerable<JournalEntry> GetJournalEntriesFrom(long lastEntryId)
         {
             ISerializer serializer = _config.CreateSerializer();
             string sql = GetEntrySelectStatement(lastEntryId);
@@ -84,7 +84,7 @@ namespace LiveDomain.Modules.SqlStorage
                     if(length > Int32.MaxValue) throw new OverflowException("serialized journal entry is too big");
                     byte[] buffer = new byte[length];
                     reader.GetBytes(2, 0, buffer, 0, (int)length);
-                    var entry = serializer.Deserialize<JournalEntry<Command>>(buffer);
+                    var entry = serializer.Deserialize<JournalEntry>(buffer);
                     if(entry.Id != entryId) throw new Exception("EntryId mismatch in database, id =" + entryId);
                     yield return entry;
                 }
@@ -187,9 +187,9 @@ namespace LiveDomain.Modules.SqlStorage
            return new SqlJournalWriter(this);
         }
 
-        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
+        public override IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
         {
-            foreach (JournalEntry<Command> journalEntry in GetJournalEntriesFrom(1))
+            foreach (JournalEntry journalEntry in GetJournalEntriesFrom(1))
             {
                 if (journalEntry.Created <= pointInTime) yield return journalEntry;
             }

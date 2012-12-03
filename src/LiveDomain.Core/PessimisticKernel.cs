@@ -2,9 +2,9 @@ using System;
 
 namespace LiveDomain.Core
 {
-    public sealed class SimpleKernel : Kernel
+    public sealed class PessimisticKernel : Kernel
     {
-        public SimpleKernel(EngineConfiguration config, IStore store)
+        public PessimisticKernel(EngineConfiguration config, IStore store)
             : base(config, store)
         {
             

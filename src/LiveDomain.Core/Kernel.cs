@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using LiveDomain.Core.Utilities;
 using LiveDomain.Core.Logging;
 
@@ -12,7 +10,7 @@ namespace LiveDomain.Core
     /// The kernel coordinates concurrent access to the
     /// model and executes command and queries
     /// </summary>
-    public abstract class Kernel
+    public abstract class Kernel : IDisposable
     {
 
         private static ILog _log = LogProvider.Factory.GetLogForCallingType();
@@ -25,6 +23,10 @@ namespace LiveDomain.Core
         protected readonly ISerializer _serializer;
         protected readonly IStore _store;
 
+        /// <summary>
+        /// Apply the command to the model and save it to the journal, 
+        /// not necessarily in that order
+        /// </summary>
         public abstract object ExecuteCommand(Command command);
 
         public virtual T ExecuteQuery<M, T>(Query<M, T> query) where M : Model
@@ -50,7 +52,7 @@ namespace LiveDomain.Core
         protected Kernel(EngineConfiguration config, IStore store)
         {
             _config = config;
-            _commandJournal = config.CreateCommandJournal();
+            _commandJournal = config.CreateCommandJournal(store);
             _synchronizer = _config.CreateSynchronizer();
             _serializer = config.CreateSerializer();
             _store = store;
@@ -72,17 +74,23 @@ namespace LiveDomain.Core
             }
         }
 
-        public void Restore<M>(Func<M> constructor) where M : Model
+        protected void Restore()
         {
+            Restore(() => (Model)Activator.CreateInstance(_model.GetType()));
+        }
+        /// <summary>
+        /// Restore the model from the latest snapshot and replay subsequent commands
+        /// </summary>
+        /// <param name="constructor">Used to create the initial model if there is no snapshot</param>
+        public void Restore<M>(Func<M> constructor = null) where M : Model
+        {
+
+            constructor = constructor ?? Activator.CreateInstance<M>;
 
             long lastEntryIdExecuted;
             _model = _store.LoadMostRecentSnapshot(out lastEntryIdExecuted);
 
-            if (_model == null)
-            {
-                if (constructor == null) throw new ApplicationException("No initial snapshot");
-                _model = constructor.Invoke();
-            }
+            if (_model == null) _model = constructor.Invoke();
 
             _model.SnapshotRestored();
             foreach (var command in _commandJournal.GetEntriesFrom(lastEntryIdExecuted).Select(entry => entry.Item))
@@ -92,6 +100,12 @@ namespace LiveDomain.Core
             _model.JournalRestored();
         }
 
+        /// <summary>
+        /// Provide synchronized read access to the model
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="readAction"></param>
+        /// <returns></returns>
         public T Read<T>(Func<Model, T> readAction)
         {
             try
@@ -105,17 +119,16 @@ namespace LiveDomain.Core
             }
         }
 
+        /// <summary>
+        /// Provides synchronized read access to the model
+        /// </summary>
+        /// <param name="readAction"></param>
         public void Read(Action<Model> readAction)
         {
-            try
-            {
-                _synchronizer.EnterRead();
-                readAction.Invoke(_model);
-            }
-            finally
-            {
-                _synchronizer.Exit();
-            }
+            Read((m) => {
+                readAction.Invoke(m);
+                return 0;
+            });
         }
 
         public void Dispose()
@@ -123,6 +136,10 @@ namespace LiveDomain.Core
             _commandJournal.Dispose();
         }
 
+
+        /// <summary>
+        /// Writes a snapshot to the <see cref="IStore"/>
+        /// </summary>
         internal void CreateSnapshot()
         {
             long lastEntryId = _commandJournal.LastEntryId;

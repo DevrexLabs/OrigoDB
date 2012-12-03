@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
 using LiveDomain.Core.Storage;
+using LiveDomain.Core.Journaling;
 
 namespace LiveDomain.Core
 {
@@ -56,7 +57,7 @@ namespace LiveDomain.Core
             return fileSnapshot;
         }
 
-        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(long entryId)
+        public override IEnumerable<JournalEntry> GetJournalEntriesFrom(long entryId)
         {
 			if (entryId != 0 && entryId < _journalFiles[0].StartingEntryId)
 				throw new NotSupportedException("Journal file missing");
@@ -64,13 +65,13 @@ namespace LiveDomain.Core
             int offset = 0;
 	        while (_journalFiles.Count > offset + 1 && _journalFiles[offset + 1].StartingEntryId < entryId)
 				offset++;
-			
+
             foreach (var journalFile in _journalFiles.Skip(offset))
             {
                 string path = Path.Combine(_config.Location.OfJournal, journalFile.Name);
                 using (Stream stream = GetReadStream(path))
                 {
-                    foreach (var entry in _serializer.ReadToEnd<JournalEntry<Command>>(stream))
+                    foreach (var entry in _serializer.ReadToEnd<JournalEntry>(stream))
                     {
                         if (entry.Id < entryId) continue;
                         yield return entry;
@@ -80,7 +81,7 @@ namespace LiveDomain.Core
 
         }
 
-        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
+        public override IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
         {
             foreach (var journalEntry in GetJournalEntries())
             {

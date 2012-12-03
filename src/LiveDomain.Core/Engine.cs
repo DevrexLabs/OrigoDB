@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using LiveDomain.Core.Configuration;
 using LiveDomain.Core.Logging;
 using LiveDomain.Core.Proxy;
 using LiveDomain.Core.Security;
@@ -56,7 +57,7 @@ namespace LiveDomain.Core
             var store = _config.CreateStore();
             store.Load();
 
-            _kernel = new OptimizedKernel(config, store);
+            _kernel = _config.CreateKernel(store);
             _kernel.Restore(constructor);
             
             _authorizer = _config.CreateAuthorizer();

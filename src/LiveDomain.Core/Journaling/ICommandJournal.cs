@@ -34,5 +34,10 @@ namespace LiveDomain.Core
         /// Id of the last entry written to the log
         /// </summary>
         long LastEntryId { get; }
+
+        /// <summary>
+        /// Mark the previous transaction as failed
+        /// </summary>
+        void WriteRollbackMarker();
     }
 }

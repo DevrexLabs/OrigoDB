@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveDomain.StoreUtility", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveDomain.Core.UnitTests", "LiveDomain.Core.UnitTests\LiveDomain.Core.UnitTests.csproj", "{200A39EE-0755-4349-985A-CFAB7FE94A8A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveDomain.Benchmark", "LiveDomain.Benchmark\LiveDomain.Benchmark.csproj", "{57B02997-3495-4941-8065-2063E6EC1BA6}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = LiveDomain.Core.vsmdi
@@ -118,6 +120,16 @@ Global
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|x86.ActiveCfg = Release|Any CPU
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|x86.ActiveCfg = Debug|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|x86.Build.0 = Debug|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Any CPU.ActiveCfg = Release|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Mixed Platforms.Build.0 = Release|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|x86.ActiveCfg = Release|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -129,5 +141,6 @@ Global
 		{86F16DB8-22E9-483A-A752-87CE48D4DF18} = {3CCC7D34-4E0C-4603-BC0C-65EFAFBBF920}
 		{0524D08D-149D-4199-89D8-DF75E77D6638} = {3CCC7D34-4E0C-4603-BC0C-65EFAFBBF920}
 		{92154F54-3EDB-45D1-9B4D-7CA54D9F0EE8} = {134C2803-9F83-4988-B7D4-3051ADB616F8}
+		{57B02997-3495-4941-8065-2063E6EC1BA6} = {134C2803-9F83-4988-B7D4-3051ADB616F8}
 	EndGlobalSection
 EndGlobal

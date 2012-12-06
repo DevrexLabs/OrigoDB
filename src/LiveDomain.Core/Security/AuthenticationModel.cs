@@ -10,7 +10,7 @@ namespace LiveDomain.Core.Security
     public class AuthenticationModel : IAuthenticator
     {
 
-        public const string AuthenticationType = "LiveDBAuthentication";
+        public const string AuthenticationType = "LiveDomainAuthentication";
 
         readonly Dictionary<String, Role> _roles;
         readonly Dictionary<String, User> _users;

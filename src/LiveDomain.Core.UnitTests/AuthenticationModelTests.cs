@@ -87,6 +87,5 @@ namespace LiveDomain.Core.UnitTests
                 Assert.IsTrue(role.Users.Single() == "robert");
             }
         }
-
     }
 }

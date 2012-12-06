@@ -41,14 +41,6 @@ namespace LiveDomain.Core
         /// </summary>
         public bool EnsureSafeResults { get; set; }
 
-        /// <summary>
-        /// Engine will not trust commands and take measures to ensure they are handled in a thread safe manner. Default is true.
-        /// <remarks>
-        /// Can safely be set to false if each command is never modified after being submitted for execution.
-        /// </remarks>
-        /// </summary>
-        public bool EnsureSafeCommands { get; set; }
-
 
         /// <summary>
         /// Maximum time to wait for any read or write lock
@@ -108,7 +100,6 @@ namespace LiveDomain.Core
             MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
             StoreType = StoreType.FileSystem;
             EnsureSafeResults = true;
-            EnsureSafeCommands = true;
 
             _registry = new TinyIoCContainer();
             _registry.Register<ICommandJournal>((c, p) => new CommandJournal((IStore)p["store"]));
@@ -216,7 +207,7 @@ namespace LiveDomain.Core
         }
 
         /// <summary>
-        /// Creates and returns a new command journal instance, can only be called once.
+        /// Creates and returns a new command journal instance.
         /// The default type is CommandJournal unless a custom factory has been set by 
         /// calling SetCommandJournalFactory()
         /// </summary>

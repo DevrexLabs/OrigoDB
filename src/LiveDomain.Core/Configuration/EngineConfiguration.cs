@@ -53,7 +53,7 @@ namespace LiveDomain.Core
         /// </summary>
         public SnapshotBehavior SnapshotBehavior { get; set; }
 
-        public StoreType StoreType { get; set; }
+        public Stores StoreType { get; set; }
 
         /// <summary>
         /// Effects which ISynchronizer is chosen by CreateSynchronizer()
@@ -98,7 +98,7 @@ namespace LiveDomain.Core
             AsyncronousJournaling = false;
             MaxBytesPerJournalSegment = DefaultMaxBytesPerJournalSegment;
             MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
-            StoreType = StoreType.FileSystem;
+            StoreType = Stores.FileSystem;
             EnsureSafeResults = true;
 
             _registry = new TinyIoCContainer();
@@ -151,12 +151,12 @@ namespace LiveDomain.Core
         /// </summary>
         private void InitStoreTypes()
         {
-            _registry.Register<IStore>((c, p) => new FileStore(this), StoreType.FileSystem.ToString());
+            _registry.Register<IStore>((c, p) => new FileStore(this), Stores.FileSystem.ToString());
             //_registry.Register<IStorage, NullStorage>(StorageType.None.ToString());
 
             //If StorageMode is set to custom and no factory has been injected, the fully qualified type 
             //name will be resolved from the app configuration file.
-            _registry.Register<IStore>((c, p) => LoadFromConfig<IStore>(), StoreType.Custom.ToString());
+            _registry.Register<IStore>((c, p) => LoadFromConfig<IStore>(), Stores.Custom.ToString());
         } 
         #endregion
 
@@ -256,7 +256,7 @@ namespace LiveDomain.Core
         /// <param name="factory"></param>
         public void SetStoreFactory(Func<EngineConfiguration, IStore> factory)
         {
-            StoreType = StoreType.Custom;
+            StoreType = Stores.Custom;
             string registrationName = StoreType.ToString();
             _registry.Register<IStore>((c, p) => factory.Invoke(this), registrationName);
         }

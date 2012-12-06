@@ -70,7 +70,7 @@ namespace LiveDomain.Core.Test
         {
             var config = new EngineConfiguration();
             config.SetStoreFactory((c) => null);
-            Assert.AreEqual(StoreType.Custom, config.StoreType);
+            Assert.AreEqual(Stores.Custom, config.StoreType);
         }
 
         [TestMethod()]

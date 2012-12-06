@@ -18,9 +18,18 @@ namespace LiveDomain.Core
 			_formatter = formatter;
 		}
 
+        /// <summary>
+        /// Avoid corruption by serializing in memory and
+        /// then writing to the underlying stream.
+        /// </summary>
+        /// <param name="graph"></param>
+        /// <param name="stream"></param>
 		public void Write(object graph, Stream stream)
 		{
-			_formatter.Serialize(stream, graph);
+            MemoryStream memStream = new MemoryStream();
+            _formatter.Serialize(memStream, graph);
+		    memStream.Position = 0;
+            memStream.CopyTo(stream);
 		}
 
         public T Read<T>(Stream stream)

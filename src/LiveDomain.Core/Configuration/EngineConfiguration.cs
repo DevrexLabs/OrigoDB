@@ -28,7 +28,7 @@ namespace LiveDomain.Core
         public bool AsyncronousJournaling { get; set; }
 
 
-        public KernelMode KernelMode { get; set; }
+        public Kernels Kernel { get; set; }
 
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace LiveDomain.Core
         public EngineConfiguration(string targetLocation = null)
         {
 
-            KernelMode = KernelMode.Optimistic;
+            Kernel = Kernels.Optimistic;
 
             Location = new FileStorageLocation(targetLocation);
 
@@ -126,8 +126,9 @@ namespace LiveDomain.Core
 
         private void InitKernels()
         {
-            _registry.Register<Kernel>((c, p) => new OptimisticKernel(this, (IStore) p["store"]),KernelMode.Optimistic.ToString());
-            _registry.Register<Kernel>((c, p) => new PessimisticKernel(this, (IStore) p["store"]), KernelMode.Pessimistic.ToString());
+            _registry.Register<Kernel>((c, p) => new OptimisticKernel(this, (IStore) p["store"]),Kernels.Optimistic.ToString());
+            _registry.Register<Kernel>((c, p) => new PessimisticKernel(this, (IStore) p["store"]), Kernels.Pessimistic.ToString());
+            _registry.Register<Kernel>((c, p) => new RoyalFoodTaster(this, (IStore)p["store"]), Kernels.RoyalFoodTaster.ToString());
         }
 
         /// <summary>
@@ -302,7 +303,7 @@ namespace LiveDomain.Core
 
         public virtual Kernel CreateKernel(IStore store)
         {
-            string registrationName = KernelMode.ToString();
+            string registrationName = Kernel.ToString();
             var parameters = new Dictionary<string, object> {{"store", store}};
             return _registry.Resolve<Kernel>(registrationName, new NamedParameterOverloads(parameters));
         }

@@ -40,7 +40,7 @@ namespace LiveDomain.Benchmark
             const int iterations = 20000;
             const int messageSize = 3000;
             var config = new EngineConfiguration(Guid.NewGuid().ToString());
-            config.KernelMode = KernelMode.Pessimistic;
+            config.Kernel = Kernels.Pessimistic;
             var engine = Engine.LoadOrCreate<BenchmarkModel>(config);
             TimeThis(iterations, () => engine.Execute(new Message(messageSize)));
             engine.Close();

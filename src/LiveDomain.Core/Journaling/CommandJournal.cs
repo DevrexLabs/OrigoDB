@@ -24,7 +24,6 @@ namespace LiveDomain.Core
         private IJournalWriter _writer;
 		protected IStore _storage;
         private JournalState _state;
-        //protected EngineConfiguration _config;
 	    protected static ILog _log = LogProvider.Factory.GetLogForCallingType();
         private long _lastEntryId;
 
@@ -40,7 +39,6 @@ namespace LiveDomain.Core
         public CommandJournal(IStore storage)
         {
             _storage = storage;
-            //_storage.Load();
         }
 
 

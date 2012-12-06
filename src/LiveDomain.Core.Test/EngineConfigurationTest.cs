@@ -220,17 +220,17 @@ namespace LiveDomain.Core.Test
         }
 
         [TestMethod()]
-        public void PessimisticKernelIsDefault()
+        public void OptimisticKernelIsDefault()
         {
             var config = new EngineConfiguration();
-            Assert.IsTrue(config.KernelMode == KernelMode.Pessimistic);
+            Assert.IsTrue(config.Kernel == Kernels.Optimistic);
         }
 
         [TestMethod()]
         public void PessimisticKernelIsReturned()
         {
             var config = new EngineConfiguration();
-            config.KernelMode = KernelMode.Pessimistic;
+            config.Kernel = Kernels.Pessimistic;
             var kernel = config.CreateKernel(null);
             Assert.AreEqual(typeof(PessimisticKernel), kernel.GetType());
         }
@@ -239,7 +239,7 @@ namespace LiveDomain.Core.Test
         public void OptimisticKernelIsReturned()
         {
             var config = new EngineConfiguration();
-            config.KernelMode = KernelMode.Optimistic;
+            config.Kernel = Kernels.Optimistic;
             var kernel = config.CreateKernel(null);
             Assert.AreEqual(typeof(OptimisticKernel), kernel.GetType());
         }

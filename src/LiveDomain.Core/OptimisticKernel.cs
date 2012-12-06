@@ -10,11 +10,11 @@ namespace LiveDomain.Core
     /// command fails a rollback marker is written to the log and
     /// the system is rolled back by doing a full restore.
     /// </summary>
-    public sealed class OptimisticKernel : Kernel
+    public class OptimisticKernel : Kernel
     {
         private static ILog _log = LogProvider.Factory.GetLogForCallingType();
 
-        private object commandLock = new object();
+        protected object commandLock = new object();
 
         public OptimisticKernel(EngineConfiguration config, IStore store)
             : base(config, store)

@@ -68,6 +68,7 @@
     <Compile Include="Clients\RemoteEngineClient.cs" />
     <Compile Include="Clients\Remote\RemoteConnection.cs" />
     <Compile Include="Clients\Remote\RequestContext.cs" />
+    <Compile Include="CommandFailedException.cs" />
     <Compile Include="Command[M].cs" />
     <Compile Include="CommandWithResult[M,R].cs" />
     <Compile Include="Configuration\ClientConfiguration.cs" />
@@ -75,7 +76,7 @@
     <Compile Include="Configuration\Config.cs" />
     <Compile Include="Configuration\ConfigurationBase.cs" />
     <Compile Include="Configuration\FailoverClusterClientConfiguration.cs" />
-    <Compile Include="Configuration\KernelMode.cs" />
+    <Compile Include="Configuration\Kernels.cs" />
     <Compile Include="Configuration\LocalClientConfiguration.cs" />
     <Compile Include="Configuration\PartitionClusterClientConfiguration.cs" />
     <Compile Include="Configuration\RemoteClientConfiguration.cs" />
@@ -104,6 +105,7 @@
     <Compile Include="Proxy\ProxyMethodInfo.cs" />
     <Compile Include="Clients\Merge.cs" />
     <Compile Include="PessimisticKernel.cs" />
+    <Compile Include="RoyalFoodTaster.cs" />
     <Compile Include="Utilities\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />
     <Compile Include="Journaling\NullJournalWriter.cs" />

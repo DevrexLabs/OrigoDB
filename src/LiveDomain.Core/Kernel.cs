@@ -82,7 +82,7 @@ namespace LiveDomain.Core
         /// Restore the model from the latest snapshot and replay subsequent commands
         /// </summary>
         /// <param name="constructor">Used to create the initial model if there is no snapshot</param>
-        public void Restore<M>(Func<M> constructor = null) where M : Model
+        public virtual void Restore<M>(Func<M> constructor = null) where M : Model
         {
 
             constructor = constructor ?? Activator.CreateInstance<M>;

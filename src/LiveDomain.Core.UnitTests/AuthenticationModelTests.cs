@@ -60,19 +60,33 @@ namespace LiveDomain.Core.UnitTests
 
             Assert.IsTrue(target.RoleExists(role));
             Assert.AreEqual(1, target.Roles.Count());
-            Assert.AreEqual(role, target.Roles.First().Name);
+            Assert.AreEqual(role, target.Roles.Single().Name);
         }
 
         [Test]
         public void CanAddUserWithoutRoles()
         {
-            var userMock = new Fake<User>(builder => builder.WithArgumentsForConstructor(() => new User("robert")));
-            var hashSet = new HashSet<string>();
-            A.CallTo(() => userMock.FakedObject.Roles).Returns(hashSet);
+            var user = new User("robert");
             var target = new AuthenticationModel();
-            target.AddUser(userMock.FakedObject);
-
-            
+            target.AddUser(user);
         }
+
+        [Test]
+        public void UsersRolesAreAddedIfMissing()
+        {
+            var user = new User("robert");
+            user.Roles.Add("admin");
+            user.Roles.Add("superuser");
+            var target = new AuthenticationModel();
+            target.AddUser(user);
+            Assert.AreEqual(2, target.Roles.Count());
+            Assert.IsTrue(target.Roles.Count(r => r.Name == "admin") == 1);
+            Assert.IsTrue(target.Roles.Count(r => r.Name == "superuser") == 1);
+            foreach (var role in target.Roles)
+            {
+                Assert.IsTrue(role.Users.Single() == "robert");
+            }
+        }
+
     }
 }

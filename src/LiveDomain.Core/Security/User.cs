@@ -15,6 +15,7 @@ namespace LiveDomain.Core.Security
         public User(string name)
         {
             if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Cant rename user: Invalid name");
+            Name = name;
             Roles = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
             PasswordHash = String.Empty;
         }

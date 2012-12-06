@@ -210,7 +210,7 @@ namespace LiveDomain.Core.Test
         public void TinyIocResolvesNamedRegistration()
         {
             var registry = new TinyIoCContainer();
-            string name = StoreType.FileSystem.ToString();
+            string name = Stores.FileSystem.ToString();
             registry.Register<IStore>((c,p) => new FileStore(new EngineConfiguration()), name);
             var result = registry.Resolve<IStore>(name);
             Assert.IsNotNull(result);

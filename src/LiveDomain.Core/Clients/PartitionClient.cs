@@ -71,7 +71,7 @@ namespace LiveDomain.Core
 			{
 				return (Func<R[], R>)_mergers[key];
 			}
-			throw new InstanceNotFoundException("Merger for type not found");
+			throw new ArgumentException("obj", "Merger for type not found");
 		}
 
 		private IEngine<M>[] GetNodesFor<T>(T obj)

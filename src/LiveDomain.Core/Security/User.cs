@@ -14,7 +14,7 @@ namespace LiveDomain.Core.Security
 
         public User(string name)
         {
-            if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Cant rename user: Invalid name");
+            Ensure.NotNullOrEmpty(name, "name");
             Name = name;
             Roles = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
             PasswordHash = String.Empty;
@@ -22,12 +22,12 @@ namespace LiveDomain.Core.Security
         
         public bool HasPassword(string password)
         {
-            return PasswordHasher.Verify(password, PasswordHash);
+            return HashUtility.Verify(password, PasswordHash);
         }
 
         public void SetPassword(string password)
         {
-            PasswordHash = PasswordHasher.CreateHashWithRandomSalt(password);
+            PasswordHash = HashUtility.CreateHashWithRandomSalt(password);
         }
     }
 }

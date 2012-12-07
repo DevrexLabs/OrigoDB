@@ -15,7 +15,8 @@ namespace LiveDomain.Core.Utilities
 
         internal static void NotNullOrEmpty(string name, string paramName)
         {
-            if(String.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(paramName);
+            Ensure.NotNull(name, paramName);
+            if(String.IsNullOrWhiteSpace(name)) throw new ArgumentException(paramName);
         }
     }
 }

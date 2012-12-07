@@ -52,7 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthenticationModelTests.cs" />
+    <Compile Include="CommandJournalTest.cs" />
     <Compile Include="HashUtilityTest.cs" />
+    <Compile Include="MergersTest.cs" />
     <Compile Include="SuccessfulUserAuthentication.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

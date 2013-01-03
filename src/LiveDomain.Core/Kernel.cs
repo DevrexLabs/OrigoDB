@@ -8,7 +8,7 @@ namespace LiveDomain.Core
 
     /// <summary>
     /// The kernel coordinates concurrent access to the
-    /// model and executes command and queries
+    /// model and executes commands and queries
     /// </summary>
     public abstract class Kernel : IDisposable
     {

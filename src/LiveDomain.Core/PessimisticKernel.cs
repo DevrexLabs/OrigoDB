@@ -2,6 +2,9 @@ using System;
 
 namespace LiveDomain.Core
 {
+    /// <summary>
+    /// Writes to the command journal after successful command execution
+    /// </summary>
     public sealed class PessimisticKernel : Kernel
     {
         public PessimisticKernel(EngineConfiguration config, IStore store)

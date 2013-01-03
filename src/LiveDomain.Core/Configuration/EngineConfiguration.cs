@@ -86,12 +86,10 @@ namespace LiveDomain.Core
         /// <param name="targetLocation"></param>
         public EngineConfiguration(string targetLocation = null)
         {
-
-            Kernel = Kernels.Optimistic;
-
             Location = new FileStorageLocation(targetLocation);
 
             //Set default values
+            Kernel = Kernels.Optimistic;
             LockTimeout = DefaultTimeout;
             Synchronization = SynchronizationMode.ReadWrite;
             ObjectFormatting = ObjectFormatting.NetBinaryFormatter;

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Woocode.Utils;
 using System.Collections.Specialized;
+using System.Configuration;
 
 namespace LiveDomain.Core
 {
@@ -25,17 +26,17 @@ namespace LiveDomain.Core
 		{
 			if(string.IsNullOrEmpty(clientIdentifier))
 				return new LocalClientConfiguration(EngineConfiguration.Create());
-			// Todo: Check config for client identifier.
 
 			var isConnectionString = clientIdentifier.Contains("=");
 			if(isConnectionString)
 				 return CreateConfigFromConnectionString(clientIdentifier);
-			else
-			{
-				var config = EngineConfiguration.Create();
-				config.Location.OfJournal = clientIdentifier;
-				return new LocalClientConfiguration(config);
-			}
+            
+            if (ConfigurationManager.AppSettings[clientIdentifier] != null)
+                return Create(ConfigurationManager.AppSettings[clientIdentifier]);
+
+            var config = EngineConfiguration.Create();
+			config.Location.OfJournal = clientIdentifier;
+			return new LocalClientConfiguration(config);
 		}
 
         /// <summary>

@@ -102,7 +102,7 @@ namespace LiveDomain.Core
 		public void Dispose()
 		{
 			if (_isDisposed) return;
-
+			_isDisposed = true;
 			if (_allResources != null)
 			{
 				foreach (var resource in _allResources)
@@ -112,7 +112,7 @@ namespace LiveDomain.Core
 				_allResources.Clear();
 			}
 			_availableResources = null;
-			_isDisposed = true;
+			
 		}
 	}
 }

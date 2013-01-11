@@ -8,6 +8,10 @@ namespace LiveDomain.Core
 	[Serializable]
 	public class ClusterInfo
 	{
+		public ClusterInfo()
+		{
+			Slaves = new Dictionary<string, int>();
+		}
 		public Guid Id { get; set; }
 
 		public string MasterHost { get; set; }

@@ -55,6 +55,7 @@
     <Compile Include="CommandJournalTest.cs" />
     <Compile Include="HashUtilityTest.cs" />
     <Compile Include="MergersTest.cs" />
+    <Compile Include="SchemaMigrationsTest.cs" />
     <Compile Include="SuccessfulUserAuthentication.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

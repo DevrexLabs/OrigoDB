@@ -100,6 +100,13 @@ namespace LiveDomain.Core.Test
             var childDb = db.ChildFor<MyChildModel>();
         }
 
+
+        [TestMethod]
+        public void can_get_proxy_for_child_model_2()
+        {
+            var child = Db.For<MyModel>().ChildFor<MyChildModel>();
+        }
+
         [TestMethod]
         public void method_call_for_childmodel_is_proxied()
         {

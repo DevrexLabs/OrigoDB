@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
+using LiveDomain.Core.Migrations;
+using LiveDomain.Core.Utilities;
 
 namespace LiveDomain.Core
 {
@@ -15,6 +17,7 @@ namespace LiveDomain.Core
 
 		internal Serializer(IFormatter formatter)
 		{
+            formatter.Binder = new CustomBinder();
 			_formatter = formatter;
 		}
 

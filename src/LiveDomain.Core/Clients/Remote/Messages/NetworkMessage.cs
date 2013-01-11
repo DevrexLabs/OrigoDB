@@ -18,14 +18,27 @@ namespace LiveDomain.Core
         }
     }
 
+
+
     [Serializable]
     public class RedirectMessage : NetworkMessage
     {
         public string Host { get; set; }
         public int Port { get; set; }
     }
-    
 
+	[Serializable]
+	public class ClientInfo : NetworkMessage
+	{
+		public ClientInfo()
+		{
+			Name = Environment.MachineName;
+		}
+
+		public string Name { get { return (string) Payload; }
+			set { Payload = value; }
+		}
+	}
 
     [Serializable]
     public class Heartbeat : NetworkMessage

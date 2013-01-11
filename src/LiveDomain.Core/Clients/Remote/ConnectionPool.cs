@@ -17,9 +17,11 @@ namespace LiveDomain.Core
 
 				if (!_connectionPools.TryGetValue(key, out pool))
 				{
-					pool = new ConnectionPool(() => new RemoteConnection(configuration.Host, configuration.Port), configuration.MaxConnections);
+					var host = configuration.Host;
+					var port = configuration.Port;
+					var maxConnections = configuration.MaxConnections;
+					pool = new ConnectionPool(() => new RemoteConnection(host, port), maxConnections);
 					_connectionPools[key] = pool;
-
 				}
 				return pool;
 			}

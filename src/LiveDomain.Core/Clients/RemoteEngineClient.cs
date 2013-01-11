@@ -26,25 +26,19 @@ namespace LiveDomain.Core
 
 		#endregion
 
-		internal R SendMessage<R>(NetworkMessage message)
+		internal object SendAndRecieve(object request)
 		{
-			return SendAndRecieve<R>(message);
-		}
-
-		internal NetworkMessage SendMessage(NetworkMessage message)
-		{
-			return SendAndRecieve<NetworkMessage>(message);
+			return SendAndRecieve<object>(request);
 		}
 
 		internal R SendAndRecieve<R>(object request)
 		{
 			if(!(request is NetworkMessage))
-				request = new NetworkMessage() {Payload = request};
+				request = new NetworkMessage {Payload = request};
 
 			using (var ctx = _requestContextFactory.GetContext())
 			{
-				ctx.Connection.Write(request);
-				return ctx.Connection.Read<R>();
+				return ctx.Connection.WriteRead<R>(request);
 			}
 		}
 

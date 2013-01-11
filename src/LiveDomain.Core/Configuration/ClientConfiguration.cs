@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Woocode.Utils;
+using System.Collections.Specialized;
 
 namespace LiveDomain.Core
 {
@@ -13,11 +14,6 @@ namespace LiveDomain.Core
 			Missing,
 		    Embedded,
 			Remote
-	    }
-
-	    private class ModeSetting
-	    {
-			public Mode Mode { get; set; } 
 	    }
 
 		public static ClientConfiguration Create(EngineConfiguration config)
@@ -37,33 +33,43 @@ namespace LiveDomain.Core
 			else
 			{
 				var config = EngineConfiguration.Create();
-				config.Location = clientIdentifier;
+				config.Location.OfJournal = clientIdentifier;
 				return new LocalClientConfiguration(config);
 			}
 		}
 
+        /// <summary>
+        /// Used as a container for the enum so we can use the DictionaryMapper
+        /// </summary>
+        private class ModeSetting
+        {
+            public Mode Mode { get; set; }
+        }
+
 		static ClientConfiguration CreateConfigFromConnectionString(string connectionstring)
-	    {
-			var modeSetting = new ModeSetting();
-			var mapper = new StringToPropertiesMapper();
-			
-			mapper.MapProperties(connectionstring,modeSetting,false);
+		{
+		    var dictionary = connectionstring.ParseProperties();
+            var mapper = new DictionaryMapper(dictionary);
+            
+            var modeSetting = new ModeSetting();
+            mapper.Map(modeSetting);
 
-			if(modeSetting.Mode == Mode.Embedded)
-			{
-				var config = EngineConfiguration.Create();
-				mapper.MapProperties(connectionstring,config,false);
-				return new LocalClientConfiguration(config);
-			}
-			else if(modeSetting.Mode == Mode.Remote)
-			{
-				var config = new RemoteClientConfiguration();
-				mapper.MapProperties(connectionstring,config,false);
-				return config;
-			}
+            if (modeSetting.Mode == Mode.Embedded)
+            {
+                mapper.Converters[typeof(StorageLocation)] = s => new FileStorageLocation(s);
+                var config = EngineConfiguration.Create();
+                mapper.Map(config);
+                return new LocalClientConfiguration(config);
+            }
+            else if (modeSetting.Mode == Mode.Remote)
+            {
+                var config = new RemoteClientConfiguration();
+                mapper.Map(config);
+                return config;
+            }
 
-		    throw new InvalidOperationException();
-	    }
+            throw new InvalidOperationException();
+		}
 
 	    public abstract IEngine<M> GetClient<M>() where M : Model, new();
     }

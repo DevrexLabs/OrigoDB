@@ -27,7 +27,7 @@ namespace LiveDomain.Modules.SqlStorage
             _tableName = config.JournalTableName;
             if(config.LocationType == LocationType.ConnectionString)
             {
-                ConfigureProviderFactory(config.RelativeLocation, config.ProviderName);
+                ConfigureProviderFactory(config.Location.RelativeLocation, config.ProviderName);
             }
             else
             {
@@ -38,7 +38,7 @@ namespace LiveDomain.Modules.SqlStorage
 
         private void ConfigureProviderFromConnectionStringName()
         {
-            string connectionStringName = _config.RelativeLocation;
+            string connectionStringName = _config.Location.RelativeLocation;
             var connectionString = ConfigurationManager.ConnectionStrings[connectionStringName];
             ConfigureProviderFactory(connectionString.ConnectionString, connectionString.ProviderName);
             
@@ -52,7 +52,7 @@ namespace LiveDomain.Modules.SqlStorage
         
         private void Configure()
         {
-            var fileStoreConfig = new EngineConfiguration(_config.SnapshotLocation);
+            var fileStoreConfig = new EngineConfiguration(_config.Location.OfSnapshots);
             _fileStore = new FileStore(fileStoreConfig);
         }
 
@@ -67,7 +67,7 @@ namespace LiveDomain.Modules.SqlStorage
         /// 
         /// </summary>
         /// <returns></returns>
-        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(long lastEntryId)
+        public override IEnumerable<JournalEntry> GetJournalEntriesFrom(long lastEntryId)
         {
             ISerializer serializer = _config.CreateSerializer();
             string sql = GetEntrySelectStatement(lastEntryId);
@@ -84,7 +84,7 @@ namespace LiveDomain.Modules.SqlStorage
                     if(length > Int32.MaxValue) throw new OverflowException("serialized journal entry is too big");
                     byte[] buffer = new byte[length];
                     reader.GetBytes(2, 0, buffer, 0, (int)length);
-                    var entry = serializer.Deserialize<JournalEntry<Command>>(buffer);
+                    var entry = serializer.Deserialize<JournalEntry>(buffer);
                     if(entry.Id != entryId) throw new Exception("EntryId mismatch in database, id =" + entryId);
                     yield return entry;
                 }
@@ -148,7 +148,7 @@ namespace LiveDomain.Modules.SqlStorage
                 {
                     long id = reader.GetInt64(0);
                     var snapshot = new FileSnapshot(DateTime.MinValue, id);
-                    string path = Path.Combine(_config.SnapshotLocation, snapshot.Name);
+                    string path = Path.Combine(_config.Location.OfSnapshots, snapshot.Name);
                     if (File.Exists(path))
                     {
                         lastEntryId = id;
@@ -166,26 +166,6 @@ namespace LiveDomain.Modules.SqlStorage
         {
             _fileStore.WriteSnapshot(model, lastEntryId);
             return _fileStore.Snapshots.Last();
-
-            //var snapshot = new FileSnapshot(DateTime.Now, lastEntryId);
-            //string path = Path.Combine(_config.SnapshotLocation, snapshot.Name);
-            //var stream = File.OpenWrite(path);
-            //using (stream)
-            //{
-            //    _config.CreateSerializer().Write(model, stream);
-            //}
-
-            ////add a row in the database
-            //string sql = String.Format("INSERT Snapshots VALUES({0}, getdate(), '{1}')", lastEntryId, path);
-            //var connection = GetConnection();
-            //using (connection)
-            //{
-            //    connection.Open();
-            //    var cmd = connection.CreateCommand();
-            //    cmd.CommandText = sql;
-            //    cmd.ExecuteNonQuery();
-            //}
-            //return snapshot;
         }
 
         /// <summary>
@@ -207,9 +187,9 @@ namespace LiveDomain.Modules.SqlStorage
            return new SqlJournalWriter(this);
         }
 
-        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
+        public override IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
         {
-            foreach (JournalEntry<Command> journalEntry in GetJournalEntriesFrom(1))
+            foreach (JournalEntry journalEntry in GetJournalEntriesFrom(1))
             {
                 if (journalEntry.Created <= pointInTime) yield return journalEntry;
             }

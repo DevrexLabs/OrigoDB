@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
 using LiveDomain.Core.Storage;
+using LiveDomain.Core.Journaling;
 
 namespace LiveDomain.Core
 {
@@ -35,7 +36,7 @@ namespace LiveDomain.Core
         {
             base.Load();
             _journalFiles = new List<JournalFile>();
-            foreach (var file in Directory.GetFiles(_config.Location, "*.journal"))
+            foreach (var file in Directory.GetFiles(_config.Location.OfJournal, "*.journal"))
             {
                 string fileName = new FileInfo(file).Name;
                 _journalFiles.Add(JournalFile.Parse(fileName));
@@ -48,7 +49,7 @@ namespace LiveDomain.Core
         protected override Snapshot WriteSnapshotImpl(Model model, long lastEntryId)
         {
             var fileSnapshot = new FileSnapshot(DateTime.Now, lastEntryId);
-            var fileName = Path.Combine(_config.SnapshotLocation, fileSnapshot.Name);
+            var fileName = Path.Combine(_config.Location.OfSnapshots, fileSnapshot.Name);
             using (Stream stream = GetWriteStream(fileName, append:false))
             {
                 _serializer.Write(model, stream);
@@ -56,7 +57,7 @@ namespace LiveDomain.Core
             return fileSnapshot;
         }
 
-        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(long entryId)
+        public override IEnumerable<JournalEntry> GetJournalEntriesFrom(long entryId)
         {
 			if (entryId != 0 && entryId < _journalFiles[0].StartingEntryId)
 				throw new NotSupportedException("Journal file missing");
@@ -64,13 +65,13 @@ namespace LiveDomain.Core
             int offset = 0;
 	        while (_journalFiles.Count > offset + 1 && _journalFiles[offset + 1].StartingEntryId < entryId)
 				offset++;
-			
+
             foreach (var journalFile in _journalFiles.Skip(offset))
             {
-                string path = Path.Combine(_config.Location, journalFile.Name);
+                string path = Path.Combine(_config.Location.OfJournal, journalFile.Name);
                 using (Stream stream = GetReadStream(path))
                 {
-                    foreach (var entry in _serializer.ReadToEnd<JournalEntry<Command>>(stream))
+                    foreach (var entry in _serializer.ReadToEnd<JournalEntry>(stream))
                     {
                         if (entry.Id < entryId) continue;
                         yield return entry;
@@ -80,7 +81,7 @@ namespace LiveDomain.Core
 
         }
 
-        public override IEnumerable<JournalEntry<Command>> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
+        public override IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
         {
             foreach (var journalEntry in GetJournalEntries())
             {
@@ -95,7 +96,7 @@ namespace LiveDomain.Core
             lastSequenceNumber = 0;
             FileSnapshot snapshot = (FileSnapshot) Snapshots.LastOrDefault();
             if (snapshot == null) return null;
-            var directory = _config.SnapshotLocation;
+            var directory = _config.Location.OfSnapshots;
             var fileName = Path.Combine(directory, snapshot.Name);
             lastSequenceNumber = snapshot.LastEntryId;
             using (Stream stream = GetReadStream(fileName))
@@ -115,18 +116,18 @@ namespace LiveDomain.Core
             var next = current.Successor(firstEntryId);
             _journalFiles.Add(next);
             string fileName = next.Name;
-            string path = Path.Combine(_config.Location, fileName);
+            string path = Path.Combine(_config.Location.OfJournal, fileName);
             return GetWriteStream(path,  append : true);
         }
 
         public override void Create(Model initialModel)
         {
             VerifyCanCreate();
-            EnsureDirectoryExists(_config.Location);
+            EnsureDirectoryExists(_config.Location.OfJournal);
 
-            if (_config.HasAlternativeSnapshotLocation)
+            if (_config.Location.HasAlternativeSnapshotLocation)
             {
-                EnsureDirectoryExists(_config.SnapshotLocation);
+                EnsureDirectoryExists(_config.Location.OfSnapshots);
             }
             Load();
             WriteSnapshot(initialModel, 0);
@@ -172,28 +173,28 @@ namespace LiveDomain.Core
 
         public override void VerifyCanCreate()
         {
-            VerifyDirectory(_config.Location);
-            if (_config.HasAlternativeSnapshotLocation)
-                VerifyDirectory(_config.SnapshotLocation);
+            VerifyDirectory(_config.Location.OfJournal);
+            if (_config.Location.HasAlternativeSnapshotLocation)
+                VerifyDirectory(_config.Location.OfSnapshots);
         }
 
         public override void VerifyCanLoad()
         {
             string error = String.Empty;
-            if (!Directory.Exists(_config.Location))
+            if (!Directory.Exists(_config.Location.OfJournal))
             {
                 error = "Target directory does not exist\n";
             }
 
-            if (_config.HasAlternativeSnapshotLocation)
+            if (_config.Location.HasAlternativeSnapshotLocation)
             {
-                if (!Directory.Exists(_config.SnapshotLocation))
+                if (!Directory.Exists(_config.Location.OfSnapshots))
                 {
                     error += "Snapshot directory does not exist\n";
                 }
             }
 
-            string initialSnapshot = Path.Combine(_config.SnapshotLocation, "000000000.snapshot");
+            string initialSnapshot = Path.Combine(_config.Location.OfSnapshots, "000000000.snapshot");
             if (!File.Exists(initialSnapshot))
             {
                 error += "Initial snapshot missing\n";
@@ -213,7 +214,7 @@ namespace LiveDomain.Core
         protected override IEnumerable<Snapshot> LoadSnapshots()
         {
             var snapshots = new List<FileSnapshot>();
-            foreach (var file in Directory.GetFiles(_config.SnapshotLocation, "*.snapshot"))
+            foreach (var file in Directory.GetFiles(_config.Location.OfSnapshots, "*.snapshot"))
             {
                 var fileInfo = new FileInfo(file);
                 snapshots.Add(FileSnapshot.FromFileInfo(fileInfo));

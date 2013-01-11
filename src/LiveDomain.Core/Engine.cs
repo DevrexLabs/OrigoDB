@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using LiveDomain.Core.Configuration;
 using LiveDomain.Core.Logging;
 using LiveDomain.Core.Proxy;
 using LiveDomain.Core.Security;
@@ -20,27 +21,14 @@ namespace LiveDomain.Core
     /// </summary>
     public partial class Engine : IDisposable
     {
-
-        /// <summary>
-        /// The prevalent system. The database. Your single aggregate root. The graph.
-        /// </summary>
-        Model _theModel;
-
-        /// <summary>
-        /// All configuration settings, cloned in the constructor
-        /// </summary>
         EngineConfiguration _config;
-        IStore _store;
-        ISynchronizer _lock;
-        ISerializer _serializer;
         bool _isDisposed = false;
-        ICommandJournal _commandJournal;
-        static ILog _log = Log.GetLogFactory().GetLogForCallingType();
+        static ILog _log = LogProvider.Factory.GetLogForCallingType();
         IAuthorizer<Type> _authorizer;
 
+        private readonly Kernel _kernel;
+
         public EngineConfiguration Config { get { return _config; } }
-        internal ICommandJournal CommandJournal { get { return _commandJournal; } }
-        internal IStore Store { get { return _store; } }
 
         /// <summary>
         /// Shuts down the engine
@@ -50,43 +38,11 @@ namespace LiveDomain.Core
             if (!_isDisposed)
             {
                 Core.Config.Engines.Remove(this);
-
-                if (_config.SnapshotBehavior == SnapshotBehavior.OnShutdown)
-                {
-                    //Allow reading while snapshot is being taken
-                    //but no modifications after that
-                    _lock.EnterUpgrade();
-                    CreateSnapshotImpl();
-
-                }
-                _lock.EnterWrite();
+                if (_config.SnapshotBehavior == SnapshotBehavior.OnShutdown) CreateSnapshot();
                 _isDisposed = true;
-                _commandJournal.Dispose();
-
+                _kernel.Dispose();
             }
         }
-
-
-        private void Restore<M>(Func<M> constructor) where M : Model
-        {
-
-            long lastEntryIdExecuted;
-            _theModel = _store.LoadMostRecentSnapshot(out lastEntryIdExecuted);
-
-            if (_theModel == null)
-            {
-                if (constructor == null) throw new ApplicationException("No initial snapshot");
-                _theModel = constructor.Invoke();
-            }
-
-            _theModel.SnapshotRestored();
-            foreach (var command in _commandJournal.GetEntriesFrom(lastEntryIdExecuted).Select(entry => entry.Item))
-            {
-                command.Redo(_theModel);
-            }
-            _theModel.JournalRestored();
-        }
-
 
         private void ThrowIfDisposed()
         {
@@ -96,16 +52,14 @@ namespace LiveDomain.Core
 
         protected Engine(Func<Model> constructor, EngineConfiguration config)
         {
-            _serializer = config.CreateSerializer();
-
             _config = config;
 
-            _store = _config.CreateStore();
-            _store.Load();
-            _lock = _config.CreateSynchronizer();
+            var store = _config.CreateStore();
+            store.Load();
 
-            _commandJournal = _config.CreateCommandJournal();
-            Restore(constructor);
+            _kernel = _config.CreateKernel(store);
+            _kernel.Restore(constructor);
+            
             _authorizer = _config.CreateAuthorizer();
 
             if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)
@@ -118,37 +72,8 @@ namespace LiveDomain.Core
                 Thread.Sleep(TimeSpan.FromMilliseconds(10));
             }
 
-            Core.Config.Engines.AddEngine(config.Location, this);
+            Core.Config.Engines.AddEngine(config.Location.OfJournal, this);
         }
-
-
-        internal byte[] GetSnapshot()
-        {
-            try
-            {
-                _lock.EnterRead();
-                return _serializer.Serialize(_theModel);
-            }
-            finally
-            {
-                _lock.Exit();
-            }
-        }
-
-        internal void WriteSnapshotToStream(Stream stream)
-        {
-            try
-            {
-                _lock.EnterRead();
-                _serializer.Write(_theModel, stream);
-            }
-            finally
-            {
-                _lock.Exit();
-            }
-        }
-
-        #region Execute overloads
 
         public object Execute(Query query)
         {
@@ -171,84 +96,15 @@ namespace LiveDomain.Core
 
         private T ExecuteQuery<M, T>(Query<M, T> query) where M : Model
         {
-            try
-            {
-                _lock.EnterRead();
-                object result = query.ExecuteStub(_theModel as M);
-                EnsureSafeResults(ref result, query);
-                return (T)result;
-            }
-            catch (TimeoutException)
-            {
-                ThrowIfDisposed();
-                throw;
-            }
-            finally
-            {
-                _lock.Exit();
-            }
+            return _kernel.ExecuteQuery(query);
         }
 
         public object Execute(Command command)
         {
             ThrowIfDisposed();
             ThrowUnlessAuthenticated(command.GetType());
-            EnsureSafeCommand(ref command);
-
-            try
-            {
-                _lock.EnterUpgrade();
-                command.PrepareStub(_theModel);
-                _lock.EnterWrite();
-                object result = command.ExecuteStub(_theModel);
-                //TODO: We might benefit from downgrading the lock at this point
-                //TODO: We could run the 2 following statements in parallel
-                EnsureSafeResults(ref result, command as IOperationWithResult);
-                _commandJournal.Append(command);
-                return result;
-            }
-            catch (TimeoutException)
-            {
-                ThrowIfDisposed();
-                throw;
-            }
-            catch (CommandAbortedException) { throw; }
-            catch (Exception ex)
-            {
-                Restore(() => (Model)Activator.CreateInstance(_theModel.GetType())); //TODO: Or shutdown based on setting
-                throw new CommandAbortedException("Command threw an exception, state was rolled back, see inner exception for details", ex);
-            }
-            finally
-            {
-                _lock.Exit();
-            }
+            return _kernel.ExecuteCommand(command);
         }
-
-        private void EnsureSafeCommand(ref Command command)
-        {
-            if (_config.EnsureSafeCommands && !command.IsImmutable())
-            {
-                command = _serializer.Clone(command);
-            }
-        }
-
-        /// <summary>
-        /// Make sure we don't return direct references to mutable objects within the model
-        /// </summary>
-        private void EnsureSafeResults(ref object graph, IOperationWithResult operation)
-        {
-            if (_config.EnsureSafeResults && graph != null)
-            {
-                bool operationIsResponsible = operation != null && operation.ResultIsSafe;
-
-                if (!operationIsResponsible && !graph.IsImmutable())
-                {
-                    graph = _serializer.Clone(graph);
-                    _log.Debug("Cloned results with serializer: " + graph.GetType().FullName);
-                }
-            }
-        }
-
 
         private void ThrowUnlessAuthenticated(Type operationType)
         {
@@ -259,36 +115,25 @@ namespace LiveDomain.Core
             }
         }
 
-        #endregion
+        internal byte[] GetSnapshot()
+        {
+            //TODO: Verify GetBuffer!
+            MemoryStream memoryStream = new MemoryStream();
+            WriteSnapshotToStream(memoryStream);
+            return memoryStream.GetBuffer();
+        }
 
-        #region Snapshot methods
-
+        internal void WriteSnapshotToStream(Stream stream)
+        {
+            var serializer = _config.CreateSerializer();
+            _kernel.Read(m =>serializer.Write(m,stream));
+        }
+ 
         public void CreateSnapshot()
         {
-            try
-            {
-                _lock.EnterRead();
-                CreateSnapshotImpl();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                _lock.Exit();
-            }
+            _kernel.CreateSnapshot();
         }
 
-        private void CreateSnapshotImpl()
-        {
-            long lastEntryId = _commandJournal.LastEntryId;
-            _log.Info("BeginSnapshot:" + lastEntryId);
-            _store.WriteSnapshot(_theModel, lastEntryId);
-            _log.Info("EndSnapshot:" + lastEntryId);
-        }
-
-        #endregion
 
         public void Dispose()
         {
@@ -301,15 +146,15 @@ namespace LiveDomain.Core
         public static Engine Load(string location)
         {
             var config = EngineConfiguration.Create();
-            config.Location = location;
+            config.Location.OfJournal = location; //TODO: this smells
             return Load(config);
         }
 
         public static Engine Load(EngineConfiguration config)
         {
-            if (!config.HasLocation) throw new InvalidOperationException("Specify location to load from in non-generic load");
+            if (!config.Location.HasJournal) throw new InvalidOperationException("Specify location to load from in non-generic load");
 	        Engine engine;
-			if(!Core.Config.Engines.TryGetEngine(config.Location,out engine))
+			if(!Core.Config.Engines.TryGetEngine(config.Location.OfJournal,out engine))
 			{
 				config.CreateStore().VerifyCanLoad();
 				engine = new Engine(null, config);
@@ -320,7 +165,7 @@ namespace LiveDomain.Core
         public static Engine Create(Model model, string location = null)
         {
             var config = EngineConfiguration.Create();
-            config.Location = location;
+            config.Location.OfJournal = location;
             return Create(model, config);
         }
 
@@ -328,7 +173,7 @@ namespace LiveDomain.Core
         {
 
             config = config ?? EngineConfiguration.Create();
-            if (!config.HasLocation) config.Location = model.GetType().Name;
+            if (!config.Location.HasJournal) config.Location.SetLocationFromType(model.GetType());
             return Create<Model>(model, config);
 
         }
@@ -347,7 +192,7 @@ namespace LiveDomain.Core
         public static Engine<M> Load<M>(string location) where M : Model
         {
             var config = EngineConfiguration.Create();
-            config.Location = location;
+            config.Location.OfJournal = location;
             return Load<M>(config);
         }
 
@@ -360,9 +205,9 @@ namespace LiveDomain.Core
         public static Engine<M> Load<M>(EngineConfiguration config = null) where M : Model
         {
             config = config ?? EngineConfiguration.Create();
-            if (!config.HasLocation) config.SetLocationFromType<M>();
+            if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
 	        Engine engine;
-			if (!Core.Config.Engines.TryGetEngine(config.Location, out engine))
+			if (!Core.Config.Engines.TryGetEngine(config.Location.OfJournal, out engine))
 			{
 				config.CreateStore().VerifyCanLoad();
 				engine = new Engine<M>(config);
@@ -376,14 +221,14 @@ namespace LiveDomain.Core
         public static Engine<M> Create<M>(string location) where M : Model
         {
             var config = EngineConfiguration.Create();
-            config.Location = location;
+            config.Location.OfJournal = location;
             return Create<M>(config);
         }
 
         public static Engine<M> Create<M>(M model, string location = null) where M : Model
         {
             var config = EngineConfiguration.Create();
-            config.Location = location;
+            config.Location.OfJournal = location;
             return Create<M>(model, config);
         }
 
@@ -396,7 +241,7 @@ namespace LiveDomain.Core
 
         public static Engine<M> Create<M>(M model, EngineConfiguration config) where M : Model
         {
-            if (!config.HasLocation) config.SetLocationFromType<M>();
+            if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
             IStore store = config.CreateStore();
             store.Create(model);
             return Load<M>(config);
@@ -410,7 +255,7 @@ namespace LiveDomain.Core
         public static Engine<M> LoadOrCreate<M>(string location = null) where M : Model, new()
         {
             var config = EngineConfiguration.Create();
-            config.Location = location;
+            config.Location.OfJournal = location;
             return LoadOrCreate<M>(config);
         }
 
@@ -427,7 +272,7 @@ namespace LiveDomain.Core
             config = config ?? EngineConfiguration.Create();
             if (constructor == null) throw new ArgumentNullException("constructor");
             if (config == null) throw new ArgumentNullException("config");
-            if (!config.HasLocation) config.SetLocationFromType<M>();
+            if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
             Engine<M> result = null;
 
             var store = config.CreateStore();
@@ -435,12 +280,12 @@ namespace LiveDomain.Core
             if (store.Exists)
             {
                 result = Load<M>(config);
-                _log.Trace("Engine Loaded");
+                _log.Debug("Engine Loaded");
             }
             else
             {
                 result = Create<M>(constructor.Invoke(), config);
-                _log.Trace("Engine Created");
+                _log.Debug("Engine Created");
             }
             return result;
         }

@@ -9,6 +9,5 @@ namespace LiveDomain.Core.Logging
     {
         ILog GetLog(Type type);
         ILog GetLogForCallingType();
-        ILog GetLog(String name);
     }
 }

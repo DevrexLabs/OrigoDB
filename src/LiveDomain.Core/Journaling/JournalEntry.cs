@@ -13,7 +13,7 @@ namespace LiveDomain.Core
 
         public readonly DateTime Created;
 
-        public JournalEntry(long id, DateTime? created  = null)
+        public  JournalEntry(long id, DateTime? created  = null)
         {
             Created = created ?? DateTime.Now;
             Id = id;

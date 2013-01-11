@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using LiveDomain.Core.Logging;
+using LiveDomain.Core.Journaling;
 
 namespace LiveDomain.Core
 {
@@ -23,8 +24,7 @@ namespace LiveDomain.Core
         private IJournalWriter _writer;
 		protected IStore _storage;
         private JournalState _state;
-        protected EngineConfiguration _config;
-	    protected static ILog _log = Log.GetLogFactory().GetLogForCallingType();
+	    protected static ILog _log = LogProvider.Factory.GetLogForCallingType();
         private long _lastEntryId;
 
         /// <summary>
@@ -36,26 +36,55 @@ namespace LiveDomain.Core
         }
 
 
-        public CommandJournal(EngineConfiguration config)
+        public CommandJournal(IStore storage)
         {
-            _config = config;
-            _storage = config.CreateStore();
-            _storage.Load();
+            _storage = storage;
         }
 
 
         public IEnumerable<JournalEntry<Command>> GetEntriesFrom(long entryId)
         {
-            JournalState preState = _state;
-            SetState(JournalState.Closed);
 
-            foreach (var journalEntry in _storage.GetJournalEntriesFrom(entryId))
+            foreach (var entry in GetCommandEntries(() => _storage.GetJournalEntriesFrom(entryId)))
+                yield return entry;
+        }
+
+        public IEnumerable<JournalEntry<Command>> GetEntriesFrom(DateTime pointInTime)
+        {
+            foreach (var entry in GetCommandEntries(() => _storage.GetJournalEntriesBeforeOrAt(pointInTime)))
+                yield return entry;
+        }
+
+        internal IEnumerable<JournalEntry<Command>> GetCommandEntries(Func<IEnumerable<JournalEntry>> enumerator)
+        {
+            lock (this)
             {
-                _lastEntryId = journalEntry.Id;
-                yield return journalEntry;
-            }
+                JournalState preState = _state;
+                SetState(JournalState.Closed);
 
-            SetState(preState);
+                JournalEntry<Command> previous = null;
+
+                foreach (var journalEntry in enumerator.Invoke())
+                {
+                    if (journalEntry is JournalEntry<Command>)
+                    {
+                        if (previous != null)
+                        {
+                            _lastEntryId = previous.Id;
+                            yield return previous;
+                        }
+                        previous = journalEntry as JournalEntry<Command>;
+                    }
+                    else previous = null;
+                }
+                if (previous != null)
+                {
+                    _lastEntryId = previous.Id;
+                    yield return previous;
+                }
+
+                SetState(preState);
+            }
         }
 
 		public IEnumerable<JournalEntry<Command>> GetAllEntries()
@@ -78,14 +107,18 @@ namespace LiveDomain.Core
 
 		public void Append(Command command)
 		{
-            if (_state != JournalState.Open) Open();
 			var entry = new JournalEntry<Command>(++_lastEntryId, command);
-			_writer.Write(entry);
+		    AppendEntry(entry);
 		}
 
-		public void Close()
-		{
+        private void AppendEntry(JournalEntry entry)
+        {
+            if (_state != JournalState.Open) Open();
+            _writer.Write(entry);
+        }
 
+        public void Close()
+		{
             if (_state == JournalState.Open)
             {
                 _writer.Close();
@@ -104,21 +137,12 @@ namespace LiveDomain.Core
             }
         }
 
-
-        public IEnumerable<JournalEntry<Command>> GetEntriesFrom(DateTime pointInTime)
+        /// <summary>
+        /// Write a special entry to the log
+        /// </summary>
+        public void WriteRollbackMarker()
         {
-            lock (this)
-            {
-                JournalState preState = _state;
-                SetState(JournalState.Closed);
-
-                foreach (var journalEntry in _storage.GetJournalEntriesBeforeOrAt(pointInTime))
-                {
-                    yield return journalEntry;
-                }
-
-                SetState(preState);    
-            }         
+            AppendEntry(new JournalEntry<RollbackMarker>(_lastEntryId, RollbackMarker.Instance));
         }
 
         public void Dispose()

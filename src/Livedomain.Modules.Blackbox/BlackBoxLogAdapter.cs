@@ -4,6 +4,7 @@ using System.Text;
 using LiveDomain.Core;
 using BlackBox;
 using LiveDomain.Core.Logging;
+using LogLevel = BlackBox.LogLevel;
 
 namespace Livedomain.Modules.Blackbox
 {
@@ -15,11 +16,6 @@ namespace Livedomain.Modules.Blackbox
         {
             if (logger == null) throw new ArgumentNullException("logger");
             _logger = logger;
-        }
-
-        public void Trace(string message, params object[] args)
-        {
-            _logger.Write(LogLevel.Verbose, message, args);
         }
 
         public void Debug(string message, params object[] args)
@@ -50,11 +46,6 @@ namespace Livedomain.Modules.Blackbox
         public void Fatal(string message, params object[] args)
         {
             _logger.Write(LogLevel.Fatal, message, args);
-        }
-
-        public void Dispose()
-        {
-
         }
     }
 }

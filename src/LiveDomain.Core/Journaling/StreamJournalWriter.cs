@@ -17,11 +17,13 @@ namespace LiveDomain.Core
         ISerializer _serializer;
         Stream _stream;
         private EngineConfiguration _config;
+
+        //TODO: Abstract away the FileStore dependency, should be IStore or something else
         private FileStore _storage;
         private RolloverStrategy _rolloverStrategy;
         private long _entriesWrittenToCurrentStream;
 
-        private static ILog _log = Log.GetLogFactory().GetLogForCallingType();
+        private static ILog _log = LogProvider.Factory.GetLogForCallingType();
 
 
 

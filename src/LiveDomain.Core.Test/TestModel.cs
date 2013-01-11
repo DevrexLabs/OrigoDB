@@ -59,7 +59,7 @@ namespace LiveDomain.Core.Test
         [ProxyMethod(ResultIsSafe = true)]
         public Customer[] GetCustomersCloned()
         {
-            return _customers.Select(c => (Customer)c.Clone()).ToArray();
+            return _customers.ToArray();
         }
 
         /// <summary>

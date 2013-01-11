@@ -13,7 +13,7 @@ namespace LiveDomain.Core.Linq
 
     public class CachingLinqCompiler<M> where M : Model
     {
-        private static ILog _logger = Log.GetLogFactory().GetLogForCallingType();
+        private static ILog _logger = LogProvider.Factory.GetLogForCallingType();
 
         /// <summary>
         /// Bypass cache. Mainly so we can run performance tests

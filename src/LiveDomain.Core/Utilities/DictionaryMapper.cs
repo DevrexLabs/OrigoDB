@@ -4,22 +4,21 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Text;
+using LiveDomain.Core.Utilities;
+
 
 namespace Woocode.Utils
 {
-	public class StringToPropertiesMapper
+	public class DictionaryMapper
 	{
-
-        public char KeyValueDelimiter { get; set; }
-        public char KeyValuePairDelimiter { get; set; }
+	    private readonly Dictionary<string, string> _properties;
 
         public Dictionary<Type, Func<string, object>> Converters { get; private set; }
         
-        public StringToPropertiesMapper()
-		{
-			KeyValueDelimiter = '=';
-			KeyValuePairDelimiter = ';';
+        public DictionaryMapper(Dictionary<string,string> properties)
+        {
+            Ensure.NotNull(properties, "properties");
+            _properties = properties;
 
             Converters = new Dictionary<Type, Func<string, object>>();
 			Converters[typeof(String)] = x => x;
@@ -34,7 +33,7 @@ namespace Woocode.Utils
 		}
 
 
-        public string ToPropertiesString(object source, object defaults, bool includeDefaults = false)
+        public static string ToPropertiesString(object source, object defaults, bool includeDefaults = false)
         {
             List<string> pairs = new List<string>();
             foreach (PropertyInfo propertyInfo in source.GetType().GetProperties())
@@ -50,35 +49,27 @@ namespace Woocode.Utils
             return String.Join(";", pairs);
         }
 
-		public void MapProperties(string propertiesString, object target, bool throwIfPropertyMissing = true)
-		{
-            var keyvaluepairs = propertiesString.Split(new[] { KeyValuePairDelimiter },StringSplitOptions.RemoveEmptyEntries);
-			var properties = target.GetType().GetProperties();
-
-			foreach (var parameter in keyvaluepairs)
-			{
-				var keyValuePair = parameter.Split(KeyValueDelimiter);
-			    string propertyName = keyValuePair[0].Trim().ToLower();
-			    string val = keyValuePair[1].Trim();
-
-				var property = properties.SingleOrDefault(x => x.Name.ToLower() == propertyName);
-				if (property == null)
-				{
-                    if(throwIfPropertyMissing) throw new Exception(String.Format("Missing property [{0}] on target object", propertyName));
-				    continue;
-				}
-				object propertyValue;
-				// Convert Value to match property type.
-				if(property.PropertyType.IsEnum)
-					propertyValue = Enum.Parse(property.PropertyType, val,true);
-				else
-					propertyValue = Converters[property.PropertyType].Invoke(val);
-				// Set the property.
-				property.SetValue(target, propertyValue, null);
-			}
-		}
-
-        
-
+        public void Map(object target, bool throwIfPropertyMissing=false)
+        {
+            foreach (var pair in _properties)
+            {
+                var properties = target.GetType().GetProperties();
+                var property = properties.SingleOrDefault(x => x.Name.ToLower() == pair.Key);
+                if (property == null)
+                {
+                    if (throwIfPropertyMissing) throw new Exception(String.Format("Missing property [{0}] on target object", pair.Key));
+                    continue;
+                }
+                object propertyValue;
+                // Convert Value to match property type.
+                if (property.PropertyType.IsEnum)
+                    propertyValue = Enum.Parse(property.PropertyType, pair.Value, true);
+                else
+                    propertyValue = Converters[property.PropertyType].Invoke(pair.Value);
+                // Set the property.
+                property.SetValue(target, propertyValue, null);
+                
+            }    
+        }
 	}
 }

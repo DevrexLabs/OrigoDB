@@ -1,8 +1,6 @@
 ﻿using System.Linq;
-using LiveDomain.Core.Utilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
+using NUnit.Framework;
 
 namespace LiveDomain.Core.Test
 {
@@ -12,61 +10,11 @@ namespace LiveDomain.Core.Test
     ///This is a test class for ArrayFunctionsTest and is intended
     ///to contain all ArrayFunctionsTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestFixture]
     public class MergersTest
     {
 
-
-        private TestContext testContextInstance;
-
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
-        {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
-        }
-
-        #region Additional test attributes
-        // 
-        //You can use the following additional attributes as you write your tests:
-        //
-        //Use ClassInitialize to run code before running the first test in the class
-        //[ClassInitialize()]
-        //public static void MyClassInitialize(TestContext testContext)
-        //{
-        //}
-        //
-        //Use ClassCleanup to run code after all tests in a class have run
-        //[ClassCleanup()]
-        //public static void MyClassCleanup()
-        //{
-        //}
-        //
-        //Use TestInitialize to run code before running each test
-        //[TestInitialize()]
-        //public void MyTestInitialize()
-        //{
-        //}
-        //
-        //Use TestCleanup to run code after each test has run
-        //[TestCleanup()]
-        //public void MyTestCleanup()
-        //{
-        //}
-        //
-        #endregion
-
-
-        [TestMethod()]
+        [Test]
         public void OrderedArraysStreamed_results_are_ordered()
         {
             var arrays = RandomArrays(5);
@@ -74,7 +22,7 @@ namespace LiveDomain.Core.Test
             Assert.IsTrue(IsOrdered(sorted));
         }
 
-        [TestMethod()]
+        [Test]
         public void OrderedArraysStreamed_retains_correct_no_of_items()
         {
             var arrays = RandomArrays(12);
@@ -83,7 +31,7 @@ namespace LiveDomain.Core.Test
             Assert.AreEqual(numItems, sorted.Length);
         }
 
-        [TestMethod()]
+        [Test]
         public void OrderedArraysStreamed_results_are_ordered_with_comparer()
         {
             var arrays = RandomArrays(5);

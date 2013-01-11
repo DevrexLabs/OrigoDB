@@ -10,7 +10,7 @@ namespace LiveDomain.Core.Storage
     {
         protected EngineConfiguration _config;
         protected ISerializer _serializer;
-        protected static ILog _log = Log.GetLogFactory().GetLogForCallingType();
+        protected static ILog _log = LogProvider.Factory.GetLogForCallingType();
 
         private List<Snapshot> _snapshots;
         public IEnumerable<Snapshot> Snapshots
@@ -33,15 +33,15 @@ namespace LiveDomain.Core.Storage
 
         protected abstract IJournalWriter CreateStoreSpecificJournalWriter(long lastEntryId);
         protected abstract Snapshot WriteSnapshotImpl(Model model, long lastEntryId);
-        public abstract IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(long entryId);
-        public abstract IEnumerable<JournalEntry<Command>> GetJournalEntriesBeforeOrAt(DateTime pointInTime);
+        public abstract IEnumerable<JournalEntry> GetJournalEntriesFrom(long entryId);
+        public abstract IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime);
         public abstract Model LoadMostRecentSnapshot(out long lastEntryId);
         public abstract void VerifyCanLoad();
         public abstract void VerifyCanCreate();
         public abstract void Create(Model model);
         protected abstract IEnumerable<Snapshot> LoadSnapshots();
 
-        public virtual IEnumerable<JournalEntry<Command>> GetJournalEntries()
+        public virtual IEnumerable<JournalEntry> GetJournalEntries()
         {
             return GetJournalEntriesFrom(1);
         }

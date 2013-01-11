@@ -1,4 +1,5 @@
 ﻿using LiveDomain.Core;
+using LiveDomain.Core.Configuration;
 using LiveDomain.Core.Journaling;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -39,38 +40,6 @@ namespace LiveDomain.Core.Test
             }
         }
 
-        #region Additional test attributes
-        // 
-        //You can use the following additional attributes as you write your tests:
-        //
-        //Use ClassInitialize to run code before running the first test in the class
-        //[ClassInitialize()]
-        //public static void MyClassInitialize(TestContext testContext)
-        //{
-        //}
-        //
-        //Use ClassCleanup to run code after all tests in a class have run
-        //[ClassCleanup()]
-        //public static void MyClassCleanup()
-        //{
-        //}
-        //
-        //Use TestInitialize to run code before running each test
-        //[TestInitialize()]
-        //public void MyTestInitialize()
-        //{
-        //}
-        //
-        //Use TestCleanup to run code after each test has run
-        //[TestCleanup()]
-        //public void MyTestCleanup()
-        //{
-        //}
-        //
-        #endregion
-
-
-
         [TestMethod()]
         public void ObjectFormattingDefaultsToBinary()
         {
@@ -101,7 +70,7 @@ namespace LiveDomain.Core.Test
         {
             var config = new EngineConfiguration();
             config.SetStoreFactory((c) => null);
-            Assert.AreEqual(StoreType.Custom, config.StoreType);
+            Assert.AreEqual(Stores.Custom, config.StoreType);
         }
 
         [TestMethod()]
@@ -185,12 +154,12 @@ namespace LiveDomain.Core.Test
                 throw new NotImplementedException();
             }
 
-            public override System.Collections.Generic.IEnumerable<JournalEntry<Command>> GetJournalEntriesFrom(long sequenceNumber)
+            public override System.Collections.Generic.IEnumerable<JournalEntry> GetJournalEntriesFrom(long sequenceNumber)
             {
                 yield break;
             }
 
-            public override System.Collections.Generic.IEnumerable<JournalEntry<Command>> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
+            public override System.Collections.Generic.IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
             {
                 yield break;
             }
@@ -250,10 +219,32 @@ namespace LiveDomain.Core.Test
             Assert.IsFalse(config.AsyncronousJournaling);
         }
 
+        [TestMethod()]
+        public void OptimisticKernelIsDefault()
+        {
+            var config = new EngineConfiguration();
+            Assert.IsTrue(config.Kernel == Kernels.Optimistic);
+        }
 
-        /*
-JournalWriter
-          */
+        [TestMethod()]
+        public void PessimisticKernelIsReturned()
+        {
+            var config = new EngineConfiguration();
+            config.Kernel = Kernels.Pessimistic;
+            var kernel = config.CreateKernel(null);
+            Assert.AreEqual(typeof(PessimisticKernel), kernel.GetType());
+        }
+
+        [TestMethod()]
+        public void OptimisticKernelIsReturned()
+        {
+            var config = new EngineConfiguration();
+            config.Kernel = Kernels.Optimistic;
+            var kernel = config.CreateKernel(null);
+            Assert.AreEqual(typeof(OptimisticKernel), kernel.GetType());
+        }
+
+
 
     }
 }

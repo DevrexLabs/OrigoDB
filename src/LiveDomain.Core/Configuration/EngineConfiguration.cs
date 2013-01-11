@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using LiveDomain.Core.Logging;
 using LiveDomain.Core.Security;
 using LiveDomain.Core.TinyIoC;
+using LiveDomain.Core.Configuration;
 
 namespace LiveDomain.Core
 {
@@ -27,6 +28,9 @@ namespace LiveDomain.Core
         public bool AsyncronousJournaling { get; set; }
 
 
+        public Kernels Kernel { get; set; }
+
+
         /// <summary>
         /// Engine takes responsibility for ensuring no mutable object references are returned by commands or queries. Default is true.
         /// <remarks>
@@ -36,14 +40,6 @@ namespace LiveDomain.Core
         ///</remarks>
         /// </summary>
         public bool EnsureSafeResults { get; set; }
-
-        /// <summary>
-        /// Engine will not trust commands and take measures to ensure they are handled in a thread safe manner. Default is true.
-        /// <remarks>
-        /// Can safely be set to false if each command is never modified after being submitted for execution.
-        /// </remarks>
-        /// </summary>
-        public bool EnsureSafeCommands { get; set; }
 
 
         /// <summary>
@@ -57,7 +53,7 @@ namespace LiveDomain.Core
         /// </summary>
         public SnapshotBehavior SnapshotBehavior { get; set; }
 
-        public StoreType StoreType { get; set; }
+        public Stores StoreType { get; set; }
 
         /// <summary>
         /// Effects which ISynchronizer is chosen by CreateSynchronizer()
@@ -81,37 +77,49 @@ namespace LiveDomain.Core
         /// </summary>
         public int MaxBytesPerJournalSegment { get; set; }
 
+
+        public StorageLocation Location { get; set; }
+
         /// <summary>
         /// Create an EngineConfiguration instance using default values
         /// </summary>
         /// <param name="targetLocation"></param>
         public EngineConfiguration(string targetLocation = null)
         {
-
-            Location = targetLocation;
+            Location = new FileStorageLocation(targetLocation);
 
             //Set default values
+            Kernel = Kernels.Optimistic;
             LockTimeout = DefaultTimeout;
             Synchronization = SynchronizationMode.ReadWrite;
             ObjectFormatting = ObjectFormatting.NetBinaryFormatter;
             AsyncronousJournaling = false;
             MaxBytesPerJournalSegment = DefaultMaxBytesPerJournalSegment;
             MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
-            StoreType = StoreType.FileSystem;
+            StoreType = Stores.FileSystem;
             EnsureSafeResults = true;
-            EnsureSafeCommands = true;
 
             _registry = new TinyIoCContainer();
-            _registry.Register<ICommandJournal>((c, p) => new CommandJournal(this));
+            _registry.Register<ICommandJournal>((c, p) => new CommandJournal((IStore)p["store"]));
             _registry.Register<IAuthorizer<Type>>((c, p) => new TypeBasedPermissionSet(Permission.Allowed));
             _registry.Register<ISerializer>((c,p) => new Serializer(CreateFormatter()));
 
             InitSynchronizers();
             InitStoreTypes();
             InitFormatters();
+            InitKernels();
         }
 
         #region Factory initializers
+
+
+        private void InitKernels()
+        {
+            _registry.Register<Kernel>((c, p) => new OptimisticKernel(this, (IStore) p["store"]),Kernels.Optimistic.ToString());
+            _registry.Register<Kernel>((c, p) => new PessimisticKernel(this, (IStore) p["store"]), Kernels.Pessimistic.ToString());
+            _registry.Register<Kernel>((c, p) => new RoyalFoodTaster(this, (IStore)p["store"]), Kernels.RoyalFoodTaster.ToString());
+        }
+
         /// <summary>
         /// Created a named registration for each SynchronizationMode enumeration value
         /// </summary>
@@ -141,12 +149,12 @@ namespace LiveDomain.Core
         /// </summary>
         private void InitStoreTypes()
         {
-            _registry.Register<IStore>((c, p) => new FileStore(this), StoreType.FileSystem.ToString());
+            _registry.Register<IStore>((c, p) => new FileStore(this), Stores.FileSystem.ToString());
             //_registry.Register<IStorage, NullStorage>(StorageType.None.ToString());
 
             //If StorageMode is set to custom and no factory has been injected, the fully qualified type 
             //name will be resolved from the app configuration file.
-            _registry.Register<IStore>((c, p) => LoadFromConfig<IStore>(), StoreType.Custom.ToString());
+            _registry.Register<IStore>((c, p) => LoadFromConfig<IStore>(), Stores.Custom.ToString());
         } 
         #endregion
 
@@ -197,14 +205,15 @@ namespace LiveDomain.Core
         }
 
         /// <summary>
-        /// Creates and returns a new command journal instance, can only be called once.
+        /// Creates and returns a new command journal instance.
         /// The default type is CommandJournal unless a custom factory has been set by 
         /// calling SetCommandJournalFactory()
         /// </summary>
         /// <returns></returns>
-        public virtual ICommandJournal CreateCommandJournal()
+        public virtual ICommandJournal CreateCommandJournal(IStore store)
         {
-            return _registry.Resolve<ICommandJournal>();
+            var args = new Dictionary<string, object> {{"store", store}};
+            return _registry.Resolve<ICommandJournal>(new NamedParameterOverloads(args));
         }
 
         #endregion
@@ -245,7 +254,7 @@ namespace LiveDomain.Core
         /// <param name="factory"></param>
         public void SetStoreFactory(Func<EngineConfiguration, IStore> factory)
         {
-            StoreType = StoreType.Custom;
+            StoreType = Stores.Custom;
             string registrationName = StoreType.ToString();
             _registry.Register<IStore>((c, p) => factory.Invoke(this), registrationName);
         }
@@ -279,6 +288,13 @@ namespace LiveDomain.Core
                 compositeStrategy.AddStrategy(new MaxEntriesRolloverStrategy(MaxEntriesPerJournalSegment));
             }
             return compositeStrategy;
+        }
+
+        public virtual Kernel CreateKernel(IStore store)
+        {
+            string registrationName = Kernel.ToString();
+            var parameters = new Dictionary<string, object> {{"store", store}};
+            return _registry.Resolve<Kernel>(registrationName, new NamedParameterOverloads(parameters));
         }
     }
 }

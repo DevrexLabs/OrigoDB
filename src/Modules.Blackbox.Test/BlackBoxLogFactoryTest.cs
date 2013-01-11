@@ -80,7 +80,7 @@ namespace Modules.Blackbox.Test
         [TestMethod()]
         public void Can_log_message()
         {
-            new BlackBoxLogFactory().GetLogForCallingType().Trace("Hello, world!");
+            new BlackBoxLogFactory().GetLogForCallingType().Info("Hello, world!");
         }
     }
 }

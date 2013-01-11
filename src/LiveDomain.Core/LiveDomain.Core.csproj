@@ -68,6 +68,7 @@
     <Compile Include="Clients\RemoteEngineClient.cs" />
     <Compile Include="Clients\Remote\RemoteConnection.cs" />
     <Compile Include="Clients\Remote\RequestContext.cs" />
+    <Compile Include="CommandFailedException.cs" />
     <Compile Include="Command[M].cs" />
     <Compile Include="CommandWithResult[M,R].cs" />
     <Compile Include="Configuration\ClientConfiguration.cs" />
@@ -75,19 +76,36 @@
     <Compile Include="Configuration\Config.cs" />
     <Compile Include="Configuration\ConfigurationBase.cs" />
     <Compile Include="Configuration\FailoverClusterClientConfiguration.cs" />
+    <Compile Include="Configuration\Kernels.cs" />
     <Compile Include="Configuration\LocalClientConfiguration.cs" />
     <Compile Include="Configuration\PartitionClusterClientConfiguration.cs" />
     <Compile Include="Configuration\RemoteClientConfiguration.cs" />
-    <Compile Include="Configuration\Location.cs" />
+    <Compile Include="Configuration\FileStorageLocation.cs" />
+    <Compile Include="Configuration\StorageLocation.cs" />
+    <Compile Include="Journaling\RollbackMarker.cs" />
+    <Compile Include="Kernel.cs" />
     <Compile Include="Linq\DelegateQuery.cs" />
     <Compile Include="Engine.For.cs" />
     <Compile Include="Db.cs" />
     <Compile Include="Engines.cs" />
     <Compile Include="IImmutable.cs" />
     <Compile Include="IOperationWithResult.cs" />
+    <Compile Include="Logging\ConsoleSink.cs" />
+    <Compile Include="Logging\LogConfiguration.cs" />
+    <Compile Include="Logging\LogFactory.cs" />
+    <Compile Include="Logging\FilteredSink.cs" />
+    <Compile Include="Logging\LogFormatter.cs" />
+    <Compile Include="Logging\LogKernel.cs" />
+    <Compile Include="Logging\LogLevel.cs" />
+    <Compile Include="Logging\LogProvider.cs" />
+    <Compile Include="Logging\LogSink.cs" />
+    <Compile Include="Logging\MultiSink.cs" />
+    <Compile Include="OptimisticKernel.cs" />
     <Compile Include="Proxy\OperationType.cs" />
     <Compile Include="Proxy\ProxyMethodInfo.cs" />
     <Compile Include="Clients\Merge.cs" />
+    <Compile Include="PessimisticKernel.cs" />
+    <Compile Include="RoyalFoodTaster.cs" />
     <Compile Include="Utilities\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />
     <Compile Include="Journaling\NullJournalWriter.cs" />
@@ -97,9 +115,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Logging\ILogFactory.cs" />
-    <Compile Include="Logging\InternalLogFactory.cs" />
-    <Compile Include="Logging\SingletonLogFactory.cs" />
-    <Compile Include="RolloverStrategy.cs" />
+    <Compile Include="Storage\RolloverStrategy.cs" />
     <Compile Include="Proxy\ModelProxy.cs" />
     <Compile Include="Proxy\ProxyMethodAttribute.cs" />
     <Compile Include="Proxy\ProxyCommand.cs" />
@@ -108,9 +124,9 @@
     <Compile Include="Security\NullAuthorizer.cs" />
     <Compile Include="Security\IAuthenticator.cs" />
     <Compile Include="Security\IAuthorizer.cs" />
-    <Compile Include="Logging\FileLogger.cs" />
-    <Compile Include="Logging\InMemoryLogger.cs" />
-    <Compile Include="Logging\Logger.cs" />
+    <Compile Include="Logging\FileSink.cs" />
+    <Compile Include="Logging\MemorySink.cs" />
+    <Compile Include="Logging\Log.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Journaling\AsynchronousJournalWriter.cs" />
     <Compile Include="Command.cs" />
@@ -122,7 +138,6 @@
     <Compile Include="Engine[M].cs" />
     <Compile Include="Journaling\ICommandJournal.cs" />
     <Compile Include="Configuration\JournalWriterMode.cs" />
-    <Compile Include="Logging\NullLogger.cs" />
     <Compile Include="Security\SecurityModel.cs" />
     <Compile Include="Security\MatchAllRule.cs" />
     <Compile Include="Security\Permission.cs" />
@@ -130,22 +145,23 @@
     <Compile Include="Security\LiveDomainPrincipal.cs" />
     <Compile Include="Security\Role.cs" />
     <Compile Include="Security\Rule[T].cs" />
-    <Compile Include="Security\Authenticator.cs" />
+    <Compile Include="Security\AuthenticationModel.cs" />
     <Compile Include="Security\TypeBasedPermissionSet.cs" />
     <Compile Include="Security\TypeBasedRule.cs" />
     <Compile Include="Storage\IStore.cs" />
     <Compile Include="Storage\JournalFile.cs" />
     <Compile Include="Storage\Snapshot.cs" />
     <Compile Include="Storage\Store.cs" />
+    <Compile Include="Utilities\Ensure.cs" />
     <Compile Include="Utilities\NonDestructiveArrayQueue.cs" />
     <Compile Include="Utilities\ResourcePool.cs" />
     <Compile Include="Utilities\SocketExtensions.cs" />
-    <Compile Include="Utilities\StringToPropertiesMapper.cs" />
+    <Compile Include="Utilities\DictionaryMapper.cs" />
     <Compile Include="Utilities\TinyIoC.cs" />
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Utilities\Immutable.cs" />
     <Compile Include="Security\User.cs" />
-    <Compile Include="Storage\StoreType.cs" />
+    <Compile Include="Storage\Stores.cs" />
     <Compile Include="Storage\ISerializer.cs" />
     <Compile Include="Configuration\ObjectFormatting.cs" />
     <Compile Include="Configuration\SnapshotBehavior.cs" />
@@ -162,14 +178,14 @@
     <Compile Include="Synchronization\ExclusiveSynchronizer.cs" />
     <Compile Include="Storage\FileStore.cs" />
     <Compile Include="Journaling\StreamJournalWriter.cs" />
-    <Compile Include="Utilities\PasswordHasher.cs" />
+    <Compile Include="Utilities\HashUtility.cs" />
     <Compile Include="Utilities\DirectoryEx.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="License.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
+    <None Include="Proxy\ClassDiagram1.cd" />
     <None Include="Storage\Filestorage.cd" />
     <None Include="Core.Public.cd" />
     <None Include="packages.config" />

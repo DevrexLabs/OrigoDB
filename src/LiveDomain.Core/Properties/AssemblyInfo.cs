@@ -38,3 +38,4 @@ using System.Runtime.InteropServices;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("LiveDomain.Enterprise")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("LiveDomain.Core.Test")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("LiveDomain.Core.UnitTests")]

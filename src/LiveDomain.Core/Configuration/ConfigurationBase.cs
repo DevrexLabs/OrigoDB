@@ -15,7 +15,7 @@ namespace LiveDomain.Core
         protected T LoadFromConfigOrDefault<T>(Func<T> @default = null)
         {
             @default = @default ?? (() => (T)Activator.CreateInstance(typeof(T)));
-            string configKey = ConfigKeyFromType(typeof(T));
+            string configKey = String.Format(KeyTemplate,ConfigKeyFromType(typeof(T)));
             var configTypeName = ConfigurationManager.AppSettings[configKey];
             if (!String.IsNullOrEmpty(configTypeName))
             {

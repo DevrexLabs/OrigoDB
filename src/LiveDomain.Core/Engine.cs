@@ -29,7 +29,7 @@ namespace LiveDomain.Core
         private readonly Kernel _kernel;
 
         public EngineConfiguration Config { get { return _config; } }
-
+		internal Kernel Kernel { get { return _kernel; }}
         /// <summary>
         /// Shuts down the engine
         /// </summary>

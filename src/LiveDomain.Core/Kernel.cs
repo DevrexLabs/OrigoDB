@@ -12,6 +12,8 @@ namespace LiveDomain.Core
     /// </summary>
     public abstract class Kernel : IDisposable
     {
+	    internal ICommandJournal CommandJournal { get { return _commandJournal; }}
+	    internal IStore Store { get { return _store; } }
 
         private static ILog _log = LogProvider.Factory.GetLogForCallingType();
 

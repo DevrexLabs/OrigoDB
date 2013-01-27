@@ -14,7 +14,7 @@ namespace LiveDomain.Core
     {
         private static ILog _log = LogProvider.Factory.GetLogForCallingType();
 
-        protected object commandLock = new object();
+        protected object _commandLock = new object();
 
         public OptimisticKernel(EngineConfiguration config, IStore store)
             : base(config, store)
@@ -24,7 +24,7 @@ namespace LiveDomain.Core
 
         public override object ExecuteCommand(Command command)
         {
-            lock (commandLock)
+            lock (_commandLock)
             {
                 try
                 {

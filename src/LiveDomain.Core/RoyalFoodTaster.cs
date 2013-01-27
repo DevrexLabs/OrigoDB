@@ -30,7 +30,7 @@ namespace LiveDomain.Core
         public override object ExecuteCommand(Command command)
         {
 
-            lock (commandLock)
+            lock (_commandLock)
             {
                 try
                 {

@@ -7,8 +7,7 @@ namespace LiveDomain.Core.Utilities
 {
     public static class Ensure
     {
-
-        public static void NotNull(object param, string paramName)
+       public static void NotNull(object param, string paramName)
         {
             if (param == null) throw new ArgumentNullException(paramName);
         }
@@ -17,6 +16,11 @@ namespace LiveDomain.Core.Utilities
         {
             Ensure.NotNull(name, paramName);
             if(String.IsNullOrWhiteSpace(name)) throw new ArgumentException(paramName);
+        }
+
+        internal static void That(bool assertion, string errorMessage)
+        {
+            if (!assertion) throw new ArgumentException(errorMessage);
         }
     }
 }

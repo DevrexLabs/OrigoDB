@@ -108,6 +108,7 @@
     <Compile Include="Clients\Merge.cs" />
     <Compile Include="PessimisticKernel.cs" />
     <Compile Include="RoyalFoodTaster.cs" />
+    <Compile Include="Storage\ByteCountingNullStream.cs" />
     <Compile Include="Utilities\ByteAndBitTools.cs" />
     <Compile Include="Utilities\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />
@@ -157,7 +158,6 @@
     <Compile Include="Storage\Store.cs" />
     <Compile Include="Utilities\Ensure.cs" />
     <Compile Include="Utilities\NonDestructiveArrayQueue.cs" />
-    <Compile Include="Utilities\Packet.cs" />
     <Compile Include="Utilities\ResourcePool.cs" />
     <Compile Include="Utilities\SocketExtensions.cs" />
     <Compile Include="Utilities\DictionaryMapper.cs" />

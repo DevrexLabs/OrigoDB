@@ -16,5 +16,6 @@ namespace LiveDomain.Core
         IEnumerable<T> ReadToEnd<T>(Stream stream);
         byte[] Serialize(object graph);
         void Write(object graph, Stream stream);
+        long SizeOf(object graph);
     }
 }

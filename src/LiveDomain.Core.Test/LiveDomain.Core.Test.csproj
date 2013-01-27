@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assumptions.cs" />
+    <Compile Include="ByteCountingNullStreamTest.cs" />
     <Compile Include="ExtensionsTest.cs" />
     <Compile Include="CachingLinqCompilerTest.cs" />
     <Compile Include="Customer.cs" />
@@ -83,6 +84,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="SerializerTest.cs" />
     <Compile Include="SqlStorageTest.cs" />
     <Compile Include="ProxyTest.cs" />
     <Compile Include="SubmodelsTests.cs" />

@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using LiveDomain.Core.Migrations;
 using LiveDomain.Core.Utilities;
+using LiveDomain.Core.Storage;
 
 namespace LiveDomain.Core
 {
@@ -17,9 +18,18 @@ namespace LiveDomain.Core
 
 		internal Serializer(IFormatter formatter)
 		{
+            Ensure.NotNull(formatter, "formatter");
             formatter.Binder = new CustomBinder();
 			_formatter = formatter;
 		}
+
+        public long SizeOf(object graph)
+        {
+            Stream stream = new ByteCountingNullStream();
+            _formatter.Serialize(stream, graph);
+            return stream.Length;
+
+        }
 
         /// <summary>
         /// Avoid corruption by serializing in memory and

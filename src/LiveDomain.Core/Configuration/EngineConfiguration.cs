@@ -103,7 +103,7 @@ namespace LiveDomain.Core
             MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
             StoreType = Stores.FileSystem;
             EnsureSafeResults = true;
-            PacketOptions = Core.PacketOptions.Checksum;
+            PacketOptions = Core.PacketOptions.Checksum | Core.PacketOptions.Compressed;
 
             _registry = new TinyIoCContainer();
             _registry.Register<ICommandJournal>((c, p) => new CommandJournal((IStore)p["store"]));

@@ -59,17 +59,13 @@ namespace LiveDomain.Core
         public static Packet Create(byte[] bytes, PacketOptions options = PacketOptions.Checksum)
         {
             var packet = new Packet(bytes, options);
-            if (packet.IsCompressed) //compress before encrypting!
-            {
-                throw new NotImplementedException("Packet compression not supported");
-            }
             if (packet.IsEncrypted)
             {
                 throw new NotImplementedException("Packet encryption not supported");
             }
-            if (packet.IncludeChecksum)
+            if (packet.HasChecksum)
             {
-                packet._checksum = Hasher.ComputeHash(bytes);
+                packet._checksum = Hasher.ComputeHash(packet._bytes);
             }
             return packet;
         }
@@ -90,7 +86,7 @@ namespace LiveDomain.Core
             get { return (_options & PacketOptions.Compressed) > 0; }
         }
 
-        public bool IncludeChecksum
+        public bool HasChecksum
         {
             get { return (_options & PacketOptions.Checksum) > 0; }
         }
@@ -103,11 +99,12 @@ namespace LiveDomain.Core
             int length = reader.ReadInt32();
             byte[] bytes = reader.ReadBytes(length);
             var packet = new Packet(bytes, options);
-            if (packet.IncludeChecksum)
+            if (packet.IsCompressed) packet._bytes = bytes.Decompress();
+            if (packet.HasChecksum)
             {
                 int checksumLength = reader.ReadInt16();
                 packet._checksum = reader.ReadBytes(checksumLength);
-                if (!packet.IsChecksumValid()) throw new InvalidDataException("Bad checksum reading packet");
+                if (!packet.HasValidChecksum()) throw new InvalidDataException("Bad checksum reading packet");
             }
             return packet;
         }
@@ -116,9 +113,10 @@ namespace LiveDomain.Core
         {
             BinaryWriter writer = new BinaryWriter(stream);
             writer.Write((byte)_options);
-            writer.Write(_bytes.Length);
-            writer.Write(_bytes);
-            if (IncludeChecksum)
+            byte[] toWrite = IsCompressed ? _bytes.Compress() : _bytes;
+            writer.Write(toWrite.Length);
+            writer.Write(toWrite);
+            if (HasChecksum)
             {
                 writer.Write((short)_checksum.Length);
                 writer.Write(_checksum);
@@ -126,10 +124,10 @@ namespace LiveDomain.Core
             writer.Flush();
         }
 
-        private bool IsChecksumValid()
+        private bool HasValidChecksum()
         {
             byte[] computedHash = Hasher.ComputeHash(_bytes);
-            return computedHash.ByteArrayCompare(_checksum);
+            return computedHash.EqualsEx(_checksum);
         }
 
         public byte[] Bytes

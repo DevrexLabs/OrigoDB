@@ -38,7 +38,7 @@ namespace LiveDomain.Core.Test
             memoryStream.Position = 0;
             var recreatedPacket = Packet.Read(memoryStream);
 
-            Assert.IsFalse(recreatedPacket.IncludeChecksum);
+            Assert.IsFalse(recreatedPacket.HasChecksum);
             Assert.AreEqual(new Guid(recreatedPacket.Bytes), new Guid(randomBytes));
         }
 	}

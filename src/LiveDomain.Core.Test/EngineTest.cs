@@ -132,7 +132,11 @@ namespace LiveDomain.Core.Test
         [TestMethod]
         public void JournalRollsOverWhenSegmentSizeExceedsLimit()
         {
+            
             var config = CreateConfig();
+
+            //turn off compression
+            config.PacketOptions = null;
             if (config.CreateStore() is SqlStore) return;
             config.MaxBytesPerJournalSegment = 1024 * 1024;
             Engine = Engine.LoadOrCreate<TestModel>(config);

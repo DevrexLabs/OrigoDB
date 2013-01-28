@@ -11,40 +11,35 @@ namespace LiveDomain.Core.Test
 	[TestClass]
 	public class PacketTest
 	{
+        [TestMethod]
+        public void Packet_with_checksum_is_same_after_writing_reading()
+        {
+            var randomBytes = Guid.NewGuid().ToByteArray();
+            var packet = Packet.Create(randomBytes);
+            var memoryStream = new MemoryStream();
+            packet.Write(memoryStream);
 
-		[TestMethod]
-		public void Packet_WriteAndRead()
-		{
-			var randomBytes = Guid.NewGuid().ToByteArray();
-			var memoryStream = new MemoryStream();
-			var packet = new Packet();
+            // Move to begining for reading.
+            memoryStream.Position = 0;
+            var recreatedPacket = Packet.Read(memoryStream);
+            
+            Assert.AreEqual(new Guid(recreatedPacket.Bytes), new Guid(randomBytes));
+        }
 
-			packet.Payload = randomBytes;
-			packet.Write(memoryStream);
-			// Move to begining for reading.
-			memoryStream.Position = 0;
-			packet = new Packet();
-			packet.Read(memoryStream);
-			Assert.IsTrue(packet.Payload.ByteArrayCompare(randomBytes));
-		}
+        [TestMethod]
+        public void Packet_without_checksum_is_same_after_writing_reading()
+        {
+            var randomBytes = Guid.NewGuid().ToByteArray();
+            var packet = Packet.Create(randomBytes, PacketOptions.None);
+            var memoryStream = new MemoryStream();
+            packet.Write(memoryStream);
 
-		[TestMethod]
-		public void Packet_VerifyChecksum()
-		{
-			var randomBytes = Guid.NewGuid().ToByteArray();
-			var memoryStream = new MemoryStream();
-			var packet = new Packet();
+            // Move to begining for reading.
+            memoryStream.Position = 0;
+            var recreatedPacket = Packet.Read(memoryStream);
 
-			packet.Payload = randomBytes;
-			packet.IncludeChecksum = true;
-			packet.Write(memoryStream);
-			// Move to begining for reading.
-			memoryStream.Position = 0;
-			packet = new Packet();
-			packet.Read(memoryStream);
-
-			Assert.IsTrue(packet.VerifyChecksum());
-			Assert.IsTrue(packet.Payload.ByteArrayCompare(randomBytes));
-		}
+            Assert.IsFalse(recreatedPacket.IncludeChecksum);
+            Assert.AreEqual(new Guid(recreatedPacket.Bytes), new Guid(randomBytes));
+        }
 	}
 }

@@ -67,6 +67,21 @@ namespace LiveDomain.Core.Test
     [TestClass]
     public class ChildModelTests
     {
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _engine = Engine.For<MyModel>(Guid.NewGuid().ToString());
+        }
+
+        [TestCleanup]
+        public void TearDown()
+        {
+            Config.Engines.CloseAll();
+        }
+
+
+
         [TestMethod]
         public void can_invoke_command_bound_to_child_model()
         {
@@ -82,7 +97,7 @@ namespace LiveDomain.Core.Test
             Assert.AreEqual(42, result);
         }
 
-        IEngine<MyModel> _engine = Engine.For<MyModel>();
+        private IEngine<MyModel> _engine; 
 
         [TestMethod]
         public void can_invoke_query_bound_to_child_model()
@@ -104,7 +119,7 @@ namespace LiveDomain.Core.Test
         [TestMethod]
         public void can_get_proxy_for_child_model_2()
         {
-            var child = Db.For<MyModel>().ChildFor<MyChildModel>();
+            var child = _engine.GetProxy().ChildFor<MyChildModel>();
         }
 
         [TestMethod]

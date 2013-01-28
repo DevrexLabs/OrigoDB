@@ -59,12 +59,23 @@ namespace LiveDomain.Core.Test
         public void InjectedFormatterIsResolved()
         {
             var config = new EngineConfiguration();
+            config.PacketOptions = null;
             var expected = new BinaryFormatter();
             config.SetFormatterFactory((c) => expected);
             var actual = config.CreateFormatter();
             Assert.AreSame(expected, actual);
         }
-        
+
+        [TestMethod()]
+        public void PacketingFormatterIsReturnedWhenPaketOptionsArePresent()
+        {
+            var config = new EngineConfiguration();
+            config.PacketOptions = PacketOptions.Checksum;
+            config.SetFormatterFactory((c) => new BinaryFormatter());
+            var actual = config.CreateFormatter();
+            Assert.IsInstanceOfType(actual, typeof(PacketingFormatter));
+        }
+
         [TestMethod()]
         public void InjectingStorageSetsModeToCustom()
         {

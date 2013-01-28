@@ -30,6 +30,11 @@ namespace LiveDomain.Core
 
         public Kernels Kernel { get; set; }
 
+        /// <summary>
+        /// If assigned, write <see cref="Packet"/>s to the journal using the options specified.
+        /// Otherwise serialize object graphs directly to the underlying stream
+        /// </summary>
+        public PacketOptions? PacketOptions { get; set; }
 
         /// <summary>
         /// Engine takes responsibility for ensuring no mutable object references are returned by commands or queries. Default is true.
@@ -98,6 +103,7 @@ namespace LiveDomain.Core
             MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
             StoreType = Stores.FileSystem;
             EnsureSafeResults = true;
+            PacketOptions = Core.PacketOptions.Checksum;
 
             _registry = new TinyIoCContainer();
             _registry.Register<ICommandJournal>((c, p) => new CommandJournal((IStore)p["store"]));
@@ -180,7 +186,14 @@ namespace LiveDomain.Core
         public virtual IFormatter CreateFormatter()
         {
             string name = ObjectFormatting.ToString();
-            return _registry.Resolve<IFormatter>(name);
+            IFormatter formatter = _registry.Resolve<IFormatter>(name);
+            if (PacketOptions != null)
+            {
+                formatter = new PacketingFormatter(formatter, PacketOptions.Value);
+            }
+            return formatter;
+
+
         }
 
         /// <summary>

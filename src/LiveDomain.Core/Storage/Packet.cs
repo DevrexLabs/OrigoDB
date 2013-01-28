@@ -1,0 +1,158 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using LiveDomain.Core.Utilities;
+
+namespace LiveDomain.Core
+{
+
+    [Flags]
+    public enum PacketOptions : byte
+    {
+        None = 0,
+        Encryted = 1,
+        Compressed = 2,
+        Checksum = 4,
+        All = Encryted | Compressed | Checksum
+    }
+
+    public class Packet
+    {
+        /** Header is one byte in information bits(8 bools)
+		 *	0 IsEncrypted?
+		 *	1 IsCompressed?
+		 *	2 IncludeChecksum? 
+		 *	3
+		 *	4
+		 *	5
+		 *	6
+		 *	7
+		 *	
+		 *	Next four bytes is the length of payload data in Int32 format 
+		 *		followed by the corresponding length of payload data.
+		 *	
+		 *  IF IncludeChecksum : Next four bytes is the length of checksum data in Int32 format 
+		 *		followed by the corresponding  length of checksum data.
+		 **/
+
+        [ThreadStatic] private static HashAlgorithm _hasher;
+        
+        private static HashAlgorithm Hasher
+        {
+            get
+            {
+                if (_hasher == null) _hasher = new MD5CryptoServiceProvider();
+                return _hasher;
+            }
+        }
+
+        private PacketOptions _options;
+        private byte[] _checksum;
+        public byte[] _bytes;
+
+
+
+        public static Packet Create(byte[] bytes, PacketOptions options = PacketOptions.Checksum)
+        {
+            var packet = new Packet(bytes, options);
+            if (packet.IsCompressed) //compress before encrypting!
+            {
+                throw new NotImplementedException("Packet compression not supported");
+            }
+            if (packet.IsEncrypted)
+            {
+                throw new NotImplementedException("Packet encryption not supported");
+            }
+            if (packet.IncludeChecksum)
+            {
+                packet._checksum = Hasher.ComputeHash(bytes);
+            }
+            return packet;
+        }
+
+        private Packet(byte[] bytes, PacketOptions options = PacketOptions.Checksum)
+        {
+            _options = options;
+            _bytes = bytes;
+        }
+
+        public bool IsEncrypted
+        {
+            get { return (_options & PacketOptions.Encryted) > 0; }
+        }
+
+        public bool IsCompressed
+        {
+            get { return (_options & PacketOptions.Compressed) > 0; }
+        }
+
+        public bool IncludeChecksum
+        {
+            get { return (_options & PacketOptions.Checksum) > 0; }
+        }
+
+        public static Packet Read(Stream stream)
+        {
+            // Read header
+            BinaryReader reader = new BinaryReader(stream);
+            PacketOptions options = (PacketOptions)reader.ReadByte();
+            int length = reader.ReadInt32();
+            byte[] bytes = reader.ReadBytes(length);
+            var packet = new Packet(bytes, options);
+            if (packet.IncludeChecksum)
+            {
+                int checksumLength = reader.ReadInt16();
+                packet._checksum = reader.ReadBytes(checksumLength);
+                if (!packet.IsChecksumValid()) throw new InvalidDataException("Bad checksum reading packet");
+            }
+            return packet;
+        }
+
+        public void Write(Stream stream)
+        {
+            BinaryWriter writer = new BinaryWriter(stream);
+            writer.Write((byte)_options);
+            writer.Write(_bytes.Length);
+            writer.Write(_bytes);
+            if (IncludeChecksum)
+            {
+                writer.Write((short)_checksum.Length);
+                writer.Write(_checksum);
+            }
+            writer.Flush();
+        }
+
+        private bool IsChecksumValid()
+        {
+            byte[] computedHash = Hasher.ComputeHash(_bytes);
+            return computedHash.ByteArrayCompare(_checksum);
+        }
+
+        public byte[] Bytes
+        {
+            get
+            {
+                return _bytes;
+            }
+        }
+
+    }
+
+    //public class Packager
+    //{
+    //    public static IEnumerable<Packet> ReadAll(Stream stream)
+    //    {
+    //        while (stream.Position < (stream.Length - 1))
+    //        {
+    //            var packet = new Packet();
+    //            packet.Read(stream);
+    //            yield return packet;
+    //        }
+    //    }
+    //}
+
+}

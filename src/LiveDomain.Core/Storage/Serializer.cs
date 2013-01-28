@@ -14,7 +14,7 @@ namespace LiveDomain.Core
 	/// </summary>
 	internal class Serializer : ISerializer
 	{
-		IFormatter _formatter;
+		readonly IFormatter _formatter;
 
 		internal Serializer(IFormatter formatter)
 		{

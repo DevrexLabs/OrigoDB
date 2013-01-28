@@ -1,4 +1,5 @@
-﻿using LiveDomain.Core.Linq;
+﻿using System.Linq;
+using LiveDomain.Core.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Reflection;
@@ -6,6 +7,25 @@ using System.Collections.Generic;
 
 namespace LiveDomain.Core.Test
 {
+
+
+    /// <summary>
+    /// This is what is generated, if it doesn't compile here it won't compile dynamically :)
+    /// </summary>
+    class CompiledQuery
+    {
+
+        public static object QueryExpr(LiveDomain.Core.Test.TestModel db, System.String @arg0)
+        {
+            return (from customer in db.Customers where customer.Name.StartsWith(@arg0) orderby customer.Name select customer.Name).First();
+        }
+
+        public static object Execute(Engine<LiveDomain.Core.Test.TestModel> engine, params object[] args)
+        {
+
+            return engine.Execute<TestModel, object>(model => QueryExpr(model, (System.String)args[0]));
+        }
+    }
 
 
     /// <summary>
@@ -75,7 +95,7 @@ namespace LiveDomain.Core.Test
                 try
                 {
                     var target = new CachingLinqCompiler<TestModel>();
-                    var args = new object[] {"a string", 42};
+                    var args = new object[] { "a string", 42 };
                     target.GetCompiledQuery(allQueries[i], args);
 
                 }
@@ -94,7 +114,7 @@ namespace LiveDomain.Core.Test
         {
             var target = new CachingLinqCompiler<TestModel>();
             var query = FirstCustomersNameStartingWithArg0;
-            var args = new object[]{"H"};
+            var args = new object[] { "H" };
             Assert.AreEqual(0, target.CompilerInvocations);
             target.GetCompiledQuery(query, args);
             Assert.AreEqual(1, target.CompilerInvocations);
@@ -120,7 +140,7 @@ namespace LiveDomain.Core.Test
             var target = new CachingLinqCompiler<TestModel>();
             target.ForceCompilation = true;
             var query = allQueries[0];
-            var args = new object[] {"a"};
+            var args = new object[] { "a" };
             Assert.AreEqual(0, target.CompilerInvocations);
             target.GetCompiledQuery(query, args);
             Assert.AreEqual(1, target.CompilerInvocations);
@@ -135,8 +155,8 @@ namespace LiveDomain.Core.Test
             model.AddCustomer("Zippy");
             model.AddCustomer("Droozy");
             var engine = Engine.Create(model);
-            var list = engine.Execute<TestModel,List<string>>(ListOfCustomerNames);
-            Assert.AreEqual(list.Count,2);
+            var list = engine.Execute<TestModel, List<string>>(ListOfCustomerNames);
+            Assert.AreEqual(list.Count, 2);
             Assert.AreEqual(list[0], "Zippy");
             Assert.AreEqual(list[1], "Droozy");
             engine.Close();
@@ -189,7 +209,7 @@ namespace LiveDomain.Core.Test
         [ExpectedException(typeof(NullReferenceException))]
         public void CompilationFailsWhenPassedNullArgument()
         {
-            var args = new object[]{null};
+            var args = new object[] { null };
             var compiler = new CachingLinqCompiler<TestModel>();
             compiler.GetCompiledQuery(FirstCustomersNameStartingWithArg0, args);
         }
@@ -217,7 +237,7 @@ namespace LiveDomain.Core.Test
                 if (engine != null) engine.Close();
                 DeleteFromDefaultLocation<TestModel>();
             }
-            
+
 
         }
 
@@ -246,7 +266,7 @@ namespace LiveDomain.Core.Test
             @"(from customer in db.Customers " +
             "select customer.Name).ToList()";
 
-        string[] allQueries = new []{
+        string[] allQueries = new[]{
             FirstCustomersNameStartingWithArg0,
             ListOfCustomerNames};
     }

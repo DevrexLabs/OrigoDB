@@ -43,7 +43,7 @@ namespace LiveDomain.Core.Linq
                     public static object Execute(Engine<{0}> engine, params object[] args)
                     {{
                         
-                        return engine.Execute(model => QueryExpr(model{3}));
+                        return engine.Execute<{0}, object>(model => QueryExpr(model{3}));
                     }}
                 }}
             }}";
@@ -83,8 +83,6 @@ namespace LiveDomain.Core.Linq
         /// <summary>
         /// Cast each args array value from System.Object to the actual type of the value
         /// </summary>
-        /// <param name="args"></param>
-        /// <returns></returns>
         private string BuildArgsInvocation(object[] args)
         {
             //begin with an emtpy string so we get a leading comma or nothing if args is zero length

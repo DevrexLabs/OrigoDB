@@ -5,7 +5,7 @@ using System.Text;
 using System.Security;
 using System.Runtime.Serialization;
 
-namespace LiveDomain.Modules.ProtoBuf
+namespace OrigoDB.Modules.ProtoBuf
 {
     [Serializable]
     public sealed class ProtoBufFormatterException : Exception

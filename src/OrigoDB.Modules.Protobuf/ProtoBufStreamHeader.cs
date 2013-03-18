@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using System.Diagnostics;
 
-namespace LiveDomain.Modules.ProtoBuf
+namespace OrigoDB.Modules.ProtoBuf
 {
     /// <summary>
     /// Encapsulates information about a <see cref="System.Type"/> 
@@ -61,11 +61,11 @@ namespace LiveDomain.Modules.ProtoBuf
         }
 
         /// <summary>
-        /// Creates a new <see cref="LiveDomain.Modules.ProtoBuf.ProtoBufStreamHeader"/>
+        /// Creates a new <see cref="OrigoDB.Modules.ProtoBuf.ProtoBufStreamHeader"/>
         /// from the specified <see cref="System.Type"/>.
         /// </summary>
         /// <param name="type">The specified <see cref="System.Type"/>.</param>
-        /// <returns>A <see cref="LiveDomain.Modules.ProtoBuf.ProtoBufStreamHeader"/> representing the <see cref="System.Type"/>.</returns>
+        /// <returns>A <see cref="OrigoDB.Modules.ProtoBuf.ProtoBufStreamHeader"/> representing the <see cref="System.Type"/>.</returns>
         public static ProtoBufStreamHeader Create(Type type)
         {
             // Perform sanity checks.
@@ -88,11 +88,11 @@ namespace LiveDomain.Modules.ProtoBuf
         }
 
         /// <summary>
-        /// Reads a <see cref="LiveDomain.Modules.ProtoBuf.ProtoBufStreamHeader"/> 
+        /// Reads a <see cref="OrigoDB.Modules.ProtoBuf.ProtoBufStreamHeader"/> 
         /// from a <see cref="System.IO.Stream"/>.
         /// </summary>
         /// <param name="stream">The <see cref="System.IO.Stream"/> to be read from.</param>
-        /// <returns>A <see cref="LiveDomain.Modules.ProtoBuf.ProtoBufStreamHeader"/> representing the serialized <see cref="System.Type"/>.</returns>
+        /// <returns>A <see cref="OrigoDB.Modules.ProtoBuf.ProtoBufStreamHeader"/> representing the serialized <see cref="System.Type"/>.</returns>
         public static ProtoBufStreamHeader Read(Stream stream)
         {
             // Perform sanity checks.

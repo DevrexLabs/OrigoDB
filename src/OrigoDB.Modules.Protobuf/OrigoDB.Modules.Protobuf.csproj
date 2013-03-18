@@ -49,6 +49,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProtoBufFormatter.cs" />
     <Compile Include="ProtoBufStreamHeader.cs" />
+    <Compile Include="RuntimeTypeModelBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

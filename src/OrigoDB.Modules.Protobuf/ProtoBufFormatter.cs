@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.IO;
+using OrigoDB.Modules.Protobuf;
 using ProtoBuf;
 using System.Reflection;
 using System.Threading;
+using ProtoBuf.Meta;
 
-namespace LiveDomain.Modules.ProtoBuf
+namespace OrigoDB.Modules.ProtoBuf
 {
     /// <summary>
     /// Provides functionality for formatting serialized objects
@@ -18,6 +20,9 @@ namespace LiveDomain.Modules.ProtoBuf
     {
         private StreamingContext _context;
         private readonly Dictionary<string, Type> _typeLookup;
+        //private RuntimeTypeModel _typeModel;
+        private RuntimeTypeModelBuilder _modelBuilder;
+
 
         /// <summary>
         /// The associated serialization binder.
@@ -49,10 +54,11 @@ namespace LiveDomain.Modules.ProtoBuf
         /// <summary>
         /// Initializes a new instance of the <see cref="OrigoDB.Modules.ProtoBuf.ProtoBufFormatter"/> class.
         /// </summary>
-        public ProtoBufFormatter()
+        public ProtoBufFormatter(RuntimeTypeModelBuilder modelBuilder = null)
         {
             _context = new StreamingContext(StreamingContextStates.Persistence);
             _typeLookup = new Dictionary<string, Type>();
+            _modelBuilder = modelBuilder ?? new RuntimeTypeModelBuilder();
         }
 
         /// <summary>
@@ -99,8 +105,24 @@ namespace LiveDomain.Modules.ProtoBuf
                 _typeLookup.Add(typeName, type);
             }
 
+            EnsureCanHandle(type);
+
             // Deserialize the stream.
-            return Serializer.NonGeneric.Deserialize(type, stream);
+            return  _modelBuilder.TypeModel.DeserializeWithLengthPrefix(
+                stream, 
+                null, 
+                type, 
+                PrefixStyle.Fixed32BigEndian, 
+                0);
+        }
+
+        /// <summary>
+        /// Throw an exception unless we can handle the type
+        /// </summary>
+        /// <param name="type"></param>
+        private void EnsureCanHandle(Type type)
+        {
+            _modelBuilder.Add(type);
         }
 
         /// <summary>
@@ -122,19 +144,23 @@ namespace LiveDomain.Modules.ProtoBuf
                 throw new ArgumentNullException("graph");
             }
 
-            // Check if the graph's type doesn't exist in the lookup table.
+            
             Type type = graph.GetType();
+            EnsureCanHandle(type);
+
             string typeName = type.FullName;
             if (!_typeLookup.ContainsKey(typeName))
             {
                 _typeLookup.Add(typeName, type);
             }
 
+            
+
             // Create the header and write it to the stream.
-            ProtoBufStreamHeader.Create(graph.GetType()).Write(stream);
+            ProtoBufStreamHeader.Create(type).Write(stream);
 
             // Perform the actual ProtoBuf serialization.
-            Serializer.NonGeneric.Serialize(stream, graph);
+            _modelBuilder.TypeModel.SerializeWithLengthPrefix(stream, graph, type, PrefixStyle.Fixed32BigEndian, 0, _context);
         }
 
         /// <summary>
@@ -144,7 +170,7 @@ namespace LiveDomain.Modules.ProtoBuf
         /// <returns></returns>
         public bool IsKnownType(Type type)
         {
-            return _typeLookup.Values.Contains(type);
+            return _typeLookup.ContainsKey(type.FullName);
         }
 
         private Type ResolveType(string typeName)
@@ -168,5 +194,7 @@ namespace LiveDomain.Modules.ProtoBuf
 
             return null;
         }
+
+
     }
 }

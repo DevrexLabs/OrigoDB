@@ -2,13 +2,15 @@
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using OrigoDB.Modules.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using LiveDomain.Modules.ProtoBuf;
+using OrigoDB.Modules.ProtoBuf;
 using System.Runtime.Serialization;
 using System.IO;
 using System.Reflection;
 using Modules.ProtoBuf.Test.Framework;
 using Modules.ProtoBuf.Test.Domain;
+using ProtoBuf.Meta;
 
 namespace Modules.ProtoBuf.Test
 {
@@ -52,6 +54,8 @@ namespace Modules.ProtoBuf.Test
         public void CanDeserializeComplexType()
         {
             // Arrange
+            var modelBuilder = new RuntimeTypeModelBuilder();
+            modelBuilder.Add(typeof(Employee));
             var formatter = new ProtoBufFormatter();
             var graph = new Company() {
                 Name = "Initech Corporation",
@@ -61,6 +65,9 @@ namespace Modules.ProtoBuf.Test
                     }
             };
 
+            //hack. triggers E#mployee type to be added to the TypeModel
+            SerializationHelper.Serialize(new Employee(), formatter);
+            
             // Act
             var stream = SerializationHelper.Serialize<Company>(graph, formatter);
             var result = SerializationHelper.Deserialize<Company>(stream, formatter);

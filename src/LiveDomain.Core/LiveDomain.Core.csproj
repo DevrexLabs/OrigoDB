@@ -71,6 +71,7 @@
     <Compile Include="CommandFailedException.cs" />
     <Compile Include="Command[M].cs" />
     <Compile Include="CommandWithResult[M,R].cs" />
+    <Compile Include="Compression\ICompressionAlgorithm.cs" />
     <Compile Include="Configuration\ClientConfiguration.cs" />
     <Compile Include="Configuration\CompressionMethod.cs" />
     <Compile Include="Configuration\Config.cs" />
@@ -158,7 +159,7 @@
     <Compile Include="Storage\Snapshot.cs" />
     <Compile Include="Storage\Store.cs" />
     <Compile Include="Utilities\Ensure.cs" />
-    <Compile Include="Utilities\GzipHelper.cs" />
+    <Compile Include="Utilities\Lzf.cs" />
     <Compile Include="Utilities\NonDestructiveArrayQueue.cs" />
     <Compile Include="Storage\Packet.cs">
       <SubType>Code</SubType>

@@ -24,7 +24,7 @@ namespace LiveDomain.Core.UnitTests
     }
 
     [TestFixture]
-    public class SchemaMigrationsTest
+    public class SchemaMigrationTest
     {
         [SetUp]
         public void Setup()

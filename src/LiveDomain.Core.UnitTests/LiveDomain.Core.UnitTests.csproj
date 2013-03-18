@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="AuthenticationModelTests.cs" />
     <Compile Include="CommandJournalTest.cs" />
+    <Compile Include="CompressorPerformanceTests.cs" />
     <Compile Include="HashUtilityTest.cs" />
     <Compile Include="MergersTest.cs" />
     <Compile Include="SchemaMigrationsTest.cs" />

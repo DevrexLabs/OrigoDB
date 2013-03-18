@@ -139,18 +139,4 @@ namespace LiveDomain.Core
         }
 
     }
-
-    //public class Packager
-    //{
-    //    public static IEnumerable<Packet> ReadAll(Stream stream)
-    //    {
-    //        while (stream.Position < (stream.Length - 1))
-    //        {
-    //            var packet = new Packet();
-    //            packet.Read(stream);
-    //            yield return packet;
-    //        }
-    //    }
-    //}
-
 }

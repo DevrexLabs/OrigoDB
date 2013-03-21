@@ -33,7 +33,7 @@ namespace OrigoDB.Core
 		{
 			var pool = ConnectionPools.PoolFor(this);
 			var requestContextFactory = new PooledConnectionRequestContextFactory(pool);
-			return new RemoteEngineClient<M>(requestContextFactory);
+			return new RemoteEngineClient<M>(requestContextFactory,Host,Port);
 		} 
     }
 }

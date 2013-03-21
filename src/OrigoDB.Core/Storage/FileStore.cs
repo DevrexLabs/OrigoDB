@@ -146,7 +146,7 @@ namespace OrigoDB.Core
 
         private Stream GetReadStream(string fileName)
         {
-            return File.OpenRead(fileName);
+	        return File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         }
 
 

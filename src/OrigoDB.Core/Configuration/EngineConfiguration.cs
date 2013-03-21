@@ -103,7 +103,7 @@ namespace OrigoDB.Core
             MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
             StoreType = Stores.FileSystem;
             EnsureSafeResults = true;
-            PacketOptions = Core.PacketOptions.Checksum | Core.PacketOptions.Compressed;
+	        PacketOptions = null;
 
             _registry = new TinyIoCContainer();
             _registry.Register<ICommandJournal>((c, p) => new CommandJournal((IStore)p["store"]));

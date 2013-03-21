@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using OrigoDB.Core.Clients;
 using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core
@@ -13,24 +14,18 @@ namespace OrigoDB.Core
 		string _host;
 		int _port;
 		TcpClient _client;
-		Stream _clientStream;
 		readonly IFormatter _formatter = new BinaryFormatter();
 
-		public Stream Stream
+		internal bool IsConnected()
 		{
-			get
-			{
-				EnsureConnected(); 
-				return _clientStream;
-			}
+			return (_client != null && _client.Client.IsConnected());
 		}
 
 		void EnsureConnected()
 		{
-			if (_client == null || !_client.Client.IsConnected())
+			if (!IsConnected())
 			{
 				_client = new TcpClient(_host, _port);
-				_clientStream = _client.GetStream();
 				Write(new ClientInfo());
 			}
 		}
@@ -43,12 +38,14 @@ namespace OrigoDB.Core
 
 		void Write(object graph)
 		{
-			_formatter.Serialize(Stream, graph);
+			EnsureConnected();
+			_formatter.Serialize(_client.GetStream(), graph);
 		}
 
 		object Read()
 		{
-			var response = _formatter.Deserialize(Stream);
+			EnsureConnected();
+			var response = _formatter.Deserialize(_client.GetStream());
 
 			if (response is Heartbeat)
 				return Read(); // Read again since heartbeat can come in the middle of transactions.
@@ -61,6 +58,9 @@ namespace OrigoDB.Core
 			Write(graph);
 			var response = Read();
 
+			// if (response is NetworkMessage && ((NetworkMessage) response).Payload is RedirectMessage)
+			//     return response;
+
 			return ProcessTransaction<R>(graph, response);
 		}
 
@@ -72,7 +72,9 @@ namespace OrigoDB.Core
 			{
 				if (message.Payload is RedirectMessage)
 				{
+					
 					var redirect = message.Payload as RedirectMessage;
+					throw new WrongNodeException(redirect.Host,redirect.Port);
 					_host = redirect.Host;
 					_port = redirect.Port;
 					_client.Close();
@@ -80,6 +82,7 @@ namespace OrigoDB.Core
 
 					return WriteRead<R>(request);
 				}
+				
 				if (message.Payload is TransitioningMessage)
 				{
 					var transition = message.Payload as TransitioningMessage;
@@ -100,12 +103,20 @@ namespace OrigoDB.Core
 
 		public void Dispose()
 		{
-			if (_client != null)
-			{
-				_client.Client.Close(0);
-			}
+			Disconnect();
 		}
 
 		#endregion
+
+		internal void Disconnect()
+		{
+			if(IsConnected())
+			{
+				// Will fail cause tcp client is disposed.
+				//Write(new GoodbyeMessage());
+				_client.Client.Close(0);
+				_client = null;
+			}
+		}
 	}
 }

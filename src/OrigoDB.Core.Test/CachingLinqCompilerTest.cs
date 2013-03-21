@@ -94,7 +94,7 @@ namespace OrigoDB.Core.Test
             {
                 try
                 {
-                    var target = new CachingLinqCompiler<TestModel>();
+                    var target = new CachingLinqCompiler(typeof(TestModel));
                     var args = new object[] { "a string", 42 };
                     target.GetCompiledQuery(allQueries[i], args);
 
@@ -112,7 +112,7 @@ namespace OrigoDB.Core.Test
         [TestMethod]
         public void RepeatedQueryIsCached()
         {
-            var target = new CachingLinqCompiler<TestModel>();
+			var target = new CachingLinqCompiler(typeof(TestModel));
             var query = FirstCustomersNameStartingWithArg0;
             var args = new object[] { "H" };
             Assert.AreEqual(0, target.CompilerInvocations);
@@ -125,7 +125,7 @@ namespace OrigoDB.Core.Test
         [TestMethod]
         public void RepeatedQueryIsCachedWhenParametersDiffer()
         {
-            var target = new CachingLinqCompiler<TestModel>();
+            var target = new CachingLinqCompiler(typeof(TestModel));
             var query = FirstCustomersNameStartingWithArg0;
             Assert.AreEqual(0, target.CompilerInvocations);
             target.GetCompiledQuery(query, new object[] { "H" });
@@ -137,7 +137,7 @@ namespace OrigoDB.Core.Test
         [TestMethod]
         public void RepeatedQueryIsCompiledWhenCompilationIsForced()
         {
-            var target = new CachingLinqCompiler<TestModel>();
+			var target = new CachingLinqCompiler(typeof(TestModel));
             target.ForceCompilation = true;
             var query = allQueries[0];
             var args = new object[] { "a" };
@@ -178,7 +178,7 @@ namespace OrigoDB.Core.Test
             }
         //";
 
-            var compiler = new CachingLinqCompiler<TestModel>();
+			var compiler = new CachingLinqCompiler(typeof(TestModel));
             compiler.GetCompiledQuery(evilCode, new object[0]);
         }
 
@@ -210,7 +210,7 @@ namespace OrigoDB.Core.Test
         public void CompilationFailsWhenPassedNullArgument()
         {
             var args = new object[] { null };
-            var compiler = new CachingLinqCompiler<TestModel>();
+			var compiler = new CachingLinqCompiler(typeof(TestModel));
             compiler.GetCompiledQuery(FirstCustomersNameStartingWithArg0, args);
         }
 

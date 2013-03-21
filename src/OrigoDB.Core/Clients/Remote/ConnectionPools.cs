@@ -20,7 +20,7 @@ namespace OrigoDB.Core
 					var host = configuration.Host;
 					var port = configuration.Port;
 					var maxConnections = configuration.MaxConnections;
-					pool = new ConnectionPool(() => new RemoteConnection(host, port), maxConnections);
+					pool = new ConnectionPool(() => new RemoteConnection(host, port), maxConnections,host,port);
 					_connectionPools[key] = pool;
 				}
 				return pool;

@@ -4,14 +4,18 @@ namespace OrigoDB.Core
 {
 	public class FailoverClusterClientConfiguration : ClientConfiguration
 	{
-		public static readonly FailoverClusterClientConfiguration Default = new FailoverClusterClientConfiguration();
+		readonly RemoteClientConfiguration _baseConfig;
 
+		public FailoverClusterClientConfiguration(RemoteClientConfiguration baseConfig)
+		{
+			_baseConfig = baseConfig;
+		}
 
 		#region Overrides of ClientConfiguration
 
 		public override IEngine<M> GetClient<M>()
 		{
-			throw new NotImplementedException();
+			return new FailoverClusterClient<M>(_baseConfig);
 		}
 
 		#endregion

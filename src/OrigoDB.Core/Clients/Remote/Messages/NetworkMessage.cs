@@ -59,4 +59,15 @@ namespace OrigoDB.Core
 		}
 	}
 
+	[Serializable]
+	public class GoodbyeMessage : NetworkMessage
+	{
+		
+	}
+
+	[Serializable]
+	public class NoopMessage : NetworkMessage
+	{
+
+	}
 }

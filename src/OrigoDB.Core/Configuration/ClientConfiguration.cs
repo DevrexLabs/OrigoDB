@@ -66,7 +66,7 @@ namespace OrigoDB.Core
             {
                 var config = new RemoteClientConfiguration();
                 mapper.Map(config);
-                return config;
+				return new FailoverClusterClientConfiguration(config);
             }
 
             throw new InvalidOperationException();

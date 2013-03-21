@@ -54,7 +54,7 @@ namespace Woocode.Utils
             foreach (var pair in _properties)
             {
                 var properties = target.GetType().GetProperties();
-                var property = properties.SingleOrDefault(x => x.Name.ToLower() == pair.Key);
+                var property = properties.SingleOrDefault(x => x.Name.ToLower() == pair.Key.ToLower());
                 if (property == null)
                 {
                     if (throwIfPropertyMissing) throw new Exception(String.Format("Missing property [{0}] on target object", pair.Key));

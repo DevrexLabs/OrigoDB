@@ -11,9 +11,18 @@ namespace OrigoDB.Core
 {
 	public class RemoteEngineClient<M> : IEngine<M>, IDisposable where M : Model
 	{
+		public string Host { get; set; }
+		public int Port { get; set; }
 		readonly IRequestContextFactory _requestContextFactory;
-		public RemoteEngineClient(IRequestContextFactory requestContext)
+		//public RemoteEngineClient(IRequestContextFactory requestContext)
+		//{
+		//    _requestContextFactory = requestContext;
+		//}
+
+		public RemoteEngineClient(IRequestContextFactory requestContext, string host, int port)
 		{
+			Host = host;
+			Port = port;
 			_requestContextFactory = requestContext;
 		}
 

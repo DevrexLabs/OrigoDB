@@ -26,10 +26,7 @@ namespace OrigoDB.Core
 		{
 			if(_disposed) return;
 			_disposed = true;
-
 			_disposable.Dispose();
-
-			GC.SuppressFinalize(this);
 		}
 
 		#endregion

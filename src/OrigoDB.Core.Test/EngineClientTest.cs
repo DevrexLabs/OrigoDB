@@ -40,7 +40,7 @@ namespace OrigoDB.Core.Test
 		{
 			var engine = Engine.For<TestModel>("mode=remote;");
 			Assert.IsNotNull(engine);
-			Assert.IsInstanceOfType(engine,typeof(RemoteEngineClient<TestModel>));
+			Assert.IsInstanceOfType(engine,typeof(FailoverClusterClient<TestModel>));
 		}
 
 		[TestMethod]

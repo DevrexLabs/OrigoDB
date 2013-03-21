@@ -41,9 +41,9 @@ namespace OrigoDB.Core.UnitTests
         }
 
         [Test]
-        public void LiveDomainAuthenticationMethodIsReported()
+        public void OrigoDBAuthenticationMethodIsReported()
         {
-            Assert.IsTrue(principal.Identity.AuthenticationType == "LiveDomainAuthentication");
+            Assert.IsTrue(principal.Identity.AuthenticationType == "OrigoDBAuthentication");
         }
 
         [Test]

@@ -4,7 +4,7 @@ using ILogFactory = OrigoDB.Core.Logging.ILogFactory;
 using ILog = OrigoDB.Core.Logging.ILog;
 using LogProvider = OrigoDB.Core.Logging.LogProvider;
 
-namespace Livedomain.Modules.Blackbox
+namespace OrigoDB.Modules.Blackbox
 {
     public class BlackBoxLogFactory : ILogFactory
     {

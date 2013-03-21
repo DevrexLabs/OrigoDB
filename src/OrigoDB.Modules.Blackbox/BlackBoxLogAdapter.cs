@@ -6,7 +6,7 @@ using BlackBox;
 using OrigoDB.Core.Logging;
 using LogLevel = BlackBox.LogLevel;
 
-namespace Livedomain.Modules.Blackbox
+namespace OrigoDB.Modules.Blackbox
 {
     class BlackBoxLogAdapter : ILog
     {

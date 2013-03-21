@@ -1,8 +1,8 @@
-﻿using Livedomain.Modules.Blackbox;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using OrigoDB.Core.Logging;
 using System.Reflection;
+using OrigoDB.Modules.Blackbox;
 
 namespace Modules.Blackbox.Test
 {

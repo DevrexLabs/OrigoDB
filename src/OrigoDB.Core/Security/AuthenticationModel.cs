@@ -9,10 +9,7 @@ namespace OrigoDB.Core.Security
     [Serializable]
     public class AuthenticationModel : IAuthenticator
     {
-
-        public const string AuthenticationType = "LiveDomainAuthentication";
-
-        readonly Dictionary<String, Role> _roles;
+	    readonly Dictionary<String, Role> _roles;
         readonly Dictionary<String, User> _users;
 
 
@@ -81,8 +78,8 @@ namespace OrigoDB.Core.Security
 
         private IPrincipal PrincipalForUser(User user)
         {
-            var identity = new GenericIdentity(user.Name, AuthenticationType);
-            return new LiveDomainPrincipal(identity, user.Roles);
+            var identity = new GenericIdentity(user.Name, OrigoDBPrincipal.AuthenticationTypeName);
+            return new OrigoDBPrincipal(identity, user.Roles);
         }
 
         public bool TryAuthenticate(string userName, string plaintextPassword, out IPrincipal principal)

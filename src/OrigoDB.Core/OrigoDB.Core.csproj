@@ -149,7 +149,7 @@
     <Compile Include="Security\MatchAllRule.cs" />
     <Compile Include="Security\Permission.cs" />
     <Compile Include="Security\PermissionSet.cs" />
-    <Compile Include="Security\LiveDomainPrincipal.cs" />
+    <Compile Include="Security\OrigoDBPrincipal.cs" />
     <Compile Include="Security\Role.cs" />
     <Compile Include="Security\Rule[T].cs" />
     <Compile Include="Security\AuthenticationModel.cs" />

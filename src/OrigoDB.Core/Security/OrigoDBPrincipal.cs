@@ -12,12 +12,13 @@ namespace OrigoDB.Core.Security
     /// Also, users name is added to the set of roles.
     /// </summary>
     [Serializable]
-    public class LiveDomainPrincipal : IPrincipal
+    public class OrigoDBPrincipal : IPrincipal
     {
-        private readonly IIdentity _identity;
-        private readonly ISet<String> _roles; 
+	    public const string AuthenticationTypeName = "OrigoDBAuthentication";
+	    private readonly IIdentity _identity;
+        private readonly ISet<string> _roles; 
 
-        public LiveDomainPrincipal(IIdentity identity, IEnumerable<String> roles)
+        public OrigoDBPrincipal(IIdentity identity, IEnumerable<string> roles)
         {
             _identity = identity;
             _roles = new HashSet<string>(roles, StringComparer.InvariantCultureIgnoreCase);

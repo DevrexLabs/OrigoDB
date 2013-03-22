@@ -25,6 +25,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Modules.Log4net", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Modules.Log4Net.Test", "OrigoDB.Modules.Log4Net.Test\OrigoDB.Modules.Log4Net.Test.csproj", "{39462163-B91B-4B09-B8DE-646A8B58A713}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E08A1F42-62C3-4D4A-9CC1-C11E16B8192D}"
+	ProjectSection(SolutionItems) = preProject
+		nuget-build.cmd = nuget-build.cmd
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +69,7 @@ Global
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|Mixed Platforms.Deploy.0 = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|x86.ActiveCfg = Release|Any CPU
 		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
@@ -73,6 +79,7 @@ Global
 		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Any CPU.ActiveCfg = Release|x86
 		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Mixed Platforms.ActiveCfg = Release|x86
 		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Mixed Platforms.Build.0 = Release|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Mixed Platforms.Deploy.0 = Release|x86
 		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|x86.ActiveCfg = Release|x86
 		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|x86.Build.0 = Release|x86
 		{86F16DB8-22E9-483A-A752-87CE48D4DF18}.Debug|Any CPU.ActiveCfg = Debug|x86

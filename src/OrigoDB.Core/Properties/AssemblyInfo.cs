@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("OrigoDB.Core")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Build faster systems faster")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Devrex")]
-[assembly: AssemblyProduct("OrigoDB.Core")]
-[assembly: AssemblyCopyright("Copyright © Robert Friberg 2009-2011")]
+[assembly: AssemblyCompany("Devrex Labs")]
+[assembly: AssemblyProduct("OrigoDB Embedded Engine and Client")]
+[assembly: AssemblyCopyright("Copyright © Devrex Labs")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,8 +33,8 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("0.6.0.0")]
-[assembly: AssemblyFileVersion("0.6.0.0")]
+[assembly: AssemblyVersion("0.9.0.0")]
+[assembly: AssemblyFileVersion("0.9.0.0")]
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("OrigoDB.Enterprise")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("OrigoDB.Core.Test")]

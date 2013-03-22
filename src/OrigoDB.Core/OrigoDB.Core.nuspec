@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>OrigoDB.Core</id>
+    <version>$version$</version>
+    <title>OrigoDB Embedded Engine and client</title>
+    <authors>Robert Friberg, Kristoffer Schroeder et al</authors>
+    <owners>Devrex Labs</owners>
+    <projectUrl>http://github.org/devrexlabs/origodb</projectUrl>
+    <iconUrl>http://origodb.com/favicon.ico</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Build faster systems, faster with native .NET in-memory data modeling. No SQL, No o/r-mapping, no problems!</description>
+    <releaseNotes>
+	This is the initial release of OrigoDB, previously named LiveDB.
+    </releaseNotes>
+    <copyright>Copyright 2013</copyright>
+  </metadata>
+</package>

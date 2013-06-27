@@ -34,7 +34,7 @@ namespace OrigoDB.Core
         {
             if (!_lock.TryEnterReadLock(Timeout))
             {
-                throw new TimeoutException("no upgrade lock aquired within timeout period");
+                throw new TimeoutException("no read lock aquired within timeout period");
             }
         }
 

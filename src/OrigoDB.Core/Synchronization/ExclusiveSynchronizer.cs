@@ -24,17 +24,17 @@ namespace OrigoDB.Core
 
         public void EnterRead()
         {
-            InvokeAndThrowIfFalse( () =>Monitor.TryEnter(_lock, Timeout));
+            Lock();
         }
 
         public void EnterUpgrade()
         {
-            InvokeAndThrowIfFalse( () => Monitor.TryEnter(_lock, Timeout));
+            Lock();
         }
 
         public void EnterWrite()
         {
-            InvokeAndThrowIfFalse( () => Monitor.TryEnter(_lock, Timeout));
+            Lock();
         }
 
         public void Exit()
@@ -42,9 +42,9 @@ namespace OrigoDB.Core
             Monitor.Exit(_lock);
         }
 
-        private void InvokeAndThrowIfFalse(Func<bool> func )
+        private void Lock()
         {
-            if(!func.Invoke()) throw new TimeoutException("Couldn't aquire lock within the specified timeout period");
+            if(!Monitor.TryEnter(_lock, Timeout)) throw new TimeoutException("Couldn't aquire lock within the specified timeout period");
         }
     }
 }

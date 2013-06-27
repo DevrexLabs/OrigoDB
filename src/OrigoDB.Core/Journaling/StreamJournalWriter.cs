@@ -18,8 +18,7 @@ namespace OrigoDB.Core
         Stream _stream;
         private EngineConfiguration _config;
 
-        //TODO: Abstract away the FileStore dependency, should be IStore or something else
-        private FileStore _storage;
+        private IStore _storage;
         private RolloverStrategy _rolloverStrategy;
         private long _entriesWrittenToCurrentStream;
 
@@ -37,7 +36,7 @@ namespace OrigoDB.Core
             }
         }
 
-        public StreamJournalWriter(FileStore storage, EngineConfiguration config)
+        public StreamJournalWriter(IStore storage, EngineConfiguration config)
         {
             _config = config;
             _storage = storage;

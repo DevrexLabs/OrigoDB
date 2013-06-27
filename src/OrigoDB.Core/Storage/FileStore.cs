@@ -110,7 +110,7 @@ namespace OrigoDB.Core
         /// stream will have the specified sequenceNumber
         /// </summary>
         /// <returns>An open stream</returns>
-        public Stream CreateJournalWriterStream(long firstEntryId = 1)
+        public override Stream CreateJournalWriterStream(long firstEntryId = 1)
         {
             var current = _journalFiles.LastOrDefault() ?? new JournalFile(0, 0);
             var next = current.Successor(firstEntryId);

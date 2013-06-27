@@ -62,6 +62,20 @@ namespace OrigoDB.Core.Test
             engine.Close();
         }
 
+
+        [TestMethod]
+        public void NonPersistingEngineTest()
+        {
+            var config = new EngineConfiguration();
+            config.SetStoreFactory(cfg => new NullStore());
+            config.SetCommandJournalFactory(cfg => new NullJournal());
+            var engine = Engine.Create(new TestModel(), config);
+            engine.Execute(new TestCommandWithResult());
+            int commandsExecuted = engine.Execute(new GetNumberOfCommandsExecutedQuery());
+            Assert.AreEqual(1, commandsExecuted);
+        }
+
+
         [TestMethod]
         public void CanCreateEngineUsingDefaultLocationAndCustomConfig()
         {
@@ -311,13 +325,16 @@ namespace OrigoDB.Core.Test
             Engine.Close();
 			
             var store = config.CreateStore() as FileStore;
-	        Assert.IsNotNull(store);
-	        store.Load();
-			Assert.AreEqual(2, store.JournalFiles.Count());
-			foreach (var file in store.JournalFiles)
-			{
-				Console.WriteLine(file);
-			}
+            if (store != null)
+            {
+                store.Load();
+                Assert.AreEqual(2, store.JournalFiles.Count());
+                foreach (var file in store.JournalFiles)
+                {
+                    Console.WriteLine(file);
+                }
+            }
+            else Assert.Inconclusive("test isn't relevant under the current configuration, requires FileStore storage");
             
         }
 

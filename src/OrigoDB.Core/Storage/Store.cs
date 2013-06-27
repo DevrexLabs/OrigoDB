@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OrigoDB.Core.Logging;
+using System.IO;
 
 namespace OrigoDB.Core.Storage
 {
@@ -40,6 +41,7 @@ namespace OrigoDB.Core.Storage
         public abstract void VerifyCanCreate();
         public abstract void Create(Model model);
         protected abstract IEnumerable<Snapshot> LoadSnapshots();
+        public abstract Stream CreateJournalWriterStream(long firstEntryId = 1);
 
         public virtual IEnumerable<JournalEntry> GetJournalEntries()
         {

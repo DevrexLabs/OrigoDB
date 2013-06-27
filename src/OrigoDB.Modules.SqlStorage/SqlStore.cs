@@ -254,5 +254,10 @@ namespace OrigoDB.Modules.SqlStorage
 	Entry varbinary(max) not null)";
 
 
+
+        public override Stream CreateJournalWriterStream(long firstEntryId = 1)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

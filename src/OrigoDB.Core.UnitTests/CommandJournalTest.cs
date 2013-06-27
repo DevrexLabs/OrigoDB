@@ -79,6 +79,12 @@ namespace OrigoDB.Core.Test
             {
                 return _memoryJournal ?? new MemoryJournal();
             }
+
+
+            public System.IO.Stream CreateJournalWriterStream(long firstEntryId = 1)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public class MemoryJournal : IJournalWriter

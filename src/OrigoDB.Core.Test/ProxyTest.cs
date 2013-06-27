@@ -22,7 +22,7 @@ namespace OrigoDB.Core.Test
         [TestInitialize]
         public void TestSetup()
         {
-            Engine =_engine = Engine.Create(new TestModel(), CreateConfig());
+            Engine =_engine = Engine.Create(new TestModel(), CreateNonPersistingConfig());
             _proxy = _engine.GetProxy();
         }
 
@@ -64,7 +64,7 @@ namespace OrigoDB.Core.Test
 		public void CanExecuteQueryMethod()
 		{
 			var number = _proxy.GetCommandsExecuted();
-			Assert.AreEqual(number,0);
+			Assert.AreEqual(0, number);
 		}
 
         [TestMethod]

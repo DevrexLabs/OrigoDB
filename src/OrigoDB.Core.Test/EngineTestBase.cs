@@ -60,12 +60,21 @@ namespace OrigoDB.Core.Test
         }
 
         /// <summary>
-        /// modify this method to switch between sql and file store tests
+        /// modify this method to switch between different configurations
+        /// todo: use
         /// </summary>
         /// <returns></returns>
         public EngineConfiguration CreateConfig()
         {
-            return CreateFileConfig();
+            return CreateNonPersistingConfig();
+        }
+
+        public EngineConfiguration CreateNonPersistingConfig()
+        {
+            var config = new EngineConfiguration();
+            config.SetStoreFactory(cfg => new InMemoryStore(config));
+            config.Location.OfJournal = Path;
+            return config;
         }
 
         private EngineConfiguration CreateFileConfig()

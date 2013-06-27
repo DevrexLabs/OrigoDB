@@ -154,7 +154,7 @@ namespace OrigoDB.Core.Test
             var model = new TestModel();
             model.AddCustomer("Zippy");
             model.AddCustomer("Droozy");
-            var engine = Engine.Create(model);
+            var engine = Engine.Create(model, CreateNonPersistingConfig());
             var list = engine.Execute<TestModel, List<string>>(ListOfCustomerNames);
             Assert.AreEqual(list.Count, 2);
             Assert.AreEqual(list[0], "Zippy");
@@ -194,15 +194,13 @@ namespace OrigoDB.Core.Test
             var model = new TestModel();
             model.AddCustomer(expected0);
             model.AddCustomer(expected1);
-            Engine<TestModel> engine = Engine.Create(model);
+            Engine<TestModel> engine = Engine.Create(model, CreateNonPersistingConfig());
 
             string actual = engine.Execute<TestModel, string>(query, "Ho");
             Assert.AreEqual(expected0, actual);
             actual = (string)engine.Execute(query, "Ro");
             Assert.AreEqual(actual, expected1);
             engine.Close();
-            DeleteFromDefaultLocation<TestModel>();
-
         }
 
         [TestMethod]
@@ -224,7 +222,7 @@ namespace OrigoDB.Core.Test
                 var args = new object[] { "H" };
                 var model = new TestModel();
                 model.AddCustomer("Homer Simpson");
-                engine = Engine.Create(model);
+                engine = Engine.Create(model, CreateNonPersistingConfig());
                 engine.Execute(FirstCustomersNameStartingWithArg0, args);
 
                 args[0] = 42; //boxed int
@@ -235,7 +233,6 @@ namespace OrigoDB.Core.Test
             finally
             {
                 if (engine != null) engine.Close();
-                DeleteFromDefaultLocation<TestModel>();
             }
 
 
@@ -249,11 +246,10 @@ namespace OrigoDB.Core.Test
             var query = FirstCustomersNameStartingWithArg0;
             var model = new TestModel();
             model.AddCustomer(expected);
-            Engine<TestModel> engine = Engine.Create(model);
+            Engine<TestModel> engine = Engine.Create(model, CreateNonPersistingConfig());
 
             string actual = engine.Execute<TestModel, string>(query, "Ho");
             Assert.AreEqual(expected, actual);
-            DeleteFromDefaultLocation<TestModel>();
         }
 
         private const string FirstCustomersNameStartingWithArg0 =

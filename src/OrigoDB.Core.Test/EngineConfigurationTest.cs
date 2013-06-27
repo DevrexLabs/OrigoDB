@@ -200,6 +200,11 @@ namespace OrigoDB.Core.Test
             {
                 yield break;
             }
+
+            public override Stream CreateJournalWriterStream(long firstEntryId = 1)
+            {
+                throw new NotImplementedException();
+            }
         }
         [TestMethod()]
         public void AsyncJournalingYieldsAsyncWriter()

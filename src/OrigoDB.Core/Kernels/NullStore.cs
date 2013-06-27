@@ -7,6 +7,9 @@ namespace OrigoDB.Core
 {
     internal class NullStore : IStore
     {
+
+        Model _model;
+
         public void VerifyCanLoad()
         {
 
@@ -29,7 +32,7 @@ namespace OrigoDB.Core
 
         public void Create(Model model)
         {
-            throw new NotImplementedException();
+            _model = model;
         }
 
         public void Load()
@@ -39,7 +42,7 @@ namespace OrigoDB.Core
 
         public bool Exists
         {
-            get { throw new NotImplementedException(); }
+            get { return _model != null; }
         }
 
         public IEnumerable<JournalEntry> GetJournalEntries()
@@ -58,6 +61,12 @@ namespace OrigoDB.Core
         }
 
         public IJournalWriter CreateJournalWriter(long lastEntryId)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public System.IO.Stream CreateJournalWriterStream(long firstEntryId = 1)
         {
             throw new NotImplementedException();
         }

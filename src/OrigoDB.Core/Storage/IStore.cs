@@ -55,5 +55,8 @@ namespace OrigoDB.Core
         IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime);
 
         IJournalWriter CreateJournalWriter(long lastEntryId);
+
+
+        Stream CreateJournalWriterStream(long firstEntryId = 1);
     }
 }

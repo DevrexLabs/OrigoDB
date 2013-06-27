@@ -39,7 +39,7 @@ namespace OrigoDB.Core
                     catch (Exception ex)
                     {
                         _log.Exception(ex);
-                        _commandJournal.WriteRollbackMarker();
+                        _commandJournal.WriteRollbackMarker(); //todo: wrap in try and throw a special exception upon failure
                         throw;
                     }
                 }

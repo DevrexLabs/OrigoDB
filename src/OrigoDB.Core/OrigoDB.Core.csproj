@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -84,8 +84,10 @@
     <Compile Include="Configuration\RemoteClientConfiguration.cs" />
     <Compile Include="Configuration\FileStorageLocation.cs" />
     <Compile Include="Configuration\StorageLocation.cs" />
+    <Compile Include="Journaling\NullJournal.cs" />
     <Compile Include="Journaling\RollbackMarker.cs" />
-    <Compile Include="Kernel.cs" />
+    <Compile Include="Kernels\Kernel.cs" />
+    <Compile Include="Kernels\NullStore.cs" />
     <Compile Include="Linq\DelegateQuery.cs" />
     <Compile Include="Engine.For.cs" />
     <Compile Include="Db.cs" />
@@ -104,14 +106,15 @@
     <Compile Include="Logging\MultiSink.cs" />
     <Compile Include="Migrations\CustomBinder.cs" />
     <Compile Include="Migrations\Schema.cs" />
-    <Compile Include="OptimisticKernel.cs" />
+    <Compile Include="Kernels\OptimisticKernel.cs" />
     <Compile Include="Proxy\OperationType.cs" />
     <Compile Include="Proxy\ProxyMethodInfo.cs" />
     <Compile Include="Clients\Merge.cs" />
-    <Compile Include="PessimisticKernel.cs" />
+    <Compile Include="Kernels\PessimisticKernel.cs" />
     <Compile Include="RoyalFoodTaster.cs" />
     <Compile Include="Storage\ByteCountingNullStream.cs" />
     <Compile Include="Storage\PacketingFormatter.cs" />
+    <Compile Include="NonPersistingEngine.cs" />
     <Compile Include="Utilities\ByteArrayExtensions.cs" />
     <Compile Include="Utilities\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace OrigoDB.Core
 {
-	public interface ICommandJournal : IDisposable
+    public interface ICommandJournal : IDisposable
 	{
         /// <summary>
         /// Iterator over the entire sequence of journalentries in order.

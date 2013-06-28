@@ -5,7 +5,7 @@ using System.Text;
 
 namespace OrigoDB.Core
 {
-    internal class NullStore : IStore
+    public class NullStore : IStore
     {
 
         Model _model;

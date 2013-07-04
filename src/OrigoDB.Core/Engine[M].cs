@@ -11,6 +11,8 @@ namespace OrigoDB.Core
 
         public Engine(EngineConfiguration config) : base(() => Activator.CreateInstance<T>(), config) { }
 
+        public Engine(T model, EngineConfiguration config) : base(() => model, config) { }
+
 
         public new R Execute<M,R>(Func<M, R> query) where M : Model
         {

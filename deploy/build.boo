@@ -23,7 +23,7 @@ target compile:
         
 target copy:
     with FileList("${solution_dir_path}/Projects/${project_name}.Net40/bin/${build_config}"):
-        .Include("${project_name}.*.{dll,xml}")
+        .Include("${project_name}.*.{dll,xml}"
         .ForEach def(file):
             file.CopyToDirectory("${build_dir_path}/Net40")
     with FileList("${solution_dir_path}/Projects/${project_name}.Net45/bin/${build_config}"):

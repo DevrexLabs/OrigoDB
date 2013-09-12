@@ -1,0 +1,218 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OrigoDB.Core</RootNamespace>
+    <AssemblyName>OrigoDB.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\src\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.XML" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ChildModelCommand.cs" />
+    <Compile Include="ChildModelDelegateCommandWithResult.cs" />
+    <Compile Include="ChildModelQuery.cs" />
+    <Compile Include="Clients\ClusterClient.cs" />
+    <Compile Include="Clients\Dispatching\DedicatedQueryDispatchStrategy.cs" />
+    <Compile Include="Clients\Dispatching\QueryDispatchStrategyBase.cs" />
+    <Compile Include="Clients\Dispatching\RandomQueryDispatchStrategy.cs" />
+    <Compile Include="Clients\Dispatching\RoundRobinQueryDispatchStrategy.cs" />
+    <Compile Include="Clients\FailoverClusterClient.cs" />
+    <Compile Include="Clients\Dispatching\IClusterQueryDispatchStrategy.cs" />
+    <Compile Include="Clients\Remote\ConnectionPools.cs" />
+    <Compile Include="Clients\Remote\IRequestContextFactory.cs" />
+    <Compile Include="Clients\Remote\Messages\ClusterInfo.cs" />
+    <Compile Include="Clients\Remote\Messages\NetworkMessage.cs" />
+    <Compile Include="Clients\Remote\Messages\SnapshotRequest.cs" />
+    <Compile Include="Clients\Remote\PooledConnectionRequestContextFactory.cs" />
+    <Compile Include="Clients\PartitionClient.cs" />
+    <Compile Include="Clients\RemoteEngineClient.cs" />
+    <Compile Include="Clients\Remote\RemoteConnection.cs" />
+    <Compile Include="Clients\Remote\RequestContext.cs" />
+    <Compile Include="Clients\WrongNodeException.cs" />
+    <Compile Include="CommandFailedException.cs" />
+    <Compile Include="Command[M].cs" />
+    <Compile Include="CommandWithResult[M,R].cs" />
+    <Compile Include="Compression\ICompressionAlgorithm.cs" />
+    <Compile Include="Configuration\ClientConfiguration.cs" />
+    <Compile Include="Configuration\CompressionMethod.cs" />
+    <Compile Include="Configuration\Config.cs" />
+    <Compile Include="Configuration\ConfigurationBase.cs" />
+    <Compile Include="Configuration\FailoverClusterClientConfiguration.cs" />
+    <Compile Include="Configuration\Kernels.cs" />
+    <Compile Include="Configuration\LocalClientConfiguration.cs" />
+    <Compile Include="Configuration\PartitionClusterClientConfiguration.cs" />
+    <Compile Include="Configuration\RemoteClientConfiguration.cs" />
+    <Compile Include="Configuration\FileStorageLocation.cs" />
+    <Compile Include="Configuration\StorageLocation.cs" />
+    <Compile Include="Storage\InMemoryStore.cs" />
+    <Compile Include="Journaling\NullJournal.cs" />
+    <Compile Include="Journaling\RollbackMarker.cs" />
+    <Compile Include="Kernels\Kernel.cs" />
+    <Compile Include="Kernels\NullStore.cs" />
+    <Compile Include="Linq\DelegateQuery.cs" />
+    <Compile Include="Engine.For.cs" />
+    <Compile Include="Db.cs" />
+    <Compile Include="Engines.cs" />
+    <Compile Include="IImmutable.cs" />
+    <Compile Include="IOperationWithResult.cs" />
+    <Compile Include="Logging\ConsoleSink.cs" />
+    <Compile Include="Logging\LogConfiguration.cs" />
+    <Compile Include="Logging\LogFactory.cs" />
+    <Compile Include="Logging\FilteredSink.cs" />
+    <Compile Include="Logging\LogFormatter.cs" />
+    <Compile Include="Logging\LogKernel.cs" />
+    <Compile Include="Logging\LogLevel.cs" />
+    <Compile Include="Logging\LogProvider.cs" />
+    <Compile Include="Logging\LogSink.cs" />
+    <Compile Include="Logging\MultiSink.cs" />
+    <Compile Include="Migrations\CustomBinder.cs" />
+    <Compile Include="Migrations\Schema.cs" />
+    <Compile Include="Kernels\OptimisticKernel.cs" />
+    <Compile Include="Proxy\OperationType.cs" />
+    <Compile Include="Proxy\ProxyMethodInfo.cs" />
+    <Compile Include="Clients\Merge.cs" />
+    <Compile Include="Kernels\PessimisticKernel.cs" />
+    <Compile Include="Kernels\RoyalFoodTaster.cs" />
+    <Compile Include="Storage\ByteCountingNullStream.cs" />
+    <Compile Include="Storage\PacketingFormatter.cs" />
+    <Compile Include="Utilities\ByteArrayExtensions.cs" />
+    <Compile Include="Utilities\ConnectionPool.cs" />
+    <Compile Include="Utilities\Disposable[T].cs" />
+    <Compile Include="Journaling\NullJournalWriter.cs" />
+    <Compile Include="Linq\CachingLinqCompiler.cs" />
+    <Compile Include="Linq\CompiledLinqExtensions.cs" />
+    <Compile Include="Clients\LocalEngineClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Logging\ILogFactory.cs" />
+    <Compile Include="Storage\RolloverStrategy.cs" />
+    <Compile Include="Proxy\ModelProxy.cs" />
+    <Compile Include="Proxy\ProxyMethodAttribute.cs" />
+    <Compile Include="Proxy\ProxyCommand.cs" />
+    <Compile Include="Proxy\ProxyMethodMap.cs" />
+    <Compile Include="Proxy\ProxyQuery.cs" />
+    <Compile Include="Security\NullAuthorizer.cs" />
+    <Compile Include="Security\IAuthenticator.cs" />
+    <Compile Include="Security\IAuthorizer.cs" />
+    <Compile Include="Logging\FileSink.cs" />
+    <Compile Include="Logging\MemorySink.cs" />
+    <Compile Include="Logging\Log.cs" />
+    <Compile Include="Logging\ILog.cs" />
+    <Compile Include="Journaling\AsynchronousJournalWriter.cs" />
+    <Compile Include="Command.cs" />
+    <Compile Include="CommandAbortedException.cs" />
+    <Compile Include="Journaling\CommandJournal.cs" />
+    <Compile Include="Configuration\SynchronizationMode.cs" />
+    <Compile Include="Engine.cs" />
+    <Compile Include="Configuration\EngineConfiguration.cs" />
+    <Compile Include="Engine[M].cs" />
+    <Compile Include="Journaling\ICommandJournal.cs" />
+    <Compile Include="Configuration\JournalWriterMode.cs" />
+    <Compile Include="Security\SecurityModel.cs" />
+    <Compile Include="Security\MatchAllRule.cs" />
+    <Compile Include="Security\Permission.cs" />
+    <Compile Include="Security\PermissionSet.cs" />
+    <Compile Include="Security\OrigoDBPrincipal.cs" />
+    <Compile Include="Security\Role.cs" />
+    <Compile Include="Security\Rule[T].cs" />
+    <Compile Include="Security\AuthenticationModel.cs" />
+    <Compile Include="Security\TypeBasedPermissionSet.cs" />
+    <Compile Include="Security\TypeBasedRule.cs" />
+    <Compile Include="Storage\IStore.cs" />
+    <Compile Include="Storage\JournalFile.cs" />
+    <Compile Include="Storage\Snapshot.cs" />
+    <Compile Include="Storage\Store.cs" />
+    <Compile Include="Utilities\Ensure.cs" />
+    <Compile Include="Utilities\Lzf.cs" />
+    <Compile Include="Utilities\NonDestructiveArrayQueue.cs" />
+    <Compile Include="Storage\Packet.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\ResourcePool.cs" />
+    <Compile Include="Utilities\SocketExtensions.cs" />
+    <Compile Include="Utilities\DictionaryMapper.cs" />
+    <Compile Include="Utilities\TinyIoC.cs" />
+    <Compile Include="Utilities\Extensions.cs" />
+    <Compile Include="Utilities\Immutable.cs" />
+    <Compile Include="Security\User.cs" />
+    <Compile Include="Storage\Stores.cs" />
+    <Compile Include="Storage\ISerializer.cs" />
+    <Compile Include="Configuration\ObjectFormatting.cs" />
+    <Compile Include="Configuration\SnapshotBehavior.cs" />
+    <Compile Include="Synchronization\ISynchronizer.cs" />
+    <Compile Include="Journaling\IJournalWriter.cs" />
+    <Compile Include="IEngine.cs" />
+    <Compile Include="Journaling\JournalEntry.cs" />
+    <Compile Include="Model.cs" />
+    <Compile Include="Synchronization\NullSynchronizer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Query.cs" />
+    <Compile Include="Synchronization\ReadWriteSynchronizer.cs" />
+    <Compile Include="Storage\Serializer.cs" />
+    <Compile Include="Synchronization\ExclusiveSynchronizer.cs" />
+    <Compile Include="Storage\FileStore.cs" />
+    <Compile Include="Journaling\StreamJournalWriter.cs" />
+    <Compile Include="Utilities\HashUtility.cs" />
+    <Compile Include="Utilities\DirectoryEx.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="License.txt" />
+    <Content Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Proxy\ClassDiagram1.cd" />
+    <None Include="Storage\Filestorage.cd" />
+    <None Include="Core.Public.cd" />
+    <None Include="Security\ClassDiagram2.cd" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

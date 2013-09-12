@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using OrigoDB.Core.Logging;
 using System.IO;
+using Common.Logging;
 
 namespace OrigoDB.Core.Storage
 {
@@ -11,7 +10,7 @@ namespace OrigoDB.Core.Storage
     {
         protected EngineConfiguration _config;
         protected ISerializer _serializer;
-        protected static ILog _log = LogProvider.Factory.GetLogForCallingType();
+        protected static ILog _log = LogManager.GetCurrentClassLogger();
 
         private List<Snapshot> _snapshots;
         public IEnumerable<Snapshot> Snapshots

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Security.Cryptography;
-using OrigoDB.Core.Logging;
+using Common.Logging;
 
 namespace OrigoDB.Core.Utilities
 {
@@ -14,7 +12,7 @@ namespace OrigoDB.Core.Utilities
     public static class HashUtility
     {
 
-        private static ILog _log = LogProvider.Factory.GetLogForCallingType();
+        private static ILog _log = LogManager.GetCurrentClassLogger();
 
         public const byte DefaultSaltLength = 8;
 
@@ -57,8 +55,7 @@ namespace OrigoDB.Core.Utilities
             }
             catch (Exception ex)
             {
-                _log.Error("Bad input to HashUtility.Verify");
-                _log.Exception(ex);
+                _log.Error("Bad input to HashUtility.Verify",ex);
                 return false;
             }
         }

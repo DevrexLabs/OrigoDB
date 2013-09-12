@@ -42,6 +42,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Common.Logging">
+      <HintPath>..\packages\Common.Logging.2.1.2\lib\net40\Common.Logging.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -95,16 +98,6 @@
     <Compile Include="Engines.cs" />
     <Compile Include="IImmutable.cs" />
     <Compile Include="IOperationWithResult.cs" />
-    <Compile Include="Logging\ConsoleSink.cs" />
-    <Compile Include="Logging\LogConfiguration.cs" />
-    <Compile Include="Logging\LogFactory.cs" />
-    <Compile Include="Logging\FilteredSink.cs" />
-    <Compile Include="Logging\LogFormatter.cs" />
-    <Compile Include="Logging\LogKernel.cs" />
-    <Compile Include="Logging\LogLevel.cs" />
-    <Compile Include="Logging\LogProvider.cs" />
-    <Compile Include="Logging\LogSink.cs" />
-    <Compile Include="Logging\MultiSink.cs" />
     <Compile Include="Migrations\CustomBinder.cs" />
     <Compile Include="Migrations\Schema.cs" />
     <Compile Include="Kernels\OptimisticKernel.cs" />
@@ -124,7 +117,6 @@
     <Compile Include="Clients\LocalEngineClient.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Logging\ILogFactory.cs" />
     <Compile Include="Storage\RolloverStrategy.cs" />
     <Compile Include="Proxy\ModelProxy.cs" />
     <Compile Include="Proxy\ProxyMethodAttribute.cs" />
@@ -134,10 +126,6 @@
     <Compile Include="Security\NullAuthorizer.cs" />
     <Compile Include="Security\IAuthenticator.cs" />
     <Compile Include="Security\IAuthorizer.cs" />
-    <Compile Include="Logging\FileSink.cs" />
-    <Compile Include="Logging\MemorySink.cs" />
-    <Compile Include="Logging\Log.cs" />
-    <Compile Include="Logging\ILog.cs" />
     <Compile Include="Journaling\AsynchronousJournalWriter.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CommandAbortedException.cs" />
@@ -200,6 +188,7 @@
     <Content Include="readme.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Proxy\ClassDiagram1.cd" />
     <None Include="Storage\Filestorage.cd" />
     <None Include="Core.Public.cd" />

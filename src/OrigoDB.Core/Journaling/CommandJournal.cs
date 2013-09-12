@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using OrigoDB.Core.Logging;
+using Common.Logging;
 using OrigoDB.Core.Journaling;
 
 namespace OrigoDB.Core
@@ -24,7 +20,7 @@ namespace OrigoDB.Core
         private IJournalWriter _writer;
 		protected IStore _storage;
         private JournalState _state;
-	    protected static ILog _log = LogProvider.Factory.GetLogForCallingType();
+        protected static ILog _log = LogManager.GetCurrentClassLogger();
         private long _lastEntryId;
 
         /// <summary>

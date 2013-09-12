@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Runtime.Serialization;
-using OrigoDB.Core.Logging;
+﻿using System.IO;
+using Common.Logging;
 
 namespace OrigoDB.Core
 {
@@ -22,7 +17,7 @@ namespace OrigoDB.Core
         private RolloverStrategy _rolloverStrategy;
         private long _entriesWrittenToCurrentStream;
 
-        private static ILog _log = LogProvider.Factory.GetLogForCallingType();
+        private static ILog _log = LogManager.GetCurrentClassLogger();
 
 
 

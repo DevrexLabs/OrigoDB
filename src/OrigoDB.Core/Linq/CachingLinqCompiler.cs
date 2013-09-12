@@ -2,12 +2,9 @@
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
+using Common.Logging;
 using Microsoft.CSharp;
-using OrigoDB.Core.Logging;
-using System.Text.RegularExpressions;
 
 namespace OrigoDB.Core.Linq
 {
@@ -15,7 +12,7 @@ namespace OrigoDB.Core.Linq
 	public class CachingLinqCompiler
 	{
 		readonly Type _modelType;
-		private static ILog _logger = LogProvider.Factory.GetLogForCallingType();
+	    private static ILog _logger = LogManager.GetCurrentClassLogger();
 
 		/// <summary>
 		/// Bypass cache. Mainly so we can run performance tests

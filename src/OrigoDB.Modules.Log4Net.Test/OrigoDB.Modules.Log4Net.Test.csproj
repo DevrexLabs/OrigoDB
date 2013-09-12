@@ -53,10 +53,6 @@
       <Project>{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}</Project>
       <Name>LiveDomain.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OrigoDB.Modules.Log4net\OrigoDB.Modules.Log4net.csproj">
-      <Project>{2B3C6082-94DB-4788-81C6-F521CCAE46ED}</Project>
-      <Name>LiveDomain.Modules.Log4Net</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -1,11 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using OrigoDB.Core.Proxy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -81,9 +76,7 @@ namespace OrigoDB.Core.Test
         public void IntResultIsNotCloned()
         {
             _proxy.AddCustomer("Robert");
-            _memoryLogWriter.Clear();
-            int commandExecuted = _proxy.GetCommandsExecuted();
-            Assert.IsTrue(_memoryLogWriter.Messages.Count(m => m.IndexOf("Cloned") >= 0) == 0);
+            Assert.Inconclusive("Log based assertions removed");
 
         }
 

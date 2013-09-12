@@ -29,9 +29,9 @@ namespace OrigoDB.Core
         static readonly Dictionary<string, InMemoryStoreState> _states 
             = new Dictionary<string, InMemoryStoreState>();
 
-        EngineConfiguration _config;
-        ISerializer _serializer;
-        InMemoryStoreState _state;
+        //EngineConfiguration _config;
+        //ISerializer _serializer;
+        readonly InMemoryStoreState _state;
 
         public InMemoryStore(EngineConfiguration config):base(config)
         {

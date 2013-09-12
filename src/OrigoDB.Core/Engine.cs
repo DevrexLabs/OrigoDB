@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.IO;
-using System.Reflection;
 using System.Threading;
-using OrigoDB.Core.Configuration;
-using OrigoDB.Core.Logging;
-using OrigoDB.Core.Proxy;
+using Common.Logging;
 using OrigoDB.Core.Security;
-using System.Collections;
-using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core
 {
@@ -23,7 +16,7 @@ namespace OrigoDB.Core
     {
         EngineConfiguration _config;
         bool _isDisposed = false;
-        static ILog _log = LogProvider.Factory.GetLogForCallingType();
+        private static ILog _log = LogManager.GetCurrentClassLogger();
         IAuthorizer<Type> _authorizer;
 
         private readonly Kernel _kernel;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
+using Common.Logging;
 using OrigoDB.Core.Utilities;
-using OrigoDB.Core.Logging;
 
 namespace OrigoDB.Core
 {
@@ -15,7 +15,7 @@ namespace OrigoDB.Core
 	    internal ICommandJournal CommandJournal { get { return _commandJournal; }}
 	    internal IStore Store { get { return _store; } }
 
-        private static ILog _log = LogProvider.Factory.GetLogForCallingType();
+        private static ILog _log = LogManager.GetCurrentClassLogger();
 
         protected Model _model;
 

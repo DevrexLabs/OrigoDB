@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using OrigoDB.Core.Logging;
 using OrigoDB.Core.Security;
 using OrigoDB.Core.TinyIoC;
 using OrigoDB.Core.Configuration;

@@ -1,6 +1,5 @@
 using System;
-using System.Threading;
-using OrigoDB.Core.Logging;
+using Common.Logging;
 
 namespace OrigoDB.Core
 {
@@ -12,7 +11,7 @@ namespace OrigoDB.Core
     /// </summary>
     public class OptimisticKernel : Kernel
     {
-        private static ILog _log = LogProvider.Factory.GetLogForCallingType();
+        private static ILog _log = LogManager.GetCurrentClassLogger();
 
         protected object _commandLock = new object();
 
@@ -38,7 +37,7 @@ namespace OrigoDB.Core
                     }
                     catch (Exception ex)
                     {
-                        _log.Exception(ex);
+                        _log.Error(ex);
                         _commandJournal.WriteRollbackMarker(); //todo: wrap in try and throw a special exception upon failure
                         throw;
                     }

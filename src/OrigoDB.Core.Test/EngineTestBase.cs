@@ -1,8 +1,6 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading;
-using OrigoDB.Core.Logging;
 using OrigoDB.Modules.SqlStorage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,7 +9,7 @@ namespace OrigoDB.Core.Test
     [TestClass]
     public class EngineTestBase
     {
-        protected MemorySink _memoryLogWriter = new MemorySink();
+        //protected MemorySink _memoryLogWriter = new MemorySink();
 
 
         public Engine Engine { get; set; }
@@ -23,22 +21,22 @@ namespace OrigoDB.Core.Test
         {
             Path = Guid.NewGuid().ToString();
             
-            (LogProvider.Factory as LogFactory).Kernel.AddWriter(_memoryLogWriter);
-            _memoryLogWriter.Clear();
+           // (LogProvider.Factory as LogFactory).Kernel.AddWriter(_memoryLogWriter);
+            //_memoryLogWriter.Clear();
             
         }
 
         public void WriteLog()
         {
 
-            if (!_memoryLogWriter.Messages.Any()) return;
+            //if (!_memoryLogWriter.Messages.Any()) return;
             Console.WriteLine("------------------------------");
             Console.WriteLine(" LOG");
             Console.WriteLine("------------------------------");
-            foreach (var message in _memoryLogWriter.Messages)
-            {
-                Console.WriteLine((string) message);
-            }
+            //foreach (var message in _memoryLogWriter.Messages)
+            //{
+            //    Console.WriteLine((string) message);
+            //}
         }
 
         [TestCleanup()]
@@ -56,7 +54,7 @@ namespace OrigoDB.Core.Test
             Console.WriteLine("Path:" + Path);
             WriteLog();
 
-            (LogProvider.Factory as LogFactory).Kernel.RemoveWriter(_memoryLogWriter);
+            //(LogProvider.Factory as LogFactory).Kernel.RemoveWriter(_memoryLogWriter);
         }
 
         /// <summary>

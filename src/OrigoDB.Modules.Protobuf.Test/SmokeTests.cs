@@ -24,8 +24,10 @@ namespace Modules.ProtoBuf.Test
 
     public class ClassWithAReadonlyField
     {
+#pragma warning disable 169
         private readonly int X;
-    }
+
+   }
 
     public class ClassWithPrivateRegularField
     {
@@ -34,6 +36,7 @@ namespace Modules.ProtoBuf.Test
 
     public class EmptyClassWithParameterizedConstructor
     {
+
         public EmptyClassWithParameterizedConstructor(int x)
         {
 
@@ -42,7 +45,9 @@ namespace Modules.ProtoBuf.Test
 
     internal class ClassWithOnePublicReadonlyFieldAndMatchingParameterizedConstructor
     {
+#pragma warning disable 649
         public readonly int X;
+#pragma warning restore 649
         public ClassWithOnePublicReadonlyFieldAndMatchingParameterizedConstructor(int x)
         {
 

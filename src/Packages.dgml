@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph GraphDirection="LeftToRight" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="Modules\OrigoDB.Modules.ProtoBuf.Test" Label="OrigoDB.Modules.ProtoBuf.Test" Category="Project" />
+    <Node Id="protobuf-net 2.0.0.480" Label="protobuf-net 2.0.0.480" Category="Package" />
+    <Node Id="Modules\OrigoDB.Modules.Protobuf" Label="OrigoDB.Modules.Protobuf" Category="Project" />
+    <Node Id="protobuf-net 2.0.0.480" Label="protobuf-net 2.0.0.480" Category="Package" />
+    <Node Id="OrigoDB.StoreUtility" Label="OrigoDB.StoreUtility" Category="Project" />
+    <Node Id="CommandLineParser 1.9.3.19" Label="CommandLineParser 1.9.3.19" Category="Package" />
+    <Node Id="OrigoDB.Core.UnitTests" Label="OrigoDB.Core.UnitTests" Category="Project" />
+    <Node Id="Castle.Core 3.1.0" Label="Castle.Core 3.1.0" Category="Package" />
+    <Node Id="FakeItEasy 1.7.4626.65" Label="FakeItEasy 1.7.4626.65" Category="Package" />
+    <Node Id="NUnit 2.6.2" Label="NUnit 2.6.2" Category="Package" />
+    <Node Id="OrigoDB.Core" Label="OrigoDB.Core" Category="Project" />
+    <Node Id="Common.Logging 2.1.2" Label="Common.Logging 2.1.2" Category="Package" />
+  </Nodes>
+  <Links>
+    <Link Source="Modules\OrigoDB.Modules.ProtoBuf.Test" Target="protobuf-net 2.0.0.480" Category="Installed Package" />
+    <Link Source="Modules\OrigoDB.Modules.Protobuf" Target="protobuf-net 2.0.0.480" Category="Installed Package" />
+    <Link Source="OrigoDB.StoreUtility" Target="CommandLineParser 1.9.3.19" Category="Installed Package" />
+    <Link Source="FakeItEasy 1.7.4626.65" Target="Castle.Core 3.1.0" Category="Package Dependency" />
+    <Link Source="OrigoDB.Core.UnitTests" Target="FakeItEasy 1.7.4626.65" Category="Installed Package" />
+    <Link Source="OrigoDB.Core.UnitTests" Target="NUnit 2.6.2" Category="Installed Package" />
+    <Link Source="OrigoDB.Core" Target="Common.Logging 2.1.2" Category="Installed Package" />
+  </Links>
+  <Categories>
+    <Category Id="Project" />
+    <Category Id="Package" />
+  </Categories>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Project" ValueLabel="True">
+      <Condition Expression="HasCategory('Project')" />
+      <Setter Property="Background" Value="Blue" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="Package Dependency" ValueLabel="True">
+      <Condition Expression="HasCategory('Package Dependency')" />
+      <Setter Property="Background" Value="Yellow" />
+    </Style>
+  </Styles>
+</DirectedGraph>

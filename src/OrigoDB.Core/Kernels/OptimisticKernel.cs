@@ -42,11 +42,11 @@ namespace OrigoDB.Core
                         throw;
                     }
                 }
-                catch (CommandAbortedException ex)
+                catch (CommandAbortedException)
                 {
                     throw;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     Restore();
                     throw;

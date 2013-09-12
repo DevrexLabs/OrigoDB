@@ -17,11 +17,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Modules.Protobuf", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Modules.ProtoBuf.Test", "OrigoDB.Modules.Protobuf.Test\OrigoDB.Modules.ProtoBuf.Test.csproj", "{200EF910-EE84-46C2-B656-DDDD46EC309A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E08A1F42-62C3-4D4A-9CC1-C11E16B8192D}"
-	ProjectSection(SolutionItems) = preProject
-		nuget-build.cmd = nuget-build.cmd
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{6A2B7AF9-B7BA-4286-A511-F3515F2C1AAA}"
 EndProject
 Global

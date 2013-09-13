@@ -2,8 +2,8 @@
 <package>
   <metadata>
     <id>OrigoDB.Core</id>
-    <title>OrigoDB Engine and Client</title>
-    <version>$version$</version>
+    <title>OrigoDB IMDB Engine and Client</title>
+    <version>0.10.0</version>
     <authors>Robert Friberg, Kristoffer Schroeder et al</authors>
     <copyright>Copyright 2013 Devrex Labs</copyright>
     <summary>An in-memory database engine.</summary>
@@ -14,32 +14,10 @@
     <licenseUrl>https://github.com/devrexlabs/origodb#license</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <releaseNotes>Can be found on project site: https://github.com/devrexlabs/origodb/wiki/release-notes</releaseNotes>
-    <tags>in-memory imdb nosql prevalence odbms</tags>
+    <tags>in-memory imdb nosql prevalence odbms database imc</tags>
     <dependencies>
-       <group targetFramework="net40">
-         <dependency id="Ensure.That" version="1.0.0" />
-         <dependency id="Newtonsoft.Json" version="5.0.6" />
-         <dependency id="Microsoft.Bcl" version="1.1.3" />
-         <dependency id="Microsoft.Bcl.Async" version="1.0.16" />
-         <dependency id="Microsoft.Bcl.Build" version="1.0.10" />
-         <dependency id="Microsoft.Net.Http" version="2.2.13" />
-       </group>
-       <group targetFramework="net45">
-         <dependency id="Ensure.That" version="1.0.0" />
-         <dependency id="Newtonsoft.Json" version="5.0.6" />
-       </group>
-       <group targetFramework="netcore">
-         <dependency id="Ensure.That" version="1.0.0" />
-         <dependency id="Newtonsoft.Json" version="5.0.6" />
-       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="Net40\MyCouch.Net40.dll" target="lib\net40" />
-    <file src="Net40\MyCouch.Net40.xml" target="lib\net40" />
-    <file src="Net45\MyCouch.Net45.dll" target="lib\net45" />
-    <file src="Net45\MyCouch.Net45.xml" target="lib\net45" />
-    <file src="NetCore45\MyCouch.NetCore45.dll" target="lib\netcore45" />
-    <file src="NetCore45\MyCouch.NetCore45.xml" target="lib\netcore45" />
   </files>
 </package>

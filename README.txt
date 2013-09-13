@@ -1,5 +1,7 @@
-
-Nuget packages arent included in the source.
+-----------------------------------------
+Building OrigoDB with Visual Studio 2012
+-----------------------------------------
+Nuget packages aren't included in the source.
 
 Therefore, you need to configure Visual Studio for package restore to build this solution.
 Follow the instructions here:

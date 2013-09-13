@@ -17,7 +17,6 @@ multiple threads.
 Get the OrigoDB.Core package from nuget: http://www.nuget.org/packages/origodb.core
 
 ## Links and resources
-  * http://origodb.com/ - OrigoDB Server home
   * https://twitter.com/devrexlabs  
   * https://twitter.com/robertfriberg
   * https://twitter.com/woocode

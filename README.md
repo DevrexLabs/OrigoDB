@@ -14,7 +14,7 @@ The engine is 100% ACID, taking care of persisting transactions and synchronizin
 multiple threads.
 
 ## Documentation
-The [documentation is on the wiki](docs)
+You'll find the [documentation on the wiki](https://github.com/devrexlabs/origodb/wiki)
 
 ## Install
 Get the OrigoDB.Core package from nuget: http://www.nuget.org/packages/origodb.core

@@ -13,13 +13,15 @@ With OrigoDB, you write an in-memory data model, commands and queries using a NE
 The engine is 100% ACID, taking care of persisting transactions and synchronizing access to the in-memory model from
 multiple threads.
 
-## Documentation
-You'll find the [documentation on the wiki](https://github.com/devrexlabs/origodb/wiki)
+## Resources
+* [Documentation](../../wiki/documentation)
+* [Release Notes](../../Release-Notes)
 
 ## Install
 Get the OrigoDB.Core package from nuget: http://www.nuget.org/packages/origodb.core
 
-## Links and resources
+
+## Links
   * https://twitter.com/devrexlabs  
   * https://twitter.com/robertfriberg
   * https://twitter.com/woocode

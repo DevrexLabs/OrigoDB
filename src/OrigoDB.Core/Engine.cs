@@ -23,7 +23,7 @@ namespace OrigoDB.Core
     {
         EngineConfiguration _config;
         bool _isDisposed = false;
-        static ILog _log = LogProvider.Factory.GetLogForCallingType();
+        static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
         IAuthorizer<Type> _authorizer;
 
         private readonly Kernel _kernel;

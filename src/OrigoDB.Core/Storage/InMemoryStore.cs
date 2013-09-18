@@ -29,15 +29,10 @@ namespace OrigoDB.Core
         static readonly Dictionary<string, InMemoryStoreState> _states 
             = new Dictionary<string, InMemoryStoreState>();
 
-        EngineConfiguration _config;
-        ISerializer _serializer;
         InMemoryStoreState _state;
 
         public InMemoryStore(EngineConfiguration config):base(config)
         {
-            _serializer = config.CreateSerializer();
-            _config = config;
-
             //create or restore state
             string key = _config.Location.OfJournal;
             if (!_states.ContainsKey(key)) _states.Add(key, new InMemoryStoreState());

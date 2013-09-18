@@ -74,13 +74,13 @@ namespace Modules.Blackbox.Test
         [TestMethod()]
         public void Can_create_blackboxlogger()
         {
-            new BlackBoxLogFactory().GetLogForCallingType();
+            new BlackBoxLogFactory().GetLoggerForCallingType();
         }
 
         [TestMethod()]
         public void Can_log_message()
         {
-            new BlackBoxLogFactory().GetLogForCallingType().Info("Hello, world!");
+            new BlackBoxLogFactory().GetLoggerForCallingType().Info("Hello, world!");
         }
     }
 }

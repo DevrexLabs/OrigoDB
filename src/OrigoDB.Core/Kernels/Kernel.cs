@@ -15,7 +15,7 @@ namespace OrigoDB.Core
 	    internal ICommandJournal CommandJournal { get { return _commandJournal; }}
 	    internal IStore Store { get { return _store; } }
 
-        private static ILog _log = LogProvider.Factory.GetLogForCallingType();
+        private static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
 
         protected Model _model;
 

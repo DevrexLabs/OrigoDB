@@ -6,7 +6,7 @@ using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core.Logging
 {
-    public sealed class Log : ILog
+    public sealed class Log : ILogger
     {
         public readonly String Name;
         private readonly LogKernel _kernel;

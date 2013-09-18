@@ -12,7 +12,7 @@ namespace OrigoDB.Core
     /// </summary>
     public class OptimisticKernel : Kernel
     {
-        private static ILog _log = LogProvider.Factory.GetLogForCallingType();
+        private static ILogger _logger = LogProvider.Factory.GetLoggerForCallingType();
 
         protected object _commandLock = new object();
 
@@ -36,18 +36,17 @@ namespace OrigoDB.Core
                     {
                         return command.ExecuteStub(_model);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        _log.Exception(ex);
                         _commandJournal.WriteRollbackMarker(); //todo: wrap in try and throw a special exception upon failure
                         throw;
                     }
                 }
-                catch (CommandAbortedException ex)
+                catch (CommandAbortedException)
                 {
                     throw;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     Restore();
                     throw;

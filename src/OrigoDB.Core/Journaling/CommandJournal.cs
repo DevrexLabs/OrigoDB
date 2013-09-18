@@ -24,7 +24,7 @@ namespace OrigoDB.Core
         private IJournalWriter _writer;
 		protected IStore _storage;
         private JournalState _state;
-	    protected static ILog _log = LogProvider.Factory.GetLogForCallingType();
+	    protected static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
         private long _lastEntryId;
 
         /// <summary>

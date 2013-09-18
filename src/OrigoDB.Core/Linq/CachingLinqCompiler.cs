@@ -15,7 +15,7 @@ namespace OrigoDB.Core.Linq
 	public class CachingLinqCompiler
 	{
 		readonly Type _modelType;
-		private static ILog _logger = LogProvider.Factory.GetLogForCallingType();
+		private static ILogger _logger = LogProvider.Factory.GetLoggerForCallingType();
 
 		/// <summary>
 		/// Bypass cache. Mainly so we can run performance tests

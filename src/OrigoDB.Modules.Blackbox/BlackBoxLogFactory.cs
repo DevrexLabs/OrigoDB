@@ -1,8 +1,7 @@
 ﻿using System;
 using BlackBox;
-using ILogFactory = OrigoDB.Core.Logging.ILogFactory;
-using ILog = OrigoDB.Core.Logging.ILog;
-using LogProvider = OrigoDB.Core.Logging.LogProvider;
+using ILogFactory = OrigoDB.Core.Logging.ILoggerFactory;
+using ILog = OrigoDB.Core.Logging.ILogger;
 
 namespace OrigoDB.Modules.Blackbox
 {
@@ -14,29 +13,19 @@ namespace OrigoDB.Modules.Blackbox
         /// Looks for blackbox config in application config file. 
         /// If missing, logs to a file in the current working directory or App_Data
         /// </summary>
-        public BlackBoxLogFactory()
+        public BlackBoxLogFactory(LogConfiguration config = null)
         {
-            var config = LogConfiguration.FromConfigSection();
-            
-            if(config == null)
-            {
-                config = new LogConfiguration();
-                var sink = new FileSink();
-                sink.FileName = LogProvider.GetDefaultLogFile();
-                config.Sinks.Add(sink);
-            }
-
+            config = config ?? LogConfiguration.FromConfigSection() ?? new LogConfiguration();
             _kernel = new LogKernel(config);
-
         }
 
-        public ILog GetLog(Type type)
+        public ILog GetLogger(Type type)
         {
             var logger = _kernel.GetLogger(type);
             return new BlackBoxLogAdapter(logger);
         }
 
-        public ILog GetLogForCallingType()
+        public ILog GetLoggerForCallingType()
         {
             var logger = _kernel.GetLogger();
             return new BlackBoxLogAdapter(logger);

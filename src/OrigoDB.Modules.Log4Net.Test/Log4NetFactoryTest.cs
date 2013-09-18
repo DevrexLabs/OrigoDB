@@ -19,13 +19,13 @@ namespace Modules.Log4Net.Test
 		[TestMethod()]
 		public void Can_create_log4netlogger()
 		{
-			new Log4NetLogFactory().GetLogForCallingType();
+			new Log4NetLogFactory().GetLoggerForCallingType();
 		}
 
 		[TestMethod()]
 		public void Can_log_message()
 		{
-			new Log4NetLogFactory().GetLogForCallingType().Info("Hello, world!");
+			new Log4NetLogFactory().GetLoggerForCallingType().Info("Hello, world!");
 		}
 	}
 }

@@ -75,12 +75,6 @@ namespace OrigoDB.Core
 					
 					var redirect = message.Payload as RedirectMessage;
 					throw new WrongNodeException(redirect.Host,redirect.Port);
-					_host = redirect.Host;
-					_port = redirect.Port;
-					_client.Close();
-					_client = null;
-
-					return WriteRead<R>(request);
 				}
 				
 				if (message.Payload is TransitioningMessage)

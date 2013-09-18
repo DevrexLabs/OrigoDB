@@ -22,7 +22,7 @@ namespace OrigoDB.Core
         private RolloverStrategy _rolloverStrategy;
         private long _entriesWrittenToCurrentStream;
 
-        private static ILog _log = LogProvider.Factory.GetLogForCallingType();
+        private static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
 
 
 

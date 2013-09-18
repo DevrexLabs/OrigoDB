@@ -1,19 +1,18 @@
 using System;
-using System.IO;
 using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core.Logging
 {
     public static class LogProvider
     {
-        private static ILogFactory _logFactory;
+        private static ILoggerFactory _logFactory;
         private static readonly object locker = new object();
 
         /// <summary>
         /// Can only be set once and must be called before the first invocation of LogProvider.Factory
         /// </summary>
         /// <param name="logFactory"></param>
-        public static void SetLogFactory(ILogFactory logFactory)
+        public static void SetLogFactory(ILoggerFactory logFactory)
         {
             Ensure.NotNull(logFactory, "logFactory");
             if(_logFactory != null) 
@@ -21,21 +20,15 @@ namespace OrigoDB.Core.Logging
             _logFactory = logFactory;
         }
 
-        public static ILogFactory Factory
+        public static ILoggerFactory Factory
         {
             get
             {
                 lock (locker)
                 {
-                    return _logFactory =_logFactory ?? new LogFactory();
+                    return _logFactory =_logFactory ?? new NullLoggerFactory();
                 }
             }
-        }
-
-        public static string GetDefaultLogFile()
-        {
-            var directory = StorageLocation.GetDefaultDirectory();
-            return Path.Combine(directory, "log.txt");
         }
     }
 }

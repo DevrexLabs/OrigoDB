@@ -4,11 +4,11 @@ using System.IO;
 using OrigoDB.Core.Logging;
 using log4net;
 using log4net.Config;
-using ILog = OrigoDB.Core.Logging.ILog;
+using ILog = OrigoDB.Core.Logging.ILogger;
 
 namespace OrigoDB.Modules.Log4Net
 {
-	public class Log4NetLogFactory : ILogFactory
+	public class Log4NetLogFactory : ILoggerFactory
 	{
 		public Log4NetLogFactory(string configurationPath = null)
 		{
@@ -16,16 +16,16 @@ namespace OrigoDB.Modules.Log4Net
 			XmlConfigurator.ConfigureAndWatch(configFile);
 		}
 
-		public ILog GetLog(Type type)
+		public ILog GetLogger(Type type)
 		{
 			var log4NetLog = LogManager.GetLogger(type);
 			var log = new Log4NetLogAdapter(log4NetLog);
 			return log;
 		}
 
-		public ILog GetLogForCallingType()
+		public ILog GetLoggerForCallingType()
 		{
-			return GetLog(new StackFrame(1,false).GetMethod().DeclaringType);
+			return GetLogger(new StackFrame(1,false).GetMethod().DeclaringType);
 		}
 	}
 }

@@ -12,7 +12,7 @@ namespace OrigoDB.Core.Utilities
     public static class HashUtility
     {
 
-        private static ILog _log = LogManager.GetCurrentClassLogger();
+        private static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
 
         public const byte DefaultSaltLength = 8;
 
@@ -56,6 +56,7 @@ namespace OrigoDB.Core.Utilities
             catch (Exception ex)
             {
                 _log.Error("Bad input to HashUtility.Verify",ex);
+                _log.Error(ex);
                 return false;
             }
         }

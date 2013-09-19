@@ -87,6 +87,7 @@
     <Compile Include="Configuration\RemoteClientConfiguration.cs" />
     <Compile Include="Configuration\FileStorageLocation.cs" />
     <Compile Include="Configuration\StorageLocation.cs" />
+    <Compile Include="Logging\NullLogger.cs" />
     <Compile Include="Storage\InMemoryStore.cs" />
     <Compile Include="Journaling\NullJournal.cs" />
     <Compile Include="Journaling\RollbackMarker.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Engines.cs" />
     <Compile Include="IImmutable.cs" />
     <Compile Include="IOperationWithResult.cs" />
+    <Compile Include="Logging\NullLoggerFactory.cs" />
     <Compile Include="Migrations\CustomBinder.cs" />
     <Compile Include="Migrations\Schema.cs" />
     <Compile Include="Kernels\OptimisticKernel.cs" />
@@ -126,6 +128,7 @@
     <Compile Include="Security\NullAuthorizer.cs" />
     <Compile Include="Security\IAuthenticator.cs" />
     <Compile Include="Security\IAuthorizer.cs" />
+    <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Journaling\AsynchronousJournalWriter.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CommandAbortedException.cs" />
@@ -188,7 +191,7 @@
     <Content Include="readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="ClassDiagram1.cd" />
     <None Include="Proxy\ClassDiagram1.cd" />
     <None Include="Storage\Filestorage.cd" />
     <None Include="Core.Public.cd" />

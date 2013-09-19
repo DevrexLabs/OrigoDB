@@ -136,7 +136,8 @@ namespace OrigoDB.Core.Test
                 Command command = new TestCommandWithResult() { Payload = new byte[100000] };
                 this.Engine.Execute(command);
             }
-            Assert.Inconclusive("Log based assertion removed, rethink");
+            Assert.Inconclusive();
+            //Assert.IsTrue(_memoryLogWriter.Messages.Count(m => m.Contains("NewJournalSegment")) > 0);
         }
 
         [TestMethod]
@@ -155,8 +156,8 @@ namespace OrigoDB.Core.Test
                 Command command = new TestCommandWithResult() { Payload = new byte[100000] };
                 this.Engine.Execute(command);
             }
-
-            Assert.Inconclusive("Log based assertion removed, rethink");
+            Assert.Inconclusive();
+            //Assert.IsTrue(_memoryLogWriter.Messages.Count(m => m.Contains("NewJournalSegment")) > 0);
         }
 
         [TestMethod]
@@ -184,8 +185,8 @@ namespace OrigoDB.Core.Test
         {
             DeleteFromDefaultLocation<TestModel>();
             this.Engine = Engine.LoadOrCreate<TestModel>();
+            Assert.Inconclusive();
             //Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("Engine Created")));
-            Assert.Inconclusive("Log based assertion removed, rethink");
         }
 
         [TestMethod]
@@ -194,9 +195,9 @@ namespace OrigoDB.Core.Test
             var engine = Engine.LoadOrCreate<TestModel>();
             engine.Close();
             this.Engine = Engine.LoadOrCreate<TestModel>();
-            
+
+            Assert.Inconclusive();
             //Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("Engine Loaded")));
-            Assert.Inconclusive("Log based assertion removed, rethink");
         }
 
         [TestMethod]
@@ -209,7 +210,7 @@ namespace OrigoDB.Core.Test
             engine.Close();
             //Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("BeginSnapshot")));
             //Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("EndSnapshot")));
-            Assert.Inconclusive("Log based assertion removed, rethink");
+            Assert.Inconclusive();
         }
 
         [TestMethod]
@@ -220,11 +221,10 @@ namespace OrigoDB.Core.Test
             config.SnapshotBehavior = SnapshotBehavior.OnShutdown;
             var engine = Engine.Create<TestModel>(config);
             engine.Close();
+            Assert.Inconclusive();
             //Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("BeginSnapshot")));
             //Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("EndSnapshot")));
-            Assert.Inconclusive("Log based assertion removed, rethink");
         }
-
 
         [TestMethod]
         public void TinyIocResolvesNamedRegistration()
@@ -325,7 +325,9 @@ namespace OrigoDB.Core.Test
             config.MaxEntriesPerJournalSegment = 2;
             Engine = Engine.Create(new TestModel(), config);
             ExecuteCommands(2);
+            //Assert.IsFalse(_memoryLogWriter.Messages.Any(m => m.Contains("NewJournalSegment")));
 			ExecuteCommands(1);
+			//Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("NewJournalSegment")));
             Engine.Close();
 			
             var store = config.CreateStore() as FileStore;
@@ -339,7 +341,7 @@ namespace OrigoDB.Core.Test
                 }
             }
             else Assert.Inconclusive("test isn't relevant under the current configuration, requires FileStore storage");
-            
+            Assert.Inconclusive();            
         }
 
         private void ExecuteCommands(int count)

@@ -26,12 +26,14 @@ namespace Modules.ProtoBuf.Test
     {
 #pragma warning disable 169
         private readonly int X;
-
+#pragma warning restore 169
    }
 
     public class ClassWithPrivateRegularField
     {
+#pragma warning disable 169
         private int x;
+#pragma warning restore 169
     }
 
     public class EmptyClassWithParameterizedConstructor

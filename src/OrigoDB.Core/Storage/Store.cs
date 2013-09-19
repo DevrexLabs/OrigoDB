@@ -10,7 +10,7 @@ namespace OrigoDB.Core.Storage
     {
         protected EngineConfiguration _config;
         protected ISerializer _serializer;
-        protected static ILog _log = LogManager.GetCurrentClassLogger();
+        protected static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
 
         private List<Snapshot> _snapshots;
         public IEnumerable<Snapshot> Snapshots

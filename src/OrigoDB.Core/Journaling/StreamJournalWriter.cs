@@ -17,7 +17,7 @@ namespace OrigoDB.Core
         private RolloverStrategy _rolloverStrategy;
         private long _entriesWrittenToCurrentStream;
 
-        private static ILog _log = LogManager.GetCurrentClassLogger();
+        private static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
 
 
 

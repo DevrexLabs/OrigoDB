@@ -3,7 +3,7 @@
   <metadata>
     <id>OrigoDB.Core</id>
     <title>OrigoDB IMDB Engine and Client</title>
-    <version>0.10.0</version>
+    <version>$version$</version>
     <authors>Robert Friberg, Kristoffer Schroeder et al</authors>
     <copyright>Copyright 2013 Devrex Labs</copyright>
     <summary>An in-memory database engine.</summary>
@@ -19,5 +19,6 @@
     </dependencies>
   </metadata>
   <files>
+    <file src="OrigoDB.Core.dll" target="lib"/>
   </files>
 </package>

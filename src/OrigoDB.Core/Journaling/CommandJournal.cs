@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Common.Logging;
 using OrigoDB.Core.Journaling;
+using OrigoDB.Core.Logging;
 
 namespace OrigoDB.Core
 {

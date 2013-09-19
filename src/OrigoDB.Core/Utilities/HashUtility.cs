@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Security.Cryptography;
-using Common.Logging;
+using OrigoDB.Core.Logging;
 
 namespace OrigoDB.Core.Utilities
 {

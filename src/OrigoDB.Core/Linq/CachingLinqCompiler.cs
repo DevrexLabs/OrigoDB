@@ -3,8 +3,8 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Common.Logging;
 using Microsoft.CSharp;
+using OrigoDB.Core.Logging;
 
 namespace OrigoDB.Core.Linq
 {

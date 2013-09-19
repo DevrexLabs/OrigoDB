@@ -42,9 +42,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging">
-      <HintPath>..\packages\Common.Logging.2.1.2\lib\net40\Common.Logging.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -87,6 +84,9 @@
     <Compile Include="Configuration\RemoteClientConfiguration.cs" />
     <Compile Include="Configuration\FileStorageLocation.cs" />
     <Compile Include="Configuration\StorageLocation.cs" />
+    <Compile Include="Logging\ILogFactory.cs" />
+    <Compile Include="Logging\LogLevel.cs" />
+    <Compile Include="Logging\LogProvider.cs" />
     <Compile Include="Logging\NullLogger.cs" />
     <Compile Include="Storage\InMemoryStore.cs" />
     <Compile Include="Journaling\NullJournal.cs" />

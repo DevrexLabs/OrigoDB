@@ -1,5 +1,5 @@
 using System;
-using Common.Logging;
+using OrigoDB.Core.Logging;
 
 namespace OrigoDB.Core
 {
@@ -11,8 +11,6 @@ namespace OrigoDB.Core
     /// </summary>
     public class OptimisticKernel : Kernel
     {
-        private static ILogger _logger = LogProvider.Factory.GetLoggerForCallingType();
-
         protected object _commandLock = new object();
 
         public OptimisticKernel(EngineConfiguration config, IStore store)

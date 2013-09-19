@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using Common.Logging;
+using OrigoDB.Core.Logging;
 
 namespace OrigoDB.Core.Storage
 {

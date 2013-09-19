@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using Common.Logging;
+using OrigoDB.Core.Logging;
 using OrigoDB.Core.Security;
 
 namespace OrigoDB.Core

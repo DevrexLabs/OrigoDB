@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Common.Logging;
+using OrigoDB.Core.Logging;
 using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core

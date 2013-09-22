@@ -18,9 +18,9 @@ multiple threads.
 
 ## Support
 * Found a bug? Then please report and track it on the [Issues page](../../issues)
-* Q/A support forum and general discussions at [OrigoDb Google Group](https://groups.google.com/forum/#!forum/origodb)
+* Have questions? Q/A support forum and general discussions at [OrigoDb Google Group](https://groups.google.com/forum/#!forum/origodb)
 * Is 140 characters enough for your question? Mention @devrexlabs on twitter or use the #origodb hashtag
-* Need more guarantees than the community can offer? Devrex Labs offer commercial support and consulting services, on site or remote. 
+* Need more than the community can offer? Devrex Labs offer commercial support and consulting services, on site or remote. 
 
 ## Install
 Get the OrigoDB.Core package from nuget: http://www.nuget.org/packages/origodb.core

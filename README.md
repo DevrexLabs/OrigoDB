@@ -1,9 +1,6 @@
 OrigoDB in-memory database engine
 =======
 
-Note: Migration from http://livedomain.codeplex.com/ in progress, you can read the docs over there!
-
-
 ## Build faster systems, faster
 Accessing data from RAM is orders of magnitude faster than reading from disk. 
 Also, data in RAM can be in a native format eliminating the need for object/relational
@@ -15,18 +12,21 @@ multiple threads.
 
 ## Resources
 * [Documentation](../../wiki/documentation)
-* [Release Notes](../../Release-Notes)
+* [Release Notes](../../wiki/Release-Notes)
+*  [Wiki](../../wiki)
+* http://livedb.devrex.se/ - blog
+
+## Support
+* Found a bug? Then please report and track it on the [Issues page](../../issues)
+* Q/A support forum and general discussions at [OrigoDb Google Group](https://groups.google.com/forum/#!forum/origodb)
+* Is 140 characters enough for your question? Mention @devrexlabs on twitter or use the #origodb hashtag
+* Need more guarantees than the community can offer? Devrex Labs offer commercial support and consulting services, on site or remote. 
 
 ## Install
 Get the OrigoDB.Core package from nuget: http://www.nuget.org/packages/origodb.core
 
 
-## Links
-  * https://twitter.com/devrexlabs  
-  * https://twitter.com/robertfriberg
-  * https://twitter.com/woocode
-  * http://livedb.devrex.se/ - blog
-
-
-
-
+## Contact
+  * [@devrexlabs](https://twitter.com/devrexlabs)
+  * [@robertfriberg](https://twitter.com/robertfriberg)
+  * Mail: robert at devrexlabs.com

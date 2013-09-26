@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>OrigoDB.Core</id>
-    <title>b IMDB Engine and Client</title>
-    <version>0.10.1</version>
+    <id>OrigoDb.Core</id>
+    <title>OrigoDb Embedded Engine and Client</title>
+    <version>0.10.2</version>
     <authors>Robert Friberg, Kristoffer Schroeder et al</authors>
     <copyright>Copyright 2013 Devrex Labs</copyright>
     <summary>An in-memory database engine for .NET. Use native CLR types for modeling. Build faster systems, faster with native .NET in-memory data modeling. No SQL, No o/r-mapping, no problems!</summary>

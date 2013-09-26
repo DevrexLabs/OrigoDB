@@ -24,7 +24,7 @@ multiple threads.
 
 ## Download/Install
 * Libraries are available on Nuget: https://www.nuget.org/profiles/rofr/
-* Binaries (benchmark and storeutility) available soon!
+* Latest binaries in a single package under [Releases page](https://github.com/DevrexLabs/origodb/releases)
 
 
 ## Contact

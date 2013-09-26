@@ -8,8 +8,8 @@
     <ProjectGuid>{7F7DF2EC-4C24-47EC-BC5B-B153816C8E34}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LiveDomain.Modules.Protobuf</RootNamespace>
-    <AssemblyName>LiveDomain.Modules.Protobuf</AssemblyName>
+    <RootNamespace>OrigoDb.Modules.Protobuf</RootNamespace>
+    <AssemblyName>OrigoDb.Modules.Protobuf</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -55,7 +55,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

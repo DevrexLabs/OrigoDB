@@ -48,7 +48,8 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BlackBox">
+    <Reference Include="BlackBox, Version=1.0.2.0, Culture=neutral, PublicKeyToken=7155736a389caf4b, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\blackbox.1.0.2\lib\net40\BlackBox.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -56,11 +57,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BlackBoxLogAdapter.cs" />
     <Compile Include="BlackBoxLoggerFactory.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OrigoDB.Core\OrigoDB.Core.csproj">
@@ -69,7 +68,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

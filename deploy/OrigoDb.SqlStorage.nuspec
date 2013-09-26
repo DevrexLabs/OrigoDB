@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>OrigoDB.SqlStorage</id>
+    <title>Sql Server Storage for OrigoDb </title>
+    <version>0.1.1-alpha</version>
+    <authors>Robert Friberg, Kristoffer Schroeder et al</authors>
+    <copyright>Copyright Devrex Labs</copyright>
+    <summary>Enables Sql Server to be used as a backing store for OrigoDb command journal</summary>
+    <description>
+	
+    </description>
+    <projectUrl>https://github.com/devrexlabs/origodb</projectUrl>
+    <licenseUrl>https://github.com/devrexlabs/origodb#license</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <releaseNotes>Can be found on project site: https://github.com/devrexlabs/origodb/wiki/release-notes</releaseNotes>
+    <tags>in-memory imdb nosql prevalence odbms database imc</tags>
+    <dependencies>
+		<dependency id="OrigoDb.Core" version="0.10.0"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="OrigoDB.Modules.SqlStorage.dll" target="lib"/>
+  </files>
+</package>

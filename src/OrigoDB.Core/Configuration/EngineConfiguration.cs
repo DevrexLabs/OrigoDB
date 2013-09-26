@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using OrigoDB.Core.Logging;
 using OrigoDB.Core.Security;
 using OrigoDB.Core.TinyIoC;
 using OrigoDB.Core.Configuration;
@@ -100,13 +101,12 @@ namespace OrigoDB.Core
             MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
             StoreType = Stores.FileSystem;
             EnsureSafeResults = true;
-	        PacketOptions = null;
+            PacketOptions = null;
 
             _registry = new TinyIoCContainer();
             _registry.Register<ICommandJournal>((c, p) => new CommandJournal((IStore)p["store"]));
             _registry.Register<IAuthorizer<Type>>((c, p) => new TypeBasedPermissionSet(Permission.Allowed));
-            _registry.Register<ISerializer>((c,p) => new Serializer(CreateFormatter()));
-
+            _registry.Register<ISerializer>((c, p) => new Serializer(CreateFormatter()));
             InitSynchronizers();
             InitStoreTypes();
             InitFormatters();
@@ -118,8 +118,8 @@ namespace OrigoDB.Core
 
         private void InitKernels()
         {
-            _registry.Register<Kernel>((c, p) => new OptimisticKernel(this, (IStore) p["store"]),Kernels.Optimistic.ToString());
-            _registry.Register<Kernel>((c, p) => new PessimisticKernel(this, (IStore) p["store"]), Kernels.Pessimistic.ToString());
+            _registry.Register<Kernel>((c, p) => new OptimisticKernel(this, (IStore)p["store"]), Kernels.Optimistic.ToString());
+            _registry.Register<Kernel>((c, p) => new PessimisticKernel(this, (IStore)p["store"]), Kernels.Pessimistic.ToString());
             _registry.Register<Kernel>((c, p) => new RoyalFoodTaster(this, (IStore)p["store"]), Kernels.RoyalFoodTaster.ToString());
         }
 
@@ -158,7 +158,7 @@ namespace OrigoDB.Core
             //If StorageMode is set to custom and no factory has been injected, the fully qualified type 
             //name will be resolved from the app configuration file.
             _registry.Register<IStore>((c, p) => LoadFromConfig<IStore>(), Stores.Custom.ToString());
-        } 
+        }
         #endregion
 
         /// <summary>
@@ -174,7 +174,6 @@ namespace OrigoDB.Core
             return bootloader.LoadFromConfigOrDefault(() => bootloader);
         }
 
-        #region Factory methods
         public virtual ISerializer CreateSerializer()
         {
             return _registry.Resolve<ISerializer>();
@@ -222,13 +221,10 @@ namespace OrigoDB.Core
         /// <returns></returns>
         public virtual ICommandJournal CreateCommandJournal(IStore store)
         {
-            var args = new Dictionary<string, object> {{"store", store}};
+            var args = new Dictionary<string, object> { { "store", store } };
             return _registry.Resolve<ICommandJournal>(new NamedParameterOverloads(args));
         }
 
-        #endregion
-
-        #region Factory Injection Methods
         /// <summary>
         /// Inject a custom command journal factory. 
         /// Will throw if called after journal has been created.
@@ -276,8 +272,7 @@ namespace OrigoDB.Core
         public void SetSerializerFactory(Func<EngineConfiguration, ISerializer> factory)
         {
             _registry.Register<ISerializer>((c, p) => factory.Invoke(this));
-        } 
-        #endregion
+        }
 
         /// <summary>
         /// Rollover strategy is used by storage providers that split the journal into segments. The rollover strategy decides
@@ -303,7 +298,7 @@ namespace OrigoDB.Core
         public virtual Kernel CreateKernel(IStore store)
         {
             string registrationName = Kernel.ToString();
-            var parameters = new Dictionary<string, object> {{"store", store}};
+            var parameters = new Dictionary<string, object> { { "store", store } };
             return _registry.Resolve<Kernel>(registrationName, new NamedParameterOverloads(parameters));
         }
     }

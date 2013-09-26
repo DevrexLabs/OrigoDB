@@ -5,7 +5,7 @@ using ILog = OrigoDB.Core.Logging.ILogger;
 
 namespace OrigoDB.Modules.Blackbox
 {
-    public class BlackBoxLogFactory : ILogFactory
+    public class BlackBoxLoggerFactory : ILogFactory
     {
         readonly LogKernel _kernel;
 
@@ -13,7 +13,7 @@ namespace OrigoDB.Modules.Blackbox
         /// Looks for blackbox config in application config file. 
         /// If missing, logs to a file in the current working directory or App_Data
         /// </summary>
-        public BlackBoxLogFactory(LogConfiguration config = null)
+        public BlackBoxLoggerFactory(LogConfiguration config = null)
         {
             config = config ?? LogConfiguration.FromConfigSection() ?? new LogConfiguration();
             _kernel = new LogKernel(config);

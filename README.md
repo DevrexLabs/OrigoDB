@@ -22,8 +22,9 @@ multiple threads.
 * Is 140 characters enough for your question? Mention @devrexlabs on twitter or use the #origodb hashtag
 * Need more than the community can offer? Devrex Labs offer commercial support and consulting services, on site or remote. 
 
-## Install
-Get the OrigoDB.Core package from nuget: http://www.nuget.org/packages/origodb.core
+## Download/Install
+* Libraries are available on Nuget: https://www.nuget.org/profiles/rofr/
+* Latest binaries in a single package under [Releases page](https://github.com/DevrexLabs/origodb/releases)
 
 
 ## Contact

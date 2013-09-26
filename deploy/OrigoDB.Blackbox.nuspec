@@ -3,7 +3,7 @@
   <metadata>
     <id>OrigoDB.BlackBox</id>
     <title>OrigoDb BlackBox Logging Module</title>
-    <version>$version$</version>
+    <version>0.1.2</version>
     <authors>Robert Friberg, Kristoffer Schroeder et al</authors>
     <copyright>Copyright Devrex Labs</copyright>
     <summary>OrigoDb logging with the BlackBox framework</summary>

@@ -243,15 +243,6 @@ namespace OrigoDB.Core.Test
         }
 
         [TestMethod()]
-        public void PessimisticKernelIsReturned()
-        {
-            var config = new EngineConfiguration();
-            config.Kernel = Kernels.Pessimistic;
-            var kernel = config.CreateKernel(null);
-            Assert.AreEqual(typeof(PessimisticKernel), kernel.GetType());
-        }
-
-        [TestMethod()]
         public void OptimisticKernelIsReturned()
         {
             var config = new EngineConfiguration();

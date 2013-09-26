@@ -42,7 +42,7 @@ namespace OrigoDB.Benchmark
             
             var config = new EngineConfiguration(Guid.NewGuid().ToString());
             config.PacketOptions = PacketOptions.Compressed;
-            config.Kernel = Kernels.Pessimistic;
+            config.Kernel = Kernels.Optimistic;
             var engine = Engine.LoadOrCreate<BenchmarkModel>(config);
             TimeThis(iterations, () => engine.Execute(new Message(messageSize)));
             engine.Close();

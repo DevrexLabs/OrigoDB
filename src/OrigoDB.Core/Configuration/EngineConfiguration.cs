@@ -119,7 +119,6 @@ namespace OrigoDB.Core
         private void InitKernels()
         {
             _registry.Register<Kernel>((c, p) => new OptimisticKernel(this, (IStore)p["store"]), Kernels.Optimistic.ToString());
-            _registry.Register<Kernel>((c, p) => new PessimisticKernel(this, (IStore)p["store"]), Kernels.Pessimistic.ToString());
             _registry.Register<Kernel>((c, p) => new RoyalFoodTaster(this, (IStore)p["store"]), Kernels.RoyalFoodTaster.ToString());
         }
 

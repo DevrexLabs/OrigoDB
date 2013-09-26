@@ -111,7 +111,6 @@
     <Compile Include="Proxy\OperationType.cs" />
     <Compile Include="Proxy\ProxyMethodInfo.cs" />
     <Compile Include="Clients\Merge.cs" />
-    <Compile Include="Kernels\PessimisticKernel.cs" />
     <Compile Include="Kernels\RoyalFoodTaster.cs" />
     <Compile Include="Storage\ByteCountingNullStream.cs" />
     <Compile Include="Storage\PacketingFormatter.cs" />

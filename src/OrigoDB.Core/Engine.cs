@@ -70,7 +70,7 @@ namespace OrigoDB.Core
 
         public object Execute(Query query)
         {
-            return Execute<Model, object>(model => query.ExecuteStub(model));
+            return Execute<Model, object>(query.ExecuteStub);
         }
 
         public T Execute<M, T>(Func<M, T> lambdaQuery) where M : Model
@@ -110,8 +110,7 @@ namespace OrigoDB.Core
 
         internal byte[] GetSnapshot()
         {
-            //TODO: Verify GetBuffer!
-            MemoryStream memoryStream = new MemoryStream();
+            var memoryStream = new MemoryStream();
             WriteSnapshotToStream(memoryStream);
             return memoryStream.GetBuffer();
         }
@@ -254,10 +253,8 @@ namespace OrigoDB.Core
 
         public static Engine<M> LoadOrCreate<M>(EngineConfiguration config) where M : Model, new()
         {
-
-            config = config ?? EngineConfiguration.Create();
-            Func<M> constructor = () => Activator.CreateInstance<M>();
-            return LoadOrCreate<M>(constructor, config);
+            Func<M> constructor = Activator.CreateInstance<M>;
+            return LoadOrCreate(constructor, config);
         }
 
         public static Engine<M> LoadOrCreate<M>(Func<M> constructor, EngineConfiguration config = null) where M : Model
@@ -277,7 +274,7 @@ namespace OrigoDB.Core
             }
             else
             {
-                result = Create<M>(constructor.Invoke(), config);
+                result = Create(constructor.Invoke(), config);
                 _log.Debug("Engine Created");
             }
             return result;

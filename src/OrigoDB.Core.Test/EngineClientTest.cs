@@ -16,7 +16,7 @@ namespace OrigoDB.Core.Test
 		{
 			var engine = Engine.For<TestModel>("mode=embedded;location=" + Guid.NewGuid().ToString());
 			Assert.IsNotNull(engine);
-			Assert.IsInstanceOfType(engine, typeof(ILocalEngine<TestModel>));
+			Assert.IsInstanceOfType(engine, typeof(LocalEngineClient<TestModel>));
 		}
 
 		[TestMethod]

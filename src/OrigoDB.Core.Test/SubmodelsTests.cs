@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OrigoDB.Core.Proxy;
-using System.Runtime.Remoting.Proxies;
 
 namespace OrigoDB.Core.Test
 {
@@ -128,7 +124,7 @@ namespace OrigoDB.Core.Test
             var db = (MyModel)new ModelProxy<MyModel>(_engine).GetTransparentProxy();
             var childDb = db.ChildFor<MyChildModel>();
             childDb.Greeting();
-            int actual = (_engine as ILocalEngine<MyModel>).Execute((MyModel m) => m.ChildFor<MyChildModel>().Greetings);
+            int actual = (_engine as LocalEngineClient<MyModel>).Execute((MyModel m) => m.ChildFor<MyChildModel>().Greetings);
 
             //assert Greeting was called on the correct model, not a clone
             Assert.AreEqual(1, actual);

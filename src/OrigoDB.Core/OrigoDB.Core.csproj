@@ -58,6 +58,7 @@
     <Compile Include="Clients\Dispatching\RoundRobinQueryDispatchStrategy.cs" />
     <Compile Include="Clients\FailoverClusterClient.cs" />
     <Compile Include="Clients\Dispatching\IClusterQueryDispatchStrategy.cs" />
+    <Compile Include="Clients\LocalEngineClient.cs" />
     <Compile Include="Clients\Remote\ConnectionPools.cs" />
     <Compile Include="Clients\Remote\IRequestContextFactory.cs" />
     <Compile Include="Clients\Remote\Messages\ClusterInfo.cs" />
@@ -99,7 +100,7 @@
     <Compile Include="Journaling\RollbackMarker.cs" />
     <Compile Include="Kernels\Kernel.cs" />
     <Compile Include="Kernels\NullStore.cs" />
-    <Compile Include="Linq\DelegateQuery.cs" />
+    <Compile Include="DelegateQuery.cs" />
     <Compile Include="Engine.For.cs" />
     <Compile Include="Db.cs" />
     <Compile Include="Engines.cs" />
@@ -120,9 +121,6 @@
     <Compile Include="Journaling\NullJournalWriter.cs" />
     <Compile Include="Linq\CachingLinqCompiler.cs" />
     <Compile Include="Linq\CompiledLinqExtensions.cs" />
-    <Compile Include="Clients\LocalEngineClient.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Storage\RolloverStrategy.cs" />
     <Compile Include="Proxy\ModelProxy.cs" />
     <Compile Include="Proxy\ProxyMethodAttribute.cs" />

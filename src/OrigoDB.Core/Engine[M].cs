@@ -6,7 +6,7 @@ using System.Text;
 namespace OrigoDB.Core
 {
 
-    public class Engine<T> : Engine, ILocalEngine<T> where T : Model
+    public class Engine<T> : Engine, IEngine<T> where T : Model
     {
 
         public Engine(EngineConfiguration config) : base(() => Activator.CreateInstance<T>(), config) { }

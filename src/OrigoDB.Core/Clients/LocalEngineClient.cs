@@ -5,7 +5,7 @@ using System.Text;
 
 namespace OrigoDB.Core
 {
-    public class LocalEngineClient<M> : ILocalEngine<M> where M : Model
+    public class LocalEngineClient<M> : IEngine<M> where M : Model
     {
 
         public readonly Engine<M> Engine;

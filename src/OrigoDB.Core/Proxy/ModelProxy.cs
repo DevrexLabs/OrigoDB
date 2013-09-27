@@ -1,10 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
-using System.Collections.Generic;
 
 namespace OrigoDB.Core.Proxy
 {
@@ -77,13 +75,4 @@ namespace OrigoDB.Core.Proxy
             return new ReturnMessage(childProxy.GetTransparentProxy(), null, 0, methodCall.LogicalCallContext, methodCall);
         }
     }
-
-    public static class ModelProxyExtensions
-    {
-        public static M GetProxy<M>(this IEngine<M> engine) where M : Model
-        {
-            return (M)new ModelProxy<M>(engine).GetTransparentProxy();
-        }
-    }
-
 }

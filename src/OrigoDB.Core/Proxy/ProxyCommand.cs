@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
 
 namespace OrigoDB.Core.Proxy
 {
 	[Serializable]
-    public class ProxyCommand<M> : CommandWithResult<M, object> where M : Model
+    public class ProxyCommand<TModel> : CommandWithResult<TModel, object> where TModel : Model
 	{
 		public string MethodName { get; set; }
 		public object[] Arguments { get; set; }
@@ -19,9 +15,9 @@ namespace OrigoDB.Core.Proxy
 			Arguments = inArgs;
 		}
 
-		protected internal override object Execute(M model)
+		protected internal override object Execute(TModel model)
 		{
-		    var proxyMethod = ProxyMethodMap.MapFor<M>().GetProxyMethodInfo(MethodName);
+		    var proxyMethod = ProxyMethodMap.MapFor<TModel>().GetProxyMethodInfo(MethodName);
 		    MethodInfo methodInfo = proxyMethod.MethodInfo;
 			return methodInfo.Invoke(model, Arguments);
 		}

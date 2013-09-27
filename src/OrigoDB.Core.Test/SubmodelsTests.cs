@@ -53,7 +53,7 @@ namespace OrigoDB.Core.Test
     [Serializable]
     public class MyChildQuery : Query<MyChildModel, int>
     {
-        protected override int Execute(MyChildModel m)
+        protected override int Execute(MyChildModel model)
         {
             return 42;
         }

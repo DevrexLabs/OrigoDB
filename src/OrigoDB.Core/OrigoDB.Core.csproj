@@ -95,6 +95,7 @@
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\LogProvider.cs" />
+    <Compile Include="Proxy\ModelProxyExtensions.cs" />
     <Compile Include="Storage\InMemoryStore.cs" />
     <Compile Include="Journaling\NullJournal.cs" />
     <Compile Include="Journaling\RollbackMarker.cs" />

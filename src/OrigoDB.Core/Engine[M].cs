@@ -1,48 +1,45 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace OrigoDB.Core
 {
 
-    public class Engine<T> : Engine, IEngine<T> where T : Model
+    public class Engine<TModel> : Engine, IEngine<TModel> where TModel : Model
     {
 
-        public Engine(EngineConfiguration config) : base(() => Activator.CreateInstance<T>(), config) { }
+        public Engine(EngineConfiguration config) : base(Activator.CreateInstance<TModel>, config) { }
 
-        public Engine(T model, EngineConfiguration config) : base(() => model, config) { }
+        public Engine(TModel model, EngineConfiguration config) : base(() => model, config) { }
 
 
-        public new R Execute<M,R>(Func<M, R> query) where M : Model
+        public new TResult Execute<TTargetModel,TResult>(Func<TTargetModel, TResult> query) where TTargetModel : Model
         {
-            if (typeof(M) == typeof(T)) return base.Execute(query);
-            else return base.Execute<T,R>(m => query.Invoke(m.ChildFor<M>()));
+            if (typeof(TTargetModel) == typeof(TModel)) return base.Execute(query);
+            else return base.Execute<TModel,TResult>(m => query.Invoke(m.ChildFor<TTargetModel>()));
         }
 
-        public void Execute<M>(Command<M> command) where M : Model
+        public void Execute<TTargetModel>(Command<TTargetModel> command) where TTargetModel : Model
         {
-            if (typeof(M) == typeof(T)) base.Execute(command);
+            if (typeof(TTargetModel) == typeof(TModel)) base.Execute(command);
             else
             {
-                var wrapperCommand = new ChildModelCommand<T, M>(command);
+                var wrapperCommand = new ChildModelCommand<TModel, TTargetModel>(command);
                 base.Execute(wrapperCommand);
             }
         }
 
-        public new R Execute<M,R>(Query<M, R> query) where M:Model
+        public new TResult Execute<TTargetModel,TResult>(Query<TTargetModel, TResult> query) where TTargetModel:Model
         { 
-            if (typeof(M) == typeof(T)) return base.Execute(query);
-            else return base.Execute(new ChildModelQuery<T,M,R>(query));
+            if (typeof(TTargetModel) == typeof(TModel)) return base.Execute(query);
+            else return base.Execute(new ChildModelQuery<TModel,TTargetModel,TResult>(query));
         }
 
 
         public R Execute<M, R>(CommandWithResult<M, R> command) where M : Model
         {
-            if (typeof(M) == typeof(T)) return (R) base.Execute(command);
+            if (typeof(M) == typeof(TModel)) return (R) base.Execute(command);
             else
             {
-                var wrapperCommand = new ChildModelCommandWithResult<T, M, R>(command);
+                var wrapperCommand = new ChildModelCommandWithResult<TModel, M, R>(command);
                 return (R) base.Execute(wrapperCommand);
             }
         }

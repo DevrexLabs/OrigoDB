@@ -69,7 +69,7 @@ namespace OrigoDB.Core.Test
             var config = new EngineConfiguration();
             config.SetStoreFactory(cfg => new NullStore());
             config.SetCommandJournalFactory(cfg => new NullJournal());
-            var engine = Engine.Create(new TestModel(), config);
+            var engine = new Engine<TestModel>(new TestModel(), new NullStore(), config);
             engine.Execute(new TestCommandWithResult());
             int commandsExecuted = engine.Execute(new GetNumberOfCommandsExecutedQuery());
             Assert.AreEqual(1, commandsExecuted);

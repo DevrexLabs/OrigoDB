@@ -91,7 +91,7 @@ namespace OrigoDB.Core
 			Execute(node, command);
 		}
 
-		public override T Execute<S, T>(CommandWithResult<S, T> command)
+		public override T Execute<S, T>(Command<S, T> command)
 		{
 			RemoteEngineClient<M> node;
 			lock (_lock)

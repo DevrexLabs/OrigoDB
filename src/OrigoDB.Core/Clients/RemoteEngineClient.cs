@@ -62,7 +62,7 @@ namespace OrigoDB.Core
 			SendAndRecieve<object>(command);
         }
 
-        public T Execute<S, T>(CommandWithResult<S, T> command) where S : Model
+        public T Execute<S, T>(Command<S, T> command) where S : Model
         {
 			return SendAndRecieve<T>(command);
         }

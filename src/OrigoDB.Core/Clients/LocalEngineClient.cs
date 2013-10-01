@@ -46,7 +46,7 @@ namespace OrigoDB.Core
             Engine.Execute(command);
         }
 
-        public T Execute<S, T>(CommandWithResult<S, T> command) where S : Model
+        public T Execute<S, T>(Command<S, T> command) where S : Model
         {
             return Engine.Execute(command);
         }

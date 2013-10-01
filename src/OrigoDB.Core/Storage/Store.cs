@@ -15,12 +15,8 @@ namespace OrigoDB.Core.Storage
         private List<Snapshot> _snapshots;
         public IEnumerable<Snapshot> Snapshots
         {
-            get
-            {
-                foreach (var snapshot in _snapshots)
-                {
-                    yield return snapshot;
-                }
+            get {
+                return _snapshots;
             }
         }
 
@@ -91,6 +87,22 @@ namespace OrigoDB.Core.Storage
                     return false;
                 }
             }
+        }
+
+
+        public Model LoadModel()
+        {
+            long lastEntryIdExecuted;
+            Model model = LoadMostRecentSnapshot(out lastEntryIdExecuted);
+
+            model.SnapshotRestored();
+            var commandJournal = _config.CreateCommandJournal(this);
+            foreach (var command in commandJournal.GetEntriesFrom(lastEntryIdExecuted).Select(entry => entry.Item))
+            {
+                command.Redo(model);
+            }
+            model.JournalRestored();
+            return model;
         }
     }
 }

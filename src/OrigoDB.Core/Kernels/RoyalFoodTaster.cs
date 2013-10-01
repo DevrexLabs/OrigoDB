@@ -10,16 +10,11 @@ namespace OrigoDB.Core
         /// </summary>
         private Model _foodTaster;
 
-        public override void Restore<M>(Func<M> constructor = null)
+
+        public RoyalFoodTaster(EngineConfiguration config, Model model)
+            : base(config, model)
         {
-            base.Restore(constructor);
             _foodTaster = _serializer.Clone(_model);
-        }
-
-        public RoyalFoodTaster(EngineConfiguration config, IStore store)
-            : base(config, store)
-        {
-
         }
 
         /// <summary>
@@ -30,28 +25,26 @@ namespace OrigoDB.Core
         public override object ExecuteCommand(Command command)
         {
 
-            lock (_commandLock)
+            try
             {
-                try
-                {
-                    command.ExecuteStub(_foodTaster); //outofmemory,commandaborted, unhandled user
-                }
-                catch (CommandAbortedException)
-                {
-                    throw;
-                }
-                catch (OutOfMemoryException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    _foodTaster = _serializer.Clone(_model);
-                    throw new CommandFailedException("Foodtaster rejected command", ex);
-                }
-
-                return base.ExecuteCommand(command);
+                command.PrepareStub(_foodTaster);
+                command.ExecuteStub(_foodTaster); //outofmemory,commandaborted, unhandled user
             }
+            catch (CommandAbortedException)
+            {
+                throw;
+            }
+            catch (OutOfMemoryException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _foodTaster = _serializer.Clone(_model); //reset
+                throw new CommandAbortedException("Royal taster died of food poisoning, see inner exception for details", ex);
+            }
+
+            return base.ExecuteCommand(command);
         }
     }
 }

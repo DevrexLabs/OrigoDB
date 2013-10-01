@@ -20,6 +20,7 @@ namespace OrigoDB.Core
 
 		public void AddEngine(string identifier, Engine engine)
 		{
+		    identifier = identifier ?? "";
 			lock (_engines)
 			{
 				if (_engines.ContainsKey(identifier))

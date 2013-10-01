@@ -70,5 +70,11 @@ namespace OrigoDB.Core
         {
             throw new NotImplementedException();
         }
+
+
+        public Model LoadModel()
+        {
+            return _model;
+        }
     }
 }

@@ -118,8 +118,10 @@ namespace OrigoDB.Core
 
         private void InitKernels()
         {
-            _registry.Register<Kernel>((c, p) => new OptimisticKernel(this, (IStore)p["store"]), Kernels.Optimistic.ToString());
-            _registry.Register<Kernel>((c, p) => new RoyalFoodTaster(this, (IStore)p["store"]), Kernels.RoyalFoodTaster.ToString());
+            _registry.Register<Kernel>((c, p) => new OptimisticKernel(this, (Model) p["model"]), Kernels.Optimistic.ToString());
+            _registry.Register<Kernel>((c, p) => new RoyalFoodTaster(this, (Model) p["model"]), Kernels.RoyalFoodTaster.ToString());
+            _registry.Register<Kernel>((c, p) => new ImmutabilityKernel(this, (Model) p["model"]), Kernels.Immutability.ToString()); 
+
         }
 
         /// <summary>
@@ -294,10 +296,10 @@ namespace OrigoDB.Core
             return compositeStrategy;
         }
 
-        public virtual Kernel CreateKernel(IStore store)
+        public virtual Kernel CreateKernel(Model model)
         {
             string registrationName = Kernel.ToString();
-            var parameters = new Dictionary<string, object> { { "store", store } };
+            var parameters = new Dictionary<string, object> { { "model", model} };
             return _registry.Resolve<Kernel>(registrationName, new NamedParameterOverloads(parameters));
         }
     }

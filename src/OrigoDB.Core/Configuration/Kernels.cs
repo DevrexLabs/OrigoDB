@@ -13,6 +13,8 @@
         /// <summary>
         /// Test commands on a copy of the model before applying to the real model, see <see cref="OrigoDB.Core.RoyalFoodTaster"/>
         /// </summary>
-        RoyalFoodTaster
+        RoyalFoodTaster,
+
+        Immutability
     }
 }

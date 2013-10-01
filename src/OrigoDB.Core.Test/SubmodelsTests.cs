@@ -41,7 +41,7 @@ namespace OrigoDB.Core.Test
     }
 
     [Serializable]
-    public class MyChildCommandWithResults : CommandWithResult<MyChildModel,int>
+    public class MyChildCommandWithResults : Command<MyChildModel,int>
     {
 
         protected internal override int Execute(MyChildModel model)

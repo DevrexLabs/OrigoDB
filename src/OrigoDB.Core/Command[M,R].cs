@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 
 namespace OrigoDB.Core
 {
 
     [Serializable]
-    public abstract class CommandWithResult<M, R> : Command, IOperationWithResult where M : Model
+    public abstract class Command<M, R> : Command, IOperationWithResult where M : Model
     {
 
-        protected CommandWithResult(bool ensuresResultIsDisconnected = false)
+        protected Command(bool ensuresResultIsDisconnected = false)
         {
             ResultIsSafe = ensuresResultIsDisconnected;
         }

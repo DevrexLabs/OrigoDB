@@ -13,6 +13,6 @@ namespace OrigoDB.Core
 	{
         T Execute<S, T>(Query<S, T> query) where S : Model;
         void Execute<S>(Command<S> command) where S : Model;
-        T Execute<S, T>(CommandWithResult<S, T> command) where S : Model;
+        T Execute<S, T>(Command<S, T> command) where S : Model;
 	}
 }

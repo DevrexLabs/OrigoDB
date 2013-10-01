@@ -6,9 +6,8 @@ namespace OrigoDB.Core
     public class Engine<TModel> : Engine, IEngine<TModel> where TModel : Model
     {
 
-        public Engine(EngineConfiguration config) : base(Activator.CreateInstance<TModel>, config) { }
 
-        public Engine(TModel model, EngineConfiguration config) : base(() => model, config) { }
+        public Engine(TModel model,  IStore store, EngineConfiguration config) : base( model, store, config) { }
 
 
         public new TResult Execute<TTargetModel,TResult>(Func<TTargetModel, TResult> query) where TTargetModel : Model
@@ -34,7 +33,7 @@ namespace OrigoDB.Core
         }
 
 
-        public R Execute<M, R>(CommandWithResult<M, R> command) where M : Model
+        public R Execute<M, R>(Command<M, R> command) where M : Model
         {
             if (typeof(M) == typeof(TModel)) return (R) base.Execute(command);
             else

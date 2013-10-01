@@ -103,7 +103,7 @@ namespace OrigoDB.Core
 			Parallel.ForEach(GetNodesFor(command), node => node.Execute(command));
 		}
 
-		public override T Execute<S,T>(CommandWithResult<S, T> command)
+		public override T Execute<S,T>(Command<S, T> command)
 		{
 			var nodes = GetNodesFor(command);
 			if (nodes.Length == 1) return nodes[0].Execute(command);
@@ -121,7 +121,7 @@ namespace OrigoDB.Core
 			Nodes[partition].Execute(command);
 		}
 
-		public T Execute<T>(CommandWithResult<M, T> command, int partition)
+		public T Execute<T>(Command<M, T> command, int partition)
 		{
 			return Nodes[partition].Execute(command);
 		}

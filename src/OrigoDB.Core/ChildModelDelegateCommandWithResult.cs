@@ -6,11 +6,11 @@ using System.Text;
 namespace OrigoDB.Core
 {
     [Serializable]
-    public class ChildModelCommandWithResult<M,C,T> :CommandWithResult<M,T> where M : Model where C:Model
+    public class ChildModelCommandWithResult<M,C,T> :Command<M,T> where M : Model where C:Model
     {
-        private CommandWithResult<C, T> _command;
+        private Command<C, T> _command;
 
-        public ChildModelCommandWithResult(CommandWithResult<C,T> command )
+        public ChildModelCommandWithResult(Command<C,T> command )
         {
             _command = command;
         }

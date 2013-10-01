@@ -113,7 +113,7 @@ namespace OrigoDB.Core.Test
     }
 
     [Serializable]
-    public class TestCommandWithResult : CommandWithResult<TestModel, int>
+    public class TestCommandWithResult : Command<TestModel, int>
     {
         public byte[] Payload { get; set; }
         public bool ThrowInPrepare { get; set; }

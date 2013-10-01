@@ -1,58 +1,42 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using OrigoDB.Core.Logging;
 using OrigoDB.Core.Security;
 
 namespace OrigoDB.Core
 {
-
-
     /// <summary>
     /// Engine is responsible for executing commands and queries against
     /// the model while conforming to ACID.
     /// </summary>
     public partial class Engine : IDisposable
     {
-        EngineConfiguration _config;
-        bool _isDisposed = false;
-        static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
-        IAuthorizer<Type> _authorizer;
+        static readonly ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
 
-        private readonly Kernel _kernel;
+        readonly EngineConfiguration _config;
+        readonly IAuthorizer<Type> _authorizer;
+
+        readonly IStore _store;
+        readonly ICommandJournal _commandJournal;
+        readonly ISynchronizer _synchronizer;
+
+        private readonly object _commandSequenceLock = new object();
+
+        Kernel _kernel;
+        bool _isDisposed = false;
 
         public EngineConfiguration Config { get { return _config; } }
-		internal Kernel Kernel { get { return _kernel; }}
-        /// <summary>
-        /// Shuts down the engine
-        /// </summary>
-        public void Close()
-        {
-            if (!_isDisposed)
-            {
-                Core.Config.Engines.Remove(this);
-                if (_config.SnapshotBehavior == SnapshotBehavior.OnShutdown) CreateSnapshot();
-                _isDisposed = true;
-                _kernel.Dispose();
-            }
-        }
 
-        private void ThrowIfDisposed()
-        {
-            if (_isDisposed) throw new ObjectDisposedException(GetType().FullName);
-        }
-
-
-        protected Engine(Func<Model> constructor, EngineConfiguration config)
+        protected Engine(Model model, IStore store, EngineConfiguration config)
         {
             _config = config;
-
-            var store = _config.CreateStore();
-            store.Load();
-
-            _kernel = _config.CreateKernel(store);
-            _kernel.Restore(constructor);
-            
+            _store = store;
+            _commandJournal = config.CreateCommandJournal(store);
+            _kernel = _config.CreateKernel(model);
+            _synchronizer = config.CreateSynchronizer();
+            _kernel.SetSynchronizer(_synchronizer);
             _authorizer = _config.CreateAuthorizer();
 
             if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)
@@ -96,7 +80,26 @@ namespace OrigoDB.Core
         {
             ThrowIfDisposed();
             ThrowUnlessAuthenticated(command.GetType());
-            return _kernel.ExecuteCommand(command);
+
+            lock (_commandSequenceLock)
+            {
+                _commandJournal.Append(command);
+
+                try
+                {
+                    return _kernel.ExecuteCommand(command);
+                }
+                catch (Exception ex)
+                {
+                    _commandJournal.WriteRollbackMarker();
+                    if (!(ex is CommandAbortedException)) Rollback();
+                    throw;
+                }
+                finally
+                {
+                    _synchronizer.Exit();
+                }
+            }
         }
 
         private void ThrowUnlessAuthenticated(Type operationType)
@@ -118,18 +121,67 @@ namespace OrigoDB.Core
         internal void WriteSnapshotToStream(Stream stream)
         {
             var serializer = _config.CreateSerializer();
-            _kernel.Read(m =>serializer.Write(m,stream));
-        }
- 
-        public void CreateSnapshot()
-        {
-            _kernel.CreateSnapshot();
+            _kernel.Read(m => serializer.Write(m, stream));
         }
 
+        /// <summary>
+        /// Writes a snapshot to the <see cref="IStore"/>
+        /// </summary>
+        public void CreateSnapshot()
+        {
+            long lastEntryId = _commandJournal.LastEntryId;
+            _log.Info("BeginSnapshot:" + lastEntryId);
+            _kernel.Read(m => _store.WriteSnapshot(m, lastEntryId));
+            _log.Info("EndSnapshot:" + lastEntryId);
+
+
+        }
+
+        private void Rollback()
+        {
+            _kernel = null;
+            GC.Collect();
+            GC.WaitForFullGCComplete();
+            var model = _store.LoadModel();
+            _kernel = _config.CreateKernel(model);
+            _kernel.SetSynchronizer(_synchronizer);
+        }
 
         public void Dispose()
         {
+            Dispose(true);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (_isDisposed) return;
+            if (disposing)
+            {
+                Core.Config.Engines.Remove(this);
+                if (_config.SnapshotBehavior == SnapshotBehavior.OnShutdown) CreateSnapshot();
+                _isDisposed = true;
+                GC.SuppressFinalize(this);
+            }
+        }
+
+
+        ~Engine()
+        {
+            Dispose(false);
             Close();
+        }
+
+        /// <summary>
+        /// Shuts down the engine
+        /// </summary>
+        public void Close()
+        {
+            Dispose();
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_isDisposed) throw new ObjectDisposedException(GetType().FullName);
         }
 
 
@@ -145,16 +197,18 @@ namespace OrigoDB.Core
         public static Engine Load(EngineConfiguration config)
         {
             if (!config.Location.HasJournal) throw new InvalidOperationException("Specify location to load from in non-generic load");
-	        Engine engine;
-			if(!Core.Config.Engines.TryGetEngine(config.Location.OfJournal,out engine))
-			{
-				config.CreateStore().VerifyCanLoad();
-				engine = new Engine(null, config);
-			}
+            Engine engine;
+            if (!Core.Config.Engines.TryGetEngine(config.Location.OfJournal, out engine))
+            {
+                var store = config.CreateStore();
+                store.Load();
+                var model = store.LoadModel();
+                engine = new Engine(model, store, config);
+            }
             return engine;
         }
 
-        public static Engine Create(Model model, string location = null)
+        public static Engine Create(Model model, string location)
         {
             var config = EngineConfiguration.Create();
             config.Location.OfJournal = location;
@@ -198,41 +252,35 @@ namespace OrigoDB.Core
         {
             config = config ?? EngineConfiguration.Create();
             if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
-	        Engine engine;
-			if (!Core.Config.Engines.TryGetEngine(config.Location.OfJournal, out engine))
-			{
-				config.CreateStore().VerifyCanLoad();
-				engine = new Engine<M>(config);
-			}           
-            return (Engine<M>) engine;
+            Engine engine;
+            if (!Core.Config.Engines.TryGetEngine(config.Location.OfJournal, out engine))
+            {
+                var store = config.CreateStore();
+                store.Load();
+                var model = store.LoadModel();
+                engine = new Engine<M>((M)model, store, config);
+            }
+            return (Engine<M>)engine;
         }
         #endregion
 
         #region Generic Create methods
 
-        public static Engine<M> Create<M>(string location) where M : Model
+        public static Engine<M> Create<M>(string location) where M : Model, new()
         {
             var config = EngineConfiguration.Create();
             config.Location.OfJournal = location;
             return Create<M>(config);
         }
 
-        public static Engine<M> Create<M>(M model, string location = null) where M : Model
+        public static Engine<M> Create<M>(EngineConfiguration config = null) where M : Model, new()
         {
-            var config = EngineConfiguration.Create();
-            config.Location.OfJournal = location;
-            return Create<M>(model, config);
+            return Create(new M(), config);
         }
 
-        public static Engine<M> Create<M>(EngineConfiguration config = null) where M : Model
+        public static Engine<M> Create<M>(M model, EngineConfiguration config = null) where M : Model
         {
             config = config ?? EngineConfiguration.Create();
-            M model = Activator.CreateInstance<M>();
-            return Create(model, config);
-        }
-
-        public static Engine<M> Create<M>(M model, EngineConfiguration config) where M : Model
-        {
             if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
             IStore store = config.CreateStore();
             store.Create(model);
@@ -244,23 +292,16 @@ namespace OrigoDB.Core
         #region Static generic LoadOrCreate methods
 
 
-        public static Engine<M> LoadOrCreate<M>(string location = null) where M : Model, new()
+        public static Engine<M> LoadOrCreate<M>(string location) where M : Model, new()
         {
             var config = EngineConfiguration.Create();
             config.Location.OfJournal = location;
             return LoadOrCreate<M>(config);
         }
 
-        public static Engine<M> LoadOrCreate<M>(EngineConfiguration config) where M : Model, new()
-        {
-            Func<M> constructor = Activator.CreateInstance<M>;
-            return LoadOrCreate(constructor, config);
-        }
-
-        public static Engine<M> LoadOrCreate<M>(Func<M> constructor, EngineConfiguration config = null) where M : Model
+        public static Engine<M> LoadOrCreate<M>(EngineConfiguration config = null) where M : Model, new()
         {
             config = config ?? EngineConfiguration.Create();
-            if (constructor == null) throw new ArgumentNullException("constructor");
             if (config == null) throw new ArgumentNullException("config");
             if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
             Engine<M> result = null;
@@ -274,7 +315,7 @@ namespace OrigoDB.Core
             }
             else
             {
-                result = Create(constructor.Invoke(), config);
+                result = Create(new M(), config);
                 _log.Debug("Engine Created");
             }
             return result;

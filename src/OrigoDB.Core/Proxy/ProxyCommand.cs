@@ -4,7 +4,7 @@ using System.Reflection;
 namespace OrigoDB.Core.Proxy
 {
 	[Serializable]
-    public class ProxyCommand<TModel> : CommandWithResult<TModel, object> where TModel : Model
+    public class ProxyCommand<TModel> : Command<TModel, object> where TModel : Model
 	{
 		public string MethodName { get; set; }
 		public object[] Arguments { get; set; }

@@ -55,6 +55,7 @@
     <Compile Include="CommandJournalTest.cs" />
     <Compile Include="CompressorPerformanceTests.cs" />
     <Compile Include="HashUtilityTest.cs" />
+    <Compile Include="ImmutabilityTests.cs" />
     <Compile Include="LoggingTests.cs" />
     <Compile Include="MergersTest.cs" />
     <Compile Include="SchemaMigrationsTest.cs" />

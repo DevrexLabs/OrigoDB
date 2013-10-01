@@ -58,5 +58,7 @@ namespace OrigoDB.Core
 
 
         Stream CreateJournalWriterStream(long firstEntryId = 1);
+
+        Model LoadModel();
     }
 }

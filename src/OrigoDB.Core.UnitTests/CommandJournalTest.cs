@@ -85,6 +85,12 @@ namespace OrigoDB.Core.Test
             {
                 throw new NotImplementedException();
             }
+
+
+            public Model LoadModel()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public class MemoryJournal : IJournalWriter
@@ -145,7 +151,7 @@ namespace OrigoDB.Core.Test
             var testEntries = testCase.Item1;
 
             //Act
-            var actualCommandEntries = target.GetCommandEntries(() => testEntries).ToArray();
+            var actualCommandEntries = target.CommittedCommandEntries(() => testEntries).ToArray();
 
             long[] rolledBackIds = testEntries.OfType<JournalEntry<RollbackMarker>>().Select(e => e.Id).ToArray();
             int expectedNumberOfCommandEntries = testEntries.Count - rolledBackIds.Length * 2;

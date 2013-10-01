@@ -20,7 +20,7 @@ namespace OrigoDB.Core
         private IJournalWriter _writer;
 		protected IStore _storage;
         private JournalState _state;
-	    protected static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
+	    private static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
         private long _lastEntryId;
 
         /// <summary>
@@ -40,23 +40,20 @@ namespace OrigoDB.Core
 
         public IEnumerable<JournalEntry<Command>> GetEntriesFrom(long entryId)
         {
-
-            foreach (var entry in GetCommandEntries(() => _storage.GetJournalEntriesFrom(entryId)))
-                yield return entry;
+            return CommittedCommandEntries(() => _storage.GetJournalEntriesFrom(entryId));
         }
 
         public IEnumerable<JournalEntry<Command>> GetEntriesFrom(DateTime pointInTime)
         {
-            foreach (var entry in GetCommandEntries(() => _storage.GetJournalEntriesBeforeOrAt(pointInTime)))
-                yield return entry;
+            return CommittedCommandEntries(() => _storage.GetJournalEntriesBeforeOrAt(pointInTime));
         }
 
-        internal IEnumerable<JournalEntry<Command>> GetCommandEntries(Func<IEnumerable<JournalEntry>> enumerator)
+        internal IEnumerable<JournalEntry<Command>> CommittedCommandEntries(Func<IEnumerable<JournalEntry>> enumerator)
         {
             lock (this)
             {
                 JournalState preState = _state;
-                SetState(JournalState.Closed);
+                TransitionTo(JournalState.Closed);
 
                 JournalEntry<Command> previous = null;
 
@@ -79,7 +76,7 @@ namespace OrigoDB.Core
                     yield return previous;
                 }
 
-                SetState(preState);
+                TransitionTo(preState);
             }
         }
 
@@ -91,7 +88,6 @@ namespace OrigoDB.Core
 
 		private void Open()
 		{
-
             if (_state == JournalState.Open)
             {
                 throw new InvalidOperationException("Can't open command journal, already open");
@@ -109,7 +105,7 @@ namespace OrigoDB.Core
 
         private void AppendEntry(JournalEntry entry)
         {
-            if (_state != JournalState.Open) Open();
+            TransitionTo(JournalState.Open);
             _writer.Write(entry);
         }
 
@@ -124,7 +120,7 @@ namespace OrigoDB.Core
 		}
 
 
-        private void SetState(JournalState state)
+        private void TransitionTo(JournalState state)
         {
             if (_state != state)
             {

@@ -2,7 +2,6 @@
 
 namespace OrigoDB.Core
 {
-
     [Serializable]
     public abstract class Query : IOperationWithResult
     {
@@ -21,15 +20,4 @@ namespace OrigoDB.Core
         /// todo: name is lame
         public bool ResultIsSafe { get; internal protected set; }
     }
-
-    [Serializable]
-	public abstract class Query<TModel,TResult>:Query where TModel : Model
-	{
-        internal override object ExecuteStub(Model model)
-        {
-            return Execute(model as TModel);
-        }
-
-        protected abstract TResult Execute(TModel model);
-	}
 }

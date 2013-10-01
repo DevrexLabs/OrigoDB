@@ -4,8 +4,6 @@ using NUnit.Framework;
 
 namespace OrigoDB.Core.Test
 {
-
-
     /// <summary>
     ///This is a test class for ArrayFunctionsTest and is intended
     ///to contain all ArrayFunctionsTest Unit Tests

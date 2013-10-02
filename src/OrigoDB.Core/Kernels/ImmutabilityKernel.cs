@@ -12,23 +12,24 @@ namespace OrigoDB.Core
 
         public override object ExecuteCommand(Command command)
         {
+            Model modelOut = null;
+            object result = null;
             try
             {
-                var args = new object[] {_model};
-                object innerResult = command.GetType().GetMethod("ExecuteImmutably").Invoke(command, args);
-                object result = null;
-
-                if (innerResult.GetType() == _model.GetType())
+                if (command is IImmutabilityCommand)
                 {
-                    _model = (Model)innerResult;
+                    var typedCommand = command as IImmutabilityCommand;
+                    modelOut = typedCommand.Execute(_model);
                 }
-                else //assume result is a tuple
+                else if (command is IImmutabilityCommandWithResult)
                 {
-                    Model candidateModel;
-                    UnpackTuple(innerResult, out candidateModel, out result);
-                    if (candidateModel.GetType() == _model.GetType()) _model = candidateModel;
-                    else throw new Exception();
+                    var typedCommand = command as IImmutabilityCommandWithResult;
+                    var tuple = typedCommand.Execute(_model);
+                    UnpackTuple(tuple, out modelOut, out result);
                 }
+                else throw new InvalidOperationException("Command type not supported by this kernel");
+                if (modelOut == null) throw new InvalidOperationException("Command returned null model");
+                _model = modelOut;
                 return result;
             }
             catch (Exception ex)

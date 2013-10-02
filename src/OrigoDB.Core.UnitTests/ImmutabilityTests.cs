@@ -50,9 +50,10 @@ namespace OrigoDB.Core.Test
             Number = number;
         }
 
-        public override ImmutableModel ExecuteImmutably(ImmutableModel model)
+
+        public override void Execute(ImmutableModel model, out ImmutableModel result)
         {
-            return model.WithNewNumber(Number);
+            result = model.WithNewNumber(Number);
         }
     }
 
@@ -64,11 +65,10 @@ namespace OrigoDB.Core.Test
         {
             Number = number;
         }
-        public override Tuple<ImmutableModel, int> ExecuteImmutably(ImmutableModel model)
+        public override int Execute(ImmutableModel model, out ImmutableModel result)
         {
-            ImmutableModel newModel = model.WithNewNumber(Number);
-            int sum = newModel.Numbers().Sum();
-            return Tuple.Create(newModel, sum);
+            result = model.WithNewNumber(Number);
+            return result.Numbers().Sum();
         }
     }
 

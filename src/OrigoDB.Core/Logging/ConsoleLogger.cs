@@ -4,7 +4,7 @@ namespace OrigoDB.Core.Logging
 {
     public class ConsoleLogger : Logger
     {
-        public static LogLevel MinimumLevel = LogLevel.Info;
+        public static LogLevel MinimumLevel = LogLevel.Off;
 
         public readonly string Name;
 

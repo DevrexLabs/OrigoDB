@@ -27,7 +27,7 @@ namespace OrigoDB.Core
         internal abstract void PrepareStub(Model model);
 
 
-        internal void Redo(Model model)
+        internal virtual void Redo(ref Model model)
         {
             PrepareStub(model);
             ExecuteStub(model);

@@ -28,6 +28,12 @@ namespace OrigoDB.Core
             throw new NotImplementedException("Can only be executed by ImmutabilityKernel");
         }
 
+        internal override void Redo(ref Model model)
+        {
+            PrepareStub(model);
+            model = ((IImmutabilityCommand) this).Execute(model);
+        }
+
         Model IImmutabilityCommand.Execute(Model model)
         {
             M result;
@@ -44,6 +50,12 @@ namespace OrigoDB.Core
         protected internal override R Execute(M model)
         {
             throw new InvalidOperationException("Can only be executed by ImmutabilityKernel");
+        }
+
+        internal override void Redo(ref Model model)
+        {
+            PrepareStub(model);
+            model = ((IImmutabilityCommandWithResult) this).Execute(model).Item1;
         }
 
         Tuple<Model,object> IImmutabilityCommandWithResult.Execute(Model model)

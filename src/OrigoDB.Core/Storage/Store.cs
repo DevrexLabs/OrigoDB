@@ -99,7 +99,7 @@ namespace OrigoDB.Core.Storage
             var commandJournal = _config.CreateCommandJournal(this);
             foreach (var command in commandJournal.GetEntriesFrom(lastEntryIdExecuted).Select(entry => entry.Item))
             {
-                command.Redo(model);
+                command.Redo(ref model);
             }
             model.JournalRestored();
             return model;

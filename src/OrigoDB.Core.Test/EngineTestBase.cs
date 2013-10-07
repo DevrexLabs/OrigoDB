@@ -46,7 +46,7 @@ namespace OrigoDB.Core.Test
         /// <returns></returns>
         public EngineConfiguration CreateConfig()
         {
-            return CreateNonPersistingConfig();
+            return CreateFileConfig();
         }
 
         public EngineConfiguration CreateNonPersistingConfig()

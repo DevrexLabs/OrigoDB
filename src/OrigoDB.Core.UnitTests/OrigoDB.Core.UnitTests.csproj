@@ -54,6 +54,7 @@
     <Compile Include="AuthenticationModelTests.cs" />
     <Compile Include="CommandJournalTest.cs" />
     <Compile Include="CompressorPerformanceTests.cs" />
+    <Compile Include="EngineEventsTests.cs" />
     <Compile Include="HashUtilityTest.cs" />
     <Compile Include="ImmutabilityTests.cs" />
     <Compile Include="LoggingTests.cs" />

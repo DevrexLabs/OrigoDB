@@ -1,6 +1,3 @@
-using System;
-using OrigoDB.Core.Logging;
-
 namespace OrigoDB.Core
 {
     /// <summary>

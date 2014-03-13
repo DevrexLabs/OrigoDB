@@ -10,13 +10,6 @@ namespace OrigoDB.Core
         public Engine(IStore store, EngineConfiguration config) : base(store, config) { }
 
 
-        //public new TResult Execute<TTargetModel,TResult>(Func<TTargetModel, TResult> query) where TTargetModel : Model
-        //{
-        //    if (typeof(TTargetModel) == typeof(TModel)) return base.Execute(query);
-        //    else return base.Execute<TModel,TResult>(m => query.Invoke(m.ChildFor<TTargetModel>()));
-        //}
-
-
         public TResult Execute<TResult>(Query<TModel, TResult> query)
         {
             return base.Execute(query);

@@ -71,10 +71,10 @@ namespace OrigoDB.Core
         /// <summary>
         /// Provide synchronized read access to the model
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <param name="readAction"></param>
         /// <returns></returns>
-        public T Read<T>(Func<Model, T> readAction)
+        public TResult Read<TResult>(Func<Model, TResult> readAction)
         {
             try
             {

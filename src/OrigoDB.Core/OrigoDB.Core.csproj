@@ -67,6 +67,8 @@
     <Compile Include="Clients\Remote\RemoteConnection.cs" />
     <Compile Include="Clients\Remote\RequestContext.cs" />
     <Compile Include="Clients\WrongNodeException.cs" />
+    <Compile Include="CommandExecutedEventArgs.cs" />
+    <Compile Include="CommandExecutingEventArgs.cs" />
     <Compile Include="CommandFailedException.cs" />
     <Compile Include="Transactions\Command[M].cs" />
     <Compile Include="Transactions\Command[M,R].cs" />

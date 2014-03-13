@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using OrigoDB.Core.Logging;
 using OrigoDB.Core.Security;
 using OrigoDB.Core.TinyIoC;
 using OrigoDB.Core.Configuration;
@@ -10,7 +9,7 @@ using OrigoDB.Core.Configuration;
 namespace OrigoDB.Core
 {
 
-    public partial class EngineConfiguration : ConfigurationBase
+    public  class EngineConfiguration : ConfigurationBase
     {
         protected TinyIoCContainer _registry;
 
@@ -18,6 +17,15 @@ namespace OrigoDB.Core
         public const string DefaultDateFormatString = "yyyy.MM.dd.hh.mm.ss.fff";
         public const int DefaultMaxBytesPerJournalSegment = 1024 * 1024 * 8;
         public const int DefaultMaxCommandsPerJournalSegment = 10000;
+
+
+
+        public EngineConfiguration WithImmutability()
+        {
+            Kernel = Kernels.Immutability;
+            Synchronization = SynchronizationMode.None;
+            return this;
+        }
 
 
         /// <summary>

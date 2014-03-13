@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using OrigoDB.Core.Logging;
@@ -12,6 +13,11 @@ namespace OrigoDB.Core
     /// </summary>
     public partial class Engine : IDisposable
     {
+
+        public event EventHandler<CommandExecutingEventArgs> BeforeExecute = delegate { };
+        public event EventHandler<CommandExecutedEventArgs> AfterExecute = delegate { };
+
+        readonly Stopwatch _executionTimer = new Stopwatch();
         static readonly ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
 
         readonly EngineConfiguration _config;
@@ -64,33 +70,42 @@ namespace OrigoDB.Core
             return Execute<Model, object>(query.ExecuteStub);
         }
 
-        public T Execute<M, T>(Func<M, T> lambdaQuery) where M : Model
+        public TResult Execute<TModel, TResult>(Func<TModel, TResult> lambdaQuery) where TModel : Model
         {
             ThrowIfDisposed();
             ThrowUnlessAuthenticated(lambdaQuery.GetType());
-            return (T)ExecuteQuery(new DelegateQuery<M, T>(lambdaQuery));
+            return ExecuteQuery(new DelegateQuery<TModel, TResult>(lambdaQuery));
         }
 
-        public R Execute<M, R>(Query<M, R> query) where M : Model
+        public TRresult Execute<TModel, TRresult>(Query<TModel, TRresult> query) where TModel : Model
         {
             ThrowIfDisposed();
             ThrowUnlessAuthenticated(query.GetType());
             return ExecuteQuery(query);
         }
 
-        private R ExecuteQuery<M, R>(Query<M, R> query) where M : Model
+        private TResult ExecuteQuery<TModel, TResult>(Query<TModel, TResult> query) where TModel : Model
         {
             return _kernel.ExecuteQuery(query);
         }
+
+        
 
         public object Execute(Command command)
         {
             ThrowIfDisposed();
             ThrowUnlessAuthenticated(command.GetType());
 
+            var eventArgs = new CommandExecutingEventArgs(command);
+            BeforeExecute.Invoke(this, eventArgs);
+            if (eventArgs.Cancel) throw new CommandAbortedException("Command canceled by event handler");
             lock (_commandSequenceLock)
             {
+                DateTime start = DateTime.Now;
+                _executionTimer.Restart();
+                
                 _store.AppendCommand(command);
+                int lastEntryId = _store.LastEntryId;
 
                 try
                 {
@@ -104,6 +119,7 @@ namespace OrigoDB.Core
                 }
                 finally
                 {
+                    AfterExecute.Invoke(this, new CommandExecutedEventArgs(lastEntryId, command, start, _executionTimer.Elapsed));
                     _synchronizer.Exit();
                 }
             }
@@ -128,7 +144,7 @@ namespace OrigoDB.Core
         internal void WriteSnapshotToStream(Stream stream)
         {
             var serializer = _config.CreateSerializer();
-            _kernel.Read(m => serializer.Write(m, stream));
+            _kernel.Read(model => serializer.Write(model, stream));
         }
 
         /// <summary>
@@ -136,7 +152,7 @@ namespace OrigoDB.Core
         /// </summary>
         public void CreateSnapshot()
         {
-            _kernel.Read(m => _store.WriteSnapshot(m));
+            _kernel.Read(model => _store.WriteSnapshot(model));
         }
 
         private void Rollback()

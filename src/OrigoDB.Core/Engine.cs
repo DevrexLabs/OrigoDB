@@ -89,7 +89,7 @@ namespace OrigoDB.Core
             return _kernel.ExecuteQuery(query);
         }
 
-        
+
 
         public object Execute(Command command)
         {
@@ -103,7 +103,7 @@ namespace OrigoDB.Core
             {
                 DateTime start = DateTime.Now;
                 _executionTimer.Restart();
-                
+
                 _store.AppendCommand(command);
                 int lastEntryId = _store.LastEntryId;
 
@@ -215,13 +215,8 @@ namespace OrigoDB.Core
         public static Engine Load(EngineConfiguration config)
         {
             if (!config.Location.HasJournal) throw new InvalidOperationException("Specify location to load from in non-generic load");
-            Engine engine;
-            if (!Core.Config.Engines.TryGetEngine(config.Location.OfJournal, out engine))
-            {
-                var store = config.CreateStore();
-                engine = new Engine(store, config);
-            }
-            return engine;
+            var store = config.CreateStore();
+            return new Engine(store, config);
         }
 
         public static Engine Create(Model model, string location)
@@ -268,13 +263,8 @@ namespace OrigoDB.Core
         {
             config = config ?? EngineConfiguration.Create();
             if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
-            Engine engine;
-            if (!Core.Config.Engines.TryGetEngine(config.Location.OfJournal, out engine))
-            {
-                var store = config.CreateStore();
-                engine = new Engine<TModel>(store, config);
-            }
-            return (Engine<TModel>)engine;
+            var store = config.CreateStore();
+            return new Engine<TModel>(store, config);
         }
         #endregion
 

@@ -12,14 +12,10 @@ namespace OrigoDB.Core.Test
     public class EngineTestBase
     {
 
-        public Engine Engine { get; set; }
-        public String Path { get; set; }
-
-
 	    [TestInitialize]
         public void MyTestInitialize() 
         {
-            Path = Guid.NewGuid().ToString();
+
         }
 
 
@@ -35,7 +31,6 @@ namespace OrigoDB.Core.Test
             var config = new EngineConfiguration();
             var store = new InMemoryStore();
             config.SetStoreFactory(cfg => store);
-            config.Location.OfJournal = Path;
             return config;
         }
 

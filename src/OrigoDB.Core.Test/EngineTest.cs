@@ -52,7 +52,7 @@ namespace OrigoDB.Core.Test
         [TestMethod]
         public void CanCreateEngine()
         {
-            this.Engine = Engine.Create<TestModel>(CreateConfig());
+            Engine.Create<TestModel>(CreateConfig());
         }
 
         [TestMethod]
@@ -75,19 +75,19 @@ namespace OrigoDB.Core.Test
         [TestMethod]
         public void CanExecuteCommandWithResults()
         {
-            CanCreateEngine();
-            int commandsExecuted = (int) this.Engine.Execute(new TestCommandWithResult());
-            int numCommandsExecuted = (int)Engine.Execute(new GetNumberOfCommandsExecutedQuery());
+            var engine = Engine.For<TestModel>(CreateConfig());
+            engine.Execute(new TestCommandWithResult());
+            int numCommandsExecuted = engine.Execute(new GetNumberOfCommandsExecutedQuery());
             Assert.AreEqual(numCommandsExecuted, 1);
         }
 
         [TestMethod]
         public void CanExecuteCommand()
         {
-            Engine = Engine.LoadOrCreate<TestModel>(CreateConfig());
-            int commandsExecutedBefore = (int) Engine.Execute(new GetNumberOfCommandsExecutedQuery());
-            Engine.Execute(new TestCommandWithoutResult());
-            int commandsExecutedAfter = (int) Engine.Execute(new GetNumberOfCommandsExecutedQuery());
+            var engine = Engine.LoadOrCreate<TestModel>(CreateConfig());
+            int commandsExecutedBefore = engine.Execute(new GetNumberOfCommandsExecutedQuery());
+            engine.Execute(new TestCommandWithoutResult());
+            int commandsExecutedAfter = engine.Execute(new GetNumberOfCommandsExecutedQuery());
             Assert.AreEqual(commandsExecutedAfter - commandsExecutedBefore, 1);
         }
 
@@ -96,13 +96,12 @@ namespace OrigoDB.Core.Test
         public void JournalRollsOverWhenEntryCountExceedsLimit()
         {
             var config = CreateConfig();
-            if (config.CreateStore() is SqlStore) return;
             config.MaxEntriesPerJournalSegment = 90;
-            Engine = Engine.LoadOrCreate<TestModel>(config);
+            var engine = Engine.LoadOrCreate<TestModel>(config);
             for (int i = 0; i < 100; i++)
             {
                 Command command = new TestCommandWithResult() { Payload = new byte[100000] };
-                this.Engine.Execute(command);
+                engine.Execute(command);
             }
             Assert.Inconclusive();
             //Assert.IsTrue(_memoryLogWriter.Messages.Count(m => m.Contains("NewJournalSegment")) > 0);
@@ -116,13 +115,12 @@ namespace OrigoDB.Core.Test
 
             //turn off compression
             config.PacketOptions = null;
-            if (config.CreateStore() is SqlStore) return;
             config.MaxBytesPerJournalSegment = 1024 * 1024;
-            Engine = Engine.LoadOrCreate<TestModel>(config);
+            var engine = Engine.LoadOrCreate<TestModel>(config);
             for (int i = 0; i < 100; i++)
             {
                 Command command = new TestCommandWithResult() { Payload = new byte[100000] };
-                this.Engine.Execute(command);
+                engine.Execute(command);
             }
             Assert.Inconclusive();
             //Assert.IsTrue(_memoryLogWriter.Messages.Count(m => m.Contains("NewJournalSegment")) > 0);
@@ -136,7 +134,7 @@ namespace OrigoDB.Core.Test
             engine.Execute(new TestCommandWithResult());
             engine.Close();
             engine =Engine.Load<TestModel>(config);
-            int numCommandsExecuted = (int)engine.Execute(new GetNumberOfCommandsExecutedQuery());
+            int numCommandsExecuted = engine.Execute(new GetNumberOfCommandsExecutedQuery());
             engine.Close();
             
             Assert.AreEqual(1, numCommandsExecuted);
@@ -177,21 +175,14 @@ namespace OrigoDB.Core.Test
         {
             var config = CreateConfig();
             config.MaxEntriesPerJournalSegment = 50;
-            Engine = Engine.Create(new TestModel(), config);
+            var engine = Engine.Create(new TestModel(), config);
 
-            ExecuteCommands(1000);
+            ExecuteCommands(engine,1000);
 
-            Engine.Close();
+            engine.Close();
             var storage = config.CreateStore();
             storage.Load();
             AssertJournalEntriesAreSequential(storage);
-            if (storage is FileStore)
-            {
-                foreach (var file in (storage as FileStore).JournalFiles)
-                {
-                    Console.WriteLine(file);
-                }
-            }
         }
 
         [TestMethod]
@@ -226,12 +217,12 @@ namespace OrigoDB.Core.Test
         {
             var config = CreateConfig();
             config.MaxEntriesPerJournalSegment = 50;
-            Engine = Engine.Create(new TestModel(), config);
-            ExecuteCommands(60);
-            Engine.Close();
-            Engine = Engine.Load(config);
-            ExecuteCommands(60);
-            Engine.Close();
+            var engine = Engine.Create<TestModel>(config);
+            ExecuteCommands(engine,60);
+            engine.Close();
+            engine = Engine.Load<TestModel>(config);
+            ExecuteCommands(engine,60);
+            engine.Close();
 
             //We should have 120 commands in the journal, numbered from 1 to 120
             var store = config.CreateStore();
@@ -243,29 +234,23 @@ namespace OrigoDB.Core.Test
                 expected++;
             }
             Assert.AreEqual(expected, 121);
-            if (store is FileStore)
-            {
-                foreach (var file in ((FileStore) store).JournalFiles)
-                {
-                    Console.WriteLine(file);
-                }
-            }
         }
 
         [TestMethod]
         public void NoEmptyJournalFiles()
         {
             var config = CreateConfig();
-            Engine = Engine.Create(new TestModel(), config);
-            Engine.Close();
-            Engine = Engine.Load(config);
-            Engine.Close();
+            var engine = Engine.Create(new TestModel(), config);
+            engine.Close();
+            engine = Engine.Load<TestModel>(config);
+            engine.Close();
             var store = config.CreateStore() as FileStore;
             if (store != null)
             {
                 store.Load();
                 Assert.IsFalse(store.JournalFiles.Any());
             }
+            Assert.Inconclusive();
         }
 
         [TestMethod]
@@ -273,12 +258,12 @@ namespace OrigoDB.Core.Test
         {
             var config = CreateConfig();
             config.MaxEntriesPerJournalSegment = 2;
-            Engine = Engine.Create(new TestModel(), config);
-            ExecuteCommands(2);
+            var engine = Engine.Create(new TestModel(), config);
+            ExecuteCommands(engine,2);
             //Assert.IsFalse(_memoryLogWriter.Messages.Any(m => m.Contains("NewJournalSegment")));
-			ExecuteCommands(1);
+			ExecuteCommands(engine,1);
 			//Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("NewJournalSegment")));
-            Engine.Close();
+            engine.Close();
 			
             var store = config.CreateStore() as FileStore;
             if (store != null)
@@ -294,17 +279,12 @@ namespace OrigoDB.Core.Test
             Assert.Inconclusive();            
         }
 
-        private void ExecuteCommands(int count)
+        private void ExecuteCommands(Engine engine, int count)
         {
             for (int i = 0; i < count; i++)
             {
-                Engine.Execute(new TestCommandWithResult());
+                engine.Execute(new TestCommandWithResult());
             }
-        }
-
-        private int GetCommandsExecuted()
-        {
-            return Engine.Execute<TestModel, int>(m => m.CommandsExecuted);
         }
     }
 }

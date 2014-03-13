@@ -233,33 +233,33 @@ namespace OrigoDB.Core
         /// <summary>
         /// Load from location using the default EngineConfiguration
         /// </summary>
-        /// <typeparam name="M"></typeparam>
+        /// <typeparam name="TModel"></typeparam>
         /// <param name="location"></param>
         /// <returns></returns>
-        public static Engine<M> Load<M>(string location) where M : Model
+        public static Engine<TModel> Load<TModel>(string location) where TModel : Model
         {
             var config = EngineConfiguration.Create();
             config.Location.OfJournal = location;
-            return Load<M>(config);
+            return Load<TModel>(config);
         }
 
         /// <summary>
         /// Load using an explicit configuration.
         /// </summary>
-        /// <typeparam name="M"></typeparam>
+        /// <typeparam name="TModel"></typeparam>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static Engine<M> Load<M>(EngineConfiguration config = null) where M : Model
+        public static Engine<TModel> Load<TModel>(EngineConfiguration config = null) where TModel : Model
         {
             config = config ?? EngineConfiguration.Create();
-            if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
+            if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
             Engine engine;
             if (!Core.Config.Engines.TryGetEngine(config.Location.OfJournal, out engine))
             {
                 var store = config.CreateStore();
-                engine = new Engine<M>(store, config);
+                engine = new Engine<TModel>(store, config);
             }
-            return (Engine<M>)engine;
+            return (Engine<TModel>)engine;
         }
         #endregion
 
@@ -272,18 +272,18 @@ namespace OrigoDB.Core
             return Create<M>(config);
         }
 
-        public static Engine<M> Create<M>(EngineConfiguration config = null) where M : Model, new()
+        public static Engine<TModel> Create<TModel>(EngineConfiguration config = null) where TModel : Model, new()
         {
-            return Create(new M(), config);
+            return Create(new TModel(), config);
         }
 
-        public static Engine<M> Create<M>(M model, EngineConfiguration config = null) where M : Model
+        public static Engine<TModel> Create<TModel>(TModel model, EngineConfiguration config = null) where TModel : Model
         {
             config = config ?? EngineConfiguration.Create();
-            if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
+            if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
             IStore store = config.CreateStore();
             store.Create(model);
-            return Load<M>(config);
+            return Load<TModel>(config);
         }
 
         #endregion
@@ -291,29 +291,29 @@ namespace OrigoDB.Core
         #region Static generic LoadOrCreate methods
 
 
-        public static Engine<M> LoadOrCreate<M>(string location) where M : Model, new()
+        public static Engine<TModel> LoadOrCreate<TModel>(string location) where TModel : Model, new()
         {
             var config = EngineConfiguration.Create();
             config.Location.OfJournal = location;
-            return LoadOrCreate<M>(config);
+            return LoadOrCreate<TModel>(config);
         }
 
-        public static Engine<M> LoadOrCreate<M>(EngineConfiguration config = null) where M : Model, new()
+        public static Engine<TModel> LoadOrCreate<TModel>(EngineConfiguration config = null) where TModel : Model, new()
         {
             config = config ?? EngineConfiguration.Create();
-            if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
-            Engine<M> result = null;
+            if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
+            Engine<TModel> result = null;
 
             var store = config.CreateStore();
 
             if (store.Exists)
             {
-                result = Load<M>(config);
+                result = Load<TModel>(config);
                 _log.Debug("Engine Loaded");
             }
             else
             {
-                result = Create(new M(), config);
+                result = Create(new TModel(), config);
                 _log.Debug("Engine Created");
             }
             return result;

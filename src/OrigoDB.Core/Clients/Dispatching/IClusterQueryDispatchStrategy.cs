@@ -1,7 +1,7 @@
 ﻿namespace OrigoDB.Core.Clients.Dispatching
 {
-	public interface IClusterQueryDispatchStrategy<M> where M : Model
+	public interface IClusterQueryDispatchStrategy<TModel> where TModel : Model
 	{
-		RemoteEngineClient<M> GetDispatcher();
+		RemoteEngineClient<TModel> GetDispatcher();
 	}
 }

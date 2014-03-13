@@ -13,9 +13,9 @@ namespace OrigoDB.Core
 
 		#region Overrides of ClientConfiguration
 
-		public override IEngine<M> GetClient<M>()
+		public override IEngine<TModel> GetClient<TModel>()
 		{
-			return new FailoverClusterClient<M>(_baseConfig);
+			return new FailoverClusterClient<TModel>(_baseConfig);
 		}
 
 		#endregion

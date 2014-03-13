@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 
 namespace OrigoDB.Core
 {
@@ -11,17 +7,17 @@ namespace OrigoDB.Core
     /// <summary>
     /// A command modifies the state of the model.
     /// </summary>
-    /// <typeparam name="M">The specific type of the model, derived from Model</typeparam>
+    /// <typeparam name="TModel">The specific type of the model, derived from Model</typeparam>
     [Serializable]
-    public abstract class Command<M> : Command
-        where M : Model
+    public abstract class Command<TModel> : Command
+        where TModel : Model
     {
 
-        protected internal virtual void Prepare(M model) { }
+        protected internal virtual void Prepare(TModel model) { }
 
         internal override object ExecuteStub(Model model)
         {
-            Execute(model as M);
+            Execute(model as TModel);
             return null;
         }
 
@@ -29,7 +25,7 @@ namespace OrigoDB.Core
         {
             try
             {
-                Prepare(model as M);
+                Prepare(model as TModel);
             }
             catch (Exception ex)
             {
@@ -38,7 +34,7 @@ namespace OrigoDB.Core
             }
         }
 
-        internal protected abstract void Execute(M model);
+        internal protected abstract void Execute(TModel model);
     }
 
 }

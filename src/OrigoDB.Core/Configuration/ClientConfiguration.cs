@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Woocode.Utils;
-using System.Collections.Specialized;
 using System.Configuration;
 
 namespace OrigoDB.Core
@@ -12,7 +8,6 @@ namespace OrigoDB.Core
     {
 	    private enum Mode
 	    {
-			Missing,
 		    Embedded,
 			Remote
 	    }
@@ -72,6 +67,6 @@ namespace OrigoDB.Core
             throw new InvalidOperationException();
 		}
 
-	    public abstract IEngine<M> GetClient<M>() where M : Model, new();
+	    public abstract IEngine<TModel> GetClient<TModel>() where TModel : Model, new();
     }
 }

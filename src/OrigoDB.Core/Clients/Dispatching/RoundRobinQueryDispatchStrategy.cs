@@ -2,18 +2,18 @@ using System.Collections.Generic;
 
 namespace OrigoDB.Core.Clients.Dispatching
 {
-	public class RoundRobinQueryDispatchStrategy<M> : QueryDispatchStrategyBase<M> where M : Model
+	public class RoundRobinQueryDispatchStrategy<TModel> : QueryDispatchStrategyBase<TModel> where TModel : Model
 	{
 		readonly bool _includeMaster;
 		int _counter;
 
-		public RoundRobinQueryDispatchStrategy(List<RemoteEngineClient<M>> clients, bool includeMaster = true) : base(clients)
+		public RoundRobinQueryDispatchStrategy(List<RemoteEngineClient<TModel>> clients, bool includeMaster = true) : base(clients)
 		{
 			_includeMaster = includeMaster;
 			_counter = 1;
 		}
 
-		public override RemoteEngineClient<M> GetDispatcher()
+		public override RemoteEngineClient<TModel> GetDispatcher()
 		{
 			if (Nodes.Count == 0)
 				return null;

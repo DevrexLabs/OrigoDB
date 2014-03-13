@@ -3,17 +3,17 @@ using System.Collections.Generic;
 
 namespace OrigoDB.Core.Clients.Dispatching
 {
-	public class RandomQueryDispatchStrategy<M> : QueryDispatchStrategyBase<M> where M : Model
+	public class RandomQueryDispatchStrategy<TModel> : QueryDispatchStrategyBase<TModel> where TModel : Model
 	{
 		readonly bool _includeMaster;
 		readonly Random _random = new Random();
 
-		public RandomQueryDispatchStrategy(List<RemoteEngineClient<M>> clients, bool includeMaster = true) : base(clients)
+		public RandomQueryDispatchStrategy(List<RemoteEngineClient<TModel>> clients, bool includeMaster = true) : base(clients)
 		{
 			_includeMaster = includeMaster;
 		}
 
-		public override RemoteEngineClient<M> GetDispatcher()
+		public override RemoteEngineClient<TModel> GetDispatcher()
 		{
 			if(Nodes.Count == 0) return null;
 			if(Nodes.Count == 1) return Nodes[0];

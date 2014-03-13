@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -29,13 +28,13 @@ namespace OrigoDB.Core
 			}
 		}
 
-		public Engine<M> GetEngine<M>(string identifier) where M : Model
+		public Engine<TModel> GetEngine<TModel>(string identifier) where TModel : Model
 		{
 			lock (_engines)
 			{
 				if (!_engines.ContainsKey(identifier))
 					throw new NotSupportedException();
-				return (Engine<M>)_engines[identifier];
+				return (Engine<TModel>)_engines[identifier];
 			}
 		}
 

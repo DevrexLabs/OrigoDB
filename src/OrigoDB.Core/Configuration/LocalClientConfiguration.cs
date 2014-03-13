@@ -12,19 +12,19 @@ namespace OrigoDB.Core
 
 		public bool CreateWhenNotExists { get; set; }
 
-		public override IEngine<M> GetClient<M>()
+		public override IEngine<TModel> GetClient<TModel>()
 		{
 
 		    var location = _engineConfiguration.Location;
 			if(!location.HasJournal)
 		    {
-		        location.SetLocationFromType<M>();
+		        location.SetLocationFromType<TModel>();
 		    }
 
 			Engine engine;
-			if (CreateWhenNotExists) engine = Engine.LoadOrCreate<M>(_engineConfiguration);
-			else engine = Engine.Load<M>(_engineConfiguration);
-			return new LocalEngineClient<M>((Engine<M>)engine);
+			if (CreateWhenNotExists) engine = Engine.LoadOrCreate<TModel>(_engineConfiguration);
+			else engine = Engine.Load<TModel>(_engineConfiguration);
+			return new LocalEngineClient<TModel>((Engine<TModel>)engine);
 		}
 	}
 }

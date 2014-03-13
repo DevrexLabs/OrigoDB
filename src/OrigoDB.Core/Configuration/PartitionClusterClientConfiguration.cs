@@ -1,4 +1,5 @@
 using System;
+using OrigoDB.Core.Configuration;
 
 namespace OrigoDB.Core
 {
@@ -7,13 +8,9 @@ namespace OrigoDB.Core
 		public static readonly PartitionClusterClientConfiguration Default = new PartitionClusterClientConfiguration();
 
 
-		#region Overrides of ClientConfiguration
-
-		public override IEngine<M> GetClient<M>()
-		{
-			throw new NotImplementedException();
-		}
-
-		#endregion
+	    public override IEngine<TModel> GetClient<TModel>()
+	    {
+	        throw new NotImplementedException();
+	    }
 	}
 }

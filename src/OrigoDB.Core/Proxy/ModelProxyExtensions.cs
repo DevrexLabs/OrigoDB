@@ -2,9 +2,9 @@
 {
     public static class ModelProxyExtensions
     {
-        public static M GetProxy<M>(this IEngine<M> engine) where M : Model
+        public static TModel GetProxy<TModel>(this IEngine<TModel> engine) where TModel : Model
         {
-            return (M)new ModelProxy<M>(engine).GetTransparentProxy();
+            return (TModel)new ModelProxy<TModel>(engine).GetTransparentProxy();
         }
     }
 }

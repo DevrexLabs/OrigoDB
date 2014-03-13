@@ -10,9 +10,9 @@ namespace OrigoDB.Core
 
         public abstract string RelativeLocation { get; }
 
-        internal virtual void SetLocationFromType<M>()
+        internal virtual void SetLocationFromType<TModel>()
         {
-            SetLocationFromType(typeof(M));
+            SetLocationFromType(typeof(TModel));
         }
 
 

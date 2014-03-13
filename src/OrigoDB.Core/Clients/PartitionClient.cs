@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OrigoDB.Core
 {
-	public class PartitionClient<M> : ClusterClient<M> where M : Model
+	public class PartitionClient<TModel> : ClusterClient<TModel> where TModel : Model
 	{
 		readonly Func<object, int[]> _allNodesDispatcher;
 		Dictionary<string, Delegate> _dispatchers = new Dictionary<string, Delegate>();
@@ -74,7 +74,7 @@ namespace OrigoDB.Core
 			throw new ArgumentException("obj", "Merger for type not found");
 		}
 
-		private IEngine<M>[] GetNodesFor<T>(T obj)
+		private IEngine<TModel>[] GetNodesFor<T>(T obj)
 		{
 			var dispatcher = GetDispatcherFor(obj);
 			var nodeIds = (int[])dispatcher.DynamicInvoke(obj);
@@ -87,10 +87,11 @@ namespace OrigoDB.Core
 			return merger.Invoke(results);
 		}
 
-		#region Implementation of IEngine<M>
+
 		
-		public override T Execute<S,T>(Query<S, T> query)
+		public override TResult Execute<TResult>(Query<TModel, TResult> query)
 		{
+
 			var nodes = GetNodesFor(query);
 			if(nodes.Length == 1) return nodes[0].Execute(query);
 
@@ -98,12 +99,12 @@ namespace OrigoDB.Core
 			return MergeResults(query, queryResults);
 		}
 
-		public override void Execute<S>(Command<S> command)
+		public override void Execute(Command<TModel> command)
 		{
 			Parallel.ForEach(GetNodesFor(command), node => node.Execute(command));
 		}
 
-		public override T Execute<S,T>(Command<S, T> command)
+		public override TResult Execute<TResult>(Command<TModel, TResult> command)
 		{
 			var nodes = GetNodesFor(command);
 			if (nodes.Length == 1) return nodes[0].Execute(command);
@@ -111,21 +112,19 @@ namespace OrigoDB.Core
 			return MergeResults(command, commandResults);
 		}
 
-		public T Execute<T>(Query<M, T> query,int partition)
+		public TResult Execute<TResult>(Query<TModel, TResult> query,int partition)
 		{
 			return Nodes[partition].Execute(query);
 		}
 
-		public void Execute(Command<M> command, int partition)
+		public void Execute(Command<TModel> command, int partition)
 		{
 			Nodes[partition].Execute(command);
 		}
 
-		public T Execute<T>(Command<M, T> command, int partition)
+		public TResult Execute<TResult>(Command<TModel, TResult> command, int partition)
 		{
 			return Nodes[partition].Execute(command);
 		}
-
-		#endregion
 	}
 }

@@ -1,28 +1,23 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 
 namespace OrigoDB.Core
 {
-	public abstract class ClusterClient<M> : ClusterClient<M, IEngine<M>> where M : Model
+	public abstract class ClusterClient<TModel> : ClusterClient<TModel, IEngine<TModel>> where TModel : Model
 	{
 	}
 
-	public abstract class ClusterClient<M,N> : IEngine<M> where M : Model
+	public abstract class ClusterClient<TModel,TEngine> : IEngine<TModel> where TModel : Model
 	{
-		List<N> _nodes = new List<N>();
+		readonly List<TEngine> _nodes = new List<TEngine>();
 
-		public List<N> Nodes
+		public List<TEngine> Nodes
 		{
 			get { return _nodes; }
 		}
 
-		#region Implementation of IEngine<M>
+	    public abstract TResult Execute<TResult>(Query<TModel, TResult> query);
+	    public abstract void Execute(Command<TModel> command);
 
-		public abstract T Execute<S,T>(Query<S, T> query) where S : Model;
-		public abstract void Execute<S>(Command<S> command) where S : Model;
-		public abstract T Execute<S,T>(Command<S, T> command) where S : Model;
-
-		#endregion
+	    public abstract TResult Execute<TResult>(Command<TModel, TResult> command);
 	}
 }

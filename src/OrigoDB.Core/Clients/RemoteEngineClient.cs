@@ -1,23 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading;
-using OrigoDB.Core;
 
 namespace OrigoDB.Core
 {
-	public class RemoteEngineClient<M> : IEngine<M>, IDisposable where M : Model
+	public class RemoteEngineClient<TModel> : IEngine<TModel>, IDisposable where TModel : Model
 	{
 		public string Host { get; set; }
 		public int Port { get; set; }
 		readonly IRequestContextFactory _requestContextFactory;
-		//public RemoteEngineClient(IRequestContextFactory requestContext)
-		//{
-		//    _requestContextFactory = requestContext;
-		//}
+
 
 		public RemoteEngineClient(IRequestContextFactory requestContext, string host, int port)
 		{
@@ -40,31 +30,31 @@ namespace OrigoDB.Core
 			return SendAndRecieve<object>(request);
 		}
 
-		internal R SendAndRecieve<R>(object request)
+		internal TResponse SendAndRecieve<TResponse>(object request)
 		{
 			if(!(request is NetworkMessage))
 				request = new NetworkMessage {Payload = request};
 
 			using (var ctx = _requestContextFactory.GetContext())
 			{
-				return ctx.Connection.WriteRead<R>(request);
+				return ctx.Connection.WriteRead<TResponse>(request);
 			}
 		}
 
 
-        public T Execute<S, T>(Query<S, T> query) where S : Model
+        public TResult Execute<TResult>(Query<TModel, TResult> query)
         {
-			return SendAndRecieve<T>(query);
+			return SendAndRecieve<TResult>(query);
         }
 
-        public void Execute<S>(Command<S> command) where S : Model
+        public void Execute(Command<TModel> command)
         {
 			SendAndRecieve<object>(command);
         }
 
-        public T Execute<S, T>(Command<S, T> command) where S : Model
+        public TResult Execute<TResult>(Command<TModel, TResult> command)
         {
-			return SendAndRecieve<T>(command);
+			return SendAndRecieve<TResult>(command);
         }
     }
 }

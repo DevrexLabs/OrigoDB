@@ -10,37 +10,26 @@ namespace OrigoDB.Core
         public Engine(IStore store, EngineConfiguration config) : base(store, config) { }
 
 
-        public new TResult Execute<TTargetModel,TResult>(Func<TTargetModel, TResult> query) where TTargetModel : Model
+        //public new TResult Execute<TTargetModel,TResult>(Func<TTargetModel, TResult> query) where TTargetModel : Model
+        //{
+        //    if (typeof(TTargetModel) == typeof(TModel)) return base.Execute(query);
+        //    else return base.Execute<TModel,TResult>(m => query.Invoke(m.ChildFor<TTargetModel>()));
+        //}
+
+
+        public TResult Execute<TResult>(Query<TModel, TResult> query)
         {
-            if (typeof(TTargetModel) == typeof(TModel)) return base.Execute(query);
-            else return base.Execute<TModel,TResult>(m => query.Invoke(m.ChildFor<TTargetModel>()));
+            return base.Execute(query);
         }
 
-        public void Execute<TTargetModel>(Command<TTargetModel> command) where TTargetModel : Model
+        public void Execute(Command<TModel> command)
         {
-            if (typeof(TTargetModel) == typeof(TModel)) base.Execute(command);
-            else
-            {
-                var wrapperCommand = new ChildModelCommand<TModel, TTargetModel>(command);
-                base.Execute(wrapperCommand);
-            }
+            base.Execute(command);
         }
 
-        public new TResult Execute<TTargetModel,TResult>(Query<TTargetModel, TResult> query) where TTargetModel:Model
-        { 
-            if (typeof(TTargetModel) == typeof(TModel)) return base.Execute(query);
-            else return base.Execute(new ChildModelQuery<TModel,TTargetModel,TResult>(query));
-        }
-
-
-        public R Execute<M, R>(Command<M, R> command) where M : Model
+        public TResult Execute<TResult>(Command<TModel, TResult> command)
         {
-            if (typeof(M) == typeof(TModel)) return (R) base.Execute(command);
-            else
-            {
-                var wrapperCommand = new ChildModelCommandWithResult<TModel, M, R>(command);
-                return (R) base.Execute(wrapperCommand);
-            }
+            return (TResult) base.Execute(command);
         }
     }
 }

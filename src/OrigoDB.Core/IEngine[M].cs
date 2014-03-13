@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace OrigoDB.Core
+﻿namespace OrigoDB.Core
 {
 
     /// <summary>
     /// An engine executes commands and queries
     /// </summary>
-	public interface IEngine<M> where M : Model
-	{
-        T Execute<S, T>(Query<S, T> query) where S : Model;
-        void Execute<S>(Command<S> command) where S : Model;
-        T Execute<S, T>(Command<S, T> command) where S : Model;
-	}
+	public interface IEngine<TModel> where TModel : Model
+    {
+        TResult Execute<TResult>(Query<TModel, TResult> query);
+        
+        
+        void Execute(Command<TModel> command);
+
+        /// <summary>
+        /// Execute a command that returns results
+        /// </summary>
+        TResult Execute<TResult>(Command<TModel, TResult> command);
+    }
 }

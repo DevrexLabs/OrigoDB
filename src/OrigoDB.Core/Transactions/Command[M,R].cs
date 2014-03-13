@@ -4,7 +4,7 @@ namespace OrigoDB.Core
 {
 
     [Serializable]
-    public abstract class Command<M, R> : Command, IOperationWithResult where M : Model
+    public abstract class Command<TModel, TResult> : Command, IOperationWithResult where TModel : Model
     {
 
         protected Command(bool ensuresResultIsDisconnected = false)
@@ -19,7 +19,7 @@ namespace OrigoDB.Core
         public bool ResultIsSafe{ get; internal protected set; }
 
 
-        internal protected virtual void Prepare(M model) { }
+        public virtual void Prepare(TModel model) { }
 
 
         //TODO: Duplicate method! refactor
@@ -27,7 +27,7 @@ namespace OrigoDB.Core
         {
             try
             {
-                Prepare(model as M);
+                Prepare(model as TModel);
             }
             catch (Exception ex)
             {
@@ -38,9 +38,9 @@ namespace OrigoDB.Core
 
         internal override object ExecuteStub(Model model)
         {
-            return Execute(model as M);
+            return Execute(model as TModel);
         }
 
-        internal protected abstract R Execute(M model);
+        public abstract TResult Execute(TModel model);
     }
 }

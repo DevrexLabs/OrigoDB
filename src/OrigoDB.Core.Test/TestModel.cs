@@ -97,7 +97,7 @@ namespace OrigoDB.Core.Test
 	        ResultIsSafe = true;
 	    }
 
-        protected override int Execute(TestModel model)
+        public override int Execute(TestModel model)
         {
             return model.CommandsExecuted;
         }
@@ -106,7 +106,7 @@ namespace OrigoDB.Core.Test
     [Serializable]
     public class TestCommandWithoutResult : Command<TestModel>
     {
-        protected internal override void Execute(TestModel model)
+        public  override void Execute(TestModel model)
         {
             model.CommandsExecuted++;
         }
@@ -120,7 +120,7 @@ namespace OrigoDB.Core.Test
         public bool ThrowExceptionWhenExecuting { get; set; }
         public bool ThrowCommandAbortedWhenExecuting { get; set; }
 
-        protected internal override void Prepare(TestModel model)
+        public  override void Prepare(TestModel model)
         {
             ResultIsSafe = true;
             if (ThrowInPrepare)
@@ -128,7 +128,7 @@ namespace OrigoDB.Core.Test
                 throw new Exception();
             }
         }
-        protected internal override int Execute(TestModel model)
+        public override int Execute(TestModel model)
         {
             if (ThrowCommandAbortedWhenExecuting)
             {

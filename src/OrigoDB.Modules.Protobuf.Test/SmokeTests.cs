@@ -90,7 +90,7 @@ namespace Modules.ProtoBuf.Test
         //    MyField = 18;
         //}
 
-        protected override void Execute(MyModel model)
+        public override void Execute(MyModel model)
         {
 
         }

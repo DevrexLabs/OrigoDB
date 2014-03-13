@@ -77,7 +77,7 @@ namespace OrigoDB.Core.Test
 
     class NumberSumQuery : Query<ImmutableModel, int>
     {
-        protected override int Execute(ImmutableModel model)
+        public override int Execute(ImmutableModel model)
         {
             return model.Numbers().Sum();
         }

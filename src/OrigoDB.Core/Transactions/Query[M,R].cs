@@ -10,6 +10,6 @@ namespace OrigoDB.Core
             return Execute(model as M);
         }
 
-        protected abstract R Execute(M model);
+        public abstract R Execute(M model);
 	}
 }

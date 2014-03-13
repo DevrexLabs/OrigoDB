@@ -14,7 +14,7 @@ namespace OrigoDB.Core
             _lambdaQuery = lambdaQuery;
         }
 
-        protected override TResult Execute(TModel model)
+        public override TResult Execute(TModel model)
         {
             return _lambdaQuery.Invoke(model);
         }

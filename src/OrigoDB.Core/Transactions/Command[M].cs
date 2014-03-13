@@ -13,7 +13,7 @@ namespace OrigoDB.Core
         where TModel : Model
     {
 
-        protected internal virtual void Prepare(TModel model) { }
+        public virtual void Prepare(TModel model) { }
 
         internal override object ExecuteStub(Model model)
         {
@@ -34,7 +34,7 @@ namespace OrigoDB.Core
             }
         }
 
-        internal protected abstract void Execute(TModel model);
+        public abstract void Execute(TModel model);
     }
 
 }

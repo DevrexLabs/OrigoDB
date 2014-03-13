@@ -23,7 +23,7 @@ namespace OrigoDB.Core
 
         public abstract void Execute(TModel model, out TModel result);
 
-        protected internal override void Execute(TModel model)
+        public override void Execute(TModel model)
         {
             throw new NotImplementedException("Can only be executed by ImmutabilityKernel");
         }
@@ -43,11 +43,11 @@ namespace OrigoDB.Core
     }
 
     [Serializable] 
-    public abstract class ImmutabilityCommand<M, R> : Command<M, R>, IImmutabilityCommandWithResult where M : Model
+    public abstract class ImmutabilityCommand<TModel, TResult> : Command<TModel, TResult>, IImmutabilityCommandWithResult where TModel : Model
     {
-        public abstract R Execute(M model, out M newModel);
+        public abstract TResult Execute(TModel model, out TModel newModel);
 
-        protected internal override R Execute(M model)
+        public override TResult Execute(TModel model)
         {
             throw new InvalidOperationException("Can only be executed by ImmutabilityKernel");
         }
@@ -60,8 +60,8 @@ namespace OrigoDB.Core
 
         Tuple<Model,object> IImmutabilityCommandWithResult.Execute(Model model)
         {
-            M resultingModel;
-            object result = Execute((M) model, out resultingModel);
+            TModel resultingModel;
+            object result = Execute((TModel) model, out resultingModel);
             return Tuple.Create((Model)resultingModel, result);
         }
     }

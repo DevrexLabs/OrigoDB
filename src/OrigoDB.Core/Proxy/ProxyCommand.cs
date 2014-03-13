@@ -15,7 +15,7 @@ namespace OrigoDB.Core.Proxy
 			Arguments = inArgs;
 		}
 
-		protected internal override object Execute(TModel model)
+		public override object Execute(TModel model)
 		{
 		    var proxyMethod = ProxyMethodMap.MapFor<TModel>().GetProxyMethodInfo(MethodName);
 		    MethodInfo methodInfo = proxyMethod.MethodInfo;

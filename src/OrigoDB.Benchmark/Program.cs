@@ -26,7 +26,7 @@ namespace OrigoDB.Benchmark
             Payload = new byte[size];
         }
 
-        protected override void Execute(BenchmarkModel model)
+        public override void Execute(BenchmarkModel model)
         {
             model.CommandsExecuted++;
             model.BytesWritten += Payload.Length;

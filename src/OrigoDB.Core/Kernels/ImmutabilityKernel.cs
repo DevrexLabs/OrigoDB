@@ -39,7 +39,7 @@ namespace OrigoDB.Core
         }
 
 
-        protected override void EnsureSafeResults(ref object result, IOperationWithResult operation)
+        protected override void EnsureNoMutableReferences(ref object result, IOperationWithResult operation)
         {
             //noop, result is immutable and so is model, no cloning necessary
         }

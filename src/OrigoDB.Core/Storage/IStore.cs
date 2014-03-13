@@ -16,14 +16,15 @@ namespace OrigoDB.Core
         /// </summary>
         void VerifyCanLoad();
 
+        int LastEntryId { get; }
 
-        
+       
         Model LoadMostRecentSnapshot(out long lastEntryId);
 
         /// <summary>
         /// Create a snapshot of the provided model and save to storage
         /// </summary>
-        void WriteSnapshot(Model model, long lastEntryId);
+        void WriteSnapshot(Model model);
 
         /// <summary>
         /// Checks the integrity of the configuration and throw if Create() will fail
@@ -60,5 +61,14 @@ namespace OrigoDB.Core
         Stream CreateJournalWriterStream(long firstEntryId = 1);
 
         Model LoadModel();
+
+        /// <summary>
+        /// Writes a command to the journal
+        /// </summary>
+        /// <param name="command"></param>
+        void AppendCommand(Command command);
+
+
+        void InvalidatePreviousCommand();
     }
 }

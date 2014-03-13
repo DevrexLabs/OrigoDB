@@ -30,7 +30,7 @@ namespace OrigoDB.Core
             {
                 _synchronizer.EnterRead();
                 object result = query.ExecuteStub(_model as TModel);
-                EnsureSafeResults(ref result, query);
+                EnsureNoMutableReferences(ref result, query);
                 return (TResult)result;
             }
             finally
@@ -54,7 +54,7 @@ namespace OrigoDB.Core
         /// <summary>
         /// Make sure we don't return direct references to mutable objects within the model
         /// </summary>
-        protected virtual void EnsureSafeResults(ref object result, IOperationWithResult operation)
+        protected virtual void EnsureNoMutableReferences(ref object result, IOperationWithResult operation)
         {
             if (result != null)
             {

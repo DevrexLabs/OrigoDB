@@ -103,7 +103,6 @@
     <Compile Include="Journaling\NullJournal.cs" />
     <Compile Include="Journaling\RollbackMarker.cs" />
     <Compile Include="Kernels\Kernel.cs" />
-    <Compile Include="Storage\NullStore.cs" />
     <Compile Include="DelegateQuery.cs" />
     <Compile Include="Engine.For.cs" />
     <Compile Include="Db.cs" />
@@ -143,7 +142,6 @@
     <Compile Include="Engine.cs" />
     <Compile Include="Configuration\EngineConfiguration.cs" />
     <Compile Include="Engine[M].cs" />
-    <Compile Include="Journaling\ICommandJournal.cs" />
     <Compile Include="Configuration\JournalWriterMode.cs" />
     <Compile Include="Security\SecurityModel.cs" />
     <Compile Include="Security\MatchAllRule.cs" />

@@ -104,7 +104,6 @@ namespace OrigoDB.Core
             PacketOptions = null;
 
             _registry = new TinyIoCContainer();
-            _registry.Register<ICommandJournal>((c, p) => new CommandJournal((IStore)p["store"]));
             _registry.Register<IAuthorizer<Type>>((c, p) => new TypeBasedPermissionSet(Permission.Allowed));
             _registry.Register<ISerializer>((c, p) => new Serializer(CreateFormatter()));
             InitSynchronizers();
@@ -212,28 +211,6 @@ namespace OrigoDB.Core
         {
             string name = StoreType.ToString();
             return _registry.Resolve<IStore>(name);
-        }
-
-        /// <summary>
-        /// Creates and returns a new command journal instance.
-        /// The default type is CommandJournal unless a custom factory has been set by 
-        /// calling SetCommandJournalFactory()
-        /// </summary>
-        /// <returns></returns>
-        public virtual ICommandJournal CreateCommandJournal(IStore store)
-        {
-            var args = new Dictionary<string, object> { { "store", store } };
-            return _registry.Resolve<ICommandJournal>(new NamedParameterOverloads(args));
-        }
-
-        /// <summary>
-        /// Inject a custom command journal factory. 
-        /// Will throw if called after journal has been created.
-        /// </summary>
-        /// <param name="factory"></param>
-        public void SetCommandJournalFactory(Func<EngineConfiguration, ICommandJournal> factory)
-        {
-            _registry.Register<ICommandJournal>((c, p) => factory.Invoke(this));
         }
 
         public void SetSynchronizerFactory(Func<EngineConfiguration, ISynchronizer> factory)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using OrigoDB.Core.Proxy;
 using OrigoDB.Core.TinyIoC;
 using OrigoDB.Modules.SqlStorage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -51,57 +52,24 @@ namespace OrigoDB.Core.Test
         [TestMethod]
         public void CanCreateEngine()
         {
-            this.Engine = Engine.Create(new TestModel(), CreateConfig());
+            this.Engine = Engine.Create<TestModel>(CreateConfig());
         }
 
         [TestMethod]
         public void CanCreateEngineUsingDefaultLocationAndConfig()
         {
-            DeleteFromDefaultLocation<TestModel>();
-            var engine = Engine.Create<TestModel>();
+
+            var engine = Engine.Create<TestModel>(CreateConfig());
             engine.Close();
-        }
-
-
-        [TestMethod]
-        public void NonPersistingEngineTest()
-        {
-            var config = new EngineConfiguration();
-            config.SetStoreFactory(cfg => new NullStore());
-            config.SetCommandJournalFactory(cfg => new NullJournal());
-            var engine = new Engine<TestModel>(new TestModel(), new NullStore(), config);
-            engine.Execute(new TestCommandWithResult());
-            int commandsExecuted = engine.Execute(new GetNumberOfCommandsExecutedQuery());
-            Assert.AreEqual(1, commandsExecuted);
-        }
-
-
-        [TestMethod]
-        public void CanCreateEngineUsingDefaultLocationAndCustomConfig()
-        {
-            //Test will fail if storage already exists
-            DeleteFromDefaultLocation<TestModel>();
-            var config = new EngineConfiguration();
-            var engine = Engine.Create<TestModel>(config);
-            engine.Close();
-        }
-
-
-        [TestMethod]
-        public void CanLoadGeneric()
-        {
-            CanCreateEngine();
-            Engine.Close();
-            this.Engine = Engine.Load<TestModel>(CreateConfig());
         }
 
         [TestMethod]
         public void CanLoadEngine()
         {
-            CanCreateEngine();
-            Engine.Close();
-            this.Engine = Engine.Load(CreateConfig());
-            
+            var config = CreateConfig();
+            var engine = Engine.Create<TestModel>(config);
+            engine.Close();
+            Engine.Load(config);
         }
 
         [TestMethod]
@@ -163,68 +131,28 @@ namespace OrigoDB.Core.Test
         [TestMethod]
         public void ModelRetainsStateAfterRestore()
         {
-            CanExecuteCommand();
-            Engine.Close();
-            Engine = Engine.Load(CreateConfig());
-            int numCommandsExecuted = (int)Engine.Execute(new GetNumberOfCommandsExecutedQuery());
-            Assert.IsTrue(numCommandsExecuted > 0);
+            var config = CreateConfig();
+            var engine = Engine.Create<TestModel>(config);
+            engine.Execute(new TestCommandWithResult());
+            engine.Close();
+            engine =Engine.Load<TestModel>(config);
+            int numCommandsExecuted = (int)engine.Execute(new GetNumberOfCommandsExecutedQuery());
+            engine.Close();
+            
+            Assert.AreEqual(1, numCommandsExecuted);
         }
 
         [TestMethod]
         public void OnLoadIsCalledAfterRestore()
         {
-            ModelRetainsStateAfterRestore();
-			bool onLoadWasCalled = Engine.Execute<TestModel, bool>(m => m.OnLoadExecuted);
+            var config = CreateConfig();
+            var engine = Engine.Create<TestModel>(config);
+            engine.Close();
+            engine = Engine.Load<TestModel>(config);
+			bool onLoadWasCalled = engine.Execute<TestModel, bool>(m => m.OnLoadExecuted);
             Assert.IsTrue(onLoadWasCalled);
         }
 
-
-
-        [TestMethod]
-        public void LoadOrCreateCreatesWhenNotExists()
-        {
-            DeleteFromDefaultLocation<TestModel>();
-            this.Engine = Engine.LoadOrCreate<TestModel>();
-            Assert.Inconclusive();
-            //Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("Engine Created")));
-        }
-
-        [TestMethod]
-        public void LoadOrCreateLoadsWhenExists()
-        {
-            var engine = Engine.LoadOrCreate<TestModel>();
-            engine.Close();
-            this.Engine = Engine.LoadOrCreate<TestModel>();
-
-            Assert.Inconclusive();
-            //Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("Engine Loaded")));
-        }
-
-        [TestMethod]
-        public void SnapshotTakenOnLoad()
-        {
-            DeleteFromDefaultLocation<TestModel>();
-            EngineConfiguration config = new EngineConfiguration();
-            config.SnapshotBehavior = SnapshotBehavior.AfterRestore;
-            var engine = Engine.Create<TestModel>(config);
-            engine.Close();
-            //Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("BeginSnapshot")));
-            //Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("EndSnapshot")));
-            Assert.Inconclusive();
-        }
-
-        [TestMethod]
-        public void SnapshotTakenOnShutdown()
-        {
-            DeleteFromDefaultLocation<TestModel>();
-            EngineConfiguration config = new EngineConfiguration();
-            config.SnapshotBehavior = SnapshotBehavior.OnShutdown;
-            var engine = Engine.Create<TestModel>(config);
-            engine.Close();
-            Assert.Inconclusive();
-            //Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("BeginSnapshot")));
-            //Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("EndSnapshot")));
-        }
 
         [TestMethod]
         public void TinyIocResolvesNamedRegistration()
@@ -256,12 +184,7 @@ namespace OrigoDB.Core.Test
             Engine.Close();
             var storage = config.CreateStore();
             storage.Load();
-            int expected = 1;
-            foreach (var journalEntry in storage.GetJournalEntries())
-            {
-                Assert.AreEqual(expected, journalEntry.Id);
-                expected++;
-            }
+            AssertJournalEntriesAreSequential(storage);
             if (storage is FileStore)
             {
                 foreach (var file in (storage as FileStore).JournalFiles)
@@ -269,6 +192,33 @@ namespace OrigoDB.Core.Test
                     Console.WriteLine(file);
                 }
             }
+        }
+
+        [TestMethod]
+        public void JournalEntryIdSequenceIsContinuedAfterRestore()
+        {
+            var config = CreateConfig();
+            var engine = Engine.LoadOrCreate<TestModel>(config);
+            TestModel db = engine.GetProxy();
+            db.AddCustomer("Homer");
+            engine.Close();
+            engine = Engine.LoadOrCreate<TestModel>(config);
+            db = engine.GetProxy();
+            db.AddCustomer("Bart");
+            engine.Close();
+            AssertJournalEntriesAreSequential(config.CreateStore());
+
+        }
+
+        private void AssertJournalEntriesAreSequential(IStore storage)
+        {
+            int expected = 1;
+            foreach (var journalEntry in storage.GetJournalEntries())
+            {
+                Assert.AreEqual(expected, journalEntry.Id);
+                expected++;
+            }
+
         }
 
         [TestMethod]

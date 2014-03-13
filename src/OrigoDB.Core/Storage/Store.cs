@@ -20,15 +20,18 @@ namespace OrigoDB.Core.Storage
             }
         }
 
+        public int LastEntryId { get; protected set; }
+
 
         protected Store(EngineConfiguration config)
         {
             _config = config;
             _serializer = _config.CreateSerializer();
+            _journal = new CommandJournal(this);
         }
 
         protected abstract IJournalWriter CreateStoreSpecificJournalWriter(long lastEntryId);
-        protected abstract Snapshot WriteSnapshotImpl(Model model, long lastEntryId);
+        protected abstract Snapshot WriteSnapshotImpl(Model model);
         public abstract IEnumerable<JournalEntry> GetJournalEntriesFrom(long entryId);
         public abstract IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime);
         public abstract Model LoadMostRecentSnapshot(out long lastEntryId);
@@ -43,14 +46,14 @@ namespace OrigoDB.Core.Storage
             return GetJournalEntriesFrom(1);
         }
 
-        public void WriteSnapshot(Model model, long lastEntryId)
+        public void WriteSnapshot(Model model)
         {
-            if(Snapshots.Any(ss => ss.LastEntryId == lastEntryId))
+            if(Snapshots.Any(ss => ss.LastEntryId == LastEntryId))
             {
                 _log.Debug("Snapshot already exists");
                 return;
             }
-            Snapshot snapshot = WriteSnapshotImpl(model, lastEntryId);
+            Snapshot snapshot = WriteSnapshotImpl(model);
             _snapshots.Add(snapshot);
         }
 
@@ -71,8 +74,6 @@ namespace OrigoDB.Core.Storage
             }
         }
 
-        
-        
         public virtual bool Exists
         {
             get
@@ -89,6 +90,7 @@ namespace OrigoDB.Core.Storage
             }
         }
 
+        private CommandJournal _journal;
 
         public Model LoadModel()
         {
@@ -96,13 +98,24 @@ namespace OrigoDB.Core.Storage
             Model model = LoadMostRecentSnapshot(out lastEntryIdExecuted);
 
             model.SnapshotRestored();
-            var commandJournal = _config.CreateCommandJournal(this);
+            var commandJournal = new CommandJournal(this);
             foreach (var command in commandJournal.GetEntriesFrom(lastEntryIdExecuted).Select(entry => entry.Item))
             {
                 command.Redo(ref model);
             }
             model.JournalRestored();
             return model;
+        }
+
+
+        public void AppendCommand(Command command)
+        {
+            _journal.Append(command);
+        }
+
+        public void InvalidatePreviousCommand()
+        {
+            _journal.WriteRollbackMarker();
         }
     }
 }

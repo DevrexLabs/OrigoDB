@@ -19,7 +19,6 @@ namespace OrigoDB.Core
         readonly IAuthorizer<Type> _authorizer;
 
         readonly IStore _store;
-        readonly ICommandJournal _commandJournal;
         readonly ISynchronizer _synchronizer;
 
         private readonly object _commandSequenceLock = new object();
@@ -29,15 +28,16 @@ namespace OrigoDB.Core
 
         public EngineConfiguration Config { get { return _config; } }
 
-        protected Engine(Model model, IStore store, EngineConfiguration config)
+        protected Engine(IStore store, EngineConfiguration config)
         {
             _config = config;
             _store = store;
-            _commandJournal = config.CreateCommandJournal(store);
-            _kernel = _config.CreateKernel(model);
-            _synchronizer = config.CreateSynchronizer();
-            _kernel.SetSynchronizer(_synchronizer);
+
+            _synchronizer = _config.CreateSynchronizer();
             _authorizer = _config.CreateAuthorizer();
+
+            store.Load();
+            Restore();
 
             if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)
             {
@@ -52,6 +52,14 @@ namespace OrigoDB.Core
             Core.Config.Engines.AddEngine(config.Location.OfJournal, this);
         }
 
+        private void Restore()
+        {
+            Model model = _store.LoadModel();
+            _kernel = _config.CreateKernel(model);
+            _kernel.SetSynchronizer(_synchronizer);
+
+        }
+
         public object Execute(Query query)
         {
             return Execute<Model, object>(query.ExecuteStub);
@@ -64,14 +72,14 @@ namespace OrigoDB.Core
             return (T)ExecuteQuery(new DelegateQuery<M, T>(lambdaQuery));
         }
 
-        public T Execute<M, T>(Query<M, T> query) where M : Model
+        public R Execute<M, R>(Query<M, R> query) where M : Model
         {
             ThrowIfDisposed();
             ThrowUnlessAuthenticated(query.GetType());
             return ExecuteQuery(query);
         }
 
-        private T ExecuteQuery<M, T>(Query<M, T> query) where M : Model
+        private R ExecuteQuery<M, R>(Query<M, R> query) where M : Model
         {
             return _kernel.ExecuteQuery(query);
         }
@@ -83,7 +91,7 @@ namespace OrigoDB.Core
 
             lock (_commandSequenceLock)
             {
-                _commandJournal.Append(command);
+                _store.AppendCommand(command);
 
                 try
                 {
@@ -91,7 +99,7 @@ namespace OrigoDB.Core
                 }
                 catch (Exception ex)
                 {
-                    _commandJournal.WriteRollbackMarker();
+                    _store.InvalidatePreviousCommand();
                     if (!(ex is CommandAbortedException)) Rollback();
                     throw;
                 }
@@ -129,22 +137,17 @@ namespace OrigoDB.Core
         /// </summary>
         public void CreateSnapshot()
         {
-            long lastEntryId = _commandJournal.LastEntryId;
-            _log.Info("BeginSnapshot:" + lastEntryId);
-            _kernel.Read(m => _store.WriteSnapshot(m, lastEntryId));
-            _log.Info("EndSnapshot:" + lastEntryId);
-
-
+            _kernel.Read(m => _store.WriteSnapshot(m));
         }
 
         private void Rollback()
         {
+            //release memory held by the corrupted model
             _kernel = null;
             GC.Collect();
             GC.WaitForFullGCComplete();
-            var model = _store.LoadModel();
-            _kernel = _config.CreateKernel(model);
-            _kernel.SetSynchronizer(_synchronizer);
+
+            Restore();
         }
 
         public void Dispose()
@@ -201,9 +204,7 @@ namespace OrigoDB.Core
             if (!Core.Config.Engines.TryGetEngine(config.Location.OfJournal, out engine))
             {
                 var store = config.CreateStore();
-                store.Load();
-                var model = store.LoadModel();
-                engine = new Engine(model, store, config);
+                engine = new Engine(store, config);
             }
             return engine;
         }
@@ -256,9 +257,7 @@ namespace OrigoDB.Core
             if (!Core.Config.Engines.TryGetEngine(config.Location.OfJournal, out engine))
             {
                 var store = config.CreateStore();
-                store.Load();
-                var model = store.LoadModel();
-                engine = new Engine<M>((M)model, store, config);
+                engine = new Engine<M>(store, config);
             }
             return (Engine<M>)engine;
         }
@@ -302,7 +301,6 @@ namespace OrigoDB.Core
         public static Engine<M> LoadOrCreate<M>(EngineConfiguration config = null) where M : Model, new()
         {
             config = config ?? EngineConfiguration.Create();
-            if (config == null) throw new ArgumentNullException("config");
             if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
             Engine<M> result = null;
 

@@ -154,13 +154,12 @@ namespace OrigoDB.Core.Test
             var model = new TestModel();
             model.AddCustomer("Zippy");
             model.AddCustomer("Droozy");
-            var engine = Engine.Create(model, CreateNonPersistingConfig());
+            var engine = Engine.Create(model, CreateConfig());
             var list = engine.Execute<TestModel, List<string>>(ListOfCustomerNames);
             Assert.AreEqual(list.Count, 2);
             Assert.AreEqual(list[0], "Zippy");
             Assert.AreEqual(list[1], "Droozy");
             engine.Close();
-            DeleteFromDefaultLocation<TestModel>();
         }
 
         [TestMethod]
@@ -194,7 +193,7 @@ namespace OrigoDB.Core.Test
             var model = new TestModel();
             model.AddCustomer(expected0);
             model.AddCustomer(expected1);
-            Engine<TestModel> engine = Engine.Create(model, CreateNonPersistingConfig());
+            Engine<TestModel> engine = Engine.Create(model, CreateConfig());
 
             string actual = engine.Execute<TestModel, string>(query, "Ho");
             Assert.AreEqual(expected0, actual);
@@ -222,7 +221,7 @@ namespace OrigoDB.Core.Test
                 var args = new object[] { "H" };
                 var model = new TestModel();
                 model.AddCustomer("Homer Simpson");
-                engine = Engine.Create(model, CreateNonPersistingConfig());
+                engine = Engine.Create(model, CreateConfig());
                 engine.Execute(FirstCustomersNameStartingWithArg0, args);
 
                 args[0] = 42; //boxed int
@@ -246,7 +245,7 @@ namespace OrigoDB.Core.Test
             var query = FirstCustomersNameStartingWithArg0;
             var model = new TestModel();
             model.AddCustomer(expected);
-            Engine<TestModel> engine = Engine.Create(model, CreateNonPersistingConfig());
+            Engine<TestModel> engine = Engine.Create(model, CreateConfig());
 
             string actual = engine.Execute<TestModel, string>(query, "Ho");
             Assert.AreEqual(expected, actual);

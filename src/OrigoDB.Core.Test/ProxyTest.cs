@@ -17,7 +17,7 @@ namespace OrigoDB.Core.Test
         [TestInitialize]
         public void TestSetup()
         {
-            Engine =_engine = Engine.Create(new TestModel(), CreateNonPersistingConfig());
+            Engine =_engine = Engine.Create(new TestModel(), CreateConfig());
             _proxy = _engine.GetProxy();
         }
 

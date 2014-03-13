@@ -31,10 +31,15 @@ namespace OrigoDB.Core
 
         readonly InMemoryStoreState _state;
 
+        public InMemoryStore() : this(EngineConfiguration.Create())
+        {
+            
+        }
+        
         public InMemoryStore(EngineConfiguration config):base(config)
         {
             //create or restore state
-            string key = _config.Location.OfJournal;
+            string key = _config.Location.OfJournal ?? Guid.NewGuid().ToString();
             if (!_states.ContainsKey(key)) _states.Add(key, new InMemoryStoreState());
             _state = _states[key];
         }
@@ -46,10 +51,10 @@ namespace OrigoDB.Core
             return new StreamJournalWriter(this, _config);
         }
 
-        protected override Snapshot WriteSnapshotImpl(Model model, long lastEntryId)
+        protected override Snapshot WriteSnapshotImpl(Model model)
         {
             var bytes = _serializer.Serialize(model);
-            var snapshot = new Snapshot(DateTime.Now, lastEntryId);
+            var snapshot = new Snapshot(DateTime.Now, LastEntryId);
             _state.Snapshots.Add(snapshot, bytes);
             return snapshot;
         }
@@ -93,7 +98,7 @@ namespace OrigoDB.Core
 
         public override void Create(Model model)
         {
-            WriteSnapshotImpl(model, 0);
+            WriteSnapshotImpl(model);
         }
 
         protected override IEnumerable<Snapshot> LoadSnapshots()

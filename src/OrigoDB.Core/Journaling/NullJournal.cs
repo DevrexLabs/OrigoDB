@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace OrigoDB.Core
 {
-    public class NullJournal : ICommandJournal
+    public class NullJournal //: ICommandJournal
     {
 
         public IEnumerable<JournalEntry<Command>> GetAllEntries()

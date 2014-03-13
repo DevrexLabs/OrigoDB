@@ -9,16 +9,16 @@ namespace OrigoDB.Core
     /// <summary>
     /// CommandJournal is responsible for reading and writing journal entries to the journal
     /// </summary>
-	public class CommandJournal : ICommandJournal
+	public sealed class CommandJournal //: ICommandJournal
 	{
-        protected enum JournalState
+        enum JournalState
         {
             Closed,
             Open
         }
 
         private IJournalWriter _writer;
-		protected IStore _storage;
+		readonly IStore _storage;
         private JournalState _state;
 	    private static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
         private long _lastEntryId;

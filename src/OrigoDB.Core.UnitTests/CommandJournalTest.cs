@@ -1,6 +1,4 @@
 ﻿using System.Linq;
-using OrigoDB.Core;
-using OrigoDB.Core.Storage;
 using System;
 using System.Collections.Generic;
 using OrigoDB.Core.Journaling;
@@ -18,114 +16,136 @@ namespace OrigoDB.Core.Test
     public class CommandJournalTest
     {
 
-        public class NullStore : IStore
-        {
-            private MemoryJournal _memoryJournal;
-            public NullStore(MemoryJournal journal = null)
-            {
-                _memoryJournal = journal;
-            }
-            public void VerifyCanLoad()
-            {
+        //public class NullStorex: IStore
+        //{
+        //    private MemoryJournal _memoryJournal;
+        //    public NullStorex(MemoryJournal journal = null)
+        //    {
+        //        _memoryJournal = journal;
+        //    }
+        //    public void VerifyCanLoad()
+        //    {
 
-            }
+        //    }
 
-            public Model LoadMostRecentSnapshot(out long lastEntryId)
-            {
-                throw new NotImplementedException();
-            }
+        //    public Model LoadMostRecentSnapshot(out long lastEntryId)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
 
-            public void WriteSnapshot(Model model, long lastEntryId)
-            {
-                throw new NotImplementedException();
-            }
+        //    public void WriteSnapshot(Model model)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
 
-            public void VerifyCanCreate()
-            {
-                throw new NotImplementedException();
-            }
+        //    public void VerifyCanCreate()
+        //    {
+        //        throw new NotImplementedException();
+        //    }
 
-            public void Create(Model model)
-            {
-                throw new NotImplementedException();
-            }
+        //    public void Create(Model model)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
 
-            public void Load()
-            {
+        //    public void Load()
+        //    {
 
-            }
+        //    }
 
-            public bool Exists
-            {
-                get { throw new NotImplementedException(); }
-            }
+        //    public bool Exists
+        //    {
+        //        get { throw new NotImplementedException(); }
+        //    }
 
-            public IEnumerable<JournalEntry> GetJournalEntries()
-            {
-                throw new NotImplementedException();
-            }
+        //    public IEnumerable<JournalEntry> GetJournalEntries()
+        //    {
+        //        throw new NotImplementedException();
+        //    }
 
-            public IEnumerable<JournalEntry> GetJournalEntriesFrom(long entryId)
-            {
-                throw new NotImplementedException();
-            }
+        //    public IEnumerable<JournalEntry> GetJournalEntriesFrom(long entryId)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
 
-            public IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
-            {
-                throw new NotImplementedException();
-            }
+        //    public IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
 
-            public IJournalWriter CreateJournalWriter(long lastEntryId)
-            {
-                return _memoryJournal ?? new MemoryJournal();
-            }
-
-
-            public System.IO.Stream CreateJournalWriterStream(long firstEntryId = 1)
-            {
-                throw new NotImplementedException();
-            }
+        //    public IJournalWriter CreateJournalWriter(long lastEntryId)
+        //    {
+        //        return _memoryJournal ?? new MemoryJournal();
+        //    }
 
 
-            public Model LoadModel()
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public class MemoryJournal : IJournalWriter
-        {
-            private bool isDisposed;
-            public List<JournalEntry> Entries { get; private set; }
+        //    public System.IO.Stream CreateJournalWriterStream(long firstEntryId = 1)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
 
 
-            public MemoryJournal()
-            {
-                Entries = new List<JournalEntry>();
-            }
+        //    public Model LoadModel()
+        //    {
+        //        throw new NotImplementedException();
+        //    }
 
-            public void Write(JournalEntry item)
-            {
-                EnsureNotDisposed();
-                Entries.Add(item);
-            }
 
-            public void Close()
-            {
-                EnsureNotDisposed();
-                Dispose();
-            }
+        //    public CommandJournal Journal
+        //    {
+        //        get { throw new NotImplementedException(); }
+        //    }
 
-            public void Dispose()
-            {
-                isDisposed = true;
-            }
 
-            private void EnsureNotDisposed()
-            {
-                if (isDisposed) throw new ObjectDisposedException("MemoryJournal");
-            }
-        }
+        //    public int LastEntryId
+        //    {
+        //        get { throw new NotImplementedException(); }
+        //    }
+
+        //    public void AppendCommand(Command command)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public void InvalidatePreviousCommand()
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+        //}
+
+        //public class MemoryJournal : IJournalWriter
+        //{
+        //    private bool isDisposed;
+        //    public List<JournalEntry> Entries { get; private set; }
+
+
+        //    public MemoryJournal()
+        //    {
+        //        Entries = new List<JournalEntry>();
+        //    }
+
+        //    public void Write(JournalEntry item)
+        //    {
+        //        EnsureNotDisposed();
+        //        Entries.Add(item);
+        //    }
+
+        //    public void Close()
+        //    {
+        //        EnsureNotDisposed();
+        //        Dispose();
+        //    }
+
+        //    public void Dispose()
+        //    {
+        //        isDisposed = true;
+        //    }
+
+        //    private void EnsureNotDisposed()
+        //    {
+        //        if (isDisposed) throw new ObjectDisposedException("MemoryJournal");
+        //    }
+        //}
 
 
         List<Tuple<List<JournalEntry>, string>> _testCases = new List<Tuple<List<JournalEntry>, string>>()
@@ -145,7 +165,7 @@ namespace OrigoDB.Core.Test
         [TestCaseSource("_testCases")]
         public void RolledBackCommandsAreSkipped(Tuple<List<JournalEntry>, string> testCase)
         {
-            CommandJournal target = new CommandJournal(new NullStore());
+            var target = new CommandJournal(new InMemoryStore());
 
             string failureMessage = testCase.Item2;
             var testEntries = testCase.Item1;
@@ -184,12 +204,13 @@ namespace OrigoDB.Core.Test
             return testEntries;
         }
 
+
         [Test]
         public void RollbackMarkerIsWrittenOnRollback()
         {
             //Arrange
-            MemoryJournal journal = new MemoryJournal();
-            CommandJournal target = new CommandJournal(new NullStore(journal));
+            var store = new InMemoryStore();
+            var target = new CommandJournal(store);
             target.Append(new ACommand());
             target.Append(new ACommand());
 
@@ -197,11 +218,12 @@ namespace OrigoDB.Core.Test
             target.WriteRollbackMarker();
 
             //Assert
-            Assert.AreEqual(3, journal.Entries.Count);
-            Assert.AreEqual(1, journal.Entries.OfType<JournalEntry<RollbackMarker>>().Count());
-            Assert.IsTrue(journal.Entries.Last() is JournalEntry<RollbackMarker>);
+            Assert.AreEqual(3, store.GetJournalEntries().Count());
+            Assert.AreEqual(1, store.GetJournalEntries().OfType<JournalEntry<RollbackMarker>>().Count());
+            Assert.IsTrue(store.GetJournalEntries().Last() is JournalEntry<RollbackMarker>);
         }
 
+        [Serializable]
         private class ACommand : Command
         {
             internal override void PrepareStub(Model model)

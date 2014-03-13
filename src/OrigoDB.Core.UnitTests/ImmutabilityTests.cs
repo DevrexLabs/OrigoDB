@@ -6,6 +6,7 @@ using OrigoDB.Core.Configuration;
 
 namespace OrigoDB.Core.Test
 {
+    [Serializable]
     class ImmutableModel : Model
     {
         private readonly List<int> _numbers;
@@ -41,6 +42,7 @@ namespace OrigoDB.Core.Test
         }
     }
 
+    [Serializable]
     class AppendNumberCommand : ImmutabilityCommand<ImmutableModel>
     {
         public readonly int Number;
@@ -57,6 +59,7 @@ namespace OrigoDB.Core.Test
         }
     }
 
+    [Serializable]
     internal class AppendNumberAndGetSumCommand : ImmutabilityCommand<ImmutableModel, int>
     {
         public readonly int Number;
@@ -106,9 +109,9 @@ namespace OrigoDB.Core.Test
             var config = EngineConfiguration.Create();
             config.SetSynchronizerFactory(c => new NullSynchronizer());
             config.Kernel = Kernels.Immutability;
-            config.SetCommandJournalFactory(c => new NullJournal());
-            var model = new ImmutableModel();
-            var engine = new Engine<ImmutableModel>(model, new NullStore(), config);
+            config.SetStoreFactory(cfg => new InMemoryStore(cfg));
+            
+            var engine = Engine.For<ImmutableModel>(config);
 
             int actual = engine.Execute(new AppendNumberAndGetSumCommand(42));
             Assert.AreEqual(42, actual);

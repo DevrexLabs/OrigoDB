@@ -160,10 +160,6 @@ namespace OrigoDB.Core.Test
                 return new NullJournalWriter();
             }
 
-            protected override Snapshot WriteSnapshotImpl(Model model, long lastEntryId)
-            {
-                throw new NotImplementedException();
-            }
 
             public override System.Collections.Generic.IEnumerable<JournalEntry> GetJournalEntriesFrom(long sequenceNumber)
             {
@@ -202,6 +198,11 @@ namespace OrigoDB.Core.Test
             }
 
             public override Stream CreateJournalWriterStream(long firstEntryId = 1)
+            {
+                throw new NotImplementedException();
+            }
+
+            protected override Snapshot WriteSnapshotImpl(Model model)
             {
                 throw new NotImplementedException();
             }

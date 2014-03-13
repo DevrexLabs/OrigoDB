@@ -43,9 +43,9 @@ namespace OrigoDB.Core
         }
 
 
-        protected override Snapshot WriteSnapshotImpl(Model model, long lastEntryId)
+        protected override Snapshot WriteSnapshotImpl(Model model)
         {
-            var fileSnapshot = new FileSnapshot(DateTime.Now, lastEntryId);
+            var fileSnapshot = new FileSnapshot(DateTime.Now, LastEntryId);
             var fileName = Path.Combine(_config.Location.OfSnapshots, fileSnapshot.Name);
             using (Stream stream = GetWriteStream(fileName, append:false))
             {
@@ -59,6 +59,7 @@ namespace OrigoDB.Core
 			if (entryId != 0 && entryId < _journalFiles[0].StartingEntryId)
 				throw new NotSupportedException("Journal file missing");
 
+            //Scroll to the correct file
             int offset = 0;
 	        while (_journalFiles.Count > offset + 1 && _journalFiles[offset + 1].StartingEntryId < entryId)
 				offset++;
@@ -127,7 +128,8 @@ namespace OrigoDB.Core
                 EnsureDirectoryExists(_config.Location.OfSnapshots);
             }
             Load();
-            WriteSnapshot(initialModel, 0);
+            LastEntryId = 0;
+            WriteSnapshot(initialModel);
             
         }
 

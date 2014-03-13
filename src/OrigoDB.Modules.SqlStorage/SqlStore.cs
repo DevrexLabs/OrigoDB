@@ -162,9 +162,9 @@ namespace OrigoDB.Modules.SqlStorage
             return null;
         }
 
-        protected override Snapshot WriteSnapshotImpl(Model model, long lastEntryId)
+        protected override Snapshot WriteSnapshotImpl(Model model)
         {
-            _fileStore.WriteSnapshot(model, lastEntryId);
+            _fileStore.WriteSnapshot(model);
             return _fileStore.Snapshots.Last();
         }
 

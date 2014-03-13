@@ -39,9 +39,10 @@ namespace OrigoDB.Core
         public InMemoryStore(EngineConfiguration config):base(config)
         {
             //create or restore state
-            string key = _config.Location.OfJournal ?? Guid.NewGuid().ToString();
-            if (!_states.ContainsKey(key)) _states.Add(key, new InMemoryStoreState());
-            _state = _states[key];
+            //string key = _config.Location.OfJournal ?? Guid.NewGuid().ToString();
+            //if (!_states.ContainsKey(key)) _states.Add(key, new InMemoryStoreState());
+            //_state = _states[key];
+            _state = new InMemoryStoreState();
         }
 
 
@@ -61,7 +62,7 @@ namespace OrigoDB.Core
 
         public override IEnumerable<JournalEntry> GetJournalEntriesFrom(long entryId)
         {
-            return _state.Journal.SelectMany<MemoryStream, JournalEntry>( 
+            return _state.Journal.SelectMany( 
                 journalSegment => _serializer.ReadToEnd<JournalEntry>(new MemoryStream(journalSegment.ToArray())).SkipWhile(e => e.Id < entryId));
         }
 

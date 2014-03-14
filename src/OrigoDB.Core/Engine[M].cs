@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OrigoDB.Core
+﻿namespace OrigoDB.Core
 {
 
     public class Engine<TModel> : Engine, IEngine<TModel> where TModel : Model

@@ -108,8 +108,8 @@
     <Compile Include="Engines.cs" />
     <Compile Include="IImmutable.cs" />
     <Compile Include="IOperationWithResult.cs" />
-    <Compile Include="Proxy\Migrations\CustomBinder.cs" />
-    <Compile Include="Proxy\Migrations\Schema.cs" />
+    <Compile Include="Migrations\CustomBinder.cs" />
+    <Compile Include="Migrations\Schema.cs" />
     <Compile Include="Kernels\OptimisticKernel.cs" />
     <Compile Include="Proxy\OperationType.cs" />
     <Compile Include="Proxy\ProxyMethodInfo.cs" />

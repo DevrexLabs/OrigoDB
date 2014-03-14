@@ -5,6 +5,7 @@ namespace OrigoDB.Core.Test
     [TestFixture]
     public class EngineEventsTests
     {
+            
         [Test]
         public void CommandExecuting_is_fired()
         {
@@ -20,13 +21,14 @@ namespace OrigoDB.Core.Test
             };
             engine.Execute(new AppendNumberCommand(42));
             Assert.AreEqual(true, wasFired);
+            Config.Engines.CloseAll();
         }
 
         [Test, ExpectedException(typeof(CommandAbortedException))]
         public void CommandExecuting_can_cancel()
         {
             var store = new InMemoryStore();
-            var config = EngineConfiguration.Create();
+            var config = EngineConfiguration.Create().WithImmutability();
             config.SetStoreFactory(cfg => store);
             var engine = Engine.Create<ImmutableModel>(config);
 
@@ -35,6 +37,7 @@ namespace OrigoDB.Core.Test
                 e.Cancel = true;
             };
             engine.Execute(new AppendNumberCommand(42));
+            Config.Engines.CloseAll();
         }
     }
 }

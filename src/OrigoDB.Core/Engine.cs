@@ -270,11 +270,11 @@ namespace OrigoDB.Core
 
         #region Generic Create methods
 
-        public static Engine<M> Create<M>(string location) where M : Model, new()
+        public static Engine<TModel> Create<TModel>(string location) where TModel : Model, new()
         {
             var config = EngineConfiguration.Create();
             config.Location.OfJournal = location;
-            return Create<M>(config);
+            return Create<TModel>(config);
         }
 
         public static Engine<TModel> Create<TModel>(EngineConfiguration config = null) where TModel : Model, new()

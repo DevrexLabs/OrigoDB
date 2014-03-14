@@ -27,7 +27,7 @@
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAooAEMAAAgAEAAAAAAAIAgAACBCEAAACAACAEAIAA=</HashCode>
+      <HashCode>CAAooAEMAAAgAEAAAAAIAIAwCACBCEAAACAACAEAIAA=</HashCode>
       <FileName>Storage\Store.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -45,15 +45,15 @@
   <Interface Name="OrigoDB.Core.IStore">
     <Position X="0.5" Y="0.5" Width="2.5" />
     <TypeIdentifier>
-      <HashCode>AAAAoAEEAAAAAAAAAAAAAIAAAACBAEAAACAACAEAAAA=</HashCode>
+      <HashCode>AAAIoAEEAAAAAAAAAAAIAIAQCACBAEAAACAACAEAAAA=</HashCode>
       <FileName>Storage\IStore.cs</FileName>
     </TypeIdentifier>
   </Interface>
-  <Enum Name="OrigoDB.Core.StoreType">
-    <Position X="0.5" Y="4.5" Width="1.5" />
+  <Enum Name="OrigoDB.Core.Stores">
+    <Position X="1" Y="5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAACgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAA=</HashCode>
-      <FileName>Storage\StoreType.cs</FileName>
+      <FileName>Storage\Stores.cs</FileName>
     </TypeIdentifier>
   </Enum>
   <Font Name="Segoe UI" Size="9" />

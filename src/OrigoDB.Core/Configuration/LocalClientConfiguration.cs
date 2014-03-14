@@ -21,9 +21,12 @@ namespace OrigoDB.Core
 		        location.SetLocationFromType<TModel>();
 		    }
 
-			Engine engine;
-			if (CreateWhenNotExists) engine = Engine.LoadOrCreate<TModel>(_engineConfiguration);
-			else engine = Engine.Load<TModel>(_engineConfiguration);
+            Engine engine;
+		    if (!Config.Engines.TryGetEngine(location.OfJournal, out engine))
+		    {
+                if (CreateWhenNotExists) engine = Engine.LoadOrCreate<TModel>(_engineConfiguration);
+                else engine = Engine.Load<TModel>(_engineConfiguration);
+		    }
 			return new LocalEngineClient<TModel>((Engine<TModel>)engine);
 		}
 	}

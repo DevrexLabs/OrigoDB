@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace OrigoDB.Core.Test
 {
@@ -9,9 +10,9 @@ namespace OrigoDB.Core.Test
         [Test]
         public void CommandExecuting_is_fired()
         {
-            var store = new InMemoryStore();
             var config = EngineConfiguration.Create().WithImmutability();
-            config.SetStoreFactory( cfg => store);
+            config.SetStoreFactory( cfg => new InMemoryStore(cfg));
+            config.Location.OfJournal = Guid.NewGuid().ToString();
             var engine = Engine.Create<ImmutableModel>(config);
             
             bool wasFired = false;
@@ -27,9 +28,9 @@ namespace OrigoDB.Core.Test
         [Test, ExpectedException(typeof(CommandAbortedException))]
         public void CommandExecuting_can_cancel()
         {
-            var store = new InMemoryStore();
             var config = EngineConfiguration.Create().WithImmutability();
-            config.SetStoreFactory(cfg => store);
+            config.SetStoreFactory(cfg => new InMemoryStore(cfg));
+            config.Location.OfJournal = Guid.NewGuid().ToString();
             var engine = Engine.Create<ImmutableModel>(config);
 
             engine.BeforeExecute += (s, e) =>

@@ -16,10 +16,11 @@ namespace OrigoDB.Core
         /// </summary>
         void VerifyCanLoad();
 
-        int LastEntryId { get; }
+        ulong LastEntryId { get; }
+        
 
        
-        Model LoadMostRecentSnapshot(out long lastEntryId);
+        Model LoadMostRecentSnapshot(out ulong lastEntryId);
 
         /// <summary>
         /// Create a snapshot of the provided model and save to storage
@@ -46,7 +47,7 @@ namespace OrigoDB.Core
         /// <summary>
         /// Retrieve journal entries with an Id >= the given entryId. Used when restoring a snapshot
         /// </summary>
-        IEnumerable<JournalEntry> GetJournalEntriesFrom(long entryId);
+        IEnumerable<JournalEntry> GetJournalEntriesFrom(ulong entryId);
 
         /// <summary>
         /// Return journal entries at or before a specific point in time. Used for point in time recovert
@@ -55,10 +56,10 @@ namespace OrigoDB.Core
         /// <returns></returns>
         IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime);
 
-        IJournalWriter CreateJournalWriter(long lastEntryId);
+        IJournalWriter CreateJournalWriter(ulong lastEntryId);
 
 
-        Stream CreateJournalWriterStream(long firstEntryId = 1);
+        Stream CreateJournalWriterStream(ulong firstEntryId = 1);
 
         Model LoadModel();
 

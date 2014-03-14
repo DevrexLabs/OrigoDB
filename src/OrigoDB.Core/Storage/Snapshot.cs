@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
 
@@ -23,10 +20,10 @@ namespace OrigoDB.Core.Storage
         /// <summary>
         /// The id of the journal entry containing the last command applied to this snapshot
         /// </summary>
-        public readonly long LastEntryId;
+        public readonly ulong LastEntryId;
 
 
-        public Snapshot(DateTime created, long lastEntryId)
+        public Snapshot(DateTime created, ulong lastEntryId)
         {
             Created = created;
             LastEntryId = lastEntryId;
@@ -38,7 +35,7 @@ namespace OrigoDB.Core.Storage
         public string Name { get { return ToString(); } }
 
 
-        public FileSnapshot(DateTime created, long lastEntryId) : base(created, lastEntryId)
+        public FileSnapshot(DateTime created, ulong lastEntryId) : base(created, lastEntryId)
         {
          
         }
@@ -50,7 +47,7 @@ namespace OrigoDB.Core.Storage
         {
             Match m = _parser.Match(fileInfo.Name);
             if (!m.Success) throw new ArgumentException("Invalid snapshot filename");
-            long entryNr = m.Groups["entryNr"].Value.ParsePadded();
+            ulong entryNr = m.Groups["entryNr"].Value.ParsePadded();
             return new FileSnapshot(fileInfo.CreationTime, entryNr);
         }
 

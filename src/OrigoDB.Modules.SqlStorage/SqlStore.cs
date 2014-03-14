@@ -67,7 +67,7 @@ namespace OrigoDB.Modules.SqlStorage
         /// 
         /// </summary>
         /// <returns></returns>
-        public override IEnumerable<JournalEntry> GetJournalEntriesFrom(long lastEntryId)
+        public override IEnumerable<JournalEntry> GetJournalEntriesFrom(ulong lastEntryId)
         {
             ISerializer serializer = _config.CreateSerializer();
             string sql = GetEntrySelectStatement(lastEntryId);
@@ -79,7 +79,7 @@ namespace OrigoDB.Modules.SqlStorage
                 var reader = dbCommand.ExecuteReader();
                 while (reader.Read())
                 {
-                    long entryId = reader.GetInt64(0);
+                    ulong entryId = (ulong) reader.GetInt64(0);
                     long length = reader.GetInt64(1);
                     if(length > Int32.MaxValue) throw new OverflowException("serialized journal entry is too big");
                     byte[] buffer = new byte[length];
@@ -92,7 +92,7 @@ namespace OrigoDB.Modules.SqlStorage
         }
 
 
-        private string GetEntrySelectStatement(long startingEntryId)
+        private string GetEntrySelectStatement(ulong startingEntryId)
         {
             string sql = null;
             if (_dbProviderFactory is SqlClientFactory) sql = "SELECT id, len(Entry), Entry FROM [{0}] WHERE Id >= {1} order by Id";
@@ -129,15 +129,15 @@ namespace OrigoDB.Modules.SqlStorage
             }
         }
         
-        public override Model LoadMostRecentSnapshot(out long lastEntryId)
+        public override Model LoadMostRecentSnapshot(out ulong lastEntryId)
         {
             return _fileStore.LoadMostRecentSnapshot(out lastEntryId);
         }
 
 
-        private Model LoadMostRecentSnapshotFromDb(out long lastEntryId)
+        private Model LoadMostRecentSnapshotFromDb(out ulong lastEntryId)
         {
-            lastEntryId = -1;
+            lastEntryId = 0;
             string sql = "select id from Snapshots order by id desc";
             var cmd = CreateSqlCommand(sql);
             using (cmd.Connection)
@@ -146,7 +146,7 @@ namespace OrigoDB.Modules.SqlStorage
                 var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    long id = reader.GetInt64(0);
+                    ulong id = (ulong) reader.GetInt64(0);
                     var snapshot = new FileSnapshot(DateTime.MinValue, id);
                     string path = Path.Combine(_config.Location.OfSnapshots, snapshot.Name);
                     if (File.Exists(path))
@@ -182,7 +182,7 @@ namespace OrigoDB.Modules.SqlStorage
             }
         }
 
-        protected override IJournalWriter CreateStoreSpecificJournalWriter(long lastEntryId)
+        protected override IJournalWriter CreateStoreSpecificJournalWriter(ulong lastEntryId)
         {
            return new SqlJournalWriter(this);
         }
@@ -255,7 +255,7 @@ namespace OrigoDB.Modules.SqlStorage
 
 
 
-        public override Stream CreateJournalWriterStream(long firstEntryId = 1)
+        public override Stream CreateJournalWriterStream(ulong firstEntryId = 1)
         {
             throw new NotImplementedException();
         }

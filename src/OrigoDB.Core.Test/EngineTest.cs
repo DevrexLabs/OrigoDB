@@ -2,7 +2,6 @@
 using System.Linq;
 using OrigoDB.Core.Proxy;
 using OrigoDB.Core.TinyIoC;
-using OrigoDB.Modules.SqlStorage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace OrigoDB.Core.Test
@@ -78,7 +77,7 @@ namespace OrigoDB.Core.Test
             var engine = Engine.For<TestModel>(CreateConfig());
             engine.Execute(new TestCommandWithResult());
             int numCommandsExecuted = engine.Execute(new GetNumberOfCommandsExecutedQuery());
-            Assert.AreEqual(numCommandsExecuted, 1);
+            Assert.AreEqual(1, numCommandsExecuted);
         }
 
         [TestMethod]
@@ -88,7 +87,7 @@ namespace OrigoDB.Core.Test
             int commandsExecutedBefore = engine.Execute(new GetNumberOfCommandsExecutedQuery());
             engine.Execute(new TestCommandWithoutResult());
             int commandsExecutedAfter = engine.Execute(new GetNumberOfCommandsExecutedQuery());
-            Assert.AreEqual(commandsExecutedAfter - commandsExecutedBefore, 1);
+            Assert.AreEqual(1, commandsExecutedAfter - commandsExecutedBefore);
         }
 
 
@@ -204,8 +203,10 @@ namespace OrigoDB.Core.Test
         private void AssertJournalEntriesAreSequential(IStore storage)
         {
             int expected = 1;
+            Console.WriteLine("JournalEntry Ids:");
             foreach (var journalEntry in storage.GetJournalEntries())
             {
+                Console.WriteLine(journalEntry.Id);
                 Assert.AreEqual(expected, journalEntry.Id);
                 expected++;
             }
@@ -224,16 +225,11 @@ namespace OrigoDB.Core.Test
             ExecuteCommands(engine,60);
             engine.Close();
 
-            //We should have 120 commands in the journal, numbered from 1 to 120
             var store = config.CreateStore();
-            store.Load();
-            int expected = 1;
-            foreach (var journalEntry in store.GetJournalEntries())
-            {
-                Assert.AreEqual(expected, journalEntry.Id);
-                expected++;
-            }
-            Assert.AreEqual(expected, 121);
+
+            AssertJournalEntriesAreSequential(store);
+            Assert.AreEqual(120, store.LastEntryId);
+            Assert.AreEqual(120, store.GetJournalEntries().Count());
         }
 
         [TestMethod]

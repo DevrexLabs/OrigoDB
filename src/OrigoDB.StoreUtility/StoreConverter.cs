@@ -109,7 +109,7 @@ namespace OrigoDB.StoreUtility
             ISerializer serializer = new EngineConfiguration().CreateSerializer();
             List<string> files = Directory.GetFiles(_args.Source, "*.journal").ToList();
             files.Sort(String.CompareOrdinal);
-            long entryId = 1;
+            ulong entryId = 1;
             foreach (string file in files)
             {
                 Stream stream = File.OpenRead(file);

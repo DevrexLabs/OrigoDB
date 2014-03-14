@@ -1,9 +1,4 @@
 using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using OrigoDB.Core.Logging;
-using OrigoDB.Modules.SqlStorage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace OrigoDB.Core.Test
@@ -22,15 +17,15 @@ namespace OrigoDB.Core.Test
         [TestCleanup()]
         public void MyTestCleanup() 
         {
-			Config.Engines.CloseAll();
+			//Config.Engines.CloseAll();
         }
 
 
         public EngineConfiguration CreateConfig()
         {
-            var config = new EngineConfiguration();
-            var store = new InMemoryStore();
-            config.SetStoreFactory(cfg => store);
+            var randomLocation = Guid.NewGuid().ToString();
+            var config = new EngineConfiguration(randomLocation);
+            config.SetStoreFactory(cfg => new InMemoryStore(cfg));
             return config;
         }
 

@@ -20,7 +20,7 @@ namespace OrigoDB.Core.Storage
             }
         }
 
-        public int LastEntryId { get; protected set; }
+        public ulong LastEntryId { get; protected set; }
 
 
         protected Store(EngineConfiguration config)
@@ -30,16 +30,16 @@ namespace OrigoDB.Core.Storage
             _journal = new CommandJournal(this);
         }
 
-        protected abstract IJournalWriter CreateStoreSpecificJournalWriter(long lastEntryId);
+        protected abstract IJournalWriter CreateStoreSpecificJournalWriter(ulong lastEntryId);
         protected abstract Snapshot WriteSnapshotImpl(Model model);
-        public abstract IEnumerable<JournalEntry> GetJournalEntriesFrom(long entryId);
+        public abstract IEnumerable<JournalEntry> GetJournalEntriesFrom(ulong entryId);
         public abstract IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime);
-        public abstract Model LoadMostRecentSnapshot(out long lastEntryId);
+        public abstract Model LoadMostRecentSnapshot(out ulong lastEntryId);
         public abstract void VerifyCanLoad();
         public abstract void VerifyCanCreate();
         public abstract void Create(Model model);
         protected abstract IEnumerable<Snapshot> LoadSnapshots();
-        public abstract Stream CreateJournalWriterStream(long firstEntryId = 1);
+        public abstract Stream CreateJournalWriterStream(ulong firstEntryId = 1);
 
         public virtual IEnumerable<JournalEntry> GetJournalEntries()
         {
@@ -57,7 +57,7 @@ namespace OrigoDB.Core.Storage
             _snapshots.Add(snapshot);
         }
 
-        public virtual IJournalWriter CreateJournalWriter(long lastEntryId)
+        public virtual IJournalWriter CreateJournalWriter(ulong lastEntryId)
         {
             IJournalWriter writer = CreateStoreSpecificJournalWriter(lastEntryId);
             return _config.AsyncronousJournaling
@@ -94,7 +94,7 @@ namespace OrigoDB.Core.Storage
 
         public Model LoadModel()
         {
-            long lastEntryIdExecuted;
+            ulong lastEntryIdExecuted;
             Model model = LoadMostRecentSnapshot(out lastEntryIdExecuted);
 
             model.SnapshotRestored();
@@ -104,6 +104,7 @@ namespace OrigoDB.Core.Storage
                 command.Redo(ref model);
             }
             model.JournalRestored();
+            LastEntryId = lastEntryIdExecuted;
             return model;
         }
 

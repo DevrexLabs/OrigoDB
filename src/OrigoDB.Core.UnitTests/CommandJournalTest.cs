@@ -15,139 +15,6 @@ namespace OrigoDB.Core.Test
     [TestFixture]
     public class CommandJournalTest
     {
-
-        //public class NullStorex: IStore
-        //{
-        //    private MemoryJournal _memoryJournal;
-        //    public NullStorex(MemoryJournal journal = null)
-        //    {
-        //        _memoryJournal = journal;
-        //    }
-        //    public void VerifyCanLoad()
-        //    {
-
-        //    }
-
-        //    public Model LoadMostRecentSnapshot(out long lastEntryId)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public void WriteSnapshot(Model model)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public void VerifyCanCreate()
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public void Create(Model model)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public void Load()
-        //    {
-
-        //    }
-
-        //    public bool Exists
-        //    {
-        //        get { throw new NotImplementedException(); }
-        //    }
-
-        //    public IEnumerable<JournalEntry> GetJournalEntries()
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public IEnumerable<JournalEntry> GetJournalEntriesFrom(long entryId)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public IJournalWriter CreateJournalWriter(long lastEntryId)
-        //    {
-        //        return _memoryJournal ?? new MemoryJournal();
-        //    }
-
-
-        //    public System.IO.Stream CreateJournalWriterStream(long firstEntryId = 1)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-
-        //    public Model LoadModel()
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-
-        //    public CommandJournal Journal
-        //    {
-        //        get { throw new NotImplementedException(); }
-        //    }
-
-
-        //    public int LastEntryId
-        //    {
-        //        get { throw new NotImplementedException(); }
-        //    }
-
-        //    public void AppendCommand(Command command)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public void InvalidatePreviousCommand()
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
-
-        //public class MemoryJournal : IJournalWriter
-        //{
-        //    private bool isDisposed;
-        //    public List<JournalEntry> Entries { get; private set; }
-
-
-        //    public MemoryJournal()
-        //    {
-        //        Entries = new List<JournalEntry>();
-        //    }
-
-        //    public void Write(JournalEntry item)
-        //    {
-        //        EnsureNotDisposed();
-        //        Entries.Add(item);
-        //    }
-
-        //    public void Close()
-        //    {
-        //        EnsureNotDisposed();
-        //        Dispose();
-        //    }
-
-        //    public void Dispose()
-        //    {
-        //        isDisposed = true;
-        //    }
-
-        //    private void EnsureNotDisposed()
-        //    {
-        //        if (isDisposed) throw new ObjectDisposedException("MemoryJournal");
-        //    }
-        //}
-
-
         List<Tuple<List<JournalEntry>, string>> _testCases = new List<Tuple<List<JournalEntry>, string>>()
                                 {
                                     Tuple.Create(GenerateEntries(5, 3), "Intermediate entry rolled back"),
@@ -173,30 +40,30 @@ namespace OrigoDB.Core.Test
             //Act
             var actualCommandEntries = target.CommittedCommandEntries(() => testEntries).ToArray();
 
-            long[] rolledBackIds = testEntries.OfType<JournalEntry<RollbackMarker>>().Select(e => e.Id).ToArray();
+            ulong[] rolledBackIds = testEntries.OfType<JournalEntry<RollbackMarker>>().Select(e => e.Id).ToArray();
             int expectedNumberOfCommandEntries = testEntries.Count - rolledBackIds.Length * 2;
 
             //Assert
             Assert.AreEqual(expectedNumberOfCommandEntries, actualCommandEntries.Length, failureMessage);
 
-            int sequentialId = 1;
+            ulong sequentialId = 1;
 
             foreach (JournalEntry<Command> journalEntry in actualCommandEntries)
             {
                 if (!rolledBackIds.Contains(sequentialId))
                 {
                     //TODO: Maybe we should return no-op commands instead of skipping rolled back
-                    int expectedId = sequentialId + rolledBackIds.Count(id => id < journalEntry.Id);
+                    ulong expectedId = sequentialId + (ulong) rolledBackIds.Count(id => id < journalEntry.Id);
                     Assert.AreEqual(expectedId, journalEntry.Id, failureMessage);
                 }
                 sequentialId++;
             }
         }
 
-        private static List<JournalEntry> GenerateEntries(int numEntries, params int[] failedCommandIds)
+        private static List<JournalEntry> GenerateEntries(ulong numEntries, params ulong[] failedCommandIds)
         {
             var testEntries = new List<JournalEntry>();
-            for (int i = 1; i <= numEntries; i++)
+            for (ulong i = 1; i <= numEntries; i++)
             {
                 testEntries.Add(new JournalEntry<Command>(i, null));
                 if (failedCommandIds.Contains(i)) testEntries.Add(new JournalEntry<RollbackMarker>(i, null));

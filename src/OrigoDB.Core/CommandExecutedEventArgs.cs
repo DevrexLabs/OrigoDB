@@ -7,13 +7,13 @@ namespace OrigoDB.Core
     /// </summary>
     public class CommandExecutedEventArgs : EventArgs
     {
-        public readonly int JournalEntryId;
+        public readonly ulong JournalEntryId;
         public readonly Command Command;
         public readonly DateTime Executed;
         public readonly TimeSpan ExecutionTime;
         //todo: add more fields, prepare, preparetime
 
-        public CommandExecutedEventArgs(int entryId, Command command, DateTime executed, TimeSpan executionTime)
+        public CommandExecutedEventArgs(ulong entryId, Command command, DateTime executed, TimeSpan executionTime)
         {
             JournalEntryId = entryId;
             Command = command;

@@ -9,11 +9,11 @@ namespace OrigoDB.Core
     [Serializable]
     public abstract class JournalEntry
     {
-        public readonly long Id;
+        public readonly ulong Id;
 
         public readonly DateTime Created;
 
-        public  JournalEntry(long id, DateTime? created  = null)
+        public  JournalEntry(ulong id, DateTime? created  = null)
         {
             Created = created ?? DateTime.Now;
             Id = id;
@@ -26,7 +26,7 @@ namespace OrigoDB.Core
 	{
         public T Item { get; protected internal set; }
 		
-		public JournalEntry(long id, T item, DateTime? created = null) : base(id, created)
+		public JournalEntry(ulong id, T item, DateTime? created = null) : base(id, created)
 		{
             Item = item;
 		}

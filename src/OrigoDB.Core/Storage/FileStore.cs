@@ -54,7 +54,7 @@ namespace OrigoDB.Core
             return fileSnapshot;
         }
 
-        public override IEnumerable<JournalEntry> GetJournalEntriesFrom(long entryId)
+        public override IEnumerable<JournalEntry> GetJournalEntriesFrom(ulong entryId)
         {
 			if (entryId != 0 && entryId < _journalFiles[0].StartingEntryId)
 				throw new NotSupportedException("Journal file missing");
@@ -89,7 +89,7 @@ namespace OrigoDB.Core
 
 
 
-        public override Model LoadMostRecentSnapshot(out long lastSequenceNumber)
+        public override Model LoadMostRecentSnapshot(out ulong lastSequenceNumber)
         {
             lastSequenceNumber = 0;
             FileSnapshot snapshot = (FileSnapshot) Snapshots.LastOrDefault();
@@ -108,7 +108,7 @@ namespace OrigoDB.Core
         /// stream will have the specified sequenceNumber
         /// </summary>
         /// <returns>An open stream</returns>
-        public override Stream CreateJournalWriterStream(long firstEntryId = 1)
+        public override Stream CreateJournalWriterStream(ulong firstEntryId = 1)
         {
             var current = _journalFiles.LastOrDefault() ?? new JournalFile(0, 0);
             var next = current.Successor(firstEntryId);
@@ -205,7 +205,7 @@ namespace OrigoDB.Core
             }
         }
 
-        protected override IJournalWriter CreateStoreSpecificJournalWriter(long lastEntryId)
+        protected override IJournalWriter CreateStoreSpecificJournalWriter(ulong lastEntryId)
         {
             return new StreamJournalWriter(this, _config);
         }

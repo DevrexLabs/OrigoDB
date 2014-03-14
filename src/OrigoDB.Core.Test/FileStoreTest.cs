@@ -69,7 +69,7 @@ namespace OrigoDB.Core.Test
 			_store.Load();
 
 			var writer = _store.CreateJournalWriter(0);
-			for (int i = 0; i < 30; i++)
+			for (ulong i = 0; i < 30; i++)
 			{
 				writer.Write(new JournalEntry<Command>(i + 1, new TestCommandWithoutResult()));
 			}

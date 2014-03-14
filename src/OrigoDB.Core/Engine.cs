@@ -105,7 +105,7 @@ namespace OrigoDB.Core
                 _executionTimer.Restart();
 
                 _store.AppendCommand(command);
-                int lastEntryId = _store.LastEntryId;
+                var lastEntryId = _store.LastEntryId;
 
                 try
                 {

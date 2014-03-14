@@ -21,12 +21,12 @@ namespace OrigoDB.Core
 		readonly IStore _storage;
         private JournalState _state;
 	    private static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
-        private long _lastEntryId;
+        private ulong _lastEntryId;
 
         /// <summary>
         /// Id of the last entry written to the journal
         /// </summary>
-        public long LastEntryId
+        public ulong LastEntryId
         {
             get { return _lastEntryId; }
         }
@@ -38,7 +38,7 @@ namespace OrigoDB.Core
         }
 
 
-        public IEnumerable<JournalEntry<Command>> GetEntriesFrom(long entryId)
+        public IEnumerable<JournalEntry<Command>> GetEntriesFrom(ulong entryId)
         {
             return CommittedCommandEntries(() => _storage.GetJournalEntriesFrom(entryId));
         }
@@ -120,11 +120,11 @@ namespace OrigoDB.Core
 		}
 
 
-        private void TransitionTo(JournalState state)
+        private void TransitionTo(JournalState newState)
         {
-            if (_state != state)
+            if (_state != newState)
             {
-                if (state == JournalState.Open) Open();
+                if (newState == JournalState.Open) Open();
                 else Close();
             }
         }

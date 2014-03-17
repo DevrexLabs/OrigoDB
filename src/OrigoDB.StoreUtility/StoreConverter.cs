@@ -91,7 +91,7 @@ namespace OrigoDB.StoreUtility
                 default:
                     throw new ArgumentException("Invalid source type");
             }
-            store.Load();
+            store.Init();
             return store.GetJournalEntries();
         }
 

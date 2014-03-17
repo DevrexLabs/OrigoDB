@@ -65,7 +65,6 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assumptions.cs" />
     <Compile Include="ByteCountingNullStreamTest.cs" />
     <Compile Include="ExtensionsTest.cs" />
     <Compile Include="CachingLinqCompilerTest.cs" />

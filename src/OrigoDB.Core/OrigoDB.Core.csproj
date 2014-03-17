@@ -70,6 +70,9 @@
     <Compile Include="CommandExecutedEventArgs.cs" />
     <Compile Include="CommandExecutingEventArgs.cs" />
     <Compile Include="CommandFailedException.cs" />
+    <Compile Include="Configuration\TeenyIoc.cs" />
+    <Compile Include="Journaling\JournalAppender.cs" />
+    <Compile Include="Storage\StoreExtensions.cs" />
     <Compile Include="Transactions\Command[M].cs" />
     <Compile Include="Transactions\Command[M,R].cs" />
     <Compile Include="Compression\DeflateStreamCompressor.cs" />
@@ -136,7 +139,6 @@
     <Compile Include="Journaling\AsynchronousJournalWriter.cs" />
     <Compile Include="Transactions\Command.cs" />
     <Compile Include="CommandAbortedException.cs" />
-    <Compile Include="Journaling\CommandJournal.cs" />
     <Compile Include="Configuration\SynchronizationMode.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Configuration\EngineConfiguration.cs" />
@@ -165,7 +167,6 @@
     <Compile Include="Utilities\ResourcePool.cs" />
     <Compile Include="Utilities\SocketExtensions.cs" />
     <Compile Include="Utilities\DictionaryMapper.cs" />
-    <Compile Include="Utilities\TinyIoC.cs" />
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Utilities\Immutable.cs" />
     <Compile Include="Security\User.cs" />

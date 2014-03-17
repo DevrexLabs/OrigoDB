@@ -1,44 +1,96 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.IO;
+using System.Reflection;
 using OrigoDB.Core.Logging;
 
 namespace OrigoDB.Core.Storage
 {
+    [Flags]
+    public enum StoreState
+    {
+        Uninitialized = 1, 
+        Initialized   = 2,
+        Loaded        = 4
+    };
+
     public abstract class Store : IStore
     {
+
+        protected static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
+        protected StoreState _storeState = StoreState.Uninitialized;
         protected EngineConfiguration _config;
         protected ISerializer _serializer;
-        protected static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
+        protected List<Snapshot> _snapshots;
+        protected JournalAppender _journalAppender;
 
-        private List<Snapshot> _snapshots;
-        public IEnumerable<Snapshot> Snapshots
+        public JournalAppender GetAppender()
         {
-            get {
+            ExpectState(StoreState.Loaded);
+            return _journalAppender;
+        }
+
+        public JournalAppender LoadModel(out Model model, Type modelType = null)
+        {
+            ExpectState(StoreState.Initialized);
+
+            ulong currentEntryId;
+            model = LoadMostRecentSnapshot(out currentEntryId);
+            model.SnapshotRestored();
+
+            foreach (var command in this.CommandEntriesFrom(currentEntryId + 1))
+            {
+                command.Item.Redo(ref model);
+                currentEntryId = command.Id;
+            }
+            model.JournalRestored();
+            _journalAppender = new JournalAppender(currentEntryId + 1, CreateJournalWriter(currentEntryId + 1));
+
+            _storeState = StoreState.Loaded;
+            return _journalAppender;
+        }
+
+
+        protected void ExpectState(StoreState states)
+        {
+            if ((_storeState & states) == 0) 
+            {
+                var message = String.Format("Expected state(s) {0}, was {1}", states, _storeState);
+                throw new InvalidOperationException(message);
+            }
+        }
+        public ulong LastEntryId
+        {
+            get
+            {
+                ExpectState(StoreState.Loaded);
+                return _journalAppender.LastEntryId;
+            }
+        }
+
+        public virtual IEnumerable<Snapshot> Snapshots
+        {
+            get 
+            {
+                ExpectState(StoreState.Initialized | StoreState.Loaded);
                 return _snapshots;
             }
         }
 
-        public ulong LastEntryId { get; protected set; }
-
-
         protected Store(EngineConfiguration config)
         {
             _config = config;
-            _serializer = _config.CreateSerializer();
-            _journal = new CommandJournal(this);
         }
 
         protected abstract IJournalWriter CreateStoreSpecificJournalWriter(ulong lastEntryId);
-        protected abstract Snapshot WriteSnapshotImpl(Model model);
+        protected abstract Snapshot WriteSnapshotImpl(Model model, ulong lastAppliedEntryId);
         public abstract IEnumerable<JournalEntry> GetJournalEntriesFrom(ulong entryId);
         public abstract IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime);
         public abstract Model LoadMostRecentSnapshot(out ulong lastEntryId);
-        public abstract void VerifyCanLoad();
-        public abstract void VerifyCanCreate();
-        public abstract void Create(Model model);
-        protected abstract IEnumerable<Snapshot> LoadSnapshots();
+
+        protected abstract IEnumerable<Snapshot> ReadSnapshotMetaData();
         public abstract Stream CreateJournalWriterStream(ulong firstEntryId = 1);
 
         public virtual IEnumerable<JournalEntry> GetJournalEntries()
@@ -48,12 +100,8 @@ namespace OrigoDB.Core.Storage
 
         public void WriteSnapshot(Model model)
         {
-            if(Snapshots.Any(ss => ss.LastEntryId == LastEntryId))
-            {
-                _log.Debug("Snapshot already exists");
-                return;
-            }
-            Snapshot snapshot = WriteSnapshotImpl(model);
+            ExpectState(StoreState.Loaded);
+            Snapshot snapshot = WriteSnapshotImpl(model, LastEntryId);
             _snapshots.Add(snapshot);
         }
 
@@ -65,58 +113,53 @@ namespace OrigoDB.Core.Storage
                        : writer;
         }
 
-        public virtual void Load()
+        public virtual void Init()
         {
+            ExpectState(StoreState.Uninitialized);
             _snapshots = new List<Snapshot>();
-            foreach (var snapshot in LoadSnapshots())
+            foreach (var snapshot in ReadSnapshotMetaData())
             {
                 _snapshots.Add(snapshot);
             }
+
+            _serializer = _config.CreateSerializer();
+            _storeState = StoreState.Initialized;
         }
 
-        public virtual bool Exists
+        public bool IsEmpty
         {
             get
             {
-                try
-                {
-                    VerifyCanLoad();
-                    return true;
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
+                if (_storeState == StoreState.Loaded) return false;
+                ExpectState(StoreState.Initialized);
+                return !Snapshots.Any() && !GetJournalEntries().Any();
             }
         }
 
-        private CommandJournal _journal;
-
-        public Model LoadModel()
+        protected void AssertEmpty()
         {
-            ulong lastEntryIdExecuted;
-            Model model = LoadMostRecentSnapshot(out lastEntryIdExecuted);
-
-            model.SnapshotRestored();
-            var commandJournal = new CommandJournal(this);
-            foreach (var command in commandJournal.GetEntriesFrom(lastEntryIdExecuted).Select(entry => entry.Item))
-            {
-                command.Redo(ref model);
-            }
-            model.JournalRestored();
-            LastEntryId = lastEntryIdExecuted;
-            return model;
+            if (!IsEmpty) throw new InvalidOperationException("Store must be empty");
         }
 
-
-        public void AppendCommand(Command command)
+        public virtual void Create<T>() where T : Model, new()
         {
-            _journal.Append(command);
+            AssertEmpty();
+            Create(new T());
         }
 
-        public void InvalidatePreviousCommand()
+        public virtual void Create(Type modelType)
         {
-            _journal.WriteRollbackMarker();
+            AssertEmpty();
+            var model = (Model) Activator.CreateInstance(modelType);
+            Create(model);
+
         }
+
+        public virtual void Create(Model model)
+        {
+            AssertEmpty();
+            WriteSnapshotImpl(model, 0);
+        }
+
     }
 }

@@ -29,17 +29,6 @@ namespace OrigoDB.Core
 
         readonly InMemoryStoreState _state;
 
-        public InMemoryStore()
-            : this(Guid.NewGuid().ToString())
-        {
-
-        }
-
-        public InMemoryStore(string clientIdentifier)
-            : this(new EngineConfiguration(clientIdentifier))
-        {
-            
-        }
 
         public InMemoryStore(EngineConfiguration config)
             : base(config)
@@ -57,10 +46,10 @@ namespace OrigoDB.Core
             return new StreamJournalWriter(this, _config);
         }
 
-        protected override Snapshot WriteSnapshotImpl(Model model)
+        protected override Snapshot WriteSnapshotImpl(Model model, ulong lastEntryId)
         {
             var bytes = _serializer.Serialize(model);
-            var snapshot = new Snapshot(DateTime.Now, LastEntryId);
+            var snapshot = new Snapshot(DateTime.Now, lastEntryId);
             _state.Snapshots.Add(snapshot, bytes);
             return snapshot;
         }
@@ -92,24 +81,11 @@ namespace OrigoDB.Core
             return result;
         }
 
-        public override void VerifyCanLoad()
-        {
-            if (_state.Snapshots.Count == 0) throw new InvalidOperationException();
-        }
 
-        public override void VerifyCanCreate()
-        {
-            if (_state.Snapshots.Any()) throw new InvalidOperationException();
-        }
 
-        public override void Create(Model model)
+        protected override IEnumerable<Snapshot> ReadSnapshotMetaData()
         {
-            WriteSnapshotImpl(model);
-        }
-
-        protected override IEnumerable<Snapshot> LoadSnapshots()
-        {
-            foreach (var snapshot in _state.Snapshots.Keys.OrderBy(ss => ss.Created)) yield return snapshot;
+            foreach (var snapshot in _state.Snapshots.Keys.OrderBy(ss => ss.LastEntryId)) yield return snapshot;
         }
 
         public override Stream CreateJournalWriterStream(ulong firstEntryId = 1)

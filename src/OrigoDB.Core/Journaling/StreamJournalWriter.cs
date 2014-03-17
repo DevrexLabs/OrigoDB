@@ -3,7 +3,6 @@ using OrigoDB.Core.Logging;
 
 namespace OrigoDB.Core
 {
-
     /// <summary>
     /// Serializes journal entries to a stream, flushing after each write
     /// </summary>
@@ -28,6 +27,7 @@ namespace OrigoDB.Core
             {
                 if (_stream.CanWrite) _stream.Flush();
                 _stream.Dispose();
+                _stream = null;
             }
         }
 
@@ -46,7 +46,7 @@ namespace OrigoDB.Core
 			{
 				_log.Debug("NewJournalSegment");
 				Close();
-				_stream = _storage.CreateJournalWriterStream(item.Id + 1);
+				_stream = _storage.CreateJournalWriterStream(item.Id);
 				_entriesWrittenToCurrentStream = 0;
 			}
 			
@@ -57,8 +57,7 @@ namespace OrigoDB.Core
 
 		public void Close()
 		{
-			if(_stream != null && (_stream.CanRead || _stream.CanWrite))
-				_stream.Close();
+		    Dispose();
 		}
 	}
 }

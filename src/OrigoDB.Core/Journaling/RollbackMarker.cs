@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace OrigoDB.Core.Journaling
 {
@@ -12,10 +9,5 @@ namespace OrigoDB.Core.Journaling
     [Serializable]
     public class RollbackMarker
     {
-        private RollbackMarker()
-        {
-        }
-
-        public static RollbackMarker Instance = new RollbackMarker();
     }
 }

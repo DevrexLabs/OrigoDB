@@ -66,7 +66,7 @@ namespace OrigoDB.Core.Test
 			_config.Location.OfJournal = _path;
 			_config.MaxEntriesPerJournalSegment = 10;
 			_store = new FileStore(_config);
-			_store.Load();
+			_store.Init();
 
 			var writer = _store.CreateJournalWriter(0);
 			for (ulong i = 0; i < 30; i++)
@@ -86,12 +86,12 @@ namespace OrigoDB.Core.Test
 		
 		#endregion
 
-		[TestMethod(), ExpectedException(typeof(NotSupportedException))]
+		[TestMethod(), ExpectedException(typeof(InvalidOperationException))]
 		public void JournalReadThrowsIfSequenceStartIsMissing()
 		{
 			var files = Directory.GetFiles(_path).OrderBy(f => f).ToArray();
 			File.Delete(files[0]);
-			_store.Load(); // Reload store to update journalfile list.
+			_store.Init(); // Reload store to update journalfile list.
 			_store.GetJournalEntriesFrom(1).Count();
 			Assert.Fail();
 		}
@@ -101,7 +101,7 @@ namespace OrigoDB.Core.Test
 		{
 			var result = _store.GetJournalEntriesFrom(1).ToArray();
 			var id = result[0].Id;
-			Assert.AreEqual(1,id);
+			Assert.AreEqual((ulong) 1,id);
 			Assert.AreEqual(30,result.Length);
 		}
 
@@ -110,7 +110,7 @@ namespace OrigoDB.Core.Test
 		{
 			var result = _store.GetJournalEntriesFrom(10).ToArray();
 			var id = result[0].Id;
-			Assert.AreEqual(10, id);
+			Assert.AreEqual((ulong)10, id);
 			Assert.AreEqual(21, result.Length);
 		}
 
@@ -119,7 +119,7 @@ namespace OrigoDB.Core.Test
 		{
 			var result = _store.GetJournalEntriesFrom(15).ToArray();
 			var id = result[0].Id;
-			Assert.AreEqual(15, id);
+			Assert.AreEqual((ulong)15, id);
 			Assert.AreEqual(16, result.Length);
 		}
 	}

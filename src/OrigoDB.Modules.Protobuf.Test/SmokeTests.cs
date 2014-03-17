@@ -217,10 +217,10 @@ namespace Modules.ProtoBuf.Test
             var entry = new JournalEntry<MyMessage3>(42, new MyMessage3(43, "dalmatians"), created);
             long bytesWritten;
             var clonedEntry = (JournalEntry<MyMessage3>)Clone<JournalEntry<MyMessage3>, JournalEntry>(typeModel, entry, out bytesWritten);
-            Assert.AreEqual(clonedEntry.Id, 42);
-            Assert.AreEqual(clonedEntry.Created, created);
-            Assert.AreEqual(clonedEntry.Item.MyField, 43);
-            Assert.AreEqual(clonedEntry.Item.MyField2, "dalmatians");
+            Assert.AreEqual((ulong) 42, clonedEntry.Id);
+            Assert.AreEqual(created, clonedEntry.Created);
+            Assert.AreEqual(43, clonedEntry.Item.MyField);
+            Assert.AreEqual("dalmatians", clonedEntry.Item.MyField2);
             return bytesWritten;
         }
 
@@ -340,13 +340,13 @@ namespace Modules.ProtoBuf.Test
             var entry = new JournalEntry<Command>(42, new MyMessage3(43, "dalmatians"), created);
             long bytesWritten;
             var clonedEntry = (JournalEntry<Command>)Clone<JournalEntry<Command>, JournalEntry>(model, entry, out bytesWritten);
-            Assert.AreEqual(clonedEntry.Id, 42);
-            Assert.AreEqual(clonedEntry.Created, created);
+            Assert.AreEqual((ulong) 42, clonedEntry.Id);
+            Assert.AreEqual(created, clonedEntry.Created);
 
             var item = clonedEntry.Item as MyMessage3;
 
-            Assert.AreEqual(item.MyField, 43);
-            Assert.AreEqual(item.MyField2, "dalmatians");
+            Assert.AreEqual(43,item.MyField);
+            Assert.AreEqual("dalmatians", item.MyField2);
             Console.WriteLine("Bytes written:" + bytesWritten);
         }
     }

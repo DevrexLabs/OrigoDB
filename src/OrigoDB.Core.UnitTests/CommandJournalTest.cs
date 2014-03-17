@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using OrigoDB.Core.Journaling;
 using NUnit.Framework;
+using OrigoDB.Core;
 
 namespace OrigoDB.Core.Test
 {
@@ -32,13 +33,13 @@ namespace OrigoDB.Core.Test
         [TestCaseSource("_testCases")]
         public void RolledBackCommandsAreSkipped(Tuple<List<JournalEntry>, string> testCase)
         {
-            var target = new CommandJournal(new InMemoryStore());
+            IStore target = new InMemoryStore(EngineConfiguration.Create().ForIsolatedTest());
 
             string failureMessage = testCase.Item2;
             var testEntries = testCase.Item1;
 
             //Act
-            var actualCommandEntries = target.CommittedCommandEntries(() => testEntries).ToArray();
+            var actualCommandEntries = StoreExtensions.CommittedCommandEntries(() => testEntries).ToArray();
 
             ulong[] rolledBackIds = testEntries.OfType<JournalEntry<RollbackMarker>>().Select(e => e.Id).ToArray();
             int expectedNumberOfCommandEntries = testEntries.Count - rolledBackIds.Length * 2;
@@ -76,13 +77,16 @@ namespace OrigoDB.Core.Test
         public void RollbackMarkerIsWrittenOnRollback()
         {
             //Arrange
-            var store = new InMemoryStore();
-            var target = new CommandJournal(store);
+            var config = EngineConfiguration.Create().ForIsolatedTest();
+            var store = new InMemoryStore(config);
+            store.Init();
+            var target = new JournalAppender(1, new StreamJournalWriter(store, config));
+            
             target.Append(new ACommand());
             target.Append(new ACommand());
 
             //Act
-            target.WriteRollbackMarker();
+            target.AppendRollbackMarker();
 
             //Assert
             Assert.AreEqual(3, store.GetJournalEntries().Count());

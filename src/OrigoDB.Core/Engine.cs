@@ -14,14 +14,15 @@ namespace OrigoDB.Core
     public partial class Engine : IDisposable
     {
 
-        public event EventHandler<CommandExecutingEventArgs> BeforeExecute = delegate { };
-        public event EventHandler<CommandExecutedEventArgs> AfterExecute = delegate { };
+        public event EventHandler<CommandExecutingEventArgs> CommandExecuting = delegate { };
+        public event EventHandler<CommandExecutedEventArgs> CommandExecuted = delegate { };
 
         readonly Stopwatch _executionTimer = new Stopwatch();
         static readonly ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
 
         readonly EngineConfiguration _config;
         readonly IAuthorizer<Type> _authorizer;
+        private JournalAppender _journalAppender;
 
         readonly IStore _store;
         readonly ISynchronizer _synchronizer;
@@ -41,7 +42,7 @@ namespace OrigoDB.Core
             _synchronizer = _config.CreateSynchronizer();
             _authorizer = _config.CreateAuthorizer();
 
-            store.Load();
+            //store.Init();
             Restore();
 
             if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)
@@ -59,10 +60,10 @@ namespace OrigoDB.Core
 
         private void Restore()
         {
-            Model model = _store.LoadModel();
+            Model model;
+            _journalAppender = _store.LoadModel(out model);
             _kernel = _config.CreateKernel(model);
             _kernel.SetSynchronizer(_synchronizer);
-
         }
 
         public object Execute(Query query)
@@ -97,29 +98,26 @@ namespace OrigoDB.Core
             ThrowUnlessAuthenticated(command.GetType());
 
             var eventArgs = new CommandExecutingEventArgs(command);
-            BeforeExecute.Invoke(this, eventArgs);
+            CommandExecuting.Invoke(this, eventArgs);
             if (eventArgs.Cancel) throw new CommandAbortedException("Command canceled by event handler");
             lock (_commandSequenceLock)
             {
                 DateTime start = DateTime.Now;
                 _executionTimer.Restart();
-
-                _store.AppendCommand(command);
-                var lastEntryId = _store.LastEntryId;
-
+                ulong lastEntryId = _journalAppender.Append(command);
                 try
                 {
                     return _kernel.ExecuteCommand(command);
                 }
                 catch (Exception ex)
                 {
-                    _store.InvalidatePreviousCommand();
+                    _journalAppender.AppendRollbackMarker();
                     if (!(ex is CommandAbortedException)) Rollback();
                     throw;
                 }
                 finally
                 {
-                    AfterExecute.Invoke(this, new CommandExecutedEventArgs(lastEntryId, command, start, _executionTimer.Elapsed));
+                    CommandExecuted.Invoke(this, new CommandExecutedEventArgs(lastEntryId, command, start, _executionTimer.Elapsed));
                     _synchronizer.Exit();
                 }
             }
@@ -264,6 +262,7 @@ namespace OrigoDB.Core
             config = config ?? EngineConfiguration.Create();
             if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
             var store = config.CreateStore();
+            //store.Init();
             return new Engine<TModel>(store, config);
         }
         #endregion
@@ -282,6 +281,13 @@ namespace OrigoDB.Core
             return Create(new TModel(), config);
         }
 
+        /// <summary>
+        /// Create from an existing model by writing a snapshot
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="config"></param>
+        /// <returns></returns>
         public static Engine<TModel> Create<TModel>(TModel model, EngineConfiguration config = null) where TModel : Model
         {
             config = config ?? EngineConfiguration.Create();
@@ -310,16 +316,17 @@ namespace OrigoDB.Core
             Engine<TModel> result = null;
 
             var store = config.CreateStore();
+            //store.Init();
 
-            if (store.Exists)
-            {
-                result = Load<TModel>(config);
-                _log.Debug("Engine Loaded");
-            }
-            else
+            if (store.IsEmpty)
             {
                 result = Create(new TModel(), config);
                 _log.Debug("Engine Created");
+            }
+            else
+            {
+                result = Load<TModel>(config);
+                _log.Debug("Engine Loaded");
             }
             return result;
         }

@@ -29,9 +29,10 @@ namespace OrigoDB.Core
         /// <summary>
         /// Read journal files
         /// </summary>
-        public override void Load()
+        public override void Init()
         {
-            base.Load();
+            EnsureDirectoryExists(_config.Location.OfJournal);
+            base.Init();
             _journalFiles = new List<JournalFile>();
             foreach (var file in Directory.GetFiles(_config.Location.OfJournal, "*.journal"))
             {
@@ -43,9 +44,9 @@ namespace OrigoDB.Core
         }
 
 
-        protected override Snapshot WriteSnapshotImpl(Model model)
+        protected override Snapshot WriteSnapshotImpl(Model model, ulong lastAppliedEntryId)
         {
-            var fileSnapshot = new FileSnapshot(DateTime.Now, LastEntryId);
+            var fileSnapshot = new FileSnapshot(DateTime.Now, lastAppliedEntryId);
             var fileName = Path.Combine(_config.Location.OfSnapshots, fileSnapshot.Name);
             using (Stream stream = GetWriteStream(fileName, append:false))
             {
@@ -56,8 +57,8 @@ namespace OrigoDB.Core
 
         public override IEnumerable<JournalEntry> GetJournalEntriesFrom(ulong entryId)
         {
-			if (entryId != 0 && entryId < _journalFiles[0].StartingEntryId)
-				throw new NotSupportedException("Journal file missing");
+
+            bool firstEntry = true;
 
             //Scroll to the correct file
             int offset = 0;
@@ -71,6 +72,12 @@ namespace OrigoDB.Core
                 {
                     foreach (var entry in _serializer.ReadToEnd<JournalEntry>(stream))
                     {
+                        if (firstEntry && entry.Id > entryId)
+                        {
+                            string msg = String.Format("requested: {0}, first: {1}", entryId, entry.Id);
+                            throw new InvalidOperationException(msg);
+                        }
+                        firstEntry = false;
                         if (entry.Id < entryId) continue;
                         yield return entry;
                     }
@@ -118,20 +125,19 @@ namespace OrigoDB.Core
             return GetWriteStream(path,  append : true);
         }
 
-        public override void Create(Model initialModel)
-        {
-            VerifyCanCreate();
-            EnsureDirectoryExists(_config.Location.OfJournal);
+        //public override void Create(Model initialModel)
+        //{
+        //    VerifyCanCreate();
+        //    EnsureDirectoryExists(_config.Location.OfJournal);
 
-            if (_config.Location.HasAlternativeSnapshotLocation)
-            {
-                EnsureDirectoryExists(_config.Location.OfSnapshots);
-            }
-            Load();
-            LastEntryId = 0;
-            WriteSnapshot(initialModel);
+        //    if (_config.Location.HasAlternativeSnapshotLocation)
+        //    {
+        //        EnsureDirectoryExists(_config.Location.OfSnapshots);
+        //    }
+        //    Load();
+        //    WriteSnapshot(initialModel,0);
             
-        }
+        //}
 
 
         private void EnsureDirectoryExists(string directory)
@@ -170,14 +176,14 @@ namespace OrigoDB.Core
             }
         }
 
-        public override void VerifyCanCreate()
+        private void VerifyCanCreate()
         {
             VerifyDirectory(_config.Location.OfJournal);
             if (_config.Location.HasAlternativeSnapshotLocation)
                 VerifyDirectory(_config.Location.OfSnapshots);
         }
 
-        public override void VerifyCanLoad()
+        private  void VerifyCanLoad()
         {
             string error = String.Empty;
             if (!Directory.Exists(_config.Location.OfJournal))
@@ -210,7 +216,7 @@ namespace OrigoDB.Core
             return new StreamJournalWriter(this, _config);
         }
 
-        protected override IEnumerable<Snapshot> LoadSnapshots()
+        protected override IEnumerable<Snapshot> ReadSnapshotMetaData()
         {
             var snapshots = new List<FileSnapshot>();
             foreach (var file in Directory.GetFiles(_config.Location.OfSnapshots, "*.snapshot"))

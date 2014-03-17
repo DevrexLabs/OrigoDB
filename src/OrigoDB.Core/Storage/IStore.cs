@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Configuration;
+using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core
 {
@@ -9,38 +11,30 @@ namespace OrigoDB.Core
     /// </summary>
     public interface IStore
     {
-        
+
+
+        IEnumerable<Snapshot> Snapshots { get; }
 
         /// <summary>
-        /// Should verify the integrity of an existing database and throw unless the state is valid
+        /// Connect and read meta data
         /// </summary>
-        void VerifyCanLoad();
+        void Init();
 
-        ulong LastEntryId { get; }
+
+        /// <summary>
+        /// Load model and enter state accepting new commands to be written to the journal
+        /// </summary>
+        /// <returns></returns>
+        JournalAppender LoadModel(out Model model, Type modelType = null);
+
+        //JournalAppender GetAppender();
         
-
-       
-        Model LoadMostRecentSnapshot(out ulong lastEntryId);
+        //Model LoadMostRecentSnapshot(out ulong lastEntryId);
 
         /// <summary>
         /// Create a snapshot of the provided model and save to storage
         /// </summary>
         void WriteSnapshot(Model model);
-
-        /// <summary>
-        /// Checks the integrity of the configuration and throw if Create() will fail
-        /// </summary>
-        void VerifyCanCreate();
-
-        /// <summary>
-        /// Perform initial preparation of the storage
-        /// </summary>
-        /// <param name="model"></param>
-        void Create(Model model);
-
-        void Load();
-
-        bool Exists { get; }
 
         IEnumerable<JournalEntry> GetJournalEntries();
 
@@ -61,15 +55,26 @@ namespace OrigoDB.Core
 
         Stream CreateJournalWriterStream(ulong firstEntryId = 1);
 
-        Model LoadModel();
 
         /// <summary>
-        /// Writes a command to the journal
+        /// Create from a specific instance by writing an initial snapshot
         /// </summary>
-        /// <param name="command"></param>
-        void AppendCommand(Command command);
+        /// <param name="model"></param>
+        void Create(Model model);
+
+        /// <summary>
+        /// Create without a snapshot
+        /// </summary>
+        void Create(Type modelType);
 
 
-        void InvalidatePreviousCommand();
+        void Create<T>() where T : Model, new();
+
+
+        bool IsEmpty
+        {
+            get;
+        }
     }
+
 }

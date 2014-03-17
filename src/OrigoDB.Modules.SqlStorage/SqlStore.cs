@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Text;
 using OrigoDB.Core;
 using System.Data;
 using System.IO;
@@ -112,7 +111,7 @@ namespace OrigoDB.Modules.SqlStorage
         /// <summary>
         /// Can connect to database, tables exist
         /// </summary>
-        public override void VerifyCanLoad()
+        public void VerifyCanLoad()
         {
             try
             {
@@ -162,8 +161,9 @@ namespace OrigoDB.Modules.SqlStorage
             return null;
         }
 
-        protected override Snapshot WriteSnapshotImpl(Model model)
+        protected override Snapshot WriteSnapshotImpl(Model model, ulong lastEntryId)
         {
+            //todo: verify correct entryId
             _fileStore.WriteSnapshot(model);
             return _fileStore.Snapshots.Last();
         }
@@ -171,7 +171,7 @@ namespace OrigoDB.Modules.SqlStorage
         /// <summary>
         /// Database exists, but tables dont
         /// </summary>
-        public override void VerifyCanCreate()
+        public void VerifyCanCreate()
         {
             string sql = string.Format("select count(*) from information_schema.tables where table_name = '{0}'", _tableName);
             var cmd = CreateSqlCommand(sql);
@@ -195,20 +195,23 @@ namespace OrigoDB.Modules.SqlStorage
             }
         }
 
+
+        public override void Init()
+        {
+            base.Init();
+            _fileStore.Init();
+        }
+
         public override void Create(Model model)
         {
             string sql = GetCreateStatement();
             var command = CreateSqlCommand(sql);
             using(command.Connection) command.ExecuteNonQuery();
-
             _fileStore.Create(model);
-            _fileStore.Load();
-            Load();
         }
 
-        protected override IEnumerable<Snapshot> LoadSnapshots()
+        protected override IEnumerable<Snapshot> ReadSnapshotMetaData()
         {
-            _fileStore.Load();
             return _fileStore.Snapshots;
         }
 

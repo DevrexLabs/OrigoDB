@@ -17,16 +17,12 @@ namespace OrigoDB.Core.Test
         [TestCleanup()]
         public void MyTestCleanup() 
         {
-			//Config.Engines.CloseAll();
         }
 
 
         public EngineConfiguration CreateConfig()
         {
-            var randomLocation = Guid.NewGuid().ToString();
-            var config = new EngineConfiguration(randomLocation);
-            config.SetStoreFactory(cfg => new InMemoryStore(cfg));
-            return config;
+            return EngineConfiguration.Create().ForIsolatedTest();
         }
 
 

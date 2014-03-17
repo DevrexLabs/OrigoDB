@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using OrigoDB.Core.Proxy;
-using OrigoDB.Core.TinyIoC;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace OrigoDB.Core.Test
@@ -142,23 +141,12 @@ namespace OrigoDB.Core.Test
         [TestMethod]
         public void OnLoadIsCalledAfterRestore()
         {
-            var config = CreateConfig();
+            var config = CreateConfig().ForIsolatedTest();
             var engine = Engine.Create<TestModel>(config);
             engine.Close();
             engine = Engine.Load<TestModel>(config);
-			bool onLoadWasCalled = engine.Execute<TestModel, bool>(m => m.OnLoadExecuted);
+			bool onLoadWasCalled = engine.Execute<TestModel,bool>(m => m.OnLoadExecuted);
             Assert.IsTrue(onLoadWasCalled);
-        }
-
-
-        [TestMethod]
-        public void TinyIocResolvesNamedRegistration()
-        {
-            var registry = new TinyIoCContainer();
-            string name = Stores.FileSystem.ToString();
-            registry.Register<IStore>((c,p) => new FileStore(new EngineConfiguration()), name);
-            var result = registry.Resolve<IStore>(name);
-            Assert.IsNotNull(result);
         }
 
         [TestMethod]
@@ -179,9 +167,8 @@ namespace OrigoDB.Core.Test
             ExecuteCommands(engine,1000);
 
             engine.Close();
-            var storage = config.CreateStore();
-            storage.Load();
-            AssertJournalEntriesAreSequential(storage);
+            var store = config.CreateStore();
+            AssertJournalEntriesAreSequential(store);
         }
 
         [TestMethod]
@@ -202,7 +189,7 @@ namespace OrigoDB.Core.Test
 
         private void AssertJournalEntriesAreSequential(IStore storage)
         {
-            int expected = 1;
+            ulong expected = 1;
             Console.WriteLine("JournalEntry Ids:");
             foreach (var journalEntry in storage.GetJournalEntries())
             {
@@ -226,9 +213,9 @@ namespace OrigoDB.Core.Test
             engine.Close();
 
             var store = config.CreateStore();
+            
 
             AssertJournalEntriesAreSequential(store);
-            Assert.AreEqual(120, store.LastEntryId);
             Assert.AreEqual(120, store.GetJournalEntries().Count());
         }
 
@@ -243,7 +230,7 @@ namespace OrigoDB.Core.Test
             var store = config.CreateStore() as FileStore;
             if (store != null)
             {
-                store.Load();
+                store.Init();
                 Assert.IsFalse(store.JournalFiles.Any());
             }
             Assert.Inconclusive();
@@ -264,7 +251,7 @@ namespace OrigoDB.Core.Test
             var store = config.CreateStore() as FileStore;
             if (store != null)
             {
-                store.Load();
+                store.Init();
                 Assert.AreEqual(2, store.JournalFiles.Count());
                 foreach (var file in store.JournalFiles)
                 {

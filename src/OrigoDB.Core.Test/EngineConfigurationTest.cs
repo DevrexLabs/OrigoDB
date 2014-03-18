@@ -155,7 +155,6 @@ namespace OrigoDB.Core.Test
             config.AsyncronousJournaling = true;
             config.SetStoreFactory(c => new InMemoryStore(c));
             var store = config.CreateStore();
-            //store.Load();
             var writer = store.CreateJournalWriter(1);
             Assert.IsTrue(writer is AsynchronousJournalWriter);
         }
@@ -167,7 +166,6 @@ namespace OrigoDB.Core.Test
             config.AsyncronousJournaling = false;
             config.SetStoreFactory(c => new InMemoryStore(c));
             var store = config.CreateStore();
-            //store.Load();
             var writer = store.CreateJournalWriter(1);
             Assert.IsTrue(writer is StreamJournalWriter);
         }

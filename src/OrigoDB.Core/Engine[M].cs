@@ -5,7 +5,7 @@
     {
 
 
-        public Engine(IStore store, EngineConfiguration config) : base(store, config) { }
+        public Engine(TModel model, IStore store, EngineConfiguration config) : base(model, store, config) { }
 
 
         public TResult Execute<TResult>(Query<TModel, TResult> query)

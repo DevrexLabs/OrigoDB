@@ -61,6 +61,7 @@
     <Compile Include="MergersTest.cs" />
     <Compile Include="SchemaMigrationsTest.cs" />
     <Compile Include="SnapshotTests.cs" />
+    <Compile Include="StoreTests.cs" />
     <Compile Include="SuccessfulUserAuthentication.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

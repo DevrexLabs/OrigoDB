@@ -95,16 +95,12 @@ namespace OrigoDB.Core
         }
 
 
-
-        public override Model LoadMostRecentSnapshot(out ulong lastSequenceNumber)
+        public override Model LoadSnapshot(Snapshot snapshot)
         {
-            lastSequenceNumber = 0;
-            FileSnapshot snapshot = (FileSnapshot) Snapshots.LastOrDefault();
-            if (snapshot == null) return null;
+            string snapshotName = ((FileSnapshot) snapshot).Name;
             var directory = _config.Location.OfSnapshots;
-            var fileName = Path.Combine(directory, snapshot.Name);
-            lastSequenceNumber = snapshot.LastEntryId;
-            using (Stream stream = GetReadStream(fileName))
+            var fileName = Path.Combine(directory, snapshotName);
+            using (var stream = GetReadStream(fileName))
             {
                 return _serializer.Read<Model>(stream);
             }
@@ -125,19 +121,7 @@ namespace OrigoDB.Core
             return GetWriteStream(path,  append : true);
         }
 
-        //public override void Create(Model initialModel)
-        //{
-        //    VerifyCanCreate();
-        //    EnsureDirectoryExists(_config.Location.OfJournal);
 
-        //    if (_config.Location.HasAlternativeSnapshotLocation)
-        //    {
-        //        EnsureDirectoryExists(_config.Location.OfSnapshots);
-        //    }
-        //    Load();
-        //    WriteSnapshot(initialModel,0);
-            
-        //}
 
 
         private void EnsureDirectoryExists(string directory)

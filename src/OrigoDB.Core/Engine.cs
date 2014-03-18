@@ -24,7 +24,7 @@ namespace OrigoDB.Core
         readonly IAuthorizer<Type> _authorizer;
         private JournalAppender _journalAppender;
 
-        readonly IStore _store;
+        private IStore _store;
         readonly ISynchronizer _synchronizer;
 
         private readonly object _commandSequenceLock = new object();
@@ -34,17 +34,18 @@ namespace OrigoDB.Core
 
         public EngineConfiguration Config { get { return _config; } }
 
-        protected Engine(IStore store, EngineConfiguration config)
+        protected Engine(Model model, IStore store, EngineConfiguration config)
         {
             _config = config;
             _store = store;
 
             _synchronizer = _config.CreateSynchronizer();
             _authorizer = _config.CreateAuthorizer();
+            _kernel = _config.CreateKernel(model);
+            _kernel.SetSynchronizer(_synchronizer);
+            _journalAppender = _store.GetAppender();
 
-            //store.Init();
-            Restore();
-
+            //todo: move behavior to IStore?
             if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)
             {
                 _log.Info("Starting snaphot job on threadpool");
@@ -55,13 +56,14 @@ namespace OrigoDB.Core
                 Thread.Sleep(TimeSpan.FromMilliseconds(10));
             }
 
+            //todo: bad dep, use an event instead
             Core.Config.Engines.AddEngine(config.Location.OfJournal, this);
         }
 
         private void Restore()
         {
-            Model model;
-            _journalAppender = _store.LoadModel(out model);
+            _store = _config.CreateStore();
+            var model = _store.LoadModel();
             _kernel = _config.CreateKernel(model);
             _kernel.SetSynchronizer(_synchronizer);
         }
@@ -173,6 +175,7 @@ namespace OrigoDB.Core
             if (_isDisposed) return;
             if (disposing)
             {
+                //todo: bad dependency, use events instead
                 Core.Config.Engines.Remove(this);
                 if (_config.SnapshotBehavior == SnapshotBehavior.OnShutdown) CreateSnapshot();
                 _isDisposed = true;
@@ -201,7 +204,6 @@ namespace OrigoDB.Core
         }
 
 
-        #region Static non-generic Load and Create methods
 
         public static Engine Load(string location)
         {
@@ -214,7 +216,8 @@ namespace OrigoDB.Core
         {
             if (!config.Location.HasJournal) throw new InvalidOperationException("Specify location to load from in non-generic load");
             var store = config.CreateStore();
-            return new Engine(store, config);
+            var model = store.LoadModel();
+            return new Engine(model, store, config);
         }
 
         public static Engine Create(Model model, string location)
@@ -233,10 +236,6 @@ namespace OrigoDB.Core
 
         }
 
-
-        #endregion
-
-        #region Static generic Load methods
 
         /// <summary>
         /// Load from location using the default EngineConfiguration
@@ -262,12 +261,9 @@ namespace OrigoDB.Core
             config = config ?? EngineConfiguration.Create();
             if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
             var store = config.CreateStore();
-            //store.Init();
-            return new Engine<TModel>(store, config);
+            var model = (TModel) store.LoadModel();
+            return new Engine<TModel>(model, store, config);
         }
-        #endregion
-
-        #region Generic Create methods
 
         public static Engine<TModel> Create<TModel>(string location) where TModel : Model, new()
         {
@@ -297,11 +293,6 @@ namespace OrigoDB.Core
             return Load<TModel>(config);
         }
 
-        #endregion
-
-        #region Static generic LoadOrCreate methods
-
-
         public static Engine<TModel> LoadOrCreate<TModel>(string location) where TModel : Model, new()
         {
             var config = EngineConfiguration.Create();
@@ -316,7 +307,6 @@ namespace OrigoDB.Core
             Engine<TModel> result = null;
 
             var store = config.CreateStore();
-            //store.Init();
 
             if (store.IsEmpty)
             {
@@ -331,6 +321,5 @@ namespace OrigoDB.Core
             return result;
         }
 
-        #endregion
     }
 }

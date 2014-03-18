@@ -90,7 +90,7 @@ namespace OrigoDB.Core.Test
         [Test]
         public void ImmutabilityKernelSmokeTest()
         {
-            var config = EngineConfiguration.Create().WithImmutability();
+            var config = EngineConfiguration.Create().ForImmutability();
             config.Location.OfJournal = Guid.NewGuid().ToString();
             var model = new ImmutableModel();
             config.SetStoreFactory(cfg => new InMemoryStore(cfg));
@@ -106,7 +106,7 @@ namespace OrigoDB.Core.Test
         [Test]
         public void ImmutabilityEngineSmokeTest()
         {
-            var config = EngineConfiguration.Create().WithImmutability();
+            var config = EngineConfiguration.Create().ForImmutability();
             config.Location.OfJournal = Guid.NewGuid().ToString();
             config.SetStoreFactory(cfg => new InMemoryStore(cfg));
             
@@ -122,7 +122,7 @@ namespace OrigoDB.Core.Test
         [Test]
         public void Engine_self_configures_for_immutability_model()
         {
-            var config = EngineConfiguration.Create().WithImmutability();
+            var config = EngineConfiguration.Create().ForImmutability();
             Assert.AreEqual(Kernels.Immutability, config.Kernel);
             Assert.AreEqual(SynchronizationMode.None, config.Synchronization);
         }

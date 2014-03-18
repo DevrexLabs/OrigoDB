@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using OrigoDB.Core.Journaling;
 
 namespace OrigoDB.Core
 {
@@ -23,9 +19,6 @@ namespace OrigoDB.Core
     }
 
 
-    /// <summary>
-    /// 
-    /// </summary>
 	[Serializable]
 	public class JournalEntry<T> : JournalEntry
 	{
@@ -33,10 +26,7 @@ namespace OrigoDB.Core
 		
 		public JournalEntry(ulong id, T item, DateTime? created = null) : base(id, created)
 		{
-		    if (typeof (T) != typeof (Command) && typeof (T) != typeof (RollbackMarker))
-		    {
-		        throw new InvalidOperationException("Invalid journal entry item type: " + typeof(T));
-		    }
+            if (item is Command && typeof(T) != typeof(Command)) throw new InvalidOperationException();
             Item = item;
 		}
 	}

@@ -128,9 +128,9 @@ namespace OrigoDB.Modules.SqlStorage
             }
         }
         
-        public override Model LoadMostRecentSnapshot(out ulong lastEntryId)
+        public override Model LoadSnapshot(Snapshot snapshot)
         {
-            return _fileStore.LoadMostRecentSnapshot(out lastEntryId);
+            return _fileStore.LoadSnapshot(snapshot);
         }
 
 

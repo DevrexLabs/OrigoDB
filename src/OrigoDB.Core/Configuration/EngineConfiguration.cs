@@ -9,7 +9,6 @@ namespace OrigoDB.Core
 
     public class EngineConfiguration : ConfigurationBase
     {
-        //protected TinyIoCContainer _registry;
         protected TeenyIoc _registry;
 
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
@@ -19,10 +18,11 @@ namespace OrigoDB.Core
 
 
 
-        public EngineConfiguration WithImmutability()
+        public EngineConfiguration ForImmutability()
         {
             Kernel = Kernels.Immutability;
             Synchronization = SynchronizationMode.None;
+            EnsureSafeResults = false;
             return this;
         }
 
@@ -42,7 +42,8 @@ namespace OrigoDB.Core
         public PacketOptions? PacketOptions { get; set; }
 
         /// <summary>
-        /// Engine takes responsibility for ensuring no mutable object references are returned by commands or queries. Default is true.
+        /// Engine takes responsibility for ensuring no mutable object references are returned
+        /// by commands or queries. Default is true.
         /// <remarks>
         /// Can safely be set to false if one of the following is true:
         ///    1. You are running on a single thread and are certain that client code only reads results.
@@ -120,7 +121,6 @@ namespace OrigoDB.Core
             InitKernels();
         }
 
-        #region Factory initializers
 
 
         private void InitKernels()
@@ -166,7 +166,6 @@ namespace OrigoDB.Core
             //name will be resolved from the app configuration file.
             Register(c => LoadFromConfig<IStore>(), Stores.Custom.ToString());
         }
-        #endregion
 
         /// <summary>
         /// Looks up a custom implementation in app config file
@@ -307,24 +306,5 @@ namespace OrigoDB.Core
 
     namespace Test
     {
-        public static class ConfigurationExtensions
-        {
-            public static EngineConfiguration WithRandomLocation(this EngineConfiguration config)
-            {
-                config.Location.OfJournal = Guid.NewGuid().ToString();
-                return config;
-            }
-
-            public static EngineConfiguration WithInMemoryStore(this EngineConfiguration config)
-            {
-                config.SetStoreFactory(cfg => new InMemoryStore(cfg));
-                return config;
-            }
-
-            public static EngineConfiguration ForIsolatedTest(this EngineConfiguration config)
-            {
-                return config.WithInMemoryStore().WithRandomLocation();
-            }
-        }
     }
 }

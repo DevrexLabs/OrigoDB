@@ -25,11 +25,7 @@ namespace OrigoDB.Core
         /// Load model and enter state accepting new commands to be written to the journal
         /// </summary>
         /// <returns></returns>
-        JournalAppender LoadModel(out Model model, Type modelType = null);
-
-        //JournalAppender GetAppender();
-        
-        //Model LoadMostRecentSnapshot(out ulong lastEntryId);
+        Model LoadModel(Type modelType = null);
 
         /// <summary>
         /// Create a snapshot of the provided model and save to storage
@@ -57,7 +53,7 @@ namespace OrigoDB.Core
 
 
         /// <summary>
-        /// Create from a specific instance by writing an initial snapshot
+        /// Create from a specific model instance by writing an initial snapshot
         /// </summary>
         /// <param name="model"></param>
         void Create(Model model);
@@ -75,6 +71,9 @@ namespace OrigoDB.Core
         {
             get;
         }
+
+
+        JournalAppender GetAppender();
     }
 
 }

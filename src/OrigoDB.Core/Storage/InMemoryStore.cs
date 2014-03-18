@@ -4,11 +4,12 @@ using System.Linq;
 using OrigoDB.Core.Storage;
 using System.IO;
 
-namespace OrigoDB.Core
+namespace OrigoDB.Core.Test
 {
 
     /// <summary>
-    /// For testing of OrigoDB Core without writing to disk
+    /// The InMemoryStore is a non durable Store implementation
+    /// intended for test.
     /// </summary>
     public class InMemoryStore : Store
     {
@@ -33,6 +34,7 @@ namespace OrigoDB.Core
         public InMemoryStore(EngineConfiguration config)
             : base(config)
         {
+            if (_config.Location.HasAlternativeSnapshotLocation) throw new NotSupportedException();
 
             string key = _config.Location.OfJournal;
             if (!_states.ContainsKey(key)) _states.Add(key, new InMemoryStoreState());
@@ -65,20 +67,14 @@ namespace OrigoDB.Core
             return GetJournalEntriesFrom(0).TakeWhile(entry => entry.Created <= pointInTime);
         }
 
-        public override Model LoadMostRecentSnapshot(out ulong lastEntryId)
+        public override Model LoadSnapshot(Snapshot snapshot)
         {
-
-            lastEntryId = 0;
-            Model result = null;
-
-            var key = _state.Snapshots.OrderByDescending(s => s.Key.Created).Select(kvp => kvp.Key).FirstOrDefault();
-
-            if (key != null)
+            if (! _state.Snapshots.ContainsKey(snapshot))
             {
-                lastEntryId = key.LastEntryId;
-                result = _serializer.Deserialize<Model>(_state.Snapshots[key]);
+                throw new ArgumentException("No such snapshot");
             }
-            return result;
+
+            return _serializer.Deserialize<Model>(_state.Snapshots[snapshot]);
         }
 
 

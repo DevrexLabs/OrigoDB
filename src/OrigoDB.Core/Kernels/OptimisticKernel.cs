@@ -1,3 +1,5 @@
+using System;
+
 namespace OrigoDB.Core
 {
     /// <summary>
@@ -17,10 +19,18 @@ namespace OrigoDB.Core
 
         public override object ExecuteCommand(Command command)
         {
-            _synchronizer.EnterUpgrade();
-            command.PrepareStub(_model);
-            _synchronizer.EnterWrite();
-            return command.ExecuteStub(_model);
+            try
+            {
+                _synchronizer.EnterUpgrade();
+                command.PrepareStub(_model);
+                _synchronizer.EnterWrite();
+                return command.ExecuteStub(_model);
+
+            }
+            finally
+            {
+                _synchronizer.Exit();
+            }
         }
     }
 }

@@ -70,8 +70,10 @@
     <Compile Include="CommandExecutedEventArgs.cs" />
     <Compile Include="CommandExecutingEventArgs.cs" />
     <Compile Include="CommandFailedException.cs" />
+    <Compile Include="Configuration\ConfigurationExtensions.cs" />
     <Compile Include="Configuration\TeenyIoc.cs" />
     <Compile Include="Journaling\JournalAppender.cs" />
+    <Compile Include="Journaling\ModelCreated.cs" />
     <Compile Include="Storage\StoreExtensions.cs" />
     <Compile Include="Transactions\Command[M].cs" />
     <Compile Include="Transactions\Command[M,R].cs" />

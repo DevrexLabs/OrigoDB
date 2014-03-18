@@ -35,6 +35,16 @@ namespace OrigoDB.Core
             return _nextEntryId++;
         }
 
+        public void AppendModelCreated(Type modelType)
+        {
+            _writer.Write(CreateEntry(new ModelCreated(modelType)));
+        }
+
+        private JournalEntry<T> CreateEntry<T>(T item)
+        {
+            return new JournalEntry<T>(_nextEntryId++, item);
+        }
+
         /// <summary>
         /// Rollback the previous command by writing a rollback marker.
         /// <remarks>Uses the same id as the rollbacked command to not break the sequence</remarks>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.IO;
-using System.Reflection;
+using OrigoDB.Core.Journaling;
 using OrigoDB.Core.Logging;
 
 namespace OrigoDB.Core.Storage
@@ -26,32 +26,65 @@ namespace OrigoDB.Core.Storage
         protected List<Snapshot> _snapshots;
         protected JournalAppender _journalAppender;
 
+
+        protected abstract IJournalWriter CreateStoreSpecificJournalWriter(ulong lastEntryId);
+        protected abstract Snapshot WriteSnapshotImpl(Model model, ulong lastAppliedEntryId);
+        public abstract IEnumerable<JournalEntry> GetJournalEntriesFrom(ulong entryId);
+        public abstract IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime);
+        public abstract Model LoadSnapshot(Snapshot snapshot);
+        protected abstract IEnumerable<Snapshot> ReadSnapshotMetaData();
+        public abstract Stream CreateJournalWriterStream(ulong firstEntryId = 1);
+
         public JournalAppender GetAppender()
         {
             ExpectState(StoreState.Loaded);
             return _journalAppender;
         }
 
-        public JournalAppender LoadModel(out Model model, Type modelType = null)
+
+        private Model MostRecentSnapshot(ref ulong lastEntryId)
+        {
+            Model result = null;
+            var latestSnapshot = Snapshots.LastOrDefault();
+            if (latestSnapshot != null)
+            {
+                lastEntryId = latestSnapshot.LastEntryId;
+                result = LoadSnapshot(latestSnapshot);
+                result.SnapshotRestored();
+            }
+            return result;
+
+        }
+
+        public Model LoadModel(Type modelType = null)
         {
             ExpectState(StoreState.Initialized);
 
-            ulong currentEntryId;
-            model = LoadMostRecentSnapshot(out currentEntryId);
-            model.SnapshotRestored();
+            ulong currentEntryId = 0;
+            Model result = MostRecentSnapshot(ref currentEntryId);
 
-            foreach (var command in this.CommandEntriesFrom(currentEntryId + 1))
+
+            if (result == null)
             {
-                command.Item.Redo(ref model);
+                var firstJournalEntry = GetJournalEntries().Take(1).OfType<JournalEntry<ModelCreated>>().SingleOrDefault();
+                if (firstJournalEntry != null) modelType = firstJournalEntry.Item.Type;
+                if (modelType == null) throw new InvalidOperationException("No model type present");
+                result = (Model)Activator.CreateInstance(modelType);
+            }
+
+
+            //Restore model
+            foreach (var command in this.CommandEntriesFrom(currentEntryId+1))
+            {
+                command.Item.Redo(ref result);
                 currentEntryId = command.Id;
             }
-            model.JournalRestored();
+            result.JournalRestored();
             _journalAppender = new JournalAppender(currentEntryId + 1, CreateJournalWriter(currentEntryId + 1));
 
             _storeState = StoreState.Loaded;
-            return _journalAppender;
+            return result;
         }
-
 
         protected void ExpectState(StoreState states)
         {
@@ -61,6 +94,7 @@ namespace OrigoDB.Core.Storage
                 throw new InvalidOperationException(message);
             }
         }
+
         public ulong LastEntryId
         {
             get
@@ -84,14 +118,7 @@ namespace OrigoDB.Core.Storage
             _config = config;
         }
 
-        protected abstract IJournalWriter CreateStoreSpecificJournalWriter(ulong lastEntryId);
-        protected abstract Snapshot WriteSnapshotImpl(Model model, ulong lastAppliedEntryId);
-        public abstract IEnumerable<JournalEntry> GetJournalEntriesFrom(ulong entryId);
-        public abstract IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime);
-        public abstract Model LoadMostRecentSnapshot(out ulong lastEntryId);
 
-        protected abstract IEnumerable<Snapshot> ReadSnapshotMetaData();
-        public abstract Stream CreateJournalWriterStream(ulong firstEntryId = 1);
 
         public virtual IEnumerable<JournalEntry> GetJournalEntries()
         {
@@ -144,15 +171,16 @@ namespace OrigoDB.Core.Storage
         public virtual void Create<T>() where T : Model, new()
         {
             AssertEmpty();
-            Create(new T());
+            Create(typeof(T));
         }
 
         public virtual void Create(Type modelType)
         {
             AssertEmpty();
-            var model = (Model) Activator.CreateInstance(modelType);
-            Create(model);
-
+            var writer = CreateJournalWriter(0);
+            var appender = new JournalAppender(1, writer);
+            appender.AppendModelCreated(modelType);
+            writer.Close();
         }
 
         public virtual void Create(Model model)

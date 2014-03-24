@@ -99,5 +99,13 @@ namespace OrigoDB.Core
                 return 0;
             });
         }
+
+        public Model Model
+        {
+            get
+            {
+                return _model;
+            }
+        }
     }
 }

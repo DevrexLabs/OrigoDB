@@ -24,6 +24,7 @@ namespace OrigoDB.Core
         readonly IAuthorizer<Type> _authorizer;
         private JournalAppender _journalAppender;
 
+
         private IStore _store;
         readonly ISynchronizer _synchronizer;
 
@@ -66,6 +67,11 @@ namespace OrigoDB.Core
             var model = _store.LoadModel();
             _kernel = _config.CreateKernel(model);
             _kernel.SetSynchronizer(_synchronizer);
+        }
+
+        public Model GetModel()
+        {
+            return _kernel.Model;
         }
 
         public object Execute(Query query)
@@ -148,7 +154,8 @@ namespace OrigoDB.Core
         }
 
         /// <summary>
-        /// Writes a snapshot to the <see cref="IStore"/>
+        /// Writes a snapshot reflecting the current state of the model to the <see cref="IStore"/>
+        /// <remarks>The snapshot is a read operation blocking writes but not other reads (unless using an ImmutablilityKernel).</remarks>
         /// </summary>
         public void CreateSnapshot()
         {

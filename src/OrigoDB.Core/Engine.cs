@@ -57,6 +57,8 @@ namespace OrigoDB.Core
                 Thread.Sleep(TimeSpan.FromMilliseconds(10));
             }
 
+            CommandExecuted += (s, e) => HandleSnapshotPersistence();
+            
             //todo: bad dep, use an event instead
             Core.Config.Engines.AddEngine(config.Location.OfJournal, this);
         }
@@ -93,13 +95,6 @@ namespace OrigoDB.Core
             return ExecuteQuery(query);
         }
 
-        private TResult ExecuteQuery<TModel, TResult>(Query<TModel, TResult> query) where TModel : Model
-        {
-            return _kernel.ExecuteQuery(query);
-        }
-
-
-
         public object Execute(Command command)
         {
             ThrowIfDisposed();
@@ -110,24 +105,51 @@ namespace OrigoDB.Core
             if (eventArgs.Cancel) throw new CommandAbortedException("Command canceled by event handler");
             lock (_commandSequenceLock)
             {
+                bool exceptionThrown = false;
                 DateTime start = DateTime.Now;
                 _executionTimer.Restart();
-                ulong lastEntryId = _journalAppender.Append(command);
+                ulong lastEntryId = Persist(command);
                 try
                 {
                     return _kernel.ExecuteCommand(command);
                 }
                 catch (Exception ex)
                 {
+                    exceptionThrown = true;
                     _journalAppender.AppendRollbackMarker();
                     if (!(ex is CommandAbortedException)) Rollback();
                     throw;
                 }
                 finally
                 {
-                    CommandExecuted.Invoke(this, new CommandExecutedEventArgs(lastEntryId, command, start, _executionTimer.Elapsed));
                     _synchronizer.Exit();
+                    if (!exceptionThrown)
+                    {
+                        var args = new CommandExecutedEventArgs(lastEntryId, command, start, _executionTimer.Elapsed);
+                        CommandExecuted.Invoke(this, args);
+                    }
                 }
+            }
+        }
+
+        private TResult ExecuteQuery<TModel, TResult>(Query<TModel, TResult> query) where TModel : Model
+        {
+            return _kernel.ExecuteQuery(query);
+        }
+
+
+        private ulong Persist(Command command)
+        {
+            return _config.PersistenceMode == PersistenceMode.Journaling
+                ? _journalAppender.Append(command)
+                : 0;
+        }
+
+        private void HandleSnapshotPersistence()
+        {
+            if (_config.PersistenceMode == PersistenceMode.SnapshotPerTransaction)
+            {
+                CreateSnapshot();
             }
         }
 
@@ -147,7 +169,7 @@ namespace OrigoDB.Core
             return memoryStream.GetBuffer();
         }
 
-        internal void WriteSnapshotToStream(Stream stream)
+        public void WriteSnapshotToStream(Stream stream)
         {
             var serializer = _config.CreateSerializer();
             _kernel.Read(model => serializer.Write(model, stream));

@@ -32,6 +32,7 @@ namespace OrigoDB.Core
         /// </summary>
         public bool AsyncronousJournaling { get; set; }
 
+        public PersistenceMode PersistenceMode { get; set; }
 
         public Kernels Kernel { get; set; }
 
@@ -110,8 +111,8 @@ namespace OrigoDB.Core
             StoreType = Stores.FileSystem;
             EnsureSafeResults = true;
             PacketOptions = null;
+            PersistenceMode = PersistenceMode.Journaling;
 
-            //_registry = new TinyIoCContainer();
             _registry = new TeenyIoc();
             Register<IAuthorizer<Type>>(c => new TypeBasedPermissionSet(Permission.Allowed));
             Register<ISerializer>(c => new Serializer(CreateFormatter()));
@@ -300,11 +301,5 @@ namespace OrigoDB.Core
             var args = new TeenyIoc.Args { { "model", model } };
             return _registry.Resolve<Kernel>(args, registrationName);
         }
-
-
-    }
-
-    namespace Test
-    {
     }
 }

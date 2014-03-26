@@ -35,6 +35,11 @@ namespace OrigoDB.Core
             return _nextEntryId++;
         }
 
+
+        /// <summary>
+        /// Append an entry of type ModelCreated to the journal
+        /// </summary>
+        /// <param name="modelType"></param>
         public void AppendModelCreated(Type modelType)
         {
             _writer.Write(CreateEntry(new ModelCreated(modelType)));
@@ -61,7 +66,7 @@ namespace OrigoDB.Core
             get
             {
                 return _nextEntryId - 1;
-            } 
+            }
         }
     }
 }

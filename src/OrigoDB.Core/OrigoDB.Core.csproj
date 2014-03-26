@@ -74,6 +74,7 @@
     <Compile Include="Configuration\TeenyIoc.cs" />
     <Compile Include="Journaling\JournalAppender.cs" />
     <Compile Include="Journaling\ModelCreated.cs" />
+    <Compile Include="PersistenceMode.cs" />
     <Compile Include="Storage\StoreExtensions.cs" />
     <Compile Include="Transactions\Command[M].cs" />
     <Compile Include="Transactions\Command[M,R].cs" />

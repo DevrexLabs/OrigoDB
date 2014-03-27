@@ -7,22 +7,10 @@ namespace OrigoDB.Core.Test
     public class EngineTestBase
     {
 
-	    [TestInitialize]
-        public void MyTestInitialize() 
-        {
-
-        }
-
-
-        [TestCleanup()]
-        public void MyTestCleanup() 
-        {
-        }
-
-
         public EngineConfiguration CreateConfig()
         {
-            return EngineConfiguration.Create().ForIsolatedTest();
+            return EngineConfiguration
+                .Create().ForIsolatedTest();
         }
 
 

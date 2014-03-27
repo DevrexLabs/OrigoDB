@@ -19,9 +19,9 @@ namespace OrigoDB.Core
             return _lambdaQuery.Invoke(model);
         }
         
-        public static implicit operator DelegateQuery<TModel, TResult>(Func<TModel, TResult> lamdaQuery)
-        {
-            return new DelegateQuery<TModel, TResult>(lamdaQuery);
-        }
+        //public static implicit operator DelegateQuery<TModel, TResult>(Func<TModel, TResult> lamdaQuery)
+        //{
+        //    return new DelegateQuery<TModel, TResult>(lamdaQuery);
+        //}
     }
 }

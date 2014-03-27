@@ -60,6 +60,7 @@
     <Compile Include="LoggingTests.cs" />
     <Compile Include="MergersTest.cs" />
     <Compile Include="PersistenceModeTests.cs" />
+    <Compile Include="RolloverTests.cs" />
     <Compile Include="SchemaMigrationsTest.cs" />
     <Compile Include="SnapshotTests.cs" />
     <Compile Include="StoreTests.cs" />

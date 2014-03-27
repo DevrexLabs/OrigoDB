@@ -72,14 +72,6 @@ namespace OrigoDB.Core.Test
         }
 
 
-        [TestMethod]
-        public void IntResultIsNotCloned()
-        {
-            _proxy.AddCustomer("Robert");
-            Assert.Inconclusive("Log based assertions removed");
-
-        }
-
 	    [TestMethod]
         public void SafeQueryResultsAreNotCloned()
         {

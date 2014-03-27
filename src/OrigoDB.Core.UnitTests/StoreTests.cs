@@ -52,7 +52,7 @@ namespace OrigoDB.Core.Test
             var engine = new Engine<ImmutableModel>(model, _store, _config);
             engine.Execute(new AppendNumberCommand(53));
             engine.Execute(new AppendNumberCommand(42));
-            engine.Dispose();
+            engine.Close();
             _store = new InMemoryStore(_config);
             _store.Init();
             model = (ImmutableModel) _store.LoadModel(typeof (ImmutableModel));

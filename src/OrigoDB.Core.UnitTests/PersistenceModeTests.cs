@@ -22,7 +22,7 @@ namespace OrigoDB.Core.Test
             engine.Execute(new AppendNumberCommand(2));
             engine.Execute(new AppendNumberCommand(42));
             engine.Execute(new AppendNumberCommand(12));
-            engine.Dispose();
+            engine.Close();
 
             var store = config.CreateStore();
             Assert.AreEqual(4, store.Snapshots.Count());
@@ -40,7 +40,7 @@ namespace OrigoDB.Core.Test
             engine.Execute(new AppendNumberCommand(42));
             engine.CreateSnapshot();
             engine.Execute(new AppendNumberCommand(12));
-            engine.Dispose();
+            engine.Close();
 
             var store = config.CreateStore();
             Assert.AreEqual(2, store.Snapshots.Count());

@@ -71,6 +71,14 @@ namespace OrigoDB.Core
             _kernel.SetSynchronizer(_synchronizer);
         }
 
+        /// <summary>
+        /// DANGER! Get a direct reference to the encapsulated model. DANGER!
+        /// <remarks>
+        /// Under normal circumstances you will never touch the model directly. Access is not thread safe and
+        /// any changes will be lost unless a snapshot is taken.
+        /// </remarks>
+        /// </summary>
+        /// <returns>A direct reference to the model</returns>
         public Model GetModel()
         {
             return _kernel.Model;
@@ -194,7 +202,7 @@ namespace OrigoDB.Core
             Restore();
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             Dispose(true);
         }
@@ -224,7 +232,7 @@ namespace OrigoDB.Core
         /// </summary>
         public void Close()
         {
-            Dispose();
+            Dispose(true);
         }
 
         private void ThrowIfDisposed()

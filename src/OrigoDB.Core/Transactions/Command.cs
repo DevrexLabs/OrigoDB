@@ -10,6 +10,24 @@ namespace OrigoDB.Core
     public abstract class Command
     {
 
+        [NonSerialized]
+        private DateTime? _now;
+
+        /// <summary>
+        /// Original point in time when command was executed by engine.
+        /// </summary>
+        public DateTime? Now
+        {
+            get
+            {
+                return _now;
+            }
+            set
+            {
+                _now = value;
+            }
+        }
+
         /// <summary>
         /// Cancels the command by throwing a CommandAbortedException.
         /// </summary>

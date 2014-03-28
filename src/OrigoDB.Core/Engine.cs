@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading;
 using OrigoDB.Core.Logging;
 using OrigoDB.Core.Security;
+using System.Runtime.Serialization;
 
 namespace OrigoDB.Core
 {
@@ -84,11 +85,23 @@ namespace OrigoDB.Core
             return _kernel.Model;
         }
 
+        /// <summary>
+        /// Non generic query execution overload
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         public object Execute(Query query)
         {
             return Execute<Model, object>(query.ExecuteStub);
         }
 
+        /// <summary>
+        /// Execute a lambda query
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="lambdaQuery"></param>
+        /// <returns></returns>
         public TResult Execute<TModel, TResult>(Func<TModel, TResult> lambdaQuery) where TModel : Model
         {
             ThrowIfDisposed();
@@ -177,10 +190,15 @@ namespace OrigoDB.Core
             return memoryStream.GetBuffer();
         }
 
-        public void WriteSnapshotToStream(Stream stream)
+        /// <summary>
+        /// Serialize the current model to a stream
+        /// </summary>
+        /// <param name="stream">A writeable stream</param>
+        /// <param name="formatter">A specific formatter, otherwise the default formatter</param>
+        public void WriteSnapshotToStream(Stream stream, IFormatter formatter = null)
         {
-            var serializer = _config.CreateSerializer();
-            _kernel.Read(model => serializer.Write(model, stream));
+            formatter = formatter ?? _config.CreateFormatter();
+            _kernel.Read(model => formatter.Serialize(stream, model));
         }
 
         /// <summary>
@@ -232,7 +250,7 @@ namespace OrigoDB.Core
         /// </summary>
         public void Close()
         {
-            Dispose(true);
+            Dispose(true); 
         }
 
         private void ThrowIfDisposed()

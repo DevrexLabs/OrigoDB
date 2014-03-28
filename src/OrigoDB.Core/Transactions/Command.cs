@@ -4,7 +4,7 @@ namespace OrigoDB.Core
 {
 
     /// <summary>
-    /// A command modifies the state of the model.
+    /// A command modifies the state of the model. 
     /// </summary>
     [Serializable]
     public abstract class Command
@@ -29,10 +29,10 @@ namespace OrigoDB.Core
         }
 
         /// <summary>
-        /// Cancels the command by throwing a CommandAbortedException.
+        /// Gracefully cancels command execution by throwing a CommandAbortedException.
+        /// The engine will rethrow the exception and proceed normally.
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="innerException"></param>
+        
         protected void Abort(string message = "", Exception innerException = null)
         {
             throw new CommandAbortedException(message, innerException);

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core
@@ -82,11 +81,11 @@ namespace OrigoDB.Core
 
         }
 
-        private static void Swap<T>(List<NonDestructiveArrayQueue<T>> queues, int i, int j)
+        private static void Swap<T>(List<T> list, int i, int j)
         {
-            var temp = queues[i];
-            queues[i] = queues[j];
-            queues[j] = temp;
+            var temp = list[i];
+            list[i] = list[j];
+            list[j] = temp;
         }
     }
 }

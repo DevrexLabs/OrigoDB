@@ -2,8 +2,8 @@ using System;
 
 namespace OrigoDB.Core.Proxy
 {
-    [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
-	public sealed class ProxyMethodAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Method)]
+	public class ProxyMethodAttribute : Attribute
 	{
 		public OperationType OperationType { get; set; }
 	    
@@ -15,4 +15,25 @@ namespace OrigoDB.Core.Proxy
         public bool ResultIsSafe { get; set; }
 
 	}
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public class CommandAttribute : ProxyMethodAttribute
+    {
+        public CommandAttribute()
+        {
+            OperationType = OperationType.Command;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public class QueryAttribute : ProxyMethodAttribute
+    {
+        public QueryAttribute()
+        {
+            OperationType = OperationType.Query;
+        }
+    }
+
+
+    
 }

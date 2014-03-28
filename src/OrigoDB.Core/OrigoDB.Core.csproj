@@ -95,7 +95,9 @@
     <Compile Include="Configuration\FileStorageLocation.cs" />
     <Compile Include="Configuration\StorageLocation.cs" />
     <Compile Include="Kernels\ImmutabilityKernel.cs" />
-    <Compile Include="Kernels\ImmutabilityCommand.cs" />
+    <Compile Include="Transactions\IImmutabilityCommand.cs" />
+    <Compile Include="Transactions\IImmutabilityCommandWithResult.cs" />
+    <Compile Include="Transactions\ImmutabilityCommand.cs" />
     <Compile Include="Logging\ConsoleLogger.cs" />
     <Compile Include="Logging\ConsoleLoggerFactory.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />
@@ -105,7 +107,6 @@
     <Compile Include="Proxy\ModelProxyExtensions.cs" />
     <Compile Include="Transactions\Query.cs" />
     <Compile Include="Storage\InMemoryStore.cs" />
-    <Compile Include="Journaling\NullJournal.cs" />
     <Compile Include="Journaling\RollbackMarker.cs" />
     <Compile Include="Kernels\Kernel.cs" />
     <Compile Include="Transactions\DelegateQuery.cs" />
@@ -126,7 +127,6 @@
     <Compile Include="Utilities\ByteArrayExtensions.cs" />
     <Compile Include="Utilities\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />
-    <Compile Include="Journaling\NullJournalWriter.cs" />
     <Compile Include="Linq\CachingLinqCompiler.cs" />
     <Compile Include="Linq\CompiledLinqExtensions.cs" />
     <Compile Include="Storage\RolloverStrategy.cs" />

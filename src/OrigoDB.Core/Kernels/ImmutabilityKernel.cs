@@ -2,6 +2,7 @@
 
 namespace OrigoDB.Core
 {
+
     public class ImmutabilityKernel : OptimisticKernel
     {
 
@@ -12,10 +13,10 @@ namespace OrigoDB.Core
 
         public override object ExecuteCommand(Command command)
         {
-            Model modelOut = null;
             object result = null;
             try
             {
+                Model modelOut = null;
                 if (command is IImmutabilityCommand)
                 {
                     var typedCommand = command as IImmutabilityCommand;

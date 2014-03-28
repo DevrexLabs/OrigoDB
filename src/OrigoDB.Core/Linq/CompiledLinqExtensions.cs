@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Reflection;
 
 namespace OrigoDB.Core.Linq
@@ -39,6 +37,9 @@ namespace OrigoDB.Core.Linq
 			return (TResult)Execute(engine, typeof(TModel), query, args);
 		}
 
+        /// <summary>
+        /// Execute a LINQ query passed as a string
+        /// </summary>
 		public static object Execute<TModel>(this Engine<TModel> engine, string query, params object[] args) where TModel : Model
 		{
 			return Execute(engine, typeof(TModel), query, args);

@@ -2,17 +2,6 @@
 
 namespace OrigoDB.Core
 {
-
-    internal interface IImmutabilityCommand
-    {
-        Model Execute(Model model);
-    }
-
-    internal interface IImmutabilityCommandWithResult
-    {
-        Tuple<Model,object> Execute(Model model);
-    }
-   
     /// <summary>
     /// Base class for commands supporting immutable model mode
     /// </summary>
@@ -23,7 +12,7 @@ namespace OrigoDB.Core
 
         public abstract void Execute(TModel model, out TModel result);
 
-        public override void Execute(TModel model)
+        public sealed override void Execute(TModel model)
         {
             throw new NotImplementedException("Can only be executed by ImmutabilityKernel");
         }
@@ -47,7 +36,7 @@ namespace OrigoDB.Core
     {
         public abstract TResult Execute(TModel model, out TModel newModel);
 
-        public override TResult Execute(TModel model)
+        public sealed override TResult Execute(TModel model)
         {
             throw new InvalidOperationException("Can only be executed by ImmutabilityKernel");
         }

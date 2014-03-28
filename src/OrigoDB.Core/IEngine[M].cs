@@ -6,9 +6,15 @@
     /// </summary>
 	public interface IEngine<TModel> where TModel : Model
     {
+
+        /// <summary>
+        /// Execute a query
+        /// </summary>
         TResult Execute<TResult>(Query<TModel, TResult> query);
         
-        
+        /// <summary>
+        /// Execute a command with no result
+        /// </summary>
         void Execute(Command<TModel> command);
 
         /// <summary>

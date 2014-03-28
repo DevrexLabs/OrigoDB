@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace OrigoDB.Core.Utilities
 {
     /// <summary>
-    /// Provided the ability to iterate an array in a queue like manner.
+    /// Provides the ability to iterate an array in a queue like manner.
     /// Saves memory compared to using new Queue(array)
     /// </summary>
     public class NonDestructiveArrayQueue<T> : IEnumerable<T>

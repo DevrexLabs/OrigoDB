@@ -1,4 +1,5 @@
 ﻿using System;
+
 namespace OrigoDB.Core
 {
 	public interface IJournalWriter : IDisposable

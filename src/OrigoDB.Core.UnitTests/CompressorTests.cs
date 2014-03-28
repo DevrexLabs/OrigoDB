@@ -10,7 +10,7 @@ namespace OrigoDB.Core.UnitTests
 {
 
     [TestFixture]
-    public class CompressorPerformanceTests
+    public class CompressorTests
     {
 
         List<string> results = new List<string>();
@@ -21,6 +21,19 @@ namespace OrigoDB.Core.UnitTests
             foreach (var result in results)
             {
                 Console.WriteLine(result);
+            }
+        }
+
+        [Test, TestCaseSource("TestCases")]
+        public void Compress_decompression_yields_original_data(ICompressor compressor)
+        {
+            var randomBytes = new byte[2000];
+            new Randomizer().NextBytes(randomBytes);
+            var textBytes = Encoding.UTF8.GetBytes(testData);
+            foreach (var array in new[]{randomBytes,textBytes})
+            {
+                var resurrected = compressor.Decompress(compressor.Compress(randomBytes));
+                CollectionAssert.AreEqual(randomBytes, resurrected);
             }
         }
 

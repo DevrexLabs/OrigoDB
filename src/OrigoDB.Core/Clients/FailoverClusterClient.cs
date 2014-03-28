@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
-using System.Threading;
 using OrigoDB.Core.Clients;
 using OrigoDB.Core.Clients.Dispatching;
 

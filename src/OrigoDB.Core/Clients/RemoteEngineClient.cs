@@ -2,6 +2,10 @@
 
 namespace OrigoDB.Core
 {
+
+    /// <summary>
+    /// An IEngine implementation that communicates with a remote OrigoDB server
+    /// </summary>
 	public class RemoteEngineClient<TModel> : IEngine<TModel>, IDisposable where TModel : Model
 	{
 		public string Host { get; set; }

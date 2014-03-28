@@ -15,7 +15,14 @@ namespace OrigoDB.Core
     public partial class Engine : IDisposable
     {
 
+        /// <summary>
+        /// Fired just before the command is executed
+        /// </summary>
         public event EventHandler<CommandExecutingEventArgs> CommandExecuting = delegate { };
+
+        /// <summary>
+        /// Fired after tthe command has successfully executed
+        /// </summary>
         public event EventHandler<CommandExecutedEventArgs> CommandExecuted = delegate { };
 
         readonly Stopwatch _executionTimer = new Stopwatch();
@@ -23,7 +30,7 @@ namespace OrigoDB.Core
 
         readonly EngineConfiguration _config;
         readonly IAuthorizer<Type> _authorizer;
-        private JournalAppender _journalAppender;
+        readonly JournalAppender _journalAppender;
 
 
         private IStore _store;
@@ -34,6 +41,9 @@ namespace OrigoDB.Core
         Kernel _kernel;
         bool _isDisposed = false;
 
+        /// <summary>
+        /// The current configuration,
+        /// </summary>
         public EngineConfiguration Config { get { return _config; } }
 
         protected Engine(Model model, IStore store, EngineConfiguration config)
@@ -202,7 +212,7 @@ namespace OrigoDB.Core
         }
 
         /// <summary>
-        /// Writes a snapshot reflecting the current state of the model to the <see cref="IStore"/>
+        /// Writes a snapshot reflecting the current state of the model to the associated <see cref="IStore"/>
         /// <remarks>The snapshot is a read operation blocking writes but not other reads (unless using an ImmutablilityKernel).</remarks>
         /// </summary>
         public void CreateSnapshot()
@@ -246,7 +256,7 @@ namespace OrigoDB.Core
         }
 
         /// <summary>
-        /// Shuts down the engine
+        /// Shuts down the engine and any associated open resources
         /// </summary>
         public void Close()
         {
@@ -260,20 +270,32 @@ namespace OrigoDB.Core
 
 
 
+        /// <summary>
+        /// Load an engine from the specified location
+        /// </summary>
+        /// <param name="location"></param>
+        /// <returns></returns>
         public static Engine Load(string location)
         {
             var config = EngineConfiguration.Create();
-            config.Location.OfJournal = location; //TODO: this smells
+            config.Location.OfJournal = location;
             return Load(config);
         }
 
+        /// <summary>
+        /// Load an engine from a location specified by the provided EngineConfiguration
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns>A non generic Engine</returns>
         public static Engine Load(EngineConfiguration config)
         {
-            if (!config.Location.HasJournal) throw new InvalidOperationException("Specify location to load from in non-generic load");
+            if (!config.Location.HasJournal) 
+                throw new InvalidOperationException("Specify location to load from in non-generic load");
             var store = config.CreateStore();
             var model = store.LoadModel();
             return new Engine(model, store, config);
         }
+
 
         public static Engine Create(Model model, string location)
         {
@@ -320,6 +342,12 @@ namespace OrigoDB.Core
             return new Engine<TModel>(model, store, config);
         }
 
+        /// <summary>
+        /// Create an engine at the specified location
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="location"></param>
+        /// <returns>The newly created engine</returns>
         public static Engine<TModel> Create<TModel>(string location) where TModel : Model, new()
         {
             var config = EngineConfiguration.Create();
@@ -348,6 +376,12 @@ namespace OrigoDB.Core
             return Load<TModel>(config);
         }
 
+        /// <summary>
+        /// Load if exists, otherwise Create and Load.
+        /// </summary>
+        /// <typeparam name="TModel">The type of the model</typeparam>
+        /// <param name="location">The absolute or relative location</param>
+        /// <returns></returns>
         public static Engine<TModel> LoadOrCreate<TModel>(string location) where TModel : Model, new()
         {
             var config = EngineConfiguration.Create();
@@ -355,6 +389,13 @@ namespace OrigoDB.Core
             return LoadOrCreate<TModel>(config);
         }
 
+        /// <summary>
+        /// Load or create the specified type from the
+        /// location according to EngineConfiguration.Location
+        /// </summary>
+        /// <typeparam name="TModel">The type of the model</typeparam>
+        /// <param name="config">The configuration to use</param>
+        /// <returns>A running engine</returns>
         public static Engine<TModel> LoadOrCreate<TModel>(EngineConfiguration config = null) where TModel : Model, new()
         {
             config = config ?? EngineConfiguration.Create();

@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="OrigoDB.Core.Proxy.ModelProxy&lt;T&gt;">
+  <Class Name="OrigoDB.Core.Proxy.ModelProxy&lt;TModel&gt;">
     <Position X="3" Y="0.5" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAIAAAAAAEAAEAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Proxy\ModelProxy.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -11,48 +11,48 @@
     <Position X="8.5" Y="5" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Proxy\ModelProxy.cs</FileName>
+      <FileName>Proxy\ModelProxyExtensions.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="OrigoDB.Core.Proxy.ProxyQuery&lt;M&gt;">
+  <Class Name="OrigoDB.Core.Proxy.ProxyQuery&lt;TModel&gt;">
     <Position X="8.5" Y="2.75" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAIAACAAAAAAA=</HashCode>
       <FileName>Proxy\ProxyQuery.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="OrigoDB.Core.Proxy.ProxyCommand&lt;M&gt;">
+  <Class Name="OrigoDB.Core.Proxy.ProxyCommand&lt;TModel&gt;">
     <Position X="8.5" Y="0.5" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAIAACAAAAAAA=</HashCode>
       <FileName>Proxy\ProxyCommand.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="OrigoDB.Core.Proxy.ProxyMethodAttribute">
+  <Class Name="OrigoDB.Core.Proxy.ProxyAttribute">
     <Position X="3.25" Y="3.75" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAABAAAAAAAA=</HashCode>
+      <HashCode>AAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAEAAAAAAAA=</HashCode>
       <FileName>Proxy\ProxyMethodAttribute.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="OrigoDB.Core.Proxy.ProxyMethodInfo">
     <Position X="5.75" Y="3.75" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAACAAAAIAAAAAAAAAAAAAAAAAAAAIIAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAACAAAAIAAAAAAAAAAAAAAAAAAAAIIBAA=</HashCode>
       <FileName>Proxy\ProxyMethodInfo.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="OrigoDB.Core.Proxy.ProxyMethodMap">
     <Position X="0.5" Y="0.5" Width="2" />
     <TypeIdentifier>
-      <HashCode>ABAAAAAAAAAAAAAAAAAAAAAAAgAgAACEAAAAAABAAAA=</HashCode>
+      <HashCode>ABAAAAAAAAAAAAAAAAAAAAAAAgAgAACEAAAAAAAAAAI=</HashCode>
       <FileName>Proxy\ProxyMethodMap.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Enum Name="OrigoDB.Core.Proxy.OperationType">
     <Position X="2.75" Y="5.5" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAAABAAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAQAAAAAAAAAAAAABAAAAAAAAAgAAAAAAAAAAAA=</HashCode>
       <FileName>Proxy\OperationType.cs</FileName>
     </TypeIdentifier>
   </Enum>

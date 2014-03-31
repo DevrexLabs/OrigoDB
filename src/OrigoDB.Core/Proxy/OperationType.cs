@@ -2,7 +2,7 @@ namespace OrigoDB.Core.Proxy
 {
     public enum OperationType
     {
-        Unspecified,
+        Disallowed,
         Command,
         Query
     }

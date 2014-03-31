@@ -6,10 +6,23 @@ using System.Reflection;
 namespace OrigoDB.Core.Proxy
 {
 
+    /// <summary>
+    /// Map method names to MethodInfos and user/system metadata
+    /// </summary>
     internal class ProxyMethodMap
     {
+
         private readonly static Dictionary<Type, ProxyMethodMap> _proxyMethodMaps
             = new Dictionary<Type, ProxyMethodMap>();
+
+
+        private readonly Type modelType;
+        
+        /// <summary>
+        /// Proxied methods by name
+        /// </summary>
+        private readonly Dictionary<string, ProxyMethodInfo> _proxyMethodInfoMap;
+
 
         internal static ProxyMethodMap MapFor<T>()
         {
@@ -21,45 +34,58 @@ namespace OrigoDB.Core.Proxy
             ProxyMethodMap proxyMethodMap;
             if (!_proxyMethodMaps.TryGetValue(modelType, out proxyMethodMap))
             {
-                proxyMethodMap = new ProxyMethodMap(modelType);
+                proxyMethodMap = ProxyMethodMap.Create(modelType);
                 _proxyMethodMaps.Add(modelType, proxyMethodMap);
             }
             return proxyMethodMap;
         }
 
-        //methods by name
-        private readonly Dictionary<string, ProxyMethodInfo> _proxyMethodInfoMap;
 
-        internal ProxyMethodMap(Type modelType)
+        internal static ProxyMethodMap Create(Type modelType)
         {
-            _proxyMethodInfoMap = new Dictionary<string, ProxyMethodInfo>();
-            foreach (var methodInfo in modelType.GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            var result = new ProxyMethodMap(modelType);
+            result.Build();
+            return result;
+        }
+
+        internal void Build()
+        {
+            foreach (var methodInfo in modelType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic))
             {
                 var proxyMethodAttribute = GetProxyMethodAttribute(methodInfo);
                 string methodName = methodInfo.Name;
-                var proxyMethod = new ProxyMethodInfo(methodInfo, proxyMethodAttribute, "");
+                var proxyMethod = new ProxyMethodInfo(methodInfo, proxyMethodAttribute);
                 _proxyMethodInfoMap.Add(methodName, proxyMethod);
             }
+
         }
 
-        private ProxyMethodAttribute GetProxyMethodAttribute(MethodInfo methodInfo)
-        {
-            var attribute = (ProxyMethodAttribute)methodInfo
-                .GetCustomAttributes(typeof(ProxyMethodAttribute), false)
-                .FirstOrDefault() ?? new ProxyMethodAttribute();
 
-            if (attribute.OperationType == OperationType.Unspecified)
+
+        internal ProxyMethodMap(Type type)
+        {
+            _proxyMethodInfoMap = new Dictionary<string, ProxyMethodInfo>();
+            modelType = type;
+        }
+
+        private ProxyAttribute GetProxyMethodAttribute(MethodInfo methodInfo)
+        {
+            var attribute = (ProxyAttribute)methodInfo
+                .GetCustomAttributes(typeof(ProxyAttribute), true)
+                .FirstOrDefault();
+
+            if (attribute == null)
             {
-                attribute.OperationType = GetOperationTypeFromMethodInfo(methodInfo);
+                attribute = DeriveAttributeFromMethodInfo(methodInfo);
             }
             return attribute;
         }
 
-        private OperationType GetOperationTypeFromMethodInfo(MethodInfo methodInfo)
+        private ProxyAttribute DeriveAttributeFromMethodInfo(MethodInfo methodInfo)
         {
             return methodInfo.ReturnType == typeof(void)
-                ? OperationType.Command
-                : OperationType.Query;
+                ? (ProxyAttribute) new CommandAttribute()
+                : new QueryAttribute();
         }
 
 

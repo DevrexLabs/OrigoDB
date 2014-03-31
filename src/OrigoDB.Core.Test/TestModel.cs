@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using OrigoDB.Core.Proxy;
 
 namespace OrigoDB.Core.Test
@@ -44,7 +42,7 @@ namespace OrigoDB.Core.Test
         /// </summary>
         /// <param name="livedb"></param>
         /// <returns></returns>
-        [ProxyMethod(OperationType=OperationType.Command, ResultIsSafe = true)]
+        [Command(CloneResult = false)]
         public string Uppercase(string livedb)
         {
             CommandsExecuted++;
@@ -56,7 +54,7 @@ namespace OrigoDB.Core.Test
             return _customers.ToArray();
         }
 
-        [ProxyMethod(ResultIsSafe = true)]
+        [Query(CloneResult = false)]
         public Customer[] GetCustomersCloned()
         {
             return _customers.ToArray();

@@ -63,6 +63,7 @@
     <Compile Include="PersistenceModeTests.cs" />
     <Compile Include="ProxyMethodMapTests.cs" />
     <Compile Include="RolloverTests.cs" />
+    <Compile Include="RoyalFoodTasterTests.cs" />
     <Compile Include="SchemaMigrationsTest.cs" />
     <Compile Include="SnapshotTests.cs" />
     <Compile Include="StoreTests.cs" />

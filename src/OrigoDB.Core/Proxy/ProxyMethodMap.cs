@@ -50,7 +50,7 @@ namespace OrigoDB.Core.Proxy
 
         internal void Build()
         {
-            foreach (var methodInfo in modelType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic))
+            foreach (var methodInfo in modelType.GetMethods(BindingFlags.Public | BindingFlags.Instance))
             {
                 var proxyMethodAttribute = GetProxyMethodAttribute(methodInfo);
                 string methodName = methodInfo.Name;
@@ -76,6 +76,12 @@ namespace OrigoDB.Core.Proxy
 
             if (attribute == null)
             {
+                var temp = methodInfo.GetCustomAttributes(typeof (NoProxyAttribute), true).FirstOrDefault();
+                if (temp != null) attribute = new ProxyAttribute{Operation = OperationType.Disallowed};
+            }
+
+            if (attribute == null)
+            {
                 attribute = DeriveAttributeFromMethodInfo(methodInfo);
             }
             return attribute;
@@ -87,7 +93,6 @@ namespace OrigoDB.Core.Proxy
                 ? (ProxyAttribute) new CommandAttribute()
                 : new QueryAttribute();
         }
-
 
         internal ProxyMethodInfo GetProxyMethodInfo(string methodName)
         {

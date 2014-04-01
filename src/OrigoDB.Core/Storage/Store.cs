@@ -41,7 +41,6 @@ namespace OrigoDB.Core.Storage
             return _journalAppender;
         }
 
-
         private Model MostRecentSnapshot(ref ulong lastEntryId)
         {
             Model result = null;
@@ -74,10 +73,10 @@ namespace OrigoDB.Core.Storage
 
 
             //Restore model
-            foreach (var command in this.CommandEntriesFrom(currentEntryId+1))
+            foreach (var commandEntry in this.CommandEntriesFrom(currentEntryId+1))
             {
-                command.Item.Redo(ref result);
-                currentEntryId = command.Id;
+                commandEntry.Item.Redo(ref result);
+                currentEntryId = commandEntry.Id;
             }
             result.JournalRestored();
             _journalAppender = new JournalAppender(currentEntryId + 1, CreateJournalWriter(currentEntryId + 1));

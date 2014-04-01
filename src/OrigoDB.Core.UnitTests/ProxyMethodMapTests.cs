@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using OrigoDB.Core.Proxy;
 
 namespace OrigoDB.Core.Test
@@ -13,8 +11,6 @@ namespace OrigoDB.Core.Test
         public class TestModel
         {
 
-            public EventHandler<EventArgs> AnEvent;
-
             public void ImplicitCommand(){}
             
             [Command]
@@ -23,6 +19,11 @@ namespace OrigoDB.Core.Test
                 return 42;
             }
 
+            [NoProxy]
+            public int NoProxyQuery()
+            {
+                return 4;
+            }
 
             [Query]
             public void ExplicitQuery(out int result)
@@ -35,8 +36,7 @@ namespace OrigoDB.Core.Test
                 return 42;
             }
 
-
-            //[Command(CloneResults)]
+            [Command(CloneResult = false)]
             public TestModel MvccOperation()
             {
                 return null;
@@ -57,41 +57,60 @@ namespace OrigoDB.Core.Test
             Assert.AreSame(_map, map);
         }
 
-        public void Explicit_command_is_command()
-        {
-            var target = _map.GetProxyMethodInfo("ExplicitCommandWithResult");
-            Assert.IsTrue(target.IsCommand);
-            Assert.IsInstanceOf<CommandAttribute>(target.ProxyAttribute);
-        }
-
         [Test]
-        public void CommandAttribute_yields_IsCommand()
+        public void Implicit_command_IsCommand()
         {
-            var target = _map.GetProxyMethodInfo("ExplicitCommandWithResult");
+            var target = _map.GetProxyMethodInfo("ImplicitCommand");
             Assert.IsTrue(target.IsCommand);
         }
 
         [Test]
-        public void CommandAttribute_is_yielded()
+        public void Explicit_command_IsCommand()
         {
             var target = _map.GetProxyMethodInfo("ExplicitCommandWithResult");
-            Assert.IsInstanceOf<CommandAttribute>(target.ProxyAttribute);
+            Assert.IsTrue(target.IsCommand);
         }
 
         [Test]
-        public void QueryAttribute_yields_query()
+        public void Explicit_query_IsQuery()
         {
             var target = _map.GetProxyMethodInfo("ExplicitQuery");
             Assert.IsTrue(target.IsQuery);
-            Assert.IsInstanceOf<QueryAttribute>(target.ProxyAttribute);
         }
 
         [Test]
-        public void ImplicitQuery_IsQuery()
+        public void Implicit_query_IsQuery()
         {
             var target = _map.GetProxyMethodInfo("ImplicitQuery");
             Assert.IsTrue(target.IsQuery);
-            Assert.IsInstanceOf<QueryAttribute>(target.ProxyAttribute);
+        }
+
+        [Test]
+        public void NoProxy_is_disallowed()
+        {
+            var target = _map.GetProxyMethodInfo("NoProxyQuery");
+            Assert.IsFalse(target.IsAllowed);
+        }
+
+        [Test]
+        public void CloneResults_is_default_implicit()
+        {
+            var target = _map.GetProxyMethodInfo("ImplicitQuery");
+            Assert.IsTrue(target.ProxyAttribute.CloneResult);
+        }
+
+        [Test]
+        public void CloneResult_is_default_for_explicit()
+        {
+            var target = _map.GetProxyMethodInfo("ExplicitCommandWithResult");
+            Assert.IsTrue(target.ProxyAttribute.CloneResult);
+        }
+
+        [Test]
+        public void Explicit_CloneResult_is_reported()
+        {
+            var target = _map.GetProxyMethodInfo("MvccOperation");
+            Assert.IsFalse(target.ProxyAttribute.CloneResult);
         }
     }
 }

@@ -5,21 +5,6 @@ namespace OrigoDB.Core
 {
     public static class StoreExtensions
     {
-        //public static Model LoadModel(this IStore store, out ulong lastEntryId)
-        //{
-        //    ulong currentEntryId;
-        //    Model model = store.LoadMostRecentSnapshot(out currentEntryId);
-        //    model.SnapshotRestored();
-            
-        //    foreach (var command in store.CommandEntriesFrom(currentEntryId + 1))
-        //    {
-        //        command.Item.Redo(ref model);
-        //        currentEntryId = command.Id;
-        //    }
-        //    model.JournalRestored();
-        //    lastEntryId = currentEntryId;
-        //    return model;
-        //}
 
         /// <summary>
         /// Get commands beginning from a specific entry id (inclusive)
@@ -68,7 +53,7 @@ namespace OrigoDB.Core
         /// Get the complete sequence of commands starting, excluding any that were rolled back
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<JournalEntry<Command>> CommandEntries( this IStore store)
+        public static IEnumerable<JournalEntry<Command>> CommandEntries(this IStore store)
         {
             return store.CommandEntriesFrom(1);
         }

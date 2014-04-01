@@ -18,10 +18,7 @@ namespace OrigoDB.Core
         protected ISynchronizer _synchronizer;
         protected readonly ISerializer _serializer;
 
-        /// <summary>
-        /// Apply the command to the model and save it to the journal, 
-        /// not necessarily in that order
-        /// </summary>
+
         public abstract object ExecuteCommand(Command command);
 
         public virtual TResult ExecuteQuery<TModel, TResult>(Query<TModel, TResult> query) where TModel : Model

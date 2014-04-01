@@ -6,11 +6,7 @@ namespace OrigoDB.Core.Proxy
     /// Explicitly disallow when proxying, invocation will throw an Exception if called through the proxy
     /// </summary>
     [AttributeUsage(AttributeTargets.Event | AttributeTargets.Method | AttributeTargets.Property)]
-    public class NoProxyAttribute : ProxyAttribute
+    public sealed class NoProxyAttribute : Attribute
     {
-        public NoProxyAttribute()
-        {
-            Operation = OperationType.Disallowed;
-        }
     }
 }

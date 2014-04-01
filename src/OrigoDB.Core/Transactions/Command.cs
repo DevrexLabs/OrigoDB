@@ -10,21 +10,22 @@ namespace OrigoDB.Core
     public abstract class Command
     {
 
-        [NonSerialized]
-        private DateTime? _now;
+        [NonSerialized] private DateTime? _timestamp;
 
         /// <summary>
-        /// Original point in time when command was executed by engine.
+        /// Point in time of command execution. A safe alternative to DateTime.Now
+        /// <remarks>Will be assigned when executed by engine</remarks>
         /// </summary>
-        public DateTime? Now
+        public DateTime Timestamp
         {
             get
             {
-                return _now;
+                if(!_timestamp.HasValue) throw new InvalidOperationException("Timestamp must be set");
+                return _timestamp.Value;
             }
             set
             {
-                _now = value;
+                _timestamp = value;
             }
         }
 

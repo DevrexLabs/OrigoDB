@@ -77,6 +77,8 @@
     <Compile Include="PersistenceMode.cs" />
     <Compile Include="Proxy\CommandAttribute.cs" />
     <Compile Include="Proxy\NoProxyAttribute.cs" />
+    <Compile Include="Proxy\ProxyAttribute.cs" />
+    <Compile Include="Proxy\QueryAttribute.cs" />
     <Compile Include="Storage\StoreExtensions.cs" />
     <Compile Include="Transactions\Command[M].cs" />
     <Compile Include="Transactions\Command[M,R].cs" />

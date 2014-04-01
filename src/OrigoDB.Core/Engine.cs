@@ -114,32 +114,30 @@ namespace OrigoDB.Core
         /// <returns></returns>
         public TResult Execute<TModel, TResult>(Func<TModel, TResult> lambdaQuery) where TModel : Model
         {
-            ThrowIfDisposed();
-            ThrowUnlessAuthenticated(lambdaQuery.GetType());
+            EnsureRunning();
+            EnsureAuthenticated(lambdaQuery.GetType());
             return ExecuteQuery(new DelegateQuery<TModel, TResult>(lambdaQuery));
         }
 
         public TRresult Execute<TModel, TRresult>(Query<TModel, TRresult> query) where TModel : Model
         {
-            ThrowIfDisposed();
-            ThrowUnlessAuthenticated(query.GetType());
+            EnsureRunning();
+            EnsureAuthenticated(query.GetType());
             return ExecuteQuery(query);
         }
 
         public object Execute(Command command)
         {
-            ThrowIfDisposed();
-            ThrowUnlessAuthenticated(command.GetType());
+            EnsureRunning();
+            EnsureAuthenticated(command.GetType());
+            FireExecutingEvent(command);
 
-            var eventArgs = new CommandExecutingEventArgs(command);
-            CommandExecuting.Invoke(this, eventArgs);
-            if (eventArgs.Cancel) throw new CommandAbortedException("Command canceled by event handler");
             lock (_commandSequenceLock)
             {
+                command.Timestamp = DateTime.Now;
                 bool exceptionThrown = false;
-                DateTime start = DateTime.Now;
                 _executionTimer.Restart();
-                ulong lastEntryId = Persist(command);
+                ulong lastEntryId = PersistIfJournaling(command);
                 try
                 {
                     return _kernel.ExecuteCommand(command);
@@ -147,7 +145,7 @@ namespace OrigoDB.Core
                 catch (Exception ex)
                 {
                     exceptionThrown = true;
-                    _journalAppender.AppendRollbackMarker();
+                    if (_config.PersistenceMode == PersistenceMode.Journaling) _journalAppender.AppendRollbackMarker();
                     if (!(ex is CommandAbortedException)) Rollback();
                     throw;
                 }
@@ -156,11 +154,18 @@ namespace OrigoDB.Core
                     _synchronizer.Exit();
                     if (!exceptionThrown)
                     {
-                        var args = new CommandExecutedEventArgs(lastEntryId, command, start, _executionTimer.Elapsed);
+                        var args = new CommandExecutedEventArgs(lastEntryId, command, command.Timestamp, _executionTimer.Elapsed);
                         CommandExecuted.Invoke(this, args);
                     }
                 }
             }
+        }
+
+        private void FireExecutingEvent(Command command)
+        {
+            var eventArgs = new CommandExecutingEventArgs(command);
+            CommandExecuting.Invoke(this, eventArgs);
+            if (eventArgs.Cancel) throw new CommandAbortedException("Command canceled by event handler");
         }
 
         private TResult ExecuteQuery<TModel, TResult>(Query<TModel, TResult> query) where TModel : Model
@@ -169,7 +174,7 @@ namespace OrigoDB.Core
         }
 
 
-        private ulong Persist(Command command)
+        private ulong PersistIfJournaling(Command command)
         {
             return _config.PersistenceMode == PersistenceMode.Journaling
                 ? _journalAppender.Append(command)
@@ -184,7 +189,7 @@ namespace OrigoDB.Core
             }
         }
 
-        private void ThrowUnlessAuthenticated(Type operationType)
+        private void EnsureAuthenticated(Type operationType)
         {
             if (!_authorizer.Allows(operationType, Thread.CurrentPrincipal))
             {
@@ -226,7 +231,6 @@ namespace OrigoDB.Core
             _kernel = null;
             GC.Collect();
             GC.WaitForFullGCComplete();
-
             Restore();
         }
 
@@ -263,7 +267,7 @@ namespace OrigoDB.Core
             Dispose(true); 
         }
 
-        private void ThrowIfDisposed()
+        private void EnsureRunning()
         {
             if (_isDisposed) throw new ObjectDisposedException(GetType().FullName);
         }

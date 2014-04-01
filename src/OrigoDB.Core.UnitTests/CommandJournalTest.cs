@@ -81,9 +81,11 @@ namespace OrigoDB.Core.Test
             var store = new InMemoryStore(config);
             store.Init();
             var target = new JournalAppender(1, new StreamJournalWriter(store, config));
-            
-            target.Append(new ACommand());
-            target.Append(new ACommand());
+
+            var command = new ACommand();
+            command.Timestamp = DateTime.Now;
+            target.Append(command);
+            target.Append(command);
 
             //Act
             target.AppendRollbackMarker();

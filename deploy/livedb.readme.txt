@@ -1,5 +1,0 @@
-LiveDb has been renamed to OrigoDb, please update your references!
-
-Install-Package OrigoDb.Core 
-
-See https://github.com/DevrexLabs/origodb/

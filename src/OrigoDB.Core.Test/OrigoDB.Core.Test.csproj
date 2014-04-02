@@ -94,10 +94,6 @@
       <Project>{cc2165e7-5f7f-41e2-8a1c-28af88ba7aa1}</Project>
       <Name>OrigoDB.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OrigoDB.Modules.SqlStorage\OrigoDB.Modules.SqlStorage.csproj">
-      <Project>{0524d08d-149d-4199-89d8-df75e77d6638}</Project>
-      <Name>OrigoDB.Modules.SqlStorage</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">

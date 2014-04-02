@@ -73,7 +73,7 @@ namespace OrigoDB.Core.UnitTests
         {
             yield return new DeflateStreamCompressor();
             yield return new GzipCompressor();
-            yield return new LzfCompressionAdapter();
+            //yield return new LzfCompressionAdapter();
         }
 
         private const string testData = @"Now that there is the Tec-9, a crappy spray gun from South Miami. This gun is advertised as the most popular gun in American crime. Do you believe that shit? It actually says that in the little book that comes with it: the most popular gun in American crime. Like they're actually proud of that shit. 

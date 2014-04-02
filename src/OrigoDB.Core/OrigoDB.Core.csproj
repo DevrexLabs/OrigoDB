@@ -85,7 +85,6 @@
     <Compile Include="Compression\DeflateStreamCompressor.cs" />
     <Compile Include="Compression\GzipCompressor.cs" />
     <Compile Include="Compression\ICompressor.cs" />
-    <Compile Include="Compression\LzfCompressionAdapter.cs" />
     <Compile Include="Compression\StreamCompressor.cs" />
     <Compile Include="Configuration\ClientConfiguration.cs" />
     <Compile Include="Configuration\CompressionMethod.cs" />
@@ -129,6 +128,7 @@
     <Compile Include="Storage\ByteCountingNullStream.cs" />
     <Compile Include="Storage\PacketingFormatter.cs" />
     <Compile Include="Utilities\ByteArrayExtensions.cs" />
+    <Compile Include="Utilities\CompressionAlgorithms.cs" />
     <Compile Include="Utilities\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />
     <Compile Include="Linq\CachingLinqCompiler.cs" />
@@ -166,7 +166,6 @@
     <Compile Include="Storage\Snapshot.cs" />
     <Compile Include="Storage\Store.cs" />
     <Compile Include="Utilities\Ensure.cs" />
-    <Compile Include="Utilities\Lzf.cs" />
     <Compile Include="Utilities\NonDestructiveArrayQueue.cs" />
     <Compile Include="Storage\Packet.cs">
       <SubType>Code</SubType>

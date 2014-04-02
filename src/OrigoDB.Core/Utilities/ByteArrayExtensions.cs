@@ -3,14 +3,7 @@ using OrigoDB.Core.Compression;
 
 namespace OrigoDB.Core.Utilities
 {
-    public enum CompressionAlgorithm
-    {
-        Gzip,
-        Deflate,
-        Lz4
-    }
-
-	public static class ByteArrayExtensions
+    public static class ByteArrayExtensions
 	{
 
 	    public static ICompressor CompressionAlgorithm = new DeflateStreamCompressor();

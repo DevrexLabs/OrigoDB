@@ -32,8 +32,8 @@ namespace OrigoDB.Core.UnitTests
             var textBytes = Encoding.UTF8.GetBytes(testData);
             foreach (var array in new[]{randomBytes,textBytes})
             {
-                var resurrected = compressor.Decompress(compressor.Compress(randomBytes));
-                CollectionAssert.AreEqual(randomBytes, resurrected);
+                var resurrected = compressor.Decompress(compressor.Compress(array));
+                CollectionAssert.AreEqual(array, resurrected);
             }
         }
 

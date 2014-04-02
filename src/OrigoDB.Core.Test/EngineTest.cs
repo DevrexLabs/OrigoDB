@@ -204,32 +204,6 @@ namespace OrigoDB.Core.Test
             Assert.AreEqual(120, store.GetJournalEntries().Count());
         }
 
-        [TestMethod]
-        public void NoEmptyJournalFileOnRollover()
-        {
-            var config = CreateConfig();
-            config.MaxEntriesPerJournalSegment = 2;
-            var engine = Engine.Create(new TestModel(), config);
-            ExecuteCommands(engine,2);
-            //Assert.IsFalse(_memoryLogWriter.Messages.Any(m => m.Contains("NewJournalSegment")));
-			ExecuteCommands(engine,1);
-			//Assert.IsTrue(_memoryLogWriter.Messages.Any(m => m.Contains("NewJournalSegment")));
-            engine.Close();
-			
-            var store = config.CreateStore() as FileStore;
-            if (store != null)
-            {
-                store.Init();
-                Assert.AreEqual(2, store.JournalFiles.Count());
-                foreach (var file in store.JournalFiles)
-                {
-                    Console.WriteLine(file);
-                }
-            }
-            else Assert.Inconclusive("test isn't relevant under the current configuration, requires FileStore storage");
-            Assert.Inconclusive();            
-        }
-
         private void ExecuteCommands(Engine engine, int count)
         {
             for (int i = 0; i < count; i++)

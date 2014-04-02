@@ -1,9 +1,5 @@
 ﻿using System;
-using System.IO;
-using System.Text;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace OrigoDB.Core.Test
@@ -14,9 +10,9 @@ namespace OrigoDB.Core.Test
 		[TestMethod]
 		public void CanCreateLocalEngineClientFromConnectionString()
 		{
-			var engine = Engine.For<TestModel>("mode=embedded;location=" + Guid.NewGuid().ToString());
+			var engine = Engine.For<TestModel>("mode=embedded;location=" + Guid.NewGuid());
 			Assert.IsNotNull(engine);
-			Assert.IsInstanceOfType(engine, typeof(ILocalEngine<TestModel>));
+			Assert.IsInstanceOfType(engine, typeof(LocalEngineClient<TestModel>));
 		}
 
 		[TestMethod]

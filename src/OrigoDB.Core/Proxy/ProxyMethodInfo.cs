@@ -6,19 +6,27 @@ namespace OrigoDB.Core.Proxy
     internal class ProxyMethodInfo
     {
         public readonly MethodInfo MethodInfo;
-        public readonly ProxyMethodAttribute ProxyMethodAttribute;
+        public readonly ProxyAttribute ProxyAttribute;
 
-        public ProxyMethodInfo(MethodInfo methodInfo, ProxyMethodAttribute proxyMethodAttribute, string methodName)
+        public ProxyMethodInfo(MethodInfo methodInfo, ProxyAttribute proxyMethodAttribute)
         {
             MethodInfo = methodInfo;
-            ProxyMethodAttribute = proxyMethodAttribute;
+            ProxyAttribute = proxyMethodAttribute;
+        }
+
+        public bool IsAllowed
+        {
+            get
+            {
+                return ProxyAttribute.Operation != OperationType.Disallowed;
+            }
         }
 
         public bool IsCommand
         {
             get
             {
-                return ProxyMethodAttribute.OperationType == OperationType.Command;
+                return ProxyAttribute.Operation == OperationType.Command;
             }
         }
 
@@ -26,7 +34,7 @@ namespace OrigoDB.Core.Proxy
         {
             get
             {
-                return ProxyMethodAttribute.OperationType == OperationType.Query;
+                return ProxyAttribute.Operation == OperationType.Query;
             }
         }
     }

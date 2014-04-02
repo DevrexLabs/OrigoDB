@@ -17,7 +17,7 @@ namespace OrigoDB.Core.Test
         [TestInitialize]
         public void TestSetup()
         {
-            Engine =_engine = Engine.Create(new TestModel(), CreateNonPersistingConfig());
+            _engine = Engine.Create(new TestModel(), CreateConfig());
             _proxy = _engine.GetProxy();
         }
 
@@ -71,14 +71,6 @@ namespace OrigoDB.Core.Test
             Assert.AreNotEqual(robert, robert2);
         }
 
-
-        [TestMethod]
-        public void IntResultIsNotCloned()
-        {
-            _proxy.AddCustomer("Robert");
-            Assert.Inconclusive("Log based assertions removed");
-
-        }
 
 	    [TestMethod]
         public void SafeQueryResultsAreNotCloned()

@@ -32,6 +32,7 @@
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\OrigoDB.Core.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -40,6 +41,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\OrigoDB.Core.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -48,9 +50,9 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChildModelCommand.cs" />
-    <Compile Include="ChildModelDelegateCommandWithResult.cs" />
-    <Compile Include="ChildModelQuery.cs" />
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Clients\ClusterClient.cs" />
     <Compile Include="Clients\Dispatching\DedicatedQueryDispatchStrategy.cs" />
     <Compile Include="Clients\Dispatching\QueryDispatchStrategyBase.cs" />
@@ -58,6 +60,7 @@
     <Compile Include="Clients\Dispatching\RoundRobinQueryDispatchStrategy.cs" />
     <Compile Include="Clients\FailoverClusterClient.cs" />
     <Compile Include="Clients\Dispatching\IClusterQueryDispatchStrategy.cs" />
+    <Compile Include="Clients\LocalEngineClient.cs" />
     <Compile Include="Clients\Remote\ConnectionPools.cs" />
     <Compile Include="Clients\Remote\IRequestContextFactory.cs" />
     <Compile Include="Clients\Remote\Messages\ClusterInfo.cs" />
@@ -69,13 +72,24 @@
     <Compile Include="Clients\Remote\RemoteConnection.cs" />
     <Compile Include="Clients\Remote\RequestContext.cs" />
     <Compile Include="Clients\WrongNodeException.cs" />
+    <Compile Include="CommandExecutedEventArgs.cs" />
+    <Compile Include="CommandExecutingEventArgs.cs" />
     <Compile Include="CommandFailedException.cs" />
-    <Compile Include="Command[M].cs" />
-    <Compile Include="CommandWithResult[M,R].cs" />
+    <Compile Include="Configuration\ConfigurationExtensions.cs" />
+    <Compile Include="Configuration\TeenyIoc.cs" />
+    <Compile Include="Journaling\JournalAppender.cs" />
+    <Compile Include="Journaling\ModelCreated.cs" />
+    <Compile Include="PersistenceMode.cs" />
+    <Compile Include="Proxy\CommandAttribute.cs" />
+    <Compile Include="Proxy\NoProxyAttribute.cs" />
+    <Compile Include="Proxy\ProxyAttribute.cs" />
+    <Compile Include="Proxy\QueryAttribute.cs" />
+    <Compile Include="Storage\StoreExtensions.cs" />
+    <Compile Include="Transactions\Command[M].cs" />
+    <Compile Include="Transactions\Command[M,R].cs" />
     <Compile Include="Compression\DeflateStreamCompressor.cs" />
     <Compile Include="Compression\GzipCompressor.cs" />
     <Compile Include="Compression\ICompressor.cs" />
-    <Compile Include="Compression\LzfCompressionAdapter.cs" />
     <Compile Include="Compression\StreamCompressor.cs" />
     <Compile Include="Configuration\ClientConfiguration.cs" />
     <Compile Include="Configuration\CompressionMethod.cs" />
@@ -88,18 +102,22 @@
     <Compile Include="Configuration\RemoteClientConfiguration.cs" />
     <Compile Include="Configuration\FileStorageLocation.cs" />
     <Compile Include="Configuration\StorageLocation.cs" />
+    <Compile Include="Kernels\ImmutabilityKernel.cs" />
+    <Compile Include="Transactions\IImmutabilityCommand.cs" />
+    <Compile Include="Transactions\IImmutabilityCommandWithResult.cs" />
+    <Compile Include="Transactions\ImmutabilityCommand.cs" />
     <Compile Include="Logging\ConsoleLogger.cs" />
     <Compile Include="Logging\ConsoleLoggerFactory.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\LogProvider.cs" />
+    <Compile Include="Proxy\ModelProxyExtensions.cs" />
+    <Compile Include="Transactions\Query.cs" />
     <Compile Include="Storage\InMemoryStore.cs" />
-    <Compile Include="Journaling\NullJournal.cs" />
     <Compile Include="Journaling\RollbackMarker.cs" />
     <Compile Include="Kernels\Kernel.cs" />
-    <Compile Include="Kernels\NullStore.cs" />
-    <Compile Include="Linq\DelegateQuery.cs" />
+    <Compile Include="Transactions\DelegateQuery.cs" />
     <Compile Include="Engine.For.cs" />
     <Compile Include="Db.cs" />
     <Compile Include="Engines.cs" />
@@ -111,19 +129,15 @@
     <Compile Include="Proxy\OperationType.cs" />
     <Compile Include="Proxy\ProxyMethodInfo.cs" />
     <Compile Include="Clients\Merge.cs" />
-    <Compile Include="Kernels\PessimisticKernel.cs" />
     <Compile Include="Kernels\RoyalFoodTaster.cs" />
     <Compile Include="Storage\ByteCountingNullStream.cs" />
     <Compile Include="Storage\PacketingFormatter.cs" />
     <Compile Include="Utilities\ByteArrayExtensions.cs" />
+    <Compile Include="Utilities\CompressionAlgorithms.cs" />
     <Compile Include="Utilities\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />
-    <Compile Include="Journaling\NullJournalWriter.cs" />
     <Compile Include="Linq\CachingLinqCompiler.cs" />
     <Compile Include="Linq\CompiledLinqExtensions.cs" />
-    <Compile Include="Clients\LocalEngineClient.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Storage\RolloverStrategy.cs" />
     <Compile Include="Proxy\ModelProxy.cs" />
     <Compile Include="Proxy\ProxyMethodAttribute.cs" />
@@ -135,14 +149,12 @@
     <Compile Include="Security\IAuthorizer.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Journaling\AsynchronousJournalWriter.cs" />
-    <Compile Include="Command.cs" />
+    <Compile Include="Transactions\Command.cs" />
     <Compile Include="CommandAbortedException.cs" />
-    <Compile Include="Journaling\CommandJournal.cs" />
     <Compile Include="Configuration\SynchronizationMode.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Configuration\EngineConfiguration.cs" />
     <Compile Include="Engine[M].cs" />
-    <Compile Include="Journaling\ICommandJournal.cs" />
     <Compile Include="Configuration\JournalWriterMode.cs" />
     <Compile Include="Security\SecurityModel.cs" />
     <Compile Include="Security\MatchAllRule.cs" />
@@ -159,7 +171,6 @@
     <Compile Include="Storage\Snapshot.cs" />
     <Compile Include="Storage\Store.cs" />
     <Compile Include="Utilities\Ensure.cs" />
-    <Compile Include="Utilities\Lzf.cs" />
     <Compile Include="Utilities\NonDestructiveArrayQueue.cs" />
     <Compile Include="Storage\Packet.cs">
       <SubType>Code</SubType>
@@ -167,7 +178,6 @@
     <Compile Include="Utilities\ResourcePool.cs" />
     <Compile Include="Utilities\SocketExtensions.cs" />
     <Compile Include="Utilities\DictionaryMapper.cs" />
-    <Compile Include="Utilities\TinyIoC.cs" />
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Utilities\Immutable.cs" />
     <Compile Include="Security\User.cs" />
@@ -177,12 +187,11 @@
     <Compile Include="Configuration\SnapshotBehavior.cs" />
     <Compile Include="Synchronization\ISynchronizer.cs" />
     <Compile Include="Journaling\IJournalWriter.cs" />
-    <Compile Include="IEngine.cs" />
+    <Compile Include="IEngine[M].cs" />
     <Compile Include="Journaling\JournalEntry.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="Synchronization\NullSynchronizer.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Query.cs" />
+    <Compile Include="Transactions\Query[M,R].cs" />
     <Compile Include="Synchronization\ReadWriteSynchronizer.cs" />
     <Compile Include="Storage\Serializer.cs" />
     <Compile Include="Synchronization\ExclusiveSynchronizer.cs" />
@@ -192,16 +201,14 @@
     <Compile Include="Utilities\DirectoryEx.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="License.txt" />
-    <Content Include="readme.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Proxy\ClassDiagram1.cd" />
     <None Include="Storage\Filestorage.cd" />
     <None Include="Core.Public.cd" />
     <None Include="Security\ClassDiagram2.cd" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

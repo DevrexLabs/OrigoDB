@@ -7,7 +7,7 @@ namespace OrigoDB.Core
 		public static readonly RemoteClientConfiguration Default = new RemoteClientConfiguration(); 
 	    public const int DefaultMaxConnections = 10;
 	    public const string DefaultHost = "localhost";
-	    public const int DefaultPort = 9292;
+	    public const int DefaultPort = 3001;
 		
 		public string Host { get; internal set; }
 		public int Port { get; internal set; }
@@ -29,11 +29,11 @@ namespace OrigoDB.Core
 			return DictionaryMapper.ToPropertiesString(this, Default);
 		}
 
-		public override IEngine<M> GetClient<M>()
+		public override IEngine<TModel> GetClient<TModel>()
 		{
 			var pool = ConnectionPools.PoolFor(this);
 			var requestContextFactory = new PooledConnectionRequestContextFactory(pool);
-			return new RemoteEngineClient<M>(requestContextFactory,Host,Port);
+			return new RemoteEngineClient<TModel>(requestContextFactory,Host,Port);
 		} 
     }
 }

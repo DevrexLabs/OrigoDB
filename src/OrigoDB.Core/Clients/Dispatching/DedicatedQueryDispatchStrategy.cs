@@ -1,15 +1,15 @@
 namespace OrigoDB.Core.Clients.Dispatching
 {
-	public class DedicatedQueryDispatchStrategy<M> : IClusterQueryDispatchStrategy<M> where M : Model
+	public class DedicatedQueryDispatchStrategy<TModel> : IClusterQueryDispatchStrategy<TModel> where TModel : Model
 	{
-		readonly RemoteEngineClient<M> _client;
+		readonly RemoteEngineClient<TModel> _client;
 
-		public DedicatedQueryDispatchStrategy(RemoteEngineClient<M> client)
+		public DedicatedQueryDispatchStrategy(RemoteEngineClient<TModel> client)
 		{
 			_client = client;
 		}
 
-		public RemoteEngineClient<M> GetDispatcher()
+		public RemoteEngineClient<TModel> GetDispatcher()
 		{
 			return _client;
 		}

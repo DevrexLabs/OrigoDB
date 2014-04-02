@@ -1,23 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="OrigoDB.Core.Engine">
-    <Position X="3.75" Y="1" Width="2.5" />
+    <Position X="4.25" Y="0.5" Width="2.5" />
     <Members>
       <Field Name="_authorizer" Hidden="true" />
       <Field Name="_commandJournal" Hidden="true" />
       <Field Name="_config" Hidden="true" />
       <Field Name="_isDisposed" Hidden="true" />
-      <Field Name="_lock" Hidden="true" />
       <Field Name="_log" Hidden="true" />
-      <Field Name="_serializer" Hidden="true" />
-      <Field Name="_storage" Hidden="true" />
-      <Field Name="_theModel" Hidden="true" />
       <Property Name="Config" Hidden="true" />
-      <Method Name="CreateSnapshotImpl" Hidden="true" />
       <Method Name="Engine" Hidden="true" />
       <Method Name="ExecuteQuery" Hidden="true" />
       <Method Name="GetSnapshot" Hidden="true" />
-      <Method Name="Restore" Hidden="true" />
       <Method Name="ThrowIfDisposed" Hidden="true" />
       <Method Name="ThrowUnlessAuthenticated" Hidden="true" />
       <Method Name="WriteSnapshotToStream" Hidden="true" />
@@ -27,31 +21,32 @@
       <Compartment Name="Properties" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAIgAAAAiAAgHQgAAECAEiBAEAgCEAIAAAAAAKAgAA=</HashCode>
+      <HashCode>AAAIgAgAAiAAgnQCAAAAEEiAIEAgAEAIAAAAAALAAAA=</HashCode>
       <FileName>Engine.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="OrigoDB.Core.Model">
-    <Position X="3.75" Y="3.5" Width="2.5" />
+    <Position X="4.75" Y="4" Width="2.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAIAAAAAAEAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAQAAAAAAAAEAAAAAAMAAAAAAEAABAAAAAAAAAAAAA=</HashCode>
       <FileName>Model.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="OrigoDB.Core.CommandWithResult&lt;M, R&gt;">
-    <Position X="9.5" Y="3" Width="2" />
+  <Class Name="OrigoDB.Core.Command&lt;M, R&gt;">
+    <Position X="10.25" Y="3" Width="2" />
     <Members>
       <Method Name="ExecuteStub" Hidden="true" />
       <Method Name="PrepareStub" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAQAAQAQBAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>CommandWithResult[M,R].cs</FileName>
+      <HashCode>AAAAAAAAAQAAQAQBAAAAAgAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Command[M,R].cs</FileName>
     </TypeIdentifier>
+    <Lollipop Position="0.2" />
   </Class>
   <Class Name="OrigoDB.Core.Command&lt;M&gt;">
-    <Position X="7.25" Y="3" Width="2" />
+    <Position X="8" Y="3" Width="2" />
     <Members>
       <Method Name="ExecuteStub" Hidden="true" />
       <Method Name="PrepareStub" Hidden="true" />
@@ -68,7 +63,7 @@
     </Members>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAQAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Query.cs</FileName>
+      <FileName>Query[M,R].cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="OrigoDB.Core.Command">
@@ -86,17 +81,12 @@
   <Class Name="OrigoDB.Core.EngineConfiguration">
     <Position X="0.75" Y="0.5" Width="2.5" />
     <Members>
-      <Field Name="_commandJournalCreated" Hidden="true" />
-      <Field Name="_location" Hidden="true" />
       <Field Name="_registry" Hidden="true" />
-      <Field Name="_snapshotLocation" Hidden="true" />
       <Method Name="InitFormatters" Hidden="true" />
-      <Method Name="InitStorageTypes" Hidden="true" />
       <Method Name="InitSynchronizers" Hidden="true" />
-      <Method Name="SetLocationFromType" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>CABABRgAAAIIIAIACEIAAACSwQAhAEMUECoAgGVAAgg=</HashCode>
+      <HashCode>CABCBBgAAACAIIIAQEIAAAMSwQAhAEMQAAIAgiBAAgg=</HashCode>
       <FileName>Configuration\EngineConfiguration.cs</FileName>
     </TypeIdentifier>
   </Class>

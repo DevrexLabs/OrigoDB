@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.Serialization;
 
 namespace OrigoDB.Core
@@ -9,7 +6,7 @@ namespace OrigoDB.Core
 
     /// <summary>
     /// Throw this Exception from within Command.Execute(M model) to abort the command.
-    /// An aborted command isn't written to the journal and must not have modified the model.
+    /// An aborted command must not have modified the model.
     /// <remarks>Throwing any other exception from within Command.Execute() will trigger a rollback, 
     /// restoring the model to the consistent state prior to the command</remarks>
     /// </summary>

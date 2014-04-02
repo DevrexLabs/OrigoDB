@@ -53,11 +53,20 @@
   <ItemGroup>
     <Compile Include="AuthenticationModelTests.cs" />
     <Compile Include="CommandJournalTest.cs" />
-    <Compile Include="CompressorPerformanceTests.cs" />
+    <Compile Include="CommandTimestampTests.cs" />
+    <Compile Include="CompressorTests.cs" />
+    <Compile Include="EngineEventsTests.cs" />
     <Compile Include="HashUtilityTest.cs" />
+    <Compile Include="ImmutabilityTests.cs" />
     <Compile Include="LoggingTests.cs" />
     <Compile Include="MergersTest.cs" />
+    <Compile Include="PersistenceModeTests.cs" />
+    <Compile Include="ProxyMethodMapTests.cs" />
+    <Compile Include="RolloverTests.cs" />
+    <Compile Include="RoyalFoodTasterTests.cs" />
     <Compile Include="SchemaMigrationsTest.cs" />
+    <Compile Include="SnapshotTests.cs" />
+    <Compile Include="StoreTests.cs" />
     <Compile Include="SuccessfulUserAuthentication.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Reflection;
 
 namespace OrigoDB.Core.Linq
@@ -34,14 +32,17 @@ namespace OrigoDB.Core.Linq
 			return methodInfo.Invoke(null, methodArgs);
 		}
 
-		public static R Execute<M, R>(this Engine<M> engine, string query, params object[] args) where M : Model
+		public static TResult Execute<TModel, TResult>(this Engine<TModel> engine, string query, params object[] args) where TModel : Model
 		{
-			return (R)Execute(engine, typeof(M), query, args);
+			return (TResult)Execute(engine, typeof(TModel), query, args);
 		}
 
-		public static object Execute<M>(this Engine<M> engine, string query, params object[] args) where M : Model
+        /// <summary>
+        /// Execute a LINQ query passed as a string
+        /// </summary>
+		public static object Execute<TModel>(this Engine<TModel> engine, string query, params object[] args) where TModel : Model
 		{
-			return Execute(engine, typeof(M), query, args);
+			return Execute(engine, typeof(TModel), query, args);
 		}
 	}
 }

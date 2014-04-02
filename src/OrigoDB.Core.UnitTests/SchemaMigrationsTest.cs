@@ -2,7 +2,6 @@ using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using OrigoDB.Core.Migrations;
 using NUnit.Framework;
-using System.Collections.Generic;
 
 namespace OrigoDB.Core.UnitTests
 {

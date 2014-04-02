@@ -1,13 +1,9 @@
-﻿using OrigoDB.Core;
-using OrigoDB.Core.Configuration;
-using OrigoDB.Core.Journaling;
+﻿using OrigoDB.Core.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Runtime.Serialization;
 using System.IO;
 using OrigoDB.Core.Security;
 using System.Runtime.Serialization.Formatters.Binary;
-using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core.Test
 {
@@ -87,19 +83,23 @@ namespace OrigoDB.Core.Test
         [TestMethod()]
         public void FileStorageIsDefault()
         {
-            var config = new EngineConfiguration();
+            var config = new EngineConfiguration().WithRandomLocation();
             var storage = config.CreateStore();
             Assert.IsTrue(storage is FileStore);
+            Directory.Delete(config.Location.OfJournal, true);
         }
 
         [TestMethod()]
         public void InjectedStorageIsResolved()
         {
-            var config = new EngineConfiguration();
+
+            var config = new EngineConfiguration()
+                .WithRandomLocation();
             var expected = new FileStore(config);
             config.SetStoreFactory((c) => expected);
             var actual = config.CreateStore();
             Assert.AreSame(expected, actual);
+            Directory.Delete(config.Location.OfJournal, true);
         }
 
         [TestMethod()]
@@ -148,70 +148,12 @@ namespace OrigoDB.Core.Test
             Assert.AreSame(expected,actual);
         }
 
-        class MockStore : Store
-        {
-            public MockStore(EngineConfiguration config) : base(config)
-            {
-                
-            }
-
-            protected override IJournalWriter CreateStoreSpecificJournalWriter(long lastEntryId)
-            {
-                return new NullJournalWriter();
-            }
-
-            protected override Snapshot WriteSnapshotImpl(Model model, long lastEntryId)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override System.Collections.Generic.IEnumerable<JournalEntry> GetJournalEntriesFrom(long sequenceNumber)
-            {
-                yield break;
-            }
-
-            public override System.Collections.Generic.IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
-            {
-                yield break;
-            }
-
-            public override Model LoadMostRecentSnapshot(out long lastSequenceNumber)
-            {
-                lastSequenceNumber = 1;
-                return null;
-            }
-
-            public override void VerifyCanLoad()
-            {
-                
-            }
-
-            public override void VerifyCanCreate()
-            {
-                
-            }
-
-            public override void Create(Model model)
-            {
-               
-            }
-
-            protected override System.Collections.Generic.IEnumerable<Snapshot> LoadSnapshots()
-            {
-                yield break;
-            }
-
-            public override Stream CreateJournalWriterStream(long firstEntryId = 1)
-            {
-                throw new NotImplementedException();
-            }
-        }
         [TestMethod()]
         public void AsyncJournalingYieldsAsyncWriter()
         {
-            var config = new EngineConfiguration();
+            var config = new EngineConfiguration(Guid.NewGuid().ToString());
             config.AsyncronousJournaling = true;
-            config.SetStoreFactory(c => new MockStore(c));
+            config.SetStoreFactory(c => new InMemoryStore(c));
             var store = config.CreateStore();
             var writer = store.CreateJournalWriter(1);
             Assert.IsTrue(writer is AsynchronousJournalWriter);
@@ -220,12 +162,12 @@ namespace OrigoDB.Core.Test
         [TestMethod()]
         public void SyncJournalingYieldsSyncWriter()
         {
-            var config = new EngineConfiguration();
+            var config = new EngineConfiguration(Guid.NewGuid().ToString());
             config.AsyncronousJournaling = false;
-            config.SetStoreFactory(c => new MockStore(c));
+            config.SetStoreFactory(c => new InMemoryStore(c));
             var store = config.CreateStore();
             var writer = store.CreateJournalWriter(1);
-            Assert.IsTrue(writer is NullJournalWriter);
+            Assert.IsTrue(writer is StreamJournalWriter);
         }
 
         [TestMethod()]
@@ -240,15 +182,6 @@ namespace OrigoDB.Core.Test
         {
             var config = new EngineConfiguration();
             Assert.IsTrue(config.Kernel == Kernels.Optimistic);
-        }
-
-        [TestMethod()]
-        public void PessimisticKernelIsReturned()
-        {
-            var config = new EngineConfiguration();
-            config.Kernel = Kernels.Pessimistic;
-            var kernel = config.CreateKernel(null);
-            Assert.AreEqual(typeof(PessimisticKernel), kernel.GetType());
         }
 
         [TestMethod()]

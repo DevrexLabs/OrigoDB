@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Configuration;
+using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core
 {
@@ -9,43 +11,33 @@ namespace OrigoDB.Core
     /// </summary>
     public interface IStore
     {
-        
+
+
+        IEnumerable<Snapshot> Snapshots { get; }
 
         /// <summary>
-        /// Should verify the integrity of an existing database and throw unless the state is valid
+        /// Connect and read meta data
         /// </summary>
-        void VerifyCanLoad();
+        void Init();
 
 
-        
-        Model LoadMostRecentSnapshot(out long lastEntryId);
+        /// <summary>
+        /// Load model and enter state accepting new commands to be written to the journal
+        /// </summary>
+        /// <returns></returns>
+        Model LoadModel(Type modelType = null);
 
         /// <summary>
         /// Create a snapshot of the provided model and save to storage
         /// </summary>
-        void WriteSnapshot(Model model, long lastEntryId);
-
-        /// <summary>
-        /// Checks the integrity of the configuration and throw if Create() will fail
-        /// </summary>
-        void VerifyCanCreate();
-
-        /// <summary>
-        /// Perform initial preparation of the storage
-        /// </summary>
-        /// <param name="model"></param>
-        void Create(Model model);
-
-        void Load();
-
-        bool Exists { get; }
+        void WriteSnapshot(Model model);
 
         IEnumerable<JournalEntry> GetJournalEntries();
 
         /// <summary>
         /// Retrieve journal entries with an Id >= the given entryId. Used when restoring a snapshot
         /// </summary>
-        IEnumerable<JournalEntry> GetJournalEntriesFrom(long entryId);
+        IEnumerable<JournalEntry> GetJournalEntriesFrom(ulong entryId);
 
         /// <summary>
         /// Return journal entries at or before a specific point in time. Used for point in time recovert
@@ -54,9 +46,34 @@ namespace OrigoDB.Core
         /// <returns></returns>
         IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime);
 
-        IJournalWriter CreateJournalWriter(long lastEntryId);
+        IJournalWriter CreateJournalWriter(ulong lastEntryId);
 
 
-        Stream CreateJournalWriterStream(long firstEntryId = 1);
+        Stream CreateJournalWriterStream(ulong firstEntryId = 1);
+
+
+        /// <summary>
+        /// Create from a specific model instance by writing an initial snapshot
+        /// </summary>
+        /// <param name="model"></param>
+        void Create(Model model);
+
+        /// <summary>
+        /// Create without a snapshot
+        /// </summary>
+        void Create(Type modelType);
+
+
+        void Create<T>() where T : Model, new();
+
+
+        bool IsEmpty
+        {
+            get;
+        }
+
+
+        JournalAppender GetAppender();
     }
+
 }

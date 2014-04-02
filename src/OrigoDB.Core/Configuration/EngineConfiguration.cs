@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using OrigoDB.Core.Logging;
 using OrigoDB.Core.Security;
-using OrigoDB.Core.TinyIoC;
 using OrigoDB.Core.Configuration;
 
 namespace OrigoDB.Core
 {
 
-    public partial class EngineConfiguration : ConfigurationBase
+    public class EngineConfiguration : ConfigurationBase
     {
-        protected TinyIoCContainer _registry;
+        protected TeenyIoc _registry;
 
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
         public const string DefaultDateFormatString = "yyyy.MM.dd.hh.mm.ss.fff";
@@ -20,11 +17,22 @@ namespace OrigoDB.Core
         public const int DefaultMaxCommandsPerJournalSegment = 10000;
 
 
+
+        public EngineConfiguration ForImmutability()
+        {
+            Kernel = Kernels.Immutability;
+            Synchronization = SynchronizationMode.None;
+            EnsureSafeResults = false;
+            return this;
+        }
+
+
         /// <summary>
         /// Write journal entries using a background thread
         /// </summary>
         public bool AsyncronousJournaling { get; set; }
 
+        public PersistenceMode PersistenceMode { get; set; }
 
         public Kernels Kernel { get; set; }
 
@@ -35,7 +43,8 @@ namespace OrigoDB.Core
         public PacketOptions? PacketOptions { get; set; }
 
         /// <summary>
-        /// Engine takes responsibility for ensuring no mutable object references are returned by commands or queries. Default is true.
+        /// Engine takes responsibility for ensuring no mutable object references are returned
+        /// by commands or queries. Default is true.
         /// <remarks>
         /// Can safely be set to false if one of the following is true:
         ///    1. You are running on a single thread and are certain that client code only reads results.
@@ -102,25 +111,25 @@ namespace OrigoDB.Core
             StoreType = Stores.FileSystem;
             EnsureSafeResults = true;
             PacketOptions = null;
+            PersistenceMode = PersistenceMode.Journaling;
 
-            _registry = new TinyIoCContainer();
-            _registry.Register<ICommandJournal>((c, p) => new CommandJournal((IStore)p["store"]));
-            _registry.Register<IAuthorizer<Type>>((c, p) => new TypeBasedPermissionSet(Permission.Allowed));
-            _registry.Register<ISerializer>((c, p) => new Serializer(CreateFormatter()));
+            _registry = new TeenyIoc();
+            Register<IAuthorizer<Type>>(c => new TypeBasedPermissionSet(Permission.Allowed));
+            Register<ISerializer>(c => new Serializer(CreateFormatter()));
             InitSynchronizers();
             InitStoreTypes();
             InitFormatters();
             InitKernels();
         }
 
-        #region Factory initializers
 
 
         private void InitKernels()
         {
-            _registry.Register<Kernel>((c, p) => new OptimisticKernel(this, (IStore)p["store"]), Kernels.Optimistic.ToString());
-            _registry.Register<Kernel>((c, p) => new PessimisticKernel(this, (IStore)p["store"]), Kernels.Pessimistic.ToString());
-            _registry.Register<Kernel>((c, p) => new RoyalFoodTaster(this, (IStore)p["store"]), Kernels.RoyalFoodTaster.ToString());
+            Register<Kernel>((cfg, args) => new OptimisticKernel(cfg, (Model) args["model"]), Kernels.Optimistic.ToString());
+            Register<Kernel>((cfg, args) => new RoyalFoodTaster(cfg, (Model) args["model"]), Kernels.RoyalFoodTaster.ToString());
+            Register<Kernel>((cfg, args) => new ImmutabilityKernel(cfg, (Model) args["model"]), Kernels.Immutability.ToString()); 
+
         }
 
         /// <summary>
@@ -128,21 +137,21 @@ namespace OrigoDB.Core
         /// </summary>
         private void InitSynchronizers()
         {
-            _registry.Register<ISynchronizer>((c, p) => new ReadWriteSynchronizer(LockTimeout),
+            Register<ISynchronizer>(c => new ReadWriteSynchronizer(LockTimeout),
                                               SynchronizationMode.ReadWrite.ToString());
-            _registry.Register<ISynchronizer>((c, p) => new NullSynchronizer(),
+            Register<ISynchronizer>(c => new NullSynchronizer(),
                                               SynchronizationMode.None.ToString());
-            _registry.Register<ISynchronizer>((c, p) => new ExclusiveSynchronizer(LockTimeout),
-                                  SynchronizationMode.Exclusive.ToString());
+            Register<ISynchronizer>(c => new ExclusiveSynchronizer(LockTimeout),
+                                              SynchronizationMode.Exclusive.ToString());
 
 
         }
 
         private void InitFormatters()
         {
-            _registry.Register<IFormatter>((c, p) => new BinaryFormatter(),
+            Register<IFormatter>(c => new BinaryFormatter(),
                                            ObjectFormatting.NetBinaryFormatter.ToString());
-            _registry.Register<IFormatter>((c, p) => LoadFromConfig<IFormatter>(),
+            Register(c => LoadFromConfig<IFormatter>(),
                                            ObjectFormatting.Custom.ToString());
         }
 
@@ -152,17 +161,15 @@ namespace OrigoDB.Core
         /// </summary>
         private void InitStoreTypes()
         {
-            _registry.Register<IStore>((c, p) => new FileStore(this), Stores.FileSystem.ToString());
-            //_registry.Register<IStorage, NullStorage>(StorageType.None.ToString());
+            Register<IStore>(cfg => new FileStore(cfg), Stores.FileSystem.ToString());
 
             //If StorageMode is set to custom and no factory has been injected, the fully qualified type 
             //name will be resolved from the app configuration file.
-            _registry.Register<IStore>((c, p) => LoadFromConfig<IStore>(), Stores.Custom.ToString());
+            Register(c => LoadFromConfig<IStore>(), Stores.Custom.ToString());
         }
-        #endregion
 
         /// <summary>
-        /// Looks up a custom implementation in app config file with the key LiveDb.EngineConfiguration
+        /// Looks up a custom implementation in app config file
         /// </summary>
         /// <returns></returns>
         public static EngineConfiguration Create()
@@ -182,7 +189,7 @@ namespace OrigoDB.Core
         public virtual IFormatter CreateFormatter()
         {
             string name = ObjectFormatting.ToString();
-            IFormatter formatter = _registry.Resolve<IFormatter>(name);
+            var formatter = _registry.Resolve<IFormatter>(name: name);
             if (PacketOptions != null)
             {
                 formatter = new PacketingFormatter(formatter, PacketOptions.Value);
@@ -210,48 +217,41 @@ namespace OrigoDB.Core
         public virtual IStore CreateStore()
         {
             string name = StoreType.ToString();
-            return _registry.Resolve<IStore>(name);
+            var store =  _registry.Resolve<IStore>(name);
+            store.Init();
+            return store;
         }
 
-        /// <summary>
-        /// Creates and returns a new command journal instance.
-        /// The default type is CommandJournal unless a custom factory has been set by 
-        /// calling SetCommandJournalFactory()
-        /// </summary>
-        /// <returns></returns>
-        public virtual ICommandJournal CreateCommandJournal(IStore store)
+
+        protected void Register<T>(Func<EngineConfiguration, T> factory, string registrationName = "") where T : class
         {
-            var args = new Dictionary<string, object> { { "store", store } };
-            return _registry.Resolve<ICommandJournal>(new NamedParameterOverloads(args));
+            _registry.Register<T>(args => factory.Invoke(this), registrationName);
         }
 
-        /// <summary>
-        /// Inject a custom command journal factory. 
-        /// Will throw if called after journal has been created.
-        /// </summary>
-        /// <param name="factory"></param>
-        public void SetCommandJournalFactory(Func<EngineConfiguration, ICommandJournal> factory)
+        protected void Register<T>(Func<EngineConfiguration, TeenyIoc.Args, T> factory,
+            string registrationName = "") where T : class
         {
-            _registry.Register<ICommandJournal>((c, p) => factory.Invoke(this));
+            _registry.Register<T>(args => factory.Invoke(this, args), registrationName);
         }
+
 
         public void SetSynchronizerFactory(Func<EngineConfiguration, ISynchronizer> factory)
         {
             Synchronization = SynchronizationMode.Custom;
             string registrationName = Synchronization.ToString();
-            _registry.Register<ISynchronizer>((c, p) => factory.Invoke(this), registrationName);
+            _registry.Register<ISynchronizer>(args => factory.Invoke(this), registrationName);
         }
 
         public void SetAuthorizerFactory(Func<EngineConfiguration, IAuthorizer<Type>> factory)
         {
-            _registry.Register<IAuthorizer<Type>>((c, p) => factory.Invoke(this));
+            Register(args => factory.Invoke(this));
         }
 
         public void SetFormatterFactory(Func<EngineConfiguration, IFormatter> factory)
         {
             ObjectFormatting = ObjectFormatting.Custom;
             string registrationName = ObjectFormatting.ToString();
-            _registry.Register<IFormatter>((c, p) => factory.Invoke(this), registrationName);
+            Register(args => factory.Invoke(this), registrationName);
         }
 
         /// <summary>
@@ -262,7 +262,7 @@ namespace OrigoDB.Core
         {
             StoreType = Stores.Custom;
             string registrationName = StoreType.ToString();
-            _registry.Register<IStore>((c, p) => factory.Invoke(this), registrationName);
+            Register(args => factory.Invoke(this), registrationName);
         }
 
         /// <summary>
@@ -271,7 +271,7 @@ namespace OrigoDB.Core
         /// <param name="factory"></param>
         public void SetSerializerFactory(Func<EngineConfiguration, ISerializer> factory)
         {
-            _registry.Register<ISerializer>((c, p) => factory.Invoke(this));
+            Register(args => factory.Invoke(this));
         }
 
         /// <summary>
@@ -295,11 +295,11 @@ namespace OrigoDB.Core
             return compositeStrategy;
         }
 
-        public virtual Kernel CreateKernel(IStore store)
+        public virtual Kernel CreateKernel(Model model)
         {
             string registrationName = Kernel.ToString();
-            var parameters = new Dictionary<string, object> { { "store", store } };
-            return _registry.Resolve<Kernel>(registrationName, new NamedParameterOverloads(parameters));
+            var args = new TeenyIoc.Args { { "model", model } };
+            return _registry.Resolve<Kernel>(args, registrationName);
         }
     }
 }

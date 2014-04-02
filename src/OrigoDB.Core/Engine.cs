@@ -1,60 +1,63 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using OrigoDB.Core.Logging;
 using OrigoDB.Core.Security;
+using System.Runtime.Serialization;
 
 namespace OrigoDB.Core
 {
-
-
     /// <summary>
     /// Engine is responsible for executing commands and queries against
     /// the model while conforming to ACID.
     /// </summary>
     public partial class Engine : IDisposable
     {
-        EngineConfiguration _config;
-        bool _isDisposed = false;
-        static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
-        IAuthorizer<Type> _authorizer;
 
-        private readonly Kernel _kernel;
-
-        public EngineConfiguration Config { get { return _config; } }
-		internal Kernel Kernel { get { return _kernel; }}
         /// <summary>
-        /// Shuts down the engine
+        /// Fired just before the command is executed
         /// </summary>
-        public void Close()
-        {
-            if (!_isDisposed)
-            {
-                Core.Config.Engines.Remove(this);
-                if (_config.SnapshotBehavior == SnapshotBehavior.OnShutdown) CreateSnapshot();
-                _isDisposed = true;
-                _kernel.Dispose();
-            }
-        }
+        public event EventHandler<CommandExecutingEventArgs> CommandExecuting = delegate { };
 
-        private void ThrowIfDisposed()
-        {
-            if (_isDisposed) throw new ObjectDisposedException(GetType().FullName);
-        }
+        /// <summary>
+        /// Fired after tthe command has successfully executed
+        /// </summary>
+        public event EventHandler<CommandExecutedEventArgs> CommandExecuted = delegate { };
+
+        readonly Stopwatch _executionTimer = new Stopwatch();
+        static readonly ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
+
+        readonly EngineConfiguration _config;
+        readonly IAuthorizer<Type> _authorizer;
+        readonly JournalAppender _journalAppender;
 
 
-        protected Engine(Func<Model> constructor, EngineConfiguration config)
+        private IStore _store;
+        readonly ISynchronizer _synchronizer;
+
+        private readonly object _commandSequenceLock = new object();
+
+        Kernel _kernel;
+        bool _isDisposed = false;
+
+        /// <summary>
+        /// The current configuration,
+        /// </summary>
+        public EngineConfiguration Config { get { return _config; } }
+
+        protected Engine(Model model, IStore store, EngineConfiguration config)
         {
             _config = config;
+            _store = store;
 
-            var store = _config.CreateStore();
-            store.Load();
-
-            _kernel = _config.CreateKernel(store);
-            _kernel.Restore(constructor);
-            
+            _synchronizer = _config.CreateSynchronizer();
             _authorizer = _config.CreateAuthorizer();
+            _kernel = _config.CreateKernel(model);
+            _kernel.SetSynchronizer(_synchronizer);
+            _journalAppender = _store.GetAppender();
 
+            //todo: move behavior to IStore?
             if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)
             {
                 _log.Info("Starting snaphot job on threadpool");
@@ -65,41 +68,128 @@ namespace OrigoDB.Core
                 Thread.Sleep(TimeSpan.FromMilliseconds(10));
             }
 
+            CommandExecuted += (s, e) => HandleSnapshotPersistence();
+            
+            //todo: bad dep, use an event instead
             Core.Config.Engines.AddEngine(config.Location.OfJournal, this);
         }
 
+        private void Restore()
+        {
+            _store = _config.CreateStore();
+            var model = _store.LoadModel();
+            _kernel = _config.CreateKernel(model);
+            _kernel.SetSynchronizer(_synchronizer);
+        }
+
+        /// <summary>
+        /// DANGER! Get a direct reference to the encapsulated model. DANGER!
+        /// <remarks>
+        /// Under normal circumstances you will never touch the model directly. Access is not thread safe and
+        /// any changes will be lost unless a snapshot is taken.
+        /// </remarks>
+        /// </summary>
+        /// <returns>A direct reference to the model</returns>
+        public Model GetModel()
+        {
+            return _kernel.Model;
+        }
+
+        /// <summary>
+        /// Non generic query execution overload
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         public object Execute(Query query)
         {
-            return Execute<Model, object>(model => query.ExecuteStub(model));
+            return Execute<Model, object>(query.ExecuteStub);
         }
 
-        public T Execute<M, T>(Func<M, T> lambdaQuery) where M : Model
+        /// <summary>
+        /// Execute a lambda query
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="lambdaQuery"></param>
+        /// <returns></returns>
+        public TResult Execute<TModel, TResult>(Func<TModel, TResult> lambdaQuery) where TModel : Model
         {
-            ThrowIfDisposed();
-            ThrowUnlessAuthenticated(lambdaQuery.GetType());
-            return (T)ExecuteQuery(new DelegateQuery<M, T>(lambdaQuery));
+            EnsureRunning();
+            EnsureAuthenticated(lambdaQuery.GetType());
+            return ExecuteQuery(new DelegateQuery<TModel, TResult>(lambdaQuery));
         }
 
-        public T Execute<M, T>(Query<M, T> query) where M : Model
+        public TRresult Execute<TModel, TRresult>(Query<TModel, TRresult> query) where TModel : Model
         {
-            ThrowIfDisposed();
-            ThrowUnlessAuthenticated(query.GetType());
+            EnsureRunning();
+            EnsureAuthenticated(query.GetType());
             return ExecuteQuery(query);
-        }
-
-        private T ExecuteQuery<M, T>(Query<M, T> query) where M : Model
-        {
-            return _kernel.ExecuteQuery(query);
         }
 
         public object Execute(Command command)
         {
-            ThrowIfDisposed();
-            ThrowUnlessAuthenticated(command.GetType());
-            return _kernel.ExecuteCommand(command);
+            EnsureRunning();
+            EnsureAuthenticated(command.GetType());
+            FireExecutingEvent(command);
+
+            lock (_commandSequenceLock)
+            {
+                command.Timestamp = DateTime.Now;
+                bool exceptionThrown = false;
+                _executionTimer.Restart();
+                ulong lastEntryId = PersistIfJournaling(command);
+                try
+                {
+                    return _kernel.ExecuteCommand(command);
+                }
+                catch (Exception ex)
+                {
+                    exceptionThrown = true;
+                    if (_config.PersistenceMode == PersistenceMode.Journaling) _journalAppender.AppendRollbackMarker();
+                    if (!(ex is CommandAbortedException)) Rollback();
+                    throw;
+                }
+                finally
+                {
+                    _synchronizer.Exit();
+                    if (!exceptionThrown)
+                    {
+                        var args = new CommandExecutedEventArgs(lastEntryId, command, command.Timestamp, _executionTimer.Elapsed);
+                        CommandExecuted.Invoke(this, args);
+                    }
+                }
+            }
         }
 
-        private void ThrowUnlessAuthenticated(Type operationType)
+        private void FireExecutingEvent(Command command)
+        {
+            var eventArgs = new CommandExecutingEventArgs(command);
+            CommandExecuting.Invoke(this, eventArgs);
+            if (eventArgs.Cancel) throw new CommandAbortedException("Command canceled by event handler");
+        }
+
+        private TResult ExecuteQuery<TModel, TResult>(Query<TModel, TResult> query) where TModel : Model
+        {
+            return _kernel.ExecuteQuery(query);
+        }
+
+
+        private ulong PersistIfJournaling(Command command)
+        {
+            return _config.PersistenceMode == PersistenceMode.Journaling
+                ? _journalAppender.Append(command)
+                : 0;
+        }
+
+        private void HandleSnapshotPersistence()
+        {
+            if (_config.PersistenceMode == PersistenceMode.SnapshotPerTransaction)
+            {
+                CreateSnapshot();
+            }
+        }
+
+        private void EnsureAuthenticated(Type operationType)
         {
             if (!_authorizer.Allows(operationType, Thread.CurrentPrincipal))
             {
@@ -110,52 +200,108 @@ namespace OrigoDB.Core
 
         internal byte[] GetSnapshot()
         {
-            //TODO: Verify GetBuffer!
-            MemoryStream memoryStream = new MemoryStream();
+            var memoryStream = new MemoryStream();
             WriteSnapshotToStream(memoryStream);
             return memoryStream.GetBuffer();
         }
 
-        internal void WriteSnapshotToStream(Stream stream)
+        /// <summary>
+        /// Serialize the current model to a stream
+        /// </summary>
+        /// <param name="stream">A writeable stream</param>
+        /// <param name="formatter">A specific formatter, otherwise the default formatter</param>
+        public void WriteSnapshotToStream(Stream stream, IFormatter formatter = null)
         {
-            var serializer = _config.CreateSerializer();
-            _kernel.Read(m =>serializer.Write(m,stream));
+            formatter = formatter ?? _config.CreateFormatter();
+            _kernel.Read(model => formatter.Serialize(stream, model));
         }
- 
+
+        /// <summary>
+        /// Writes a snapshot reflecting the current state of the model to the associated <see cref="IStore"/>
+        /// <remarks>The snapshot is a read operation blocking writes but not other reads (unless using an ImmutablilityKernel).</remarks>
+        /// </summary>
         public void CreateSnapshot()
         {
-            _kernel.CreateSnapshot();
+            _kernel.Read(model => _store.WriteSnapshot(model));
+        }
+
+        private void Rollback()
+        {
+            //release memory held by the corrupted model
+            _kernel = null;
+            GC.Collect();
+            GC.WaitForFullGCComplete();
+            Restore();
+        }
+
+        void IDisposable.Dispose()
+        {
+            Dispose(true);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (_isDisposed) return;
+            if (disposing)
+            {
+                //todo: bad dependency, use events instead
+                Core.Config.Engines.Remove(this);
+                if (_config.SnapshotBehavior == SnapshotBehavior.OnShutdown) CreateSnapshot();
+                _isDisposed = true;
+                GC.SuppressFinalize(this);
+            }
         }
 
 
-        public void Dispose()
+        ~Engine()
         {
+            Dispose(false);
             Close();
         }
 
+        /// <summary>
+        /// Shuts down the engine and any associated open resources
+        /// </summary>
+        public void Close()
+        {
+            Dispose(true); 
+        }
 
-        #region Static non-generic Load and Create methods
+        private void EnsureRunning()
+        {
+            if (_isDisposed) throw new ObjectDisposedException(GetType().FullName);
+        }
 
+
+
+        /// <summary>
+        /// Load an engine from the specified location
+        /// </summary>
+        /// <param name="location"></param>
+        /// <returns></returns>
         public static Engine Load(string location)
         {
             var config = EngineConfiguration.Create();
-            config.Location.OfJournal = location; //TODO: this smells
+            config.Location.OfJournal = location;
             return Load(config);
         }
 
+        /// <summary>
+        /// Load an engine from a location specified by the provided EngineConfiguration
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns>A non generic Engine</returns>
         public static Engine Load(EngineConfiguration config)
         {
-            if (!config.Location.HasJournal) throw new InvalidOperationException("Specify location to load from in non-generic load");
-	        Engine engine;
-			if(!Core.Config.Engines.TryGetEngine(config.Location.OfJournal,out engine))
-			{
-				config.CreateStore().VerifyCanLoad();
-				engine = new Engine(null, config);
-			}
-            return engine;
+            if (!config.Location.HasJournal) 
+                throw new InvalidOperationException("Specify location to load from in non-generic load");
+            var store = config.CreateStore();
+            var model = store.LoadModel();
+            return new Engine(model, store, config);
         }
 
-        public static Engine Create(Model model, string location = null)
+
+        public static Engine Create(Model model, string location)
         {
             var config = EngineConfiguration.Create();
             config.Location.OfJournal = location;
@@ -172,117 +318,108 @@ namespace OrigoDB.Core
         }
 
 
-        #endregion
-
-        #region Static generic Load methods
-
         /// <summary>
         /// Load from location using the default EngineConfiguration
         /// </summary>
-        /// <typeparam name="M"></typeparam>
+        /// <typeparam name="TModel"></typeparam>
         /// <param name="location"></param>
         /// <returns></returns>
-        public static Engine<M> Load<M>(string location) where M : Model
+        public static Engine<TModel> Load<TModel>(string location) where TModel : Model
         {
             var config = EngineConfiguration.Create();
             config.Location.OfJournal = location;
-            return Load<M>(config);
+            return Load<TModel>(config);
         }
 
         /// <summary>
         /// Load using an explicit configuration.
         /// </summary>
-        /// <typeparam name="M"></typeparam>
+        /// <typeparam name="TModel"></typeparam>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static Engine<M> Load<M>(EngineConfiguration config = null) where M : Model
+        public static Engine<TModel> Load<TModel>(EngineConfiguration config = null) where TModel : Model
         {
             config = config ?? EngineConfiguration.Create();
-            if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
-	        Engine engine;
-			if (!Core.Config.Engines.TryGetEngine(config.Location.OfJournal, out engine))
-			{
-				config.CreateStore().VerifyCanLoad();
-				engine = new Engine<M>(config);
-			}           
-            return (Engine<M>) engine;
+            if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
+            var store = config.CreateStore();
+            var model = (TModel) store.LoadModel();
+            return new Engine<TModel>(model, store, config);
         }
-        #endregion
 
-        #region Generic Create methods
-
-        public static Engine<M> Create<M>(string location) where M : Model
+        /// <summary>
+        /// Create an engine at the specified location
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="location"></param>
+        /// <returns>The newly created engine</returns>
+        public static Engine<TModel> Create<TModel>(string location) where TModel : Model, new()
         {
             var config = EngineConfiguration.Create();
             config.Location.OfJournal = location;
-            return Create<M>(config);
+            return Create<TModel>(config);
         }
 
-        public static Engine<M> Create<M>(M model, string location = null) where M : Model
+        public static Engine<TModel> Create<TModel>(EngineConfiguration config = null) where TModel : Model, new()
         {
-            var config = EngineConfiguration.Create();
-            config.Location.OfJournal = location;
-            return Create<M>(model, config);
+            return Create(new TModel(), config);
         }
 
-        public static Engine<M> Create<M>(EngineConfiguration config = null) where M : Model
+        /// <summary>
+        /// Create from an existing model by writing a snapshot
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static Engine<TModel> Create<TModel>(TModel model, EngineConfiguration config = null) where TModel : Model
         {
             config = config ?? EngineConfiguration.Create();
-            M model = Activator.CreateInstance<M>();
-            return Create(model, config);
-        }
-
-        public static Engine<M> Create<M>(M model, EngineConfiguration config) where M : Model
-        {
-            if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
+            if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
             IStore store = config.CreateStore();
             store.Create(model);
-            return Load<M>(config);
+            return Load<TModel>(config);
         }
 
-        #endregion
-
-        #region Static generic LoadOrCreate methods
-
-
-        public static Engine<M> LoadOrCreate<M>(string location = null) where M : Model, new()
+        /// <summary>
+        /// Load if exists, otherwise Create and Load.
+        /// </summary>
+        /// <typeparam name="TModel">The type of the model</typeparam>
+        /// <param name="location">The absolute or relative location</param>
+        /// <returns></returns>
+        public static Engine<TModel> LoadOrCreate<TModel>(string location) where TModel : Model, new()
         {
             var config = EngineConfiguration.Create();
             config.Location.OfJournal = location;
-            return LoadOrCreate<M>(config);
+            return LoadOrCreate<TModel>(config);
         }
 
-        public static Engine<M> LoadOrCreate<M>(EngineConfiguration config) where M : Model, new()
+        /// <summary>
+        /// Load or create the specified type from the
+        /// location according to EngineConfiguration.Location
+        /// </summary>
+        /// <typeparam name="TModel">The type of the model</typeparam>
+        /// <param name="config">The configuration to use</param>
+        /// <returns>A running engine</returns>
+        public static Engine<TModel> LoadOrCreate<TModel>(EngineConfiguration config = null) where TModel : Model, new()
         {
-
             config = config ?? EngineConfiguration.Create();
-            Func<M> constructor = () => Activator.CreateInstance<M>();
-            return LoadOrCreate<M>(constructor, config);
-        }
-
-        public static Engine<M> LoadOrCreate<M>(Func<M> constructor, EngineConfiguration config = null) where M : Model
-        {
-            config = config ?? EngineConfiguration.Create();
-            if (constructor == null) throw new ArgumentNullException("constructor");
-            if (config == null) throw new ArgumentNullException("config");
-            if (!config.Location.HasJournal) config.Location.SetLocationFromType<M>();
-            Engine<M> result = null;
+            if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
+            Engine<TModel> result = null;
 
             var store = config.CreateStore();
 
-            if (store.Exists)
+            if (store.IsEmpty)
             {
-                result = Load<M>(config);
-                _log.Debug("Engine Loaded");
+                result = Create(new TModel(), config);
+                _log.Debug("Engine Created");
             }
             else
             {
-                result = Create<M>(constructor.Invoke(), config);
-                _log.Debug("Engine Created");
+                result = Load<TModel>(config);
+                _log.Debug("Engine Loaded");
             }
             return result;
         }
 
-        #endregion
     }
 }

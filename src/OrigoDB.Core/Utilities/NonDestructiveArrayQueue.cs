@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace OrigoDB.Core.Utilities
 {
     /// <summary>
-    /// Provided the ability to iterate an array in a queue like manner.
+    /// Provides the ability to iterate an array in a queue like manner.
     /// Saves memory compared to using new Queue(array)
     /// </summary>
     public class NonDestructiveArrayQueue<T> : IEnumerable<T>

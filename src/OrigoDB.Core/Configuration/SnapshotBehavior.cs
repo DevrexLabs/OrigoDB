@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace OrigoDB.Core
+﻿namespace OrigoDB.Core
 {
     public enum SnapshotBehavior
     {
@@ -14,7 +9,7 @@ namespace OrigoDB.Core
         None,
 
         /// <summary>
-        /// Take a snapshot when the server starts up
+        /// Take a snapshot when engine is loaded
         /// </summary>
         AfterRestore,
 

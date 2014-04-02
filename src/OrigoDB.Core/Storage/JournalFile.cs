@@ -24,7 +24,7 @@ namespace OrigoDB.Core
         /// <summary>
         /// Id of the first journal entry in the file
         /// </summary>
-        public readonly long StartingEntryId;
+        public readonly ulong StartingEntryId;
 
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace OrigoDB.Core
 
 
 
-        public JournalFile(long fileSequenceNumber, long startingEntryId )
+        public JournalFile(long fileSequenceNumber, ulong startingEntryId )
         {
             FileSequenceNumber = fileSequenceNumber;
             StartingEntryId = startingEntryId;
@@ -47,8 +47,8 @@ namespace OrigoDB.Core
             Match match = journalFilenameParser.Match(filename);
             if (!match.Success) throw new ArgumentException("bad journal filename format");
 
-            long fileNr = match.Groups["fileNr"].Value.ParsePadded();
-            long entryNr = match.Groups["entryNr"].Value.ParsePadded();
+            long fileNr = (long) match.Groups["fileNr"].Value.ParsePadded();
+            ulong entryNr = match.Groups["entryNr"].Value.ParsePadded();
             return new JournalFile(fileNr, entryNr);
         }
 
@@ -63,7 +63,7 @@ namespace OrigoDB.Core
         }
 
 
-        public JournalFile Successor(long startingEntryId)
+        public JournalFile Successor(ulong startingEntryId)
         {
             return new JournalFile(FileSequenceNumber +1, startingEntryId);
         }

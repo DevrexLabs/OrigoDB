@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
 using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core
@@ -20,26 +16,25 @@ namespace OrigoDB.Core
         All = Encryted | Compressed | Checksum
     }
 
+    /// <summary>
+    /// Container for bytes to be written to the journal, takes options when
+    /// <remarks>
+    /// Header format:
+    /// 1. Byte   : PacketOptions
+    /// 2. Int32  : Number of payload bytes
+    /// 3. Byte[] : Payload bytes
+    /// 4. Int16  : Number of Checksum bytes. Optional, only when using Checksums
+    /// 5. Byte[] Checksum bytes. Optional, only when using Checksums
+    /// </remarks>
+    /// </summary>
     public class Packet
     {
-        /** Header is one byte in information bits(8 bools)
-		 *	0 IsEncrypted?
-		 *	1 IsCompressed?
-		 *	2 IncludeChecksum? 
-		 *	3
-		 *	4
-		 *	5
-		 *	6
-		 *	7
-		 *	
-		 *	Next four bytes is the length of payload data in Int32 format 
-		 *		followed by the corresponding length of payload data.
-		 *	
-		 *  IF IncludeChecksum : Next four bytes is the length of checksum data in Int32 format 
-		 *		followed by the corresponding  length of checksum data.
-		 **/
 
         [ThreadStatic] private static HashAlgorithm _hasher;
+
+        readonly PacketOptions _options;
+        byte[] _checksum;
+        byte[] _bytes;
         
         private static HashAlgorithm Hasher
         {
@@ -49,12 +44,6 @@ namespace OrigoDB.Core
                 return _hasher;
             }
         }
-
-        private PacketOptions _options;
-        private byte[] _checksum;
-        public byte[] _bytes;
-
-
 
         public static Packet Create(byte[] bytes, PacketOptions options = PacketOptions.Checksum)
         {

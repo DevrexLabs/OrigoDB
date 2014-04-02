@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using OrigoDB.Core.Proxy;
 
 namespace OrigoDB.Core.Test
@@ -44,7 +42,7 @@ namespace OrigoDB.Core.Test
         /// </summary>
         /// <param name="livedb"></param>
         /// <returns></returns>
-        [ProxyMethod(OperationType=OperationType.Command, ResultIsSafe = true)]
+        [Command(CloneResult = false)]
         public string Uppercase(string livedb)
         {
             CommandsExecuted++;
@@ -56,7 +54,7 @@ namespace OrigoDB.Core.Test
             return _customers.ToArray();
         }
 
-        [ProxyMethod(ResultIsSafe = true)]
+        [Query(CloneResult = false)]
         public Customer[] GetCustomersCloned()
         {
             return _customers.ToArray();
@@ -97,7 +95,7 @@ namespace OrigoDB.Core.Test
 	        ResultIsSafe = true;
 	    }
 
-        protected override int Execute(TestModel model)
+        public override int Execute(TestModel model)
         {
             return model.CommandsExecuted;
         }
@@ -106,21 +104,21 @@ namespace OrigoDB.Core.Test
     [Serializable]
     public class TestCommandWithoutResult : Command<TestModel>
     {
-        protected internal override void Execute(TestModel model)
+        public  override void Execute(TestModel model)
         {
             model.CommandsExecuted++;
         }
     }
 
     [Serializable]
-    public class TestCommandWithResult : CommandWithResult<TestModel, int>
+    public class TestCommandWithResult : Command<TestModel, int>
     {
         public byte[] Payload { get; set; }
         public bool ThrowInPrepare { get; set; }
         public bool ThrowExceptionWhenExecuting { get; set; }
         public bool ThrowCommandAbortedWhenExecuting { get; set; }
 
-        protected internal override void Prepare(TestModel model)
+        public  override void Prepare(TestModel model)
         {
             ResultIsSafe = true;
             if (ThrowInPrepare)
@@ -128,7 +126,7 @@ namespace OrigoDB.Core.Test
                 throw new Exception();
             }
         }
-        protected internal override int Execute(TestModel model)
+        public override int Execute(TestModel model)
         {
             if (ThrowCommandAbortedWhenExecuting)
             {

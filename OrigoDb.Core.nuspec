@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>OrigoDB.Core</id>
+    <title>OrigoDB Engine and Client</title>
+    <version>0.10.1</version>
+    <authors>Robert Friberg, Kristoffer Schroeder et al</authors>
+    <copyright>Devrex Labs</copyright>
+    <summary>
+		OrigoDB is an in-memory database engine for .NET. 		
+	</summary>
+    <description>
+		OrigoDB is an in-memory database engine for .NET. 
+    </description>
+    <projectUrl>https://github.com/devrexlabs/origodb</projectUrl>
+	<iconUrl>http://devrexlabs.com/Content/icons/favicon.ico</iconUrl>
+    <licenseUrl>https://github.com/devrexlabs/origodb#license</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <releaseNotes>Can be found on project site: https://github.com/devrexlabs/origodb/wiki/release-notes</releaseNotes>
+    <tags>OrigoDB in-memory imdb nosql database</tags>
+  </metadata>
+  <files>
+    <file src="build\OrigoDB.Core.dll" target="lib\net40" />
+    <file src="build\OrigoDB.Core.pdb" target="lib\net40" />
+    <file src="build\OrigoDB.Core.XML" target="lib\net40" />
+    <file src="src\OrigoDB.Core\**\*.cs" target="src" />
+  </files>
+</package>

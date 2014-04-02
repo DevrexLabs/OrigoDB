@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using OrigoDB.Core;
 using OrigoDB.Core.Configuration;
 using System.Diagnostics;
@@ -26,7 +23,7 @@ namespace OrigoDB.Benchmark
             Payload = new byte[size];
         }
 
-        protected override void Execute(BenchmarkModel model)
+        public override void Execute(BenchmarkModel model)
         {
             model.CommandsExecuted++;
             model.BytesWritten += Payload.Length;
@@ -42,7 +39,7 @@ namespace OrigoDB.Benchmark
             
             var config = new EngineConfiguration(Guid.NewGuid().ToString());
             config.PacketOptions = PacketOptions.Compressed;
-            config.Kernel = Kernels.Pessimistic;
+            config.Kernel = Kernels.Optimistic;
             var engine = Engine.LoadOrCreate<BenchmarkModel>(config);
             TimeThis(iterations, () => engine.Execute(new Message(messageSize)));
             engine.Close();

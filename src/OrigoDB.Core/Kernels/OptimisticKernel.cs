@@ -1,5 +1,4 @@
 using System;
-using OrigoDB.Core.Logging;
 
 namespace OrigoDB.Core
 {
@@ -11,47 +10,26 @@ namespace OrigoDB.Core
     /// </summary>
     public class OptimisticKernel : Kernel
     {
-        protected object _commandLock = new object();
 
-        public OptimisticKernel(EngineConfiguration config, IStore store)
-            : base(config, store)
+        public OptimisticKernel(EngineConfiguration config, Model model)
+            : base(config, model)
         {
 
         }
 
         public override object ExecuteCommand(Command command)
         {
-            lock (_commandLock)
+            try
             {
-                try
-                {
-                    _commandJournal.Append(command);
-                    _synchronizer.EnterUpgrade();
-                    command.PrepareStub(_model);
-                    _synchronizer.EnterWrite();
-                    try
-                    {
-                        return command.ExecuteStub(_model);
-                    }
-                    catch (Exception)
-                    {
-                        _commandJournal.WriteRollbackMarker(); //todo: wrap in try and throw a special exception upon failure
-                        throw;
-                    }
-                }
-                catch (CommandAbortedException)
-                {
-                    throw;
-                }
-                catch (Exception)
-                {
-                    Restore();
-                    throw;
-                }
-                finally
-                {
-                    _synchronizer.Exit();
-                }
+                _synchronizer.EnterUpgrade();
+                command.PrepareStub(_model);
+                _synchronizer.EnterWrite();
+                return command.ExecuteStub(_model);
+
+            }
+            finally
+            {
+                _synchronizer.Exit();
             }
         }
     }

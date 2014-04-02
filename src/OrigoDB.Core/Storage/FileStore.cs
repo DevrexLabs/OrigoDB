@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Text.RegularExpressions;
 using OrigoDB.Core.Storage;
-using OrigoDB.Core.Journaling;
 
 namespace OrigoDB.Core
 {
@@ -32,9 +29,10 @@ namespace OrigoDB.Core
         /// <summary>
         /// Read journal files
         /// </summary>
-        public override void Load()
+        public override void Init()
         {
-            base.Load();
+            EnsureDirectoryExists(_config.Location.OfJournal);
+            base.Init();
             _journalFiles = new List<JournalFile>();
             foreach (var file in Directory.GetFiles(_config.Location.OfJournal, "*.journal"))
             {
@@ -46,9 +44,9 @@ namespace OrigoDB.Core
         }
 
 
-        protected override Snapshot WriteSnapshotImpl(Model model, long lastEntryId)
+        protected override Snapshot WriteSnapshotImpl(Model model, ulong lastAppliedEntryId)
         {
-            var fileSnapshot = new FileSnapshot(DateTime.Now, lastEntryId);
+            var fileSnapshot = new FileSnapshot(DateTime.Now, lastAppliedEntryId);
             var fileName = Path.Combine(_config.Location.OfSnapshots, fileSnapshot.Name);
             using (Stream stream = GetWriteStream(fileName, append:false))
             {
@@ -57,11 +55,12 @@ namespace OrigoDB.Core
             return fileSnapshot;
         }
 
-        public override IEnumerable<JournalEntry> GetJournalEntriesFrom(long entryId)
+        public override IEnumerable<JournalEntry> GetJournalEntriesFrom(ulong entryId)
         {
-			if (entryId != 0 && entryId < _journalFiles[0].StartingEntryId)
-				throw new NotSupportedException("Journal file missing");
 
+            bool firstEntry = true;
+
+            //Scroll to the correct file
             int offset = 0;
 	        while (_journalFiles.Count > offset + 1 && _journalFiles[offset + 1].StartingEntryId < entryId)
 				offset++;
@@ -73,6 +72,12 @@ namespace OrigoDB.Core
                 {
                     foreach (var entry in _serializer.ReadToEnd<JournalEntry>(stream))
                     {
+                        if (firstEntry && entry.Id > entryId)
+                        {
+                            string msg = String.Format("requested: {0}, first: {1}", entryId, entry.Id);
+                            throw new InvalidOperationException(msg);
+                        }
+                        firstEntry = false;
                         if (entry.Id < entryId) continue;
                         yield return entry;
                     }
@@ -90,16 +95,12 @@ namespace OrigoDB.Core
         }
 
 
-
-        public override Model LoadMostRecentSnapshot(out long lastSequenceNumber)
+        public override Model LoadSnapshot(Snapshot snapshot)
         {
-            lastSequenceNumber = 0;
-            FileSnapshot snapshot = (FileSnapshot) Snapshots.LastOrDefault();
-            if (snapshot == null) return null;
+            string snapshotName = ((FileSnapshot) snapshot).Name;
             var directory = _config.Location.OfSnapshots;
-            var fileName = Path.Combine(directory, snapshot.Name);
-            lastSequenceNumber = snapshot.LastEntryId;
-            using (Stream stream = GetReadStream(fileName))
+            var fileName = Path.Combine(directory, snapshotName);
+            using (var stream = GetReadStream(fileName))
             {
                 return _serializer.Read<Model>(stream);
             }
@@ -110,7 +111,7 @@ namespace OrigoDB.Core
         /// stream will have the specified sequenceNumber
         /// </summary>
         /// <returns>An open stream</returns>
-        public override Stream CreateJournalWriterStream(long firstEntryId = 1)
+        public override Stream CreateJournalWriterStream(ulong firstEntryId = 1)
         {
             var current = _journalFiles.LastOrDefault() ?? new JournalFile(0, 0);
             var next = current.Successor(firstEntryId);
@@ -120,19 +121,7 @@ namespace OrigoDB.Core
             return GetWriteStream(path,  append : true);
         }
 
-        public override void Create(Model initialModel)
-        {
-            VerifyCanCreate();
-            EnsureDirectoryExists(_config.Location.OfJournal);
 
-            if (_config.Location.HasAlternativeSnapshotLocation)
-            {
-                EnsureDirectoryExists(_config.Location.OfSnapshots);
-            }
-            Load();
-            WriteSnapshot(initialModel, 0);
-            
-        }
 
 
         private void EnsureDirectoryExists(string directory)
@@ -171,14 +160,14 @@ namespace OrigoDB.Core
             }
         }
 
-        public override void VerifyCanCreate()
+        private void VerifyCanCreate()
         {
             VerifyDirectory(_config.Location.OfJournal);
             if (_config.Location.HasAlternativeSnapshotLocation)
                 VerifyDirectory(_config.Location.OfSnapshots);
         }
 
-        public override void VerifyCanLoad()
+        private  void VerifyCanLoad()
         {
             string error = String.Empty;
             if (!Directory.Exists(_config.Location.OfJournal))
@@ -206,12 +195,12 @@ namespace OrigoDB.Core
             }
         }
 
-        protected override IJournalWriter CreateStoreSpecificJournalWriter(long lastEntryId)
+        protected override IJournalWriter CreateStoreSpecificJournalWriter(ulong lastEntryId)
         {
             return new StreamJournalWriter(this, _config);
         }
 
-        protected override IEnumerable<Snapshot> LoadSnapshots()
+        protected override IEnumerable<Snapshot> ReadSnapshotMetaData()
         {
             var snapshots = new List<FileSnapshot>();
             foreach (var file in Directory.GetFiles(_config.Location.OfSnapshots, "*.snapshot"))

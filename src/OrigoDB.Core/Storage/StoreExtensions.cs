@@ -9,8 +9,6 @@ namespace OrigoDB.Core
         /// <summary>
         /// Get commands beginning from a specific entry id (inclusive)
         /// </summary>
-        /// <param name="entryId"></param>
-        /// <returns></returns>
         public static IEnumerable<JournalEntry<Command>> CommandEntriesFrom(this IStore store, ulong entryId)
         {
             return CommittedCommandEntries(() => store.GetJournalEntriesFrom(entryId));
@@ -19,8 +17,6 @@ namespace OrigoDB.Core
         /// <summary>
         /// Get non rolled back commands from a point in time
         /// </summary>
-        /// <param name="pointInTime"></param>
-        /// <returns></returns>
         public static IEnumerable<JournalEntry<Command>> CommandEntriesFrom(this IStore store, DateTime pointInTime)
         {
             return CommittedCommandEntries(() => store.GetJournalEntriesBeforeOrAt(pointInTime));
@@ -29,8 +25,6 @@ namespace OrigoDB.Core
         /// <summary>
         /// Select the items of type Command that are not followed by a rollback marker
         /// </summary>
-        /// <param name="enumerator"></param>
-        /// <returns></returns>
         public static IEnumerable<JournalEntry<Command>> CommittedCommandEntries(Func<IEnumerable<JournalEntry>> enumerator)
         {
 
@@ -52,7 +46,6 @@ namespace OrigoDB.Core
         /// <summary>
         /// Get the complete sequence of commands starting, excluding any that were rolled back
         /// </summary>
-        /// <returns></returns>
         public static IEnumerable<JournalEntry<Command>> CommandEntries(this IStore store)
         {
             return store.CommandEntriesFrom(1);

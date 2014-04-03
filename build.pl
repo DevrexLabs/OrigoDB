@@ -33,7 +33,7 @@ sub run;
 my $targets = {
 	default => 	sub 
 	{
-		run qw|clean compile copy zip nuget_pack|;
+		run qw|clean compile copy zip pack|;
 	},
 	clean => sub 
 	{
@@ -53,11 +53,11 @@ my $targets = {
 		print "$sevenZip a -r -tzip $version-$config.zip build/*";
 		system "\"$sevenZip\" a -r -tzip $version-$config.zip build/*";
 	},
-	nuget_pack => sub
+	pack => sub
 	{
 		system("$nuget pack OrigoDB.Core.nuspec -OutputDirectory build -version $version -symbols")
 	},
-	nuget_publish => sub
+	push => sub
 	{
 		system "$nuget publish build/OrigoDB.Core.*.nupkg";
 	}

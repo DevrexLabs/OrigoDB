@@ -98,9 +98,6 @@ namespace OrigoDB.Core
         /// <summary>
         /// Dispatch a command and merge the results
         /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="command"></param>
-        /// <returns></returns>
 		public override TResult Execute<TResult>(Command<TModel, TResult> command)
 		{
 			var nodes = GetNodesFor(command);
@@ -112,30 +109,25 @@ namespace OrigoDB.Core
         /// <summary>
         /// Execute a query on a specific node
         /// </summary>
-        /// <param name="query"></param>
-        /// <param name="partition">Zero-based index of node to dispatch to</param>
-        public TResult Execute<TResult>(Query<TModel, TResult> query, int partition)
+        public TResult Execute<TResult>(Query<TModel, TResult> query, int nodeIndex)
 		{
-			return Nodes[partition].Execute(query);
+			return Nodes[nodeIndex].Execute(query);
 		}
 
         /// <summary>
         /// Execute on a specific node
         /// </summary>
-        /// <param name="command"></param>
-        /// <param name="partition">Zero based index of the node to dispatch to</param>
-        public void Execute(Command<TModel> command, int partition)
+        public void Execute(Command<TModel> command, int nodeIndex)
 		{
-			Nodes[partition].Execute(command);
+			Nodes[nodeIndex].Execute(command);
 		}
 
         /// <summary>
         /// Execute on a specific node
         /// </summary>
-        /// <param name="partition">The node index to dispatch to</param>
-		public TResult Execute<TResult>(Command<TModel, TResult> command, int partition)
+		public TResult Execute<TResult>(Command<TModel, TResult> command, int nodeIndex)
 		{
-			return Nodes[partition].Execute(command);
+			return Nodes[nodeIndex].Execute(command);
 		}
 
         private Delegate GetDispatcherFor<T>(T obj)

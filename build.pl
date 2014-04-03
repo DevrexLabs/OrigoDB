@@ -6,9 +6,6 @@ use strict;
 # Note: 
 # 
 
-# Configuration section
-
-
 # tools
 my $msbuild = 'C:/Windows/Microsoft.NET/Framework/v4.0.30319/msbuild.exe';
 my $nuget = "nuget.exe";
@@ -18,8 +15,9 @@ my $sevenZip = "C:/Program Files/7-Zip/7z.exe";
 my $version = extract('src/SharedAssemblyInfo.cs');
 die "missing or bad version: [$version]\n" unless $version =~ /^\d+\.\d+\.\d+(-[a-z]+)?$/;
 
-my $config = shift || 'Release';
 my $target = shift || 'default';
+my $config = shift || 'Release';
+
 
 my $solution = 'src/OrigoDB.sln';
 my $output = "build";
@@ -42,24 +40,20 @@ my $targets = {
 	},
 	compile => sub 
 	{
-		system "$msbuild $solution /target:clean,rebuild > build/build.log";
+		system "$msbuild $solution -target:clean,rebuild -p:Configuration=$config -p:NoWarn=1591 > build/build.log";
 	},
 	copy => sub 
 	{
 		system("cp -r $x/OrigoDB.* $output");
+		#remove test assemblies
 		system("rm $output/*Test*");
 	},
 	zip => sub {
-		print "$sevenZip a -r -tzip $version-$config.zip build/*";
-		system "\"$sevenZip\" a -r -tzip $version-$config.zip build/*";
+		system "\"$sevenZip\" a -r -tzip OrigoDB.Core.binaries.$version-$config.zip build/*";
 	},
 	pack => sub
 	{
 		system("$nuget pack OrigoDB.Core.nuspec -OutputDirectory build -version $version -symbols")
-	},
-	push => sub
-	{
-		system "$nuget publish build/OrigoDB.Core.*.nupkg";
 	}
 };
 

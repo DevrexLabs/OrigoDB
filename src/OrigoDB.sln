@@ -7,11 +7,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Core.Test", "OrigoD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Core.UnitTests", "OrigoDB.Core.UnitTests\OrigoDB.Core.UnitTests.csproj", "{200A39EE-0755-4349-985A-CFAB7FE94A8A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Benchmark", "OrigoDB.Benchmark\OrigoDB.Benchmark.csproj", "{57B02997-3495-4941-8065-2063E6EC1BA6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
 		Debug|x86 = Debug|x86
+		Nuget build|Any CPU = Nuget build|Any CPU
+		Nuget build|Mixed Platforms = Nuget build|Mixed Platforms
+		Nuget build|x86 = Nuget build|x86
 		Release|Any CPU = Release|Any CPU
 		Release|Mixed Platforms = Release|Mixed Platforms
 		Release|x86 = Release|x86
@@ -22,6 +27,11 @@ Global
 		{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}.Nuget build|Any CPU.ActiveCfg = Release|Any CPU
+		{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}.Nuget build|Any CPU.Build.0 = Release|Any CPU
+		{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}.Nuget build|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}.Nuget build|Mixed Platforms.Build.0 = Release|Any CPU
+		{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}.Nuget build|x86.ActiveCfg = Release|Any CPU
 		{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
@@ -32,6 +42,11 @@ Global
 		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Nuget build|Any CPU.ActiveCfg = Release|Any CPU
+		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Nuget build|Any CPU.Build.0 = Release|Any CPU
+		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Nuget build|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Nuget build|Mixed Platforms.Build.0 = Release|Any CPU
+		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Nuget build|x86.ActiveCfg = Release|Any CPU
 		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
@@ -42,12 +57,32 @@ Global
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Nuget build|Any CPU.ActiveCfg = Release|Any CPU
+		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Nuget build|Any CPU.Build.0 = Release|Any CPU
+		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Nuget build|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Nuget build|Mixed Platforms.Build.0 = Release|Any CPU
+		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Nuget build|x86.ActiveCfg = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|Mixed Platforms.Deploy.0 = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|x86.ActiveCfg = Release|Any CPU
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|x86.ActiveCfg = Debug|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|x86.Build.0 = Debug|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Nuget build|Any CPU.ActiveCfg = Nuget build|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Nuget build|Mixed Platforms.ActiveCfg = Nuget build|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Nuget build|Mixed Platforms.Build.0 = Nuget build|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Nuget build|x86.ActiveCfg = Nuget build|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Nuget build|x86.Build.0 = Nuget build|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Any CPU.ActiveCfg = Release|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Mixed Platforms.Build.0 = Release|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|x86.ActiveCfg = Release|x86
+		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

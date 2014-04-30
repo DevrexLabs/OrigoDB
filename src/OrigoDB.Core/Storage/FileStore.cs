@@ -206,7 +206,7 @@ namespace OrigoDB.Core
             foreach (var file in Directory.GetFiles(_config.Location.OfSnapshots, "*.snapshot"))
             {
                 var fileInfo = new FileInfo(file);
-                snapshots.Add(FileSnapshot.FromFileInfo(fileInfo));
+                snapshots.Add(FileSnapshot.FromFileInfo(fileInfo.Name, fileInfo.CreationTime));
             }
 
             snapshots.Sort((a, b) => a.LastEntryId.CompareTo(b.LastEntryId));

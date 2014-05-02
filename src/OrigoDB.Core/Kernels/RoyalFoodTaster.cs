@@ -1,20 +1,26 @@
 using System;
+using System.Runtime.Serialization;
 
 namespace OrigoDB.Core
 {
+    /// <summary>
+    /// Keeps an identical copy of the model to try the commands.
+    /// </summary>
     public sealed class RoyalFoodTaster : OptimisticKernel
     {
 
         /// <summary>
         /// An identical copy of the model
         /// </summary>
-        private Model _foodTaster;
+        Model _foodTaster;
 
+        readonly IFormatter _formatter;
 
         public RoyalFoodTaster(EngineConfiguration config, Model model)
             : base(config, model)
         {
-            _foodTaster = _serializer.Clone(_model);
+            _formatter = config.CreateFormatter(FormatterUsage.Snapshot);
+            _foodTaster = _formatter.Clone(_model);
         }
 
         /// <summary>
@@ -40,7 +46,7 @@ namespace OrigoDB.Core
             }
             catch (Exception ex)
             {
-                _foodTaster = _serializer.Clone(_model); //reset
+                _foodTaster = _formatter.Clone(_model); //reset
                 throw new CommandAbortedException("Royal taster died of food poisoning, see inner exception for details", ex);
             }
 

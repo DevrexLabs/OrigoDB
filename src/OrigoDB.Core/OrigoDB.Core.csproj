@@ -77,6 +77,7 @@
     <Compile Include="CommandExecutingEventArgs.cs" />
     <Compile Include="CommandFailedException.cs" />
     <Compile Include="Configuration\ConfigurationExtensions.cs" />
+    <Compile Include="Configuration\FormatterUsage.cs" />
     <Compile Include="Configuration\TeenyIoc.cs" />
     <Compile Include="Journaling\JournalAppender.cs" />
     <Compile Include="Journaling\ModelCreated.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="Proxy\ProxyAttribute.cs" />
     <Compile Include="Proxy\QueryAttribute.cs" />
     <Compile Include="Storage\FileSnapshot.cs" />
+    <Compile Include="Storage\FormatterExtensions.cs" />
     <Compile Include="Storage\StoreExtensions.cs" />
     <Compile Include="Transactions\Command[M].cs" />
     <Compile Include="Transactions\Command[M,R].cs" />
@@ -184,8 +186,6 @@
     <Compile Include="Utilities\Immutable.cs" />
     <Compile Include="Security\User.cs" />
     <Compile Include="Storage\Stores.cs" />
-    <Compile Include="Storage\ISerializer.cs" />
-    <Compile Include="Configuration\ObjectFormatting.cs" />
     <Compile Include="Configuration\SnapshotBehavior.cs" />
     <Compile Include="Synchronization\ISynchronizer.cs" />
     <Compile Include="Journaling\IJournalWriter.cs" />
@@ -195,7 +195,6 @@
     <Compile Include="Synchronization\NullSynchronizer.cs" />
     <Compile Include="Transactions\Query[M,R].cs" />
     <Compile Include="Synchronization\ReadWriteSynchronizer.cs" />
-    <Compile Include="Storage\Serializer.cs" />
     <Compile Include="Synchronization\ExclusiveSynchronizer.cs" />
     <Compile Include="Storage\FileStore.cs" />
     <Compile Include="Journaling\StreamJournalWriter.cs" />

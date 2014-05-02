@@ -76,7 +76,7 @@ namespace OrigoDB.Core.Test
             model.AddCustomer("Bart");
             model.AddCustomer("Beavis");
 
-            byte[] expected = new Serializer(new BinaryFormatter()).Serialize(model);
+            byte[] expected = new BinaryFormatter().ToByteArray(model);
             byte[] compressed = ByteArrayExtensions.Compress(expected);
             Console.WriteLine("Bytes before: " + expected.Length + ", after: " + compressed.Length);
             byte[] actual = ByteArrayExtensions.Decompress(compressed);

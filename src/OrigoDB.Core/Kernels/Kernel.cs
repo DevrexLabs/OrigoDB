@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using OrigoDB.Core.Logging;
 using OrigoDB.Core.Utilities;
 
@@ -14,9 +15,8 @@ namespace OrigoDB.Core
         private static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
 
         protected Model _model;
-
         protected ISynchronizer _synchronizer;
-        protected readonly ISerializer _serializer;
+        protected readonly IFormatter _resultFormatter;
 
 
         public abstract object ExecuteCommand(Command command);
@@ -43,7 +43,7 @@ namespace OrigoDB.Core
 
         protected Kernel(EngineConfiguration config, Model model)
         {
-            _serializer = config.CreateSerializer();
+            _resultFormatter = config.CreateFormatter(FormatterUsage.Results);
             _synchronizer = config.CreateSynchronizer();
             _model = model;
         }
@@ -59,7 +59,7 @@ namespace OrigoDB.Core
 
                 if (!operationIsResponsible && !result.IsImmutable())
                 {
-                    result = _serializer.Clone(result);
+                    result = _resultFormatter.Clone(result);
                 }
             }
         }

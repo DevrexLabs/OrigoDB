@@ -6,7 +6,6 @@ using OrigoDB.Core.Configuration;
 
 namespace OrigoDB.Core
 {
-
     public class EngineConfiguration : ConfigurationBase
     {
         protected TeenyIoc _registry;
@@ -28,12 +27,20 @@ namespace OrigoDB.Core
 
 
         /// <summary>
-        /// Write journal entries using a background thread
+        /// Append journal entries using a background thread
+        /// sacrificing durability under certain circumstances
+        /// for performance.
         /// </summary>
         public bool AsyncronousJournaling { get; set; }
 
+        /// <summary>
+        /// Set's the type of persistence used
+        /// </summary>
         public PersistenceMode PersistenceMode { get; set; }
 
+        /// <summary>
+        /// Choose type of kernel
+        /// </summary>
         public Kernels Kernel { get; set; }
 
         /// <summary>
@@ -73,11 +80,6 @@ namespace OrigoDB.Core
         public SynchronizationMode Synchronization { get; set; }
 
         /// <summary>
-        /// Serialization format, defaults to BinaryFormatter
-        /// </summary>
-        public ObjectFormatting ObjectFormatting { get; set; }
-
-        /// <summary>
         /// Maximum number of journal entries per segment. Applies only to storage 
         /// providers which split up the journal in segments and ignored by others.
         /// </summary>
@@ -104,7 +106,6 @@ namespace OrigoDB.Core
             Kernel = Kernels.Optimistic;
             LockTimeout = DefaultTimeout;
             Synchronization = SynchronizationMode.ReadWrite;
-            ObjectFormatting = ObjectFormatting.NetBinaryFormatter;
             AsyncronousJournaling = false;
             MaxBytesPerJournalSegment = DefaultMaxBytesPerJournalSegment;
             MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
@@ -115,14 +116,11 @@ namespace OrigoDB.Core
 
             _registry = new TeenyIoc();
             Register<IAuthorizer<Type>>(c => new TypeBasedPermissionSet(Permission.Allowed));
-            Register<ISerializer>(c => new Serializer(CreateFormatter()));
+            Register<IFormatter>(c => new BinaryFormatter(), FormatterUsage.Default.ToString());
             InitSynchronizers();
             InitStoreTypes();
-            InitFormatters();
             InitKernels();
         }
-
-
 
         private void InitKernels()
         {
@@ -145,14 +143,6 @@ namespace OrigoDB.Core
                                               SynchronizationMode.Exclusive.ToString());
 
 
-        }
-
-        private void InitFormatters()
-        {
-            Register<IFormatter>(c => new BinaryFormatter(),
-                                           ObjectFormatting.NetBinaryFormatter.ToString());
-            Register(c => LoadFromConfig<IFormatter>(),
-                                           ObjectFormatting.Custom.ToString());
         }
 
 
@@ -181,22 +171,24 @@ namespace OrigoDB.Core
             return bootloader.LoadFromConfigOrDefault(() => bootloader);
         }
 
-        public virtual ISerializer CreateSerializer()
+        /// <summary>
+        /// Return an IFormatter by invoking the factory function associated
+        /// with the given FormatterUsage or FormatterUsage.Default if not registered.
+        /// </summary>
+        /// <param name="formatterUsage">The specific formatter</param>
+        /// <returns>An IFormatter instance provided by the </returns>
+        public virtual IFormatter CreateFormatter(FormatterUsage formatterUsage = FormatterUsage.Default)
         {
-            return _registry.Resolve<ISerializer>();
-        }
-
-        public virtual IFormatter CreateFormatter()
-        {
-            string name = ObjectFormatting.ToString();
-            var formatter = _registry.Resolve<IFormatter>(name: name);
-            if (PacketOptions != null)
+            var formatter = _registry.CanResolve<IFormatter>(formatterUsage.ToString())
+                ? _registry.Resolve<IFormatter>(formatterUsage.ToString())
+                : _registry.Resolve<IFormatter>(FormatterUsage.Default.ToString());
+                
+            if (formatterUsage == FormatterUsage.Journal && PacketOptions != null)
             {
                 formatter = new PacketingFormatter(formatter, PacketOptions.Value);
             }
+
             return formatter;
-
-
         }
 
         /// <summary>
@@ -225,13 +217,13 @@ namespace OrigoDB.Core
 
         protected void Register<T>(Func<EngineConfiguration, T> factory, string registrationName = "") where T : class
         {
-            _registry.Register<T>(args => factory.Invoke(this), registrationName);
+            _registry.Register(args => factory.Invoke(this), registrationName);
         }
 
         protected void Register<T>(Func<EngineConfiguration, TeenyIoc.Args, T> factory,
             string registrationName = "") where T : class
         {
-            _registry.Register<T>(args => factory.Invoke(this, args), registrationName);
+            _registry.Register(args => factory.Invoke(this, args), registrationName);
         }
 
 
@@ -239,7 +231,7 @@ namespace OrigoDB.Core
         {
             Synchronization = SynchronizationMode.Custom;
             string registrationName = Synchronization.ToString();
-            _registry.Register<ISynchronizer>(args => factory.Invoke(this), registrationName);
+            _registry.Register(args => factory.Invoke(this), registrationName);
         }
 
         public void SetAuthorizerFactory(Func<EngineConfiguration, IAuthorizer<Type>> factory)
@@ -247,11 +239,14 @@ namespace OrigoDB.Core
             Register(args => factory.Invoke(this));
         }
 
-        public void SetFormatterFactory(Func<EngineConfiguration, IFormatter> factory)
+        /// <summary>
+        /// Inject a custom IFormatter factory.
+        /// </summary>
+        /// <param name="factory">Function that provides an IFormatter</param>
+        /// <param name="formatterUsage">The usage</param>
+        public void SetFormatterFactory(Func<EngineConfiguration, FormatterUsage, IFormatter> factory, FormatterUsage formatterUsage = FormatterUsage.Default)
         {
-            ObjectFormatting = ObjectFormatting.Custom;
-            string registrationName = ObjectFormatting.ToString();
-            Register(args => factory.Invoke(this), registrationName);
+            Register(args => factory.Invoke(this, formatterUsage), formatterUsage.ToString());
         }
 
         /// <summary>
@@ -263,15 +258,6 @@ namespace OrigoDB.Core
             StoreType = Stores.Custom;
             string registrationName = StoreType.ToString();
             Register(args => factory.Invoke(this), registrationName);
-        }
-
-        /// <summary>
-        /// Inject a custom serializer factory
-        /// </summary>
-        /// <param name="factory"></param>
-        public void SetSerializerFactory(Func<EngineConfiguration, ISerializer> factory)
-        {
-            Register(args => factory.Invoke(this));
         }
 
         /// <summary>

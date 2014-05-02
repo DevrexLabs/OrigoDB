@@ -27,8 +27,8 @@ namespace OrigoDB.Core.Test
         {
             var model = new TestModel();
             model.AddCustomer("Zippy");
-            var serializer = new Serializer(new BinaryFormatter());
-            var clone = serializer.Clone(model);
+            
+            var clone = new BinaryFormatter().Clone(model);
             model.AddCustomer("asfafse");
             Assert.IsTrue(clone.Customers.Count() == 1);
         }

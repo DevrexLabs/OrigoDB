@@ -32,9 +32,16 @@ namespace OrigoDB.Core
         /// <summary>
         /// Invokes the factory function registered for type T and a specific name
         /// </summary>
-        public T Resolve<T>(string name)
+        public T Resolve<T>(string name) 
         {
             return Resolve<T>(null, name);
+        }
+
+
+        public bool CanResolve<T>(string name = "") where T : class
+        {
+            var t = typeof (T);
+            return _registry.ContainsKey(t) && _registry[t].ContainsKey(name);
         }
 
         /// <summary>

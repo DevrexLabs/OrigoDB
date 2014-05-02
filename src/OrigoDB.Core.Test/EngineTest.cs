@@ -135,14 +135,6 @@ namespace OrigoDB.Core.Test
         }
 
         [TestMethod]
-        public void CreateSerializerResolvesToDefault()
-        {
-            var config = new EngineConfiguration();
-            var serializer = config.CreateSerializer();
-            Assert.IsTrue(serializer is Serializer);
-        }
-
-        [TestMethod]
         public void JournalEntriesAreSequentiallyNumberedFromOne()
         {
             var config = CreateConfig();

@@ -25,11 +25,18 @@ namespace OrigoDB.Core.UnitTests
     [TestFixture]
     public class SchemaMigrationTest
     {
+
+        private BinaryFormatter _formatter;
+
         [SetUp]
         public void Setup()
         {
             Schema.Current.TypeSubstitutions.Clear();
+            _formatter = new BinaryFormatter();
+            _formatter.Binder = new CustomBinder(Schema.Current);
         }
+
+
 
         [Test]
         public void CanRenameType()
@@ -38,9 +45,8 @@ namespace OrigoDB.Core.UnitTests
                 .Substitute(typeof(MigrationTestTypeA).FullName)
                 .With<MigrationTestTypeB>();
 
-            var serializer = new Serializer(new BinaryFormatter());
-            var bytes = serializer.Serialize(new MigrationTestTypeA());
-            var actual = serializer.Deserialize<object>(bytes).GetType();
+            var bytes = _formatter.ToByteArray(new MigrationTestTypeA());
+            var actual = _formatter.FromByteArray<object>(bytes).GetType();
             var expected = typeof(MigrationTestTypeB);
             Assert.AreEqual(expected, actual);
         }
@@ -52,9 +58,8 @@ namespace OrigoDB.Core.UnitTests
                 .Substitute(typeof(GenericDummy<MigrationTestTypeA, MigrationTestTypeA>).FullName)
                 .With<GenericDummy<MigrationTestTypeB, MigrationTestTypeB>>();
 
-            var serializer = new Serializer(new BinaryFormatter());
-            var bytes = serializer.Serialize(new GenericDummy<MigrationTestTypeA, MigrationTestTypeA>());
-            var actual = serializer.Deserialize<object>(bytes).GetType();
+            var bytes = _formatter.ToByteArray(new GenericDummy<MigrationTestTypeA, MigrationTestTypeA>());
+            var actual = _formatter.FromByteArray<object>(bytes).GetType();
             var expected = typeof(GenericDummy<MigrationTestTypeB, MigrationTestTypeB>);
             Assert.AreEqual(expected, actual);
         }
@@ -66,9 +71,8 @@ namespace OrigoDB.Core.UnitTests
                 .Substitute(typeof(MigrationTestTypeA).FullName)
                 .With<MigrationTestTypeB>();
 
-            var serializer = new Serializer(new BinaryFormatter());
-            var bytes = serializer.Serialize(new GenericDummy<MigrationTestTypeA, MigrationTestTypeA>());
-            var actual = serializer.Deserialize<object>(bytes).GetType();
+            var bytes = _formatter.ToByteArray(new GenericDummy<MigrationTestTypeA, MigrationTestTypeA>());
+            var actual = _formatter.FromByteArray<object>(bytes).GetType();
             var expected = typeof(GenericDummy<MigrationTestTypeB, MigrationTestTypeB>);
             Assert.AreEqual(expected, actual);            
         }

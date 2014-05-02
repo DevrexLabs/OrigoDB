@@ -1,10 +1,7 @@
 ﻿using System.Runtime.Serialization.Formatters.Binary;
-using OrigoDB.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Runtime.Serialization;
-using System.IO;
-using System.Collections.Generic;
 
 namespace OrigoDB.Core.Test
 {
@@ -68,25 +65,16 @@ namespace OrigoDB.Core.Test
         #endregion
 
 
-        [TestMethod()]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void Serializer_throws_when_passed_a_null_argument()
-        {
-            new Serializer(null);
-        }
-
-
 
         [TestMethod()]
         public void SizeOf_reports_actual_size()
         {
-            IFormatter formatter = new BinaryFormatter();
-            Serializer target = new Serializer(formatter);
+            IFormatter target = new BinaryFormatter();
             var testModel = new TestModel();
             testModel.AddCustomer("Homer");
             testModel.AddCustomer("Bart");
             long actual = target.SizeOf(testModel);
-            long expected = target.Serialize(testModel).Length;
+            long expected = target.ToByteArray(testModel).Length;
             Console.WriteLine("SizeOf(TestModel with 2 customers) using BinaryFormatter = " + expected);
             Assert.AreEqual(expected, actual);
         }
@@ -95,10 +83,8 @@ namespace OrigoDB.Core.Test
         [ExpectedException(typeof(ArgumentNullException))]
         public void SizeOf_throws_when_passed_null_graph()
         {
-            IFormatter formatter = new BinaryFormatter();
-            Serializer target = new Serializer(formatter);
-            TestModel testModel = null;
-            long actual = target.SizeOf(testModel);
+            var target = new BinaryFormatter();
+            target.SizeOf(null);
         }
 
     }

@@ -44,7 +44,7 @@ namespace OrigoDB.Core.Test
             config.PacketOptions = null;
             var expected = new BinaryFormatter();
             config.SetFormatterFactory((c,f) => expected);
-            var actual = config.CreateFormatter(Formatter.Default);
+            var actual = config.CreateFormatter(FormatterUsage.Default);
             Assert.AreSame(expected, actual);
         }
 
@@ -54,7 +54,7 @@ namespace OrigoDB.Core.Test
             var config = new EngineConfiguration();
             config.PacketOptions = PacketOptions.Checksum;
             config.SetFormatterFactory((c,f) => new BinaryFormatter());
-            var actual = config.CreateFormatter(Formatter.Journal);
+            var actual = config.CreateFormatter(FormatterUsage.Journal);
             Assert.IsInstanceOfType(actual, typeof(PacketingFormatter));
         }
 

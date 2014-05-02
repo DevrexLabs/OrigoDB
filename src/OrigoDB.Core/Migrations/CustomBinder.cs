@@ -2,19 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
+using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core.Migrations
 {
     public class CustomBinder : SerializationBinder
     {
 
+        readonly Schema _schema;
+
+        public CustomBinder(Schema schema)
+        {
+            Ensure.NotNull(schema, "schema");
+            _schema = schema;
+        }
+
         public override Type BindToType(string assemblyName, string typeName)
         {
-            var schema = Schema.Current;
 
-            if (schema.TypeSubstitutions.ContainsKey(typeName))
+            if (_schema.TypeSubstitutions.ContainsKey(typeName))
             {
-                return schema.TypeSubstitutions[typeName];
+                return _schema.TypeSubstitutions[typeName];
             }
 
             //string[] genericTypeNames;

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.Serialization;
 using OrigoDB.Core.Logging;
 
 namespace OrigoDB.Core
@@ -8,12 +9,13 @@ namespace OrigoDB.Core
     /// </summary>
 	internal class StreamJournalWriter : IJournalWriter
 	{
-        ISerializer _serializer;
+        readonly IFormatter _journalFormatter;
         Stream _stream;
         private EngineConfiguration _config;
 
-        private IStore _storage;
-        private RolloverStrategy _rolloverStrategy;
+        readonly IStore _storage;
+        readonly RolloverStrategy _rolloverStrategy;
+
         private long _entriesWrittenToCurrentStream;
 
         private static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
@@ -35,7 +37,7 @@ namespace OrigoDB.Core
         {
             _config = config;
             _storage = storage;
-            _serializer = new Serializer(config.CreateFormatter(Formatter.Journal));
+            _journalFormatter = config.CreateFormatter(FormatterUsage.Journal);
             _rolloverStrategy = _config.CreateRolloverStrategy();
         }
 
@@ -50,7 +52,7 @@ namespace OrigoDB.Core
 				_entriesWrittenToCurrentStream = 0;
 			}
 			
-            _serializer.Write(item, _stream);
+            _journalFormatter.WriteBuffered(_stream, item);
             _stream.Flush();
 			_entriesWrittenToCurrentStream++;
 		}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.IO;
+using System.Runtime.Serialization;
 using OrigoDB.Core.Journaling;
 using OrigoDB.Core.Logging;
 
@@ -22,8 +23,8 @@ namespace OrigoDB.Core.Storage
         protected static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
         protected StoreState _storeState = StoreState.Uninitialized;
         protected EngineConfiguration _config;
-        protected ISerializer _journalSerializer;
-        protected ISerializer _snapshotSerializer;
+        protected IFormatter _journalFormatter;
+        protected IFormatter _snapshotFormatter;
         protected List<Snapshot> _snapshots;
         protected JournalAppender _journalAppender;
 
@@ -149,8 +150,8 @@ namespace OrigoDB.Core.Storage
                 _snapshots.Add(snapshot);
             }
 
-            _journalSerializer = new Serializer(_config.CreateFormatter(Formatter.Journal));
-            _snapshotSerializer = new Serializer(_config.CreateFormatter(Formatter.Snapshot));
+            _journalFormatter = _config.CreateFormatter(FormatterUsage.Journal);
+            _snapshotFormatter = _config.CreateFormatter(FormatterUsage.Snapshot);
             _storeState = StoreState.Initialized;
         }
 

@@ -16,7 +16,7 @@ namespace OrigoDB.Core
 
         protected Model _model;
         protected ISynchronizer _synchronizer;
-        protected readonly ISerializer _resultSerializer;
+        protected readonly IFormatter _resultFormatter;
 
 
         public abstract object ExecuteCommand(Command command);
@@ -43,7 +43,7 @@ namespace OrigoDB.Core
 
         protected Kernel(EngineConfiguration config, Model model)
         {
-            _resultSerializer = new Serializer(config.CreateFormatter(Formatter.Results));
+            _resultFormatter = config.CreateFormatter(FormatterUsage.Results);
             _synchronizer = config.CreateSynchronizer();
             _model = model;
         }
@@ -59,7 +59,7 @@ namespace OrigoDB.Core
 
                 if (!operationIsResponsible && !result.IsImmutable())
                 {
-                    result = _resultSerializer.Clone(result);
+                    result = _resultFormatter.Clone(result);
                 }
             }
         }

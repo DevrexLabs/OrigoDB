@@ -22,7 +22,8 @@ namespace OrigoDB.Core.Storage
         protected static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
         protected StoreState _storeState = StoreState.Uninitialized;
         protected EngineConfiguration _config;
-        protected ISerializer _serializer;
+        protected ISerializer _journalSerializer;
+        protected ISerializer _snapshotSerializer;
         protected List<Snapshot> _snapshots;
         protected JournalAppender _journalAppender;
 
@@ -148,7 +149,8 @@ namespace OrigoDB.Core.Storage
                 _snapshots.Add(snapshot);
             }
 
-            _serializer = _config.CreateSerializer();
+            _journalSerializer = new Serializer(_config.CreateFormatter(Formatter.Journal));
+            _snapshotSerializer = new Serializer(_config.CreateFormatter(Formatter.Snapshot));
             _storeState = StoreState.Initialized;
         }
 

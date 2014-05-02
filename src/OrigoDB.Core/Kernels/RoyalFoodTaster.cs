@@ -8,13 +8,15 @@ namespace OrigoDB.Core
         /// <summary>
         /// An identical copy of the model
         /// </summary>
-        private Model _foodTaster;
+        Model _foodTaster;
 
+        readonly Serializer _cloner;
 
         public RoyalFoodTaster(EngineConfiguration config, Model model)
             : base(config, model)
         {
-            _foodTaster = _serializer.Clone(_model);
+            _cloner = new Serializer(config.CreateFormatter(Formatter.Snapshot));
+            _foodTaster = _cloner.Clone(_model);
         }
 
         /// <summary>
@@ -40,7 +42,7 @@ namespace OrigoDB.Core
             }
             catch (Exception ex)
             {
-                _foodTaster = _serializer.Clone(_model); //reset
+                _foodTaster = _cloner.Clone(_model); //reset
                 throw new CommandAbortedException("Royal taster died of food poisoning, see inner exception for details", ex);
             }
 

@@ -185,7 +185,6 @@
     <Compile Include="Security\User.cs" />
     <Compile Include="Storage\Stores.cs" />
     <Compile Include="Storage\ISerializer.cs" />
-    <Compile Include="Configuration\ObjectFormatting.cs" />
     <Compile Include="Configuration\SnapshotBehavior.cs" />
     <Compile Include="Synchronization\ISynchronizer.cs" />
     <Compile Include="Journaling\IJournalWriter.cs" />

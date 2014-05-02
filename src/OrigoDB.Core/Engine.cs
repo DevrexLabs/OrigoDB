@@ -212,7 +212,7 @@ namespace OrigoDB.Core
         /// <param name="formatter">A specific formatter, otherwise the default formatter</param>
         public void WriteSnapshotToStream(Stream stream, IFormatter formatter = null)
         {
-            formatter = formatter ?? _config.CreateFormatter();
+            formatter = formatter ?? _config.CreateFormatter(Formatter.Snapshot);
             _kernel.Read(model => formatter.Serialize(stream, model));
         }
 

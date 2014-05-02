@@ -50,7 +50,7 @@ namespace OrigoDB.Core.Test
 
         protected override Snapshot WriteSnapshotImpl(Model model, ulong lastEntryId)
         {
-            var bytes = _serializer.Serialize(model);
+            var bytes = _snapshotSerializer.Serialize(model);
             var snapshot = new Snapshot(DateTime.Now, lastEntryId);
             _state.Snapshots.Add(snapshot, bytes);
             return snapshot;
@@ -59,7 +59,7 @@ namespace OrigoDB.Core.Test
         public override IEnumerable<JournalEntry> GetJournalEntriesFrom(ulong entryId)
         {
             return _state.Journal.SelectMany(
-                journalSegment => _serializer.ReadToEnd<JournalEntry>(new MemoryStream(journalSegment.ToArray())).SkipWhile(e => e.Id < entryId));
+                journalSegment => _journalSerializer.ReadToEnd<JournalEntry>(new MemoryStream(journalSegment.ToArray())).SkipWhile(e => e.Id < entryId));
         }
 
         public override IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
@@ -74,7 +74,7 @@ namespace OrigoDB.Core.Test
                 throw new ArgumentException("No such snapshot");
             }
 
-            return _serializer.Deserialize<Model>(_state.Snapshots[snapshot]);
+            return _snapshotSerializer.Deserialize<Model>(_state.Snapshots[snapshot]);
         }
 
 

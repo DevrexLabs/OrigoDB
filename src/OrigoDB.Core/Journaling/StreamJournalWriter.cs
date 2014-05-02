@@ -35,7 +35,7 @@ namespace OrigoDB.Core
         {
             _config = config;
             _storage = storage;
-            _serializer = _config.CreateSerializer();
+            _serializer = new Serializer(config.CreateFormatter(Formatter.Journal));
             _rolloverStrategy = _config.CreateRolloverStrategy();
         }
 

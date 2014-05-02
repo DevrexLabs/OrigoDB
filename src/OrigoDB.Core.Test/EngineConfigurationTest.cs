@@ -36,20 +36,6 @@ namespace OrigoDB.Core.Test
             }
         }
 
-        [TestMethod()]
-        public void ObjectFormattingDefaultsToBinary()
-        {
-            var config = new EngineConfiguration();
-            Assert.AreEqual(ObjectFormatting.NetBinaryFormatter, config.ObjectFormatting);
-        }
-
-        [TestMethod()]
-        public void InjectingFormatterSetsModeToCustom()
-        {
-            var config = new EngineConfiguration();
-            config.SetFormatterFactory((c) => null);
-            Assert.AreEqual(ObjectFormatting.Custom, config.ObjectFormatting);
-        }
 
         [TestMethod()]
         public void InjectedFormatterIsResolved()
@@ -57,8 +43,8 @@ namespace OrigoDB.Core.Test
             var config = new EngineConfiguration();
             config.PacketOptions = null;
             var expected = new BinaryFormatter();
-            config.SetFormatterFactory((c) => expected);
-            var actual = config.CreateFormatter();
+            config.SetFormatterFactory((c,f) => expected);
+            var actual = config.CreateFormatter(Formatter.Default);
             Assert.AreSame(expected, actual);
         }
 
@@ -67,8 +53,8 @@ namespace OrigoDB.Core.Test
         {
             var config = new EngineConfiguration();
             config.PacketOptions = PacketOptions.Checksum;
-            config.SetFormatterFactory((c) => new BinaryFormatter());
-            var actual = config.CreateFormatter();
+            config.SetFormatterFactory((c,f) => new BinaryFormatter());
+            var actual = config.CreateFormatter(Formatter.Journal);
             Assert.IsInstanceOfType(actual, typeof(PacketingFormatter));
         }
 
@@ -126,16 +112,6 @@ namespace OrigoDB.Core.Test
             config.SetSynchronizerFactory((c) => expected);
             var actual = config.CreateSynchronizer();
             Assert.AreSame(expected,actual);
-        }
-
-        [TestMethod()]
-        public void InjectedSerializerIsResolved()
-        {
-            var config = new EngineConfiguration();
-            var expected = new Serializer(new BinaryFormatter());
-            config.SetSerializerFactory((c) => expected);
-            var actual = config.CreateSerializer();
-            Assert.AreSame(expected, actual);
         }
 
         [TestMethod()]

@@ -50,7 +50,7 @@ namespace OrigoDB.Core
             var fileName = Path.Combine(_config.Location.OfSnapshots, fileSnapshot.Name);
             using (Stream stream = GetWriteStream(fileName, append:false))
             {
-                _serializer.Write(model, stream);
+                _snapshotSerializer.Write(model, stream);
             }
             return fileSnapshot;
         }
@@ -70,7 +70,7 @@ namespace OrigoDB.Core
                 string path = Path.Combine(_config.Location.OfJournal, journalFile.Name);
                 using (Stream stream = GetReadStream(path))
                 {
-                    foreach (var entry in _serializer.ReadToEnd<JournalEntry>(stream))
+                    foreach (var entry in _journalSerializer.ReadToEnd<JournalEntry>(stream))
                     {
                         if (firstEntry && entry.Id > entryId)
                         {
@@ -102,7 +102,7 @@ namespace OrigoDB.Core
             var fileName = Path.Combine(directory, snapshotName);
             using (var stream = GetReadStream(fileName))
             {
-                return _serializer.Read<Model>(stream);
+                return _snapshotSerializer.Read<Model>(stream);
             }
         }
 

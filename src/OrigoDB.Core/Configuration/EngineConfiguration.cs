@@ -7,6 +7,15 @@ using OrigoDB.Core.Configuration;
 namespace OrigoDB.Core
 {
 
+    public enum Formatter
+    {
+        Default,
+        Snapshot,
+        Journal,
+        Results,
+        Messages
+    }
+
     public class EngineConfiguration : ConfigurationBase
     {
         protected TeenyIoc _registry;
@@ -73,11 +82,6 @@ namespace OrigoDB.Core
         public SynchronizationMode Synchronization { get; set; }
 
         /// <summary>
-        /// Serialization format, defaults to BinaryFormatter
-        /// </summary>
-        public ObjectFormatting ObjectFormatting { get; set; }
-
-        /// <summary>
         /// Maximum number of journal entries per segment. Applies only to storage 
         /// providers which split up the journal in segments and ignored by others.
         /// </summary>
@@ -104,7 +108,6 @@ namespace OrigoDB.Core
             Kernel = Kernels.Optimistic;
             LockTimeout = DefaultTimeout;
             Synchronization = SynchronizationMode.ReadWrite;
-            ObjectFormatting = ObjectFormatting.NetBinaryFormatter;
             AsyncronousJournaling = false;
             MaxBytesPerJournalSegment = DefaultMaxBytesPerJournalSegment;
             MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
@@ -115,7 +118,7 @@ namespace OrigoDB.Core
 
             _registry = new TeenyIoc();
             Register<IAuthorizer<Type>>(c => new TypeBasedPermissionSet(Permission.Allowed));
-            Register<ISerializer>(c => new Serializer(CreateFormatter()));
+            //Register<ISerializer>(c => new Serializer(CreateFormatter()));
             InitSynchronizers();
             InitStoreTypes();
             InitFormatters();
@@ -149,10 +152,7 @@ namespace OrigoDB.Core
 
         private void InitFormatters()
         {
-            Register<IFormatter>(c => new BinaryFormatter(),
-                                           ObjectFormatting.NetBinaryFormatter.ToString());
-            Register(c => LoadFromConfig<IFormatter>(),
-                                           ObjectFormatting.Custom.ToString());
+            Register<IFormatter>(c => new BinaryFormatter(), Formatter.Default.ToString());
         }
 
 
@@ -181,22 +181,29 @@ namespace OrigoDB.Core
             return bootloader.LoadFromConfigOrDefault(() => bootloader);
         }
 
-        public virtual ISerializer CreateSerializer()
-        {
-            return _registry.Resolve<ISerializer>();
-        }
+        //public virtual ISerializer CreateSerializer()
+        //{
+        //    return _registry.Resolve<ISerializer>();
+        //}
 
-        public virtual IFormatter CreateFormatter()
+        /// <summary>
+        /// Return an IFormatter by invoking the factory function associated
+        /// with the given requestFormatter or Formatter.Default if not registered.
+        /// </summary>
+        /// <param name="requestedFormatter">The specific formatter</param>
+        /// <returns>An IFormatter instance provided by the </returns>
+        public virtual IFormatter CreateFormatter(Formatter requestedFormatter)
         {
-            string name = ObjectFormatting.ToString();
-            var formatter = _registry.Resolve<IFormatter>(name: name);
-            if (PacketOptions != null)
+            var formatter = _registry.CanResolve<IFormatter>(requestedFormatter.ToString())
+                ? _registry.Resolve<IFormatter>(requestedFormatter.ToString())
+                : _registry.Resolve<IFormatter>(Formatter.Default.ToString());
+                
+            if (requestedFormatter == Formatter.Journal && PacketOptions != null)
             {
                 formatter = new PacketingFormatter(formatter, PacketOptions.Value);
             }
+
             return formatter;
-
-
         }
 
         /// <summary>
@@ -247,11 +254,9 @@ namespace OrigoDB.Core
             Register(args => factory.Invoke(this));
         }
 
-        public void SetFormatterFactory(Func<EngineConfiguration, IFormatter> factory)
+        public void SetFormatterFactory(Func<EngineConfiguration, Formatter, IFormatter> factory, Formatter formatter = Formatter.Default)
         {
-            ObjectFormatting = ObjectFormatting.Custom;
-            string registrationName = ObjectFormatting.ToString();
-            Register(args => factory.Invoke(this), registrationName);
+            Register(args => factory.Invoke(this, formatter), formatter.ToString());
         }
 
         /// <summary>

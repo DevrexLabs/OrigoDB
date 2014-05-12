@@ -66,8 +66,8 @@ namespace OrigoDB.Core.Test
             var testEntries = new List<JournalEntry>();
             for (ulong i = 1; i <= numEntries; i++)
             {
-                testEntries.Add(new JournalEntry<Command>(i, null));
-                if (failedCommandIds.Contains(i)) testEntries.Add(new JournalEntry<RollbackMarker>(i, null));
+                testEntries.Add(new JournalEntry<Command>(i, new ACommand()));
+                if (failedCommandIds.Contains(i)) testEntries.Add(new JournalEntry<RollbackMarker>(i, new RollbackMarker()));
             }
             return testEntries;
         }

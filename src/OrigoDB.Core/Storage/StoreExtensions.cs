@@ -35,6 +35,7 @@ namespace OrigoDB.Core
             {
                 if (current is JournalEntry<Command>)
                 {
+                    (current as JournalEntry<Command>).Item.Timestamp = current.Created;
                     if (previous != null) yield return previous;
                     previous = (JournalEntry<Command>) current;
                 }

@@ -177,7 +177,7 @@ namespace OrigoDB.Core
         /// </summary>
         /// <param name="formatterUsage">The specific formatter</param>
         /// <returns>An IFormatter instance provided by the </returns>
-        public virtual IFormatter CreateFormatter(FormatterUsage formatterUsage = FormatterUsage.Default)
+        public virtual IFormatter CreateFormatter(FormatterUsage formatterUsage)
         {
             var formatter = _registry.CanResolve<IFormatter>(formatterUsage.ToString())
                 ? _registry.Resolve<IFormatter>(formatterUsage.ToString())

@@ -33,18 +33,19 @@ namespace OrigoDB.Core.Proxy
             if (proxyInfo.IsCommand)
             {
                 var command = new ProxyCommand<TModel>(methodCall.MethodName, methodCall.InArgs);
-                command.ResultIsSafe = ! proxyInfo.ProxyAttribute.CloneResult;
+                command.ResultIsSafe = !proxyInfo.ProxyAttribute.CloneResult;
                 result = _handler.Execute(command);
             }
             else if (proxyInfo.IsQuery)
             {
                 var query = new ProxyQuery<TModel>(methodCall.MethodName, methodCall.InArgs);
-                query.ResultIsSafe = ! proxyInfo.ProxyAttribute.CloneResult;
+                query.ResultIsSafe = !proxyInfo.ProxyAttribute.CloneResult;
                 result = _handler.Execute(query);
             }
             else throw new InvalidEnumArgumentException("OperationType not initialized");
 
             return new ReturnMessage(result, null, 0, methodCall.LogicalCallContext, methodCall);
+
         }
     }
 }

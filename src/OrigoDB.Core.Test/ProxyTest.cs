@@ -1,8 +1,10 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Linq;
 using OrigoDB.Core.Proxy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core.Test
 {
@@ -29,6 +31,8 @@ namespace OrigoDB.Core.Test
             model.AddCustomer("Zippy");
             
             var clone = new BinaryFormatter().Clone(model);
+
+            //modify the original which should not effect the clone
             model.AddCustomer("asfafse");
             Assert.IsTrue(clone.Customers.Count() == 1);
         }
@@ -80,6 +84,5 @@ namespace OrigoDB.Core.Test
             Customer robert2 = _proxy.GetCustomersCloned().First();
             Assert.AreEqual(robert, robert2);
         }
-
     }
 }

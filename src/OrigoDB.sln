@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Core", "OrigoDB.Cor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Core.Test", "OrigoDB.Core.Test\OrigoDB.Core.Test.csproj", "{C85316AC-9295-4D8D-9511-637B7C876EBD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Core.UnitTests", "OrigoDB.Core.UnitTests\OrigoDB.Core.UnitTests.csproj", "{200A39EE-0755-4349-985A-CFAB7FE94A8A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Test.NUnit", "OrigoDB.Core.UnitTests\OrigoDB.Test.NUnit.csproj", "{200A39EE-0755-4349-985A-CFAB7FE94A8A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Benchmark", "OrigoDB.Benchmark\OrigoDB.Benchmark.csproj", "{57B02997-3495-4941-8065-2063E6EC1BA6}"
 EndProject

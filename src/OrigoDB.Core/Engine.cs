@@ -21,7 +21,7 @@ namespace OrigoDB.Core
         public event EventHandler<CommandExecutingEventArgs> CommandExecuting = delegate { };
 
         /// <summary>
-        /// Fired after tthe command has successfully executed
+        /// Fired after the command has successfully executed
         /// </summary>
         public event EventHandler<CommandExecutedEventArgs> CommandExecuted = delegate { };
 

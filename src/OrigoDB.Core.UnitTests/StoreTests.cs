@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Runtime.InteropServices;
+﻿using System.Linq;
 using NUnit.Framework;
 using OrigoDB.Core.Journaling;
 

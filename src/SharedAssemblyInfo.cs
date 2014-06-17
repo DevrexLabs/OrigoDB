@@ -14,8 +14,8 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 
-[assembly: AssemblyVersion("0.13.1")]
-[assembly: AssemblyFileVersion("0.13.1")]
+[assembly: AssemblyVersion("0.14.0")]
+[assembly: AssemblyFileVersion("0.14.0")]
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("OrigoDB.Enterprise")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("OrigoDB.Core.Test")]

@@ -32,16 +32,26 @@ Task("Build")
          .WithTarget("build")); 	
 });
 
-Task("Test")
+Task("NUnitTest")
 	.IsDependentOn("Build")
 	.Does( () =>
 {
-    NUnit("./src/*Test*/bin/" + config + "/*.Test*.dll");
+    NUnit("./src/*Tests/bin/" + config + "/*.Tests.dll");
 });
- 
+
+/* No support for MS Test?
+Task("MSTest")
+	.IsDependentOn("Build")
+	.Does( () =>
+{
+    NUnit("./src/*Test/bin/" + config + "/*.Test.dll");
+});
+*/
+
 Task("Copy")
    .IsDependentOn("Build")
-   //.IsDependentOn("Test")
+   .IsDependentOn("MSTest")
+   .IsDependentOn("NUnitTest")
    .Does(() =>
 {
    var pattern = "src/OrigoDB.*/bin/" + config + "/OrigoDB.*";

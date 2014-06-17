@@ -1,10 +1,8 @@
-﻿using System;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Linq;
 using OrigoDB.Core.Proxy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core.Test
 {

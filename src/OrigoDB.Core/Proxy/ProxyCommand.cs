@@ -17,9 +17,16 @@ namespace OrigoDB.Core.Proxy
 
 		public override object Execute(TModel model)
 		{
-		    var proxyMethod = ProxyMethodMap.MapFor<TModel>().GetProxyMethodInfo(MethodName);
-		    MethodInfo methodInfo = proxyMethod.MethodInfo;
-			return methodInfo.Invoke(model, Arguments);
+		    try
+		    {
+                var proxyMethod = ProxyMethodMap.MapFor<TModel>().GetProxyMethodInfo(MethodName);
+                MethodInfo methodInfo = proxyMethod.MethodInfo;
+                return methodInfo.Invoke(model, Arguments);
+		    }
+		    catch (TargetInvocationException ex)
+		    {
+		        throw ex.InnerException;
+		    }
 		}
 	}
 }

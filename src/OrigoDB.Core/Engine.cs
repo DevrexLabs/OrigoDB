@@ -146,8 +146,12 @@ namespace OrigoDB.Core
                 {
                     exceptionThrown = true;
                     if (_config.PersistenceMode == PersistenceMode.Journaling) _journalAppender.AppendRollbackMarker();
-                    if (!(ex is CommandAbortedException)) Rollback();
-                    throw;
+                    if (!(ex is CommandAbortedException))
+                    {
+                        Rollback();
+                        ex = new CommandFailedException("Command failed with rollback, see inner exception for details", ex);
+                    }
+                    throw ex;
                 }
                 finally
                 {

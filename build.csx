@@ -31,15 +31,23 @@ Task("Build")
          .WithTarget("clean")
          .WithTarget("build")); 	
 });
+
+Task("Test")
+	.IsDependentOn("Build")
+	.Does( () =>
+{
+    NUnit("./src/*Test*/bin/" + config + "/*.Test*.dll");
+});
  
 Task("Copy")
    .IsDependentOn("Build")
+   //.IsDependentOn("Test")
    .Does(() =>
 {
    var pattern = "src/OrigoDB.*/bin/" + config + "/OrigoDB.*";
    CopyFiles(pattern, output);
 });
- 
+
 Task("Zip")
    .IsDependentOn("Copy")
    .Does(() =>
@@ -58,7 +66,8 @@ Task("NuGet")
 {
    NuGetPack("./OrigoDB.Core.nuspec", new NuGetPackSettings {
       Version = version,
-      OutputDirectory = "./build"
+      OutputDirectory = "./build",
+	  Symbols = true
    });
 });
  

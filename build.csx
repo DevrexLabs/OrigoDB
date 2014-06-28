@@ -50,7 +50,6 @@ Task("MSTest")
 
 Task("Copy")
    .IsDependentOn("Build")
-   .IsDependentOn("MSTest")
    .IsDependentOn("NUnitTest")
    .Does(() =>
 {

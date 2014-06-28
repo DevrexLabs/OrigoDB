@@ -62,7 +62,5 @@ namespace OrigoDB.Core.Test
             var clone = (List<int>) formatter.Deserialize(memStream);
             CollectionAssert.AreEqual(data, clone);
         }
-
-
     }
 }

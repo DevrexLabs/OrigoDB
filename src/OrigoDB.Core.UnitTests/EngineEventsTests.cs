@@ -13,8 +13,8 @@ namespace OrigoDB.Core.Test
         public void Commands_executed_event_contains_sequential_entry_ids()
         {
             var config = EngineConfiguration.Create()
-                .ForImmutability(
-                ).ForIsolatedTest();
+                .ForImmutability()
+                .ForIsolatedTest();
             var engine = Engine.Create<ImmutableModel>(config);
             
             var sequence = new List<ulong>();
@@ -34,9 +34,7 @@ namespace OrigoDB.Core.Test
         [Test]
         public void CommandExecuting_is_fired()
         {
-            var config = EngineConfiguration.Create().ForImmutability();
-            config.SetStoreFactory( cfg => new InMemoryStore(cfg));
-            config.Location.OfJournal = Guid.NewGuid().ToString();
+            var config = EngineConfiguration.Create().ForImmutability().ForIsolatedTest();
             var engine = Engine.Create<ImmutableModel>(config);
             
             bool wasFired = false;
@@ -52,9 +50,7 @@ namespace OrigoDB.Core.Test
         [Test, ExpectedException(typeof(CommandAbortedException))]
         public void CommandExecuting_can_cancel()
         {
-            var config = EngineConfiguration.Create().ForImmutability();
-            config.SetStoreFactory(cfg => new InMemoryStore(cfg));
-            config.Location.OfJournal = Guid.NewGuid().ToString();
+            var config = EngineConfiguration.Create().ForImmutability().ForIsolatedTest();
             var engine = Engine.Create<ImmutableModel>(config);
 
             engine.CommandExecuting += (s, e) =>

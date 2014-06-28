@@ -13,7 +13,7 @@ namespace OrigoDB.Core
         public static long SizeOf(this IFormatter formatter, object graph)
         {
             Ensure.NotNull(formatter, "formatter");
-            Stream stream = new ByteCountingNullStream();
+            Stream stream = new ByteCountingStream();
             formatter.Serialize(stream, graph);
             return stream.Length;
         }

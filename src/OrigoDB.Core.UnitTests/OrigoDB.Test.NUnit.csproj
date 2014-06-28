@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthenticationModelTests.cs" />
+    <Compile Include="ByteCountingStreamTest.cs" />
     <Compile Include="CommandJournalTest.cs" />
     <Compile Include="CommandTimestampTests.cs" />
     <Compile Include="CompressorTests.cs" />

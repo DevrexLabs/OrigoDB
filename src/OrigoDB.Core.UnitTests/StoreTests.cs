@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using NUnit.Framework;
 using OrigoDB.Core.Journaling;
+using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core.Test
 {
@@ -9,59 +10,35 @@ namespace OrigoDB.Core.Test
     {
 
         EngineConfiguration _config;
-        private IStore _store;
-
+        private ICommandStore _commandStore;
 
         [SetUp]
         public void Init()
         {
             _config = EngineConfiguration.Create().ForIsolatedTest().ForImmutability();
-            _store = new InMemoryStore(_config);
-            _store.Init();
-            
+            _commandStore = new InMemoryCommandStore(_config);
+            _commandStore.Initialize();
         }
 
         [Test]
-        public void Create_from_type_creates_journal_entry()
+        public void Can_create_with_ModelCreatedEntry_in_journal()
         {
 
-            _store.Create(typeof(ImmutableModel));
-            var entries = _store.GetJournalEntries().ToArray();
+            JournalAppender.Create(0, _commandStore).AppendModelCreated(typeof(ImmutableModel));
+            var entries = _commandStore.GetJournalEntries().ToArray();
             Assert.AreEqual(1, entries.Length);
             var firstEntry = entries[0] as JournalEntry<ModelCreated>;
             Assert.NotNull(firstEntry);
             Assert.AreEqual(firstEntry.Item.Type, typeof(ImmutableModel));
-            Assert.IsFalse(_store.Snapshots.Any());
+            Assert.AreEqual(0, firstEntry.Id);
         }
 
         [Test]
-        public void Can_load_from_journal_only()
+        public void Can_load_from_journal_with_ModelCreatedEntry()
         {
-            _store.Create(typeof(ImmutableModel));
-            Model model = _store.LoadModel();
+            JournalAppender.Create(0, _commandStore).AppendModelCreated(typeof(ImmutableModel));
+            Model model = new ModelLoader(_config, _commandStore).LoadModel();
             Assert.IsInstanceOf<ImmutableModel>(model);
         }
-
-        [Test]
-        public void Can_load_from_type()
-        {
-            var model = (ImmutableModel) _store.LoadModel(typeof (ImmutableModel));
-            var engine = new Engine<ImmutableModel>(model, _store, _config);
-            engine.Execute(new AppendNumberCommand(53));
-            engine.Execute(new AppendNumberCommand(42));
-            engine.Close();
-            _store = new InMemoryStore(_config);
-            _store.Init();
-            model = (ImmutableModel) _store.LoadModel(typeof (ImmutableModel));
-            
-            //make sure state is valid after restore
-            Assert.AreEqual(53 + 42, model.Numbers().Sum());
-            
-
-            var ids = _store.GetJournalEntries().Select(je => (int) je.Id).ToArray();
-            Assert.AreEqual(Enumerable.Range(1,2),ids);
-
-        }
-
     }
 }

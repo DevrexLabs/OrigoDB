@@ -10,6 +10,23 @@ namespace OrigoDB.Core
     {
 
         /// <summary>
+        /// Version of the model, incremented by the Engine
+        /// for each command executed.
+        /// </summary>
+        public ulong Revision
+        {
+            get;
+            internal protected set;
+        }
+
+        protected Model(ulong revision)
+        {
+            Revision = revision;
+        }
+
+        protected Model(){}
+
+        /// <summary>
         /// SnapshotRestored is called after the most recent snaphot has been loaded 
         /// but before any commands are restored.
         /// </summary>

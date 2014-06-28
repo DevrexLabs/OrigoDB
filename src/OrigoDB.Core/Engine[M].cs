@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
 namespace OrigoDB.Core
 {
@@ -8,7 +7,7 @@ namespace OrigoDB.Core
     {
 
 
-        public Engine(TModel model, IStore store, EngineConfiguration config) : base(model, store, config) { }
+        public Engine(TModel model, EngineConfiguration config) : base(model, config) { }
 
 
         public TResult Execute<TResult>(Func<TModel, TResult> query)

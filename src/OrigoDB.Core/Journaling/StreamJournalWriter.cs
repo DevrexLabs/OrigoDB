@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.Serialization;
 using OrigoDB.Core.Logging;
 
@@ -10,56 +11,51 @@ namespace OrigoDB.Core
 	internal class StreamJournalWriter : IJournalWriter
 	{
         readonly IFormatter _journalFormatter;
-        Stream _stream;
-        private EngineConfiguration _config;
-
-        readonly IStore _storage;
         readonly RolloverStrategy _rolloverStrategy;
+        readonly Func<ulong, Stream> _streamProvider;
 
+        private Stream _stream;
         private long _entriesWrittenToCurrentStream;
 
         private static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
 
 
-
-
         public virtual void Dispose()
         {
-            if (_stream != null)
-            {
-                if (_stream.CanWrite) _stream.Flush();
-                _stream.Dispose();
-                _stream = null;
-            }
+            Close();
         }
 
-        public StreamJournalWriter(IStore storage, EngineConfiguration config)
+        public StreamJournalWriter(EngineConfiguration config, Func<ulong,Stream> streamFactory)
         {
-            _config = config;
-            _storage = storage;
+            _streamProvider = streamFactory;
             _journalFormatter = config.CreateFormatter(FormatterUsage.Journal);
-            _rolloverStrategy = _config.CreateRolloverStrategy();
+            _rolloverStrategy = config.CreateRolloverStrategy();
         }
 
-		public void Write(JournalEntry item)
+		public void Write(JournalEntry entry)
 		{
-			if (_stream == null) _stream = _storage.CreateJournalWriterStream(item.Id);
+			if (_stream == null) _stream = _streamProvider.Invoke(entry.Id);
 			if (_rolloverStrategy.Rollover(_stream.Position, _entriesWrittenToCurrentStream))
 			{
 				_log.Debug("NewJournalSegment");
 				Close();
-				_stream = _storage.CreateJournalWriterStream(item.Id);
+				_stream = _streamProvider.Invoke(entry.Id);
 				_entriesWrittenToCurrentStream = 0;
 			}
 			
-            _journalFormatter.WriteBuffered(_stream, item);
+            _journalFormatter.WriteBuffered(_stream, entry);
             _stream.Flush();
 			_entriesWrittenToCurrentStream++;
 		}
 
 		public void Close()
 		{
-		    Dispose();
+            if (_stream != null)
+            {
+                if (_stream.CanWrite) _stream.Flush();
+                _stream.Dispose();
+                _stream = null;
+            }
 		}
 	}
 }

@@ -144,7 +144,7 @@ namespace OrigoDB.Core.Test
             ExecuteCommands(engine,1000);
 
             engine.Close();
-            var store = config.CreateStore();
+            var store = config.CreateCommandStore();
             AssertJournalEntriesAreSequential(store);
         }
 
@@ -160,15 +160,15 @@ namespace OrigoDB.Core.Test
             db = engine.GetProxy();
             db.AddCustomer("Bart");
             engine.Close();
-            AssertJournalEntriesAreSequential(config.CreateStore());
+            AssertJournalEntriesAreSequential(config.CreateCommandStore());
 
         }
 
-        private void AssertJournalEntriesAreSequential(IStore storage)
+        private void AssertJournalEntriesAreSequential(ICommandStore storage)
         {
             ulong expected = 1;
             Console.WriteLine("JournalEntry Ids:");
-            foreach (var journalEntry in storage.GetJournalEntries())
+            foreach (var journalEntry in storage.CommandEntries())
             {
                 Console.WriteLine(journalEntry.Id);
                 Assert.AreEqual(expected, journalEntry.Id);
@@ -189,11 +189,8 @@ namespace OrigoDB.Core.Test
             ExecuteCommands(engine,60);
             engine.Close();
 
-            var store = config.CreateStore();
-            
-
+            var store = config.CreateCommandStore();
             AssertJournalEntriesAreSequential(store);
-            Assert.AreEqual(120, store.GetJournalEntries().Count());
         }
 
         private void ExecuteCommands(Engine engine, int count)

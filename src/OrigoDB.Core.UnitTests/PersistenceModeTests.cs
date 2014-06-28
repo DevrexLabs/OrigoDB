@@ -24,9 +24,11 @@ namespace OrigoDB.Core.Test
             engine.Execute(new AppendNumberCommand(12));
             engine.Close();
 
-            var store = config.CreateStore();
-            Assert.AreEqual(4, store.Snapshots.Count());
-            Assert.AreEqual(0, store.GetJournalEntries().OfType<JournalEntry<Command>>().Count());
+            var commandStore = config.CreateCommandStore();
+            var snapshotStore = config.CreateSnapshotStore();
+            
+            Assert.AreEqual(3, snapshotStore.Snapshots.Count());
+            Assert.AreEqual(0, commandStore.GetJournalEntries().OfType<JournalEntry<Command>>().Count());
         }
 
 
@@ -42,8 +44,8 @@ namespace OrigoDB.Core.Test
             engine.Execute(new AppendNumberCommand(12));
             engine.Close();
 
-            var store = config.CreateStore();
-            Assert.AreEqual(2, store.Snapshots.Count());
+            var store = config.CreateSnapshotStore();
+            Assert.AreEqual(1, store.Snapshots.Count());
 
             engine = Engine.Load<ImmutableModel>(config);
             var sum = engine.Execute(new NumberSumQuery());

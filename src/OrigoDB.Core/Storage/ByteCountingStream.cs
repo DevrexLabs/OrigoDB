@@ -1,15 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core.Storage
 {
-    public class ByteCountingNullStream : Stream
+    /// <summary>
+    /// A stream decorator which keeps track of the number of bytes written
+    /// </summary>
+    public class ByteCountingStream : Stream
     {
-        private long _length;
+        private long _bytesWritten;
+        readonly Stream _stream;
+
+        /// <summary>
+        /// Constructor accepting a writeable stream to decorate
+        /// </summary>
+        /// <param name="stream"></param>
+        public ByteCountingStream(Stream stream)
+        {
+            Ensure.NotNull(stream, "stream");
+            Ensure.That(stream.CanWrite, "stream must be writeable");
+            _stream = stream;
+        }
+
+        /// <summary>
+        /// Uses an underlying NullWriteStream
+        /// </summary>
+        public ByteCountingStream() 
+            : this(new NullWriteStream())
+        {
+            
+        }
 
         public override bool CanRead
         {
@@ -28,16 +49,17 @@ namespace OrigoDB.Core.Storage
 
         public override void Flush()
         {
+            _stream.Flush();
         }
 
         public override long Length
         {
-            get { return _length; }
+            get { return _bytesWritten; }
         }
 
         public override long Position
         {
-            get { return _length; }
+            get { return _bytesWritten; }
             set
             {
                 throw new InvalidOperationException();
@@ -63,7 +85,9 @@ namespace OrigoDB.Core.Storage
         {
             Ensure.NotNull(buffer, "buffer");
             Ensure.That(offset + count <= buffer.Length, "can't read after end of buffer");
-            _length += count;
+            _stream.Write(buffer,offset,count);
+            _bytesWritten += count;
         }
     }
+
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using OrigoDB.Core.Journaling;
 using NUnit.Framework;
 using OrigoDB.Core;
+using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core.Test
 {
@@ -33,13 +34,13 @@ namespace OrigoDB.Core.Test
         [TestCaseSource("_testCases")]
         public void RolledBackCommandsAreSkipped(Tuple<List<JournalEntry>, string> testCase)
         {
-            IStore target = new InMemoryStore(EngineConfiguration.Create().ForIsolatedTest());
+            ICommandStore target = new InMemoryCommandStore(EngineConfiguration.Create().ForIsolatedTest());
 
             string failureMessage = testCase.Item2;
             var testEntries = testCase.Item1;
 
             //Act
-            var actualCommandEntries = StoreExtensions.CommittedCommandEntries(() => testEntries).ToArray();
+            var actualCommandEntries = CommandStore.CommittedCommandEntries(() => testEntries).ToArray();
 
             ulong[] rolledBackIds = testEntries.OfType<JournalEntry<RollbackMarker>>().Select(e => e.Id).ToArray();
             int expectedNumberOfCommandEntries = testEntries.Count - rolledBackIds.Length * 2;
@@ -78,9 +79,9 @@ namespace OrigoDB.Core.Test
         {
             //Arrange
             var config = EngineConfiguration.Create().ForIsolatedTest();
-            var store = new InMemoryStore(config);
-            store.Init();
-            var target = new JournalAppender(1, new StreamJournalWriter(store, config));
+            var store = new InMemoryCommandStore(config);
+            store.Initialize();
+            var target = new JournalAppender(1, new StreamJournalWriter(config, store.CreateJournalWriterStream));
 
             var command = new ACommand();
             command.Timestamp = DateTime.Now;

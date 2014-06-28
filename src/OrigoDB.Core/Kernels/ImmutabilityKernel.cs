@@ -30,6 +30,7 @@ namespace OrigoDB.Core
                 }
                 else throw new InvalidOperationException("Command type not supported by this kernel");
                 if (modelOut == null) throw new InvalidOperationException("Command returned null model");
+                modelOut.Revision = _model.Revision + 1;
                 _model = modelOut;
                 return result;
             }

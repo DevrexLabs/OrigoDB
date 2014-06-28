@@ -58,20 +58,13 @@ namespace OrigoDB.Core.Test
             Assert.IsInstanceOfType(actual, typeof(PacketingFormatter));
         }
 
-        [TestMethod()]
-        public void InjectingStorageSetsModeToCustom()
-        {
-            var config = new EngineConfiguration();
-            config.SetStoreFactory((c) => null);
-            Assert.AreEqual(Stores.Custom, config.StoreType);
-        }
 
         [TestMethod()]
         public void FileStorageIsDefault()
         {
             var config = new EngineConfiguration().WithRandomLocation();
-            var storage = config.CreateStore();
-            Assert.IsTrue(storage is FileStore);
+            var storage = config.CreateCommandStore();
+            Assert.IsTrue(storage is FileCommandStore);
             Directory.Delete(config.Location.OfJournal, true);
         }
 
@@ -81,9 +74,9 @@ namespace OrigoDB.Core.Test
 
             var config = new EngineConfiguration()
                 .WithRandomLocation();
-            var expected = new FileStore(config);
-            config.SetStoreFactory((c) => expected);
-            var actual = config.CreateStore();
+            var expected = new FileCommandStore(config);
+            config.SetCommandStoreFactory((c) => expected);
+            var actual = config.CreateCommandStore();
             Assert.AreSame(expected, actual);
             Directory.Delete(config.Location.OfJournal, true);
         }
@@ -129,8 +122,8 @@ namespace OrigoDB.Core.Test
         {
             var config = new EngineConfiguration(Guid.NewGuid().ToString());
             config.AsyncronousJournaling = true;
-            config.SetStoreFactory(c => new InMemoryStore(c));
-            var store = config.CreateStore();
+            config.SetCommandStoreFactory(c => new InMemoryCommandStore(c));
+            var store = config.CreateCommandStore();
             var writer = store.CreateJournalWriter(1);
             Assert.IsTrue(writer is AsynchronousJournalWriter);
         }
@@ -140,8 +133,8 @@ namespace OrigoDB.Core.Test
         {
             var config = new EngineConfiguration(Guid.NewGuid().ToString());
             config.AsyncronousJournaling = false;
-            config.SetStoreFactory(c => new InMemoryStore(c));
-            var store = config.CreateStore();
+            config.SetCommandStoreFactory(c => new InMemoryCommandStore(c));
+            var store = config.CreateCommandStore();
             var writer = store.CreateJournalWriter(1);
             Assert.IsTrue(writer is StreamJournalWriter);
         }

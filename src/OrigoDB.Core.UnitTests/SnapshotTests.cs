@@ -20,12 +20,11 @@ namespace OrigoDB.Core.Test
             engine.Execute(new AppendNumberCommand(42));
             engine.CreateSnapshot();
 
-            var store = config.CreateStore();
+            var store = config.CreateSnapshotStore();
 
 
-            Assert.AreEqual(0, store.Snapshots.First().LastEntryId);
-            Assert.AreEqual(4, store.Snapshots.Skip(1).First().LastEntryId);
-            Assert.AreEqual(2, store.Snapshots.Count());
+            Assert.AreEqual(4, store.Snapshots.First().Revision);
+            Assert.AreEqual(1, store.Snapshots.Count());
 
         }
 
@@ -35,7 +34,7 @@ namespace OrigoDB.Core.Test
             var dt = DateTime.Now;
             Snapshot ss = FileSnapshot.FromFileInfo("000467000.snapshot", dt);
             Assert.AreEqual(dt,ss.Created);
-            Assert.AreEqual(467000, ss.LastEntryId);
+            Assert.AreEqual(467000, ss.Revision);
         }
     }
 }

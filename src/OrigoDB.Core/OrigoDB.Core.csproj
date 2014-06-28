@@ -87,8 +87,14 @@
     <Compile Include="Proxy\ProxyAttribute.cs" />
     <Compile Include="Proxy\QueryAttribute.cs" />
     <Compile Include="Storage\FileSnapshot.cs" />
+    <Compile Include="Storage\FileSnapshotStore.cs" />
     <Compile Include="Storage\FormatterExtensions.cs" />
-    <Compile Include="Storage\StoreExtensions.cs" />
+    <Compile Include="Storage\Initialized.cs" />
+    <Compile Include="Storage\InMemorySnapshotStore.cs" />
+    <Compile Include="Storage\ISnapshotStore.cs" />
+    <Compile Include="Storage\ModelLoader.cs" />
+    <Compile Include="Storage\NullWriteStream.cs" />
+    <Compile Include="Storage\SnapshotStore.cs" />
     <Compile Include="Transactions\Command[M].cs" />
     <Compile Include="Transactions\Command[M,R].cs" />
     <Compile Include="Compression\DeflateStreamCompressor.cs" />
@@ -118,7 +124,7 @@
     <Compile Include="Logging\LogProvider.cs" />
     <Compile Include="Proxy\ModelProxyExtensions.cs" />
     <Compile Include="Transactions\Query.cs" />
-    <Compile Include="Storage\InMemoryStore.cs" />
+    <Compile Include="Storage\InMemoryCommandStore.cs" />
     <Compile Include="Journaling\RollbackMarker.cs" />
     <Compile Include="Kernels\Kernel.cs" />
     <Compile Include="Transactions\DelegateQuery.cs" />
@@ -134,7 +140,7 @@
     <Compile Include="Proxy\ProxyMethodInfo.cs" />
     <Compile Include="Clients\Merge.cs" />
     <Compile Include="Kernels\RoyalFoodTaster.cs" />
-    <Compile Include="Storage\ByteCountingNullStream.cs" />
+    <Compile Include="Storage\ByteCountingStream.cs" />
     <Compile Include="Storage\PacketingFormatter.cs" />
     <Compile Include="Utilities\ByteArrayExtensions.cs" />
     <Compile Include="Utilities\CompressionAlgorithms.cs" />
@@ -170,10 +176,10 @@
     <Compile Include="Security\AuthenticationModel.cs" />
     <Compile Include="Security\TypeBasedPermissionSet.cs" />
     <Compile Include="Security\TypeBasedRule.cs" />
-    <Compile Include="Storage\IStore.cs" />
+    <Compile Include="Storage\ICommandStore.cs" />
     <Compile Include="Storage\JournalFile.cs" />
     <Compile Include="Storage\Snapshot.cs" />
-    <Compile Include="Storage\Store.cs" />
+    <Compile Include="Storage\CommandStore.cs" />
     <Compile Include="Utilities\Ensure.cs" />
     <Compile Include="Utilities\NonDestructiveArrayQueue.cs" />
     <Compile Include="Storage\Packet.cs">
@@ -185,7 +191,6 @@
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Utilities\Immutable.cs" />
     <Compile Include="Security\User.cs" />
-    <Compile Include="Storage\Stores.cs" />
     <Compile Include="Configuration\SnapshotBehavior.cs" />
     <Compile Include="Synchronization\ISynchronizer.cs" />
     <Compile Include="Journaling\IJournalWriter.cs" />
@@ -196,7 +201,7 @@
     <Compile Include="Transactions\Query[M,R].cs" />
     <Compile Include="Synchronization\ReadWriteSynchronizer.cs" />
     <Compile Include="Synchronization\ExclusiveSynchronizer.cs" />
-    <Compile Include="Storage\FileStore.cs" />
+    <Compile Include="Storage\FileCommandStore.cs" />
     <Compile Include="Journaling\StreamJournalWriter.cs" />
     <Compile Include="Utilities\HashUtility.cs" />
     <Compile Include="Utilities\DirectoryEx.cs" />

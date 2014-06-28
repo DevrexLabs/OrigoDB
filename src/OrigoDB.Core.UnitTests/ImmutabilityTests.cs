@@ -93,7 +93,7 @@ namespace OrigoDB.Core.Test
             var config = EngineConfiguration.Create().ForImmutability();
             config.Location.OfJournal = Guid.NewGuid().ToString();
             var model = new ImmutableModel();
-            config.SetStoreFactory(cfg => new InMemoryStore(cfg));
+            config.SetCommandStoreFactory(cfg => new InMemoryCommandStore(cfg));
             var  kernel = new ImmutabilityKernel(config, model);
 
             int actual = (int) kernel.ExecuteCommand(new AppendNumberAndGetSumCommand(42));
@@ -106,12 +106,8 @@ namespace OrigoDB.Core.Test
         [Test]
         public void ImmutabilityEngineSmokeTest()
         {
-            var config = EngineConfiguration.Create().ForImmutability();
-            config.Location.OfJournal = Guid.NewGuid().ToString();
-            config.SetStoreFactory(cfg => new InMemoryStore(cfg));
-            
+            var config = EngineConfiguration.Create().ForImmutability().ForIsolatedTest();
             var engine = Engine.Create<ImmutableModel>(config);
-
             int actual = engine.Execute(new AppendNumberAndGetSumCommand(42));
             Assert.AreEqual(42, actual);
             engine.Execute(new AppendNumberCommand(58));

@@ -15,7 +15,8 @@ namespace OrigoDB.Core.Test
 
         public static EngineConfiguration WithInMemoryStore(this EngineConfiguration config)
         {
-            config.SetStoreFactory(cfg => new InMemoryStore(cfg));
+            config.SetCommandStoreFactory(cfg => new InMemoryCommandStore(cfg));
+            config.SetSnapshotStoreFactory(cfg => new InMemorySnapshotStore(cfg));
             return config;
         }
 

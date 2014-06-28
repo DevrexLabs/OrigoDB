@@ -1,9 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
-using OrigoDB.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 
 namespace OrigoDB.Core.Test
 {
@@ -19,7 +17,7 @@ namespace OrigoDB.Core.Test
 
 
 		private TestContext testContextInstance;
-	    static IStore _store;
+	    static ICommandStore _store;
 	    EngineConfiguration _config;
 	    static string _path = Guid.NewGuid().ToString();
 
@@ -65,8 +63,8 @@ namespace OrigoDB.Core.Test
 			_config = EngineConfiguration.Create();
 			_config.Location.OfJournal = _path;
 			_config.MaxEntriesPerJournalSegment = 10;
-			_store = new FileStore(_config);
-			_store.Init();
+			_store = new FileCommandStore(_config);
+			_store.Initialize();
 
 			var writer = _store.CreateJournalWriter(0);
 			for (ulong i = 0; i < 30; i++)
@@ -91,7 +89,7 @@ namespace OrigoDB.Core.Test
 		{
 			var files = Directory.GetFiles(_path).OrderBy(f => f).ToArray();
 			File.Delete(files[0]);
-			_store.Init(); // Reload store to update journalfile list.
+			_store.Initialize(); // Reload store to update journalfile list.
 			_store.GetJournalEntriesFrom(1).Count();
 			Assert.Fail();
 		}

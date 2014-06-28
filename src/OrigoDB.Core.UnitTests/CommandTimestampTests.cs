@@ -69,7 +69,7 @@ namespace OrigoDB.Core.Test
             engine.Execute(command);
 
 
-            var store = config.CreateStore();
+            var store = config.CreateCommandStore();
             var entry = store.CommandEntries().Single();
             Assert.AreEqual(entry.Created, entry.Item.Timestamp);
             Assert.AreEqual(command.Timestamp, entry.Created);

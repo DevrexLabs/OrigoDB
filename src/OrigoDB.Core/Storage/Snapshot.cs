@@ -2,7 +2,9 @@
 
 namespace OrigoDB.Core.Storage
 {
-
+    /// <summary>
+    /// Snapshot metadata
+    /// </summary>
     public class Snapshot
     {
 
@@ -13,15 +15,15 @@ namespace OrigoDB.Core.Storage
 
 
         /// <summary>
-        /// The id of the journal entry containing the last command applied to this snapshot
+        /// The Revision of the Model
         /// </summary>
-        public readonly ulong LastEntryId;
+        public readonly ulong Revision;
 
 
-        public Snapshot(DateTime created, ulong lastEntryId)
+        public Snapshot(DateTime created, ulong revision)
         {
             Created = created;
-            LastEntryId = lastEntryId;
+            Revision = revision;
         }
     }
 }

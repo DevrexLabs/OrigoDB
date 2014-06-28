@@ -7,6 +7,9 @@ namespace OrigoDB.Core
     [Serializable]
     public abstract class JournalEntry : ISerializable
     {
+        /// <summary>
+        /// Corresponds to the <see cref="Model.Revision"/> resulting after this entry is applied
+        /// </summary>
         public readonly ulong Id;
 
         public readonly DateTime Created;

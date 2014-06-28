@@ -10,7 +10,7 @@ namespace OrigoDB.Core
     /// </summary>
     public class JournalAppender
     {
-        private IJournalWriter _writer;
+        readonly IJournalWriter _writer;
         private ulong _nextEntryId;
 
         /// <summary>
@@ -42,7 +42,17 @@ namespace OrigoDB.Core
         /// <param name="modelType"></param>
         public void AppendModelCreated(Type modelType)
         {
+            if (_nextEntryId != 0) throw new InvalidOperationException("ModelCreated entry must have Id = 0");
             _writer.Write(CreateEntry(new ModelCreated(modelType)));
+        }
+
+        /// <summary>
+        /// Append an entry of type ModelCreated to the journal
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public void AppendModelCreated<T>()
+        {
+            AppendModelCreated(typeof(T));
         }
 
         private JournalEntry<T> CreateEntry<T>(T item)
@@ -67,6 +77,16 @@ namespace OrigoDB.Core
             {
                 return _nextEntryId - 1;
             }
+        }
+
+        public static JournalAppender Create(ulong nextEntryId, ICommandStore store)
+        {
+            return Create(nextEntryId, store.CreateJournalWriter(nextEntryId));
+        }
+
+        public static JournalAppender Create(ulong nextEntryId, IJournalWriter writer)
+        {
+            return new JournalAppender(nextEntryId, writer);
         }
     }
 }

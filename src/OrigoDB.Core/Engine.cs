@@ -5,6 +5,7 @@ using System.Threading;
 using OrigoDB.Core.Logging;
 using OrigoDB.Core.Security;
 using System.Runtime.Serialization;
+using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core
 {
@@ -30,39 +31,40 @@ namespace OrigoDB.Core
 
         readonly EngineConfiguration _config;
         readonly IAuthorizer<Type> _authorizer;
-        readonly JournalAppender _journalAppender;
+        private JournalAppender _journalAppender;
 
 
-        private IStore _store;
+        private ICommandStore _commandStore;
+        private ISnapshotStore _snapshotStore;
         readonly ISynchronizer _synchronizer;
 
         private readonly object _commandSequenceLock = new object();
 
         Kernel _kernel;
-        bool _isDisposed = false;
+        bool _isDisposed;
 
         /// <summary>
-        /// The current configuration,
+        /// The current configuration
         /// </summary>
         public EngineConfiguration Config { get { return _config; } }
 
-        protected Engine(Model model, IStore store, EngineConfiguration config)
+        protected Engine(Model model, EngineConfiguration config)
         {
             _config = config;
-            _store = store;
+            _commandStore = config.CreateCommandStore();
+            _snapshotStore = config.CreateSnapshotStore();
 
             _synchronizer = _config.CreateSynchronizer();
             _authorizer = _config.CreateAuthorizer();
             _kernel = _config.CreateKernel(model);
             _kernel.SetSynchronizer(_synchronizer);
-            _journalAppender = _store.GetAppender();
+            _journalAppender = JournalAppender.Create(model.Revision + 1, _commandStore);
 
-            //todo: move behavior to IStore?
             if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)
             {
                 _log.Info("Starting snaphot job on threadpool");
 
-                ThreadPool.QueueUserWorkItem((o) => CreateSnapshot());
+                ThreadPool.QueueUserWorkItem(_ => CreateSnapshot());
 
                 //Give the snapshot thread a chance to start and aquire the readlock
                 Thread.Sleep(TimeSpan.FromMilliseconds(10));
@@ -70,14 +72,15 @@ namespace OrigoDB.Core
 
             CommandExecuted += (s, e) => HandleSnapshotPersistence();
             
-            //todo: bad dep, use an event instead
             Core.Config.Engines.AddEngine(config.Location.OfJournal, this);
         }
 
         private void Restore()
         {
-            _store = _config.CreateStore();
-            var model = _store.LoadModel();
+            _commandStore = _config.CreateCommandStore();
+            _snapshotStore = _config.CreateSnapshotStore();
+            var model = new ModelLoader(_config, _commandStore, _snapshotStore).LoadModel();
+            _journalAppender = JournalAppender.Create(model.Revision + 1, _commandStore);
             _kernel = _config.CreateKernel(model);
             _kernel.SetSynchronizer(_synchronizer);
         }
@@ -202,10 +205,10 @@ namespace OrigoDB.Core
             }
         }
 
-        internal byte[] GetSnapshot()
+        internal byte[] GetSnapshot(IFormatter formatter = null)
         {
             var memoryStream = new MemoryStream();
-            WriteSnapshotToStream(memoryStream);
+            WriteSnapshotToStream(memoryStream, formatter);
             return memoryStream.GetBuffer();
         }
 
@@ -221,12 +224,12 @@ namespace OrigoDB.Core
         }
 
         /// <summary>
-        /// Writes a snapshot reflecting the current state of the model to the associated <see cref="IStore"/>
+        /// Writes a snapshot reflecting the current state of the model to the associated <see cref="ICommandStore"/>
         /// <remarks>The snapshot is a read operation blocking writes but not other reads (unless using an ImmutablilityKernel).</remarks>
         /// </summary>
         public void CreateSnapshot()
         {
-            _kernel.Read(model => _store.WriteSnapshot(model));
+            _kernel.Read(model => _snapshotStore.WriteSnapshot(model));
         }
 
         private void Rollback()
@@ -299,9 +302,9 @@ namespace OrigoDB.Core
         {
             if (!config.Location.HasJournal) 
                 throw new InvalidOperationException("Specify location to load from in non-generic load");
-            var store = config.CreateStore();
-            var model = store.LoadModel();
-            return new Engine(model, store, config);
+            
+            var model = new ModelLoader(config).LoadModel();
+            return new Engine(model, config);
         }
 
 
@@ -345,9 +348,8 @@ namespace OrigoDB.Core
         {
             config = config ?? EngineConfiguration.Create();
             if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
-            var store = config.CreateStore();
-            var model = (TModel) store.LoadModel();
-            return new Engine<TModel>(model, store, config);
+            var model = (TModel) new ModelLoader(config).LoadModel();
+            return new Engine<TModel>(model, config);
         }
 
         /// <summary>
@@ -363,9 +365,21 @@ namespace OrigoDB.Core
             return Create<TModel>(config);
         }
 
+        /// <summary>
+        /// Create by writing a ModelCreated entry to the journal
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="config"></param>
+        /// <returns></returns>
         public static Engine<TModel> Create<TModel>(EngineConfiguration config = null) where TModel : Model, new()
         {
-            return Create(new TModel(), config);
+            config = config ?? EngineConfiguration.Create();
+            if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
+            var commandStore = config.CreateCommandStore();
+            if (!commandStore.IsEmpty) throw new InvalidOperationException("Cannot Create(): empty CommandStore required");
+            if (!config.CreateSnapshotStore().IsEmpty) throw new InvalidOperationException("Can't Create(): empty SnapshotStore required");
+            JournalAppender.Create(0, commandStore).AppendModelCreated<TModel>();
+            return Load<TModel>(config);
         }
 
         /// <summary>
@@ -379,8 +393,8 @@ namespace OrigoDB.Core
         {
             config = config ?? EngineConfiguration.Create();
             if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
-            IStore store = config.CreateStore();
-            store.Create(model);
+            ISnapshotStore store = config.CreateSnapshotStore();
+            store.WriteSnapshot(model);
             return Load<TModel>(config);
         }
 
@@ -410,7 +424,7 @@ namespace OrigoDB.Core
             if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
             Engine<TModel> result = null;
 
-            var store = config.CreateStore();
+            var store = config.CreateCommandStore();
 
             if (store.IsEmpty)
             {

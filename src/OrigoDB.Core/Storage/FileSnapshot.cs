@@ -27,7 +27,7 @@ namespace OrigoDB.Core.Storage
 
         public override string ToString()
         {
-            return String.Format("{0:000000000}.snapshot", LastEntryId);
+            return String.Format("{0:000000000}.snapshot", Revision);
         }
     }
 }

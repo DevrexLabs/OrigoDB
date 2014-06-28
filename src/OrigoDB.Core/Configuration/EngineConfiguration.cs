@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using OrigoDB.Core.Security;
 using OrigoDB.Core.Configuration;
+using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core
 {
@@ -72,8 +73,6 @@ namespace OrigoDB.Core
         /// </summary>
         public SnapshotBehavior SnapshotBehavior { get; set; }
 
-        public Stores StoreType { get; set; }
-
         /// <summary>
         /// Effects which ISynchronizer is chosen by CreateSynchronizer()
         /// </summary>
@@ -109,7 +108,6 @@ namespace OrigoDB.Core
             AsyncronousJournaling = false;
             MaxBytesPerJournalSegment = DefaultMaxBytesPerJournalSegment;
             MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
-            StoreType = Stores.FileSystem;
             EnsureSafeResults = true;
             PacketOptions = null;
             PersistenceMode = PersistenceMode.Journaling;
@@ -141,21 +139,12 @@ namespace OrigoDB.Core
                                               SynchronizationMode.None.ToString());
             Register<ISynchronizer>(c => new ExclusiveSynchronizer(LockTimeout),
                                               SynchronizationMode.Exclusive.ToString());
-
-
         }
 
-
-        /// <summary>
-        /// Create a named registration for each StoreMode enumeration value
-        /// </summary>
         private void InitStoreTypes()
         {
-            Register<IStore>(cfg => new FileStore(cfg), Stores.FileSystem.ToString());
-
-            //If StorageMode is set to custom and no factory has been injected, the fully qualified type 
-            //name will be resolved from the app configuration file.
-            Register(c => LoadFromConfig<IStore>(), Stores.Custom.ToString());
+            Register<ICommandStore>(cfg => new FileCommandStore(cfg));
+            Register<ISnapshotStore>(cfg => new FileSnapshotStore(cfg));
         }
 
         /// <summary>
@@ -206,11 +195,18 @@ namespace OrigoDB.Core
             return _registry.Resolve<IAuthorizer<Type>>();
         }
 
-        public virtual IStore CreateStore()
+
+        public virtual ISnapshotStore CreateSnapshotStore()
         {
-            string name = StoreType.ToString();
-            var store =  _registry.Resolve<IStore>(name);
-            store.Init();
+            var store = _registry.Resolve<ISnapshotStore>();
+            store.Initialize();
+            return store;
+        }
+
+        public virtual ICommandStore CreateCommandStore()
+        {
+            var store =  _registry.Resolve<ICommandStore>();
+            store.Initialize();
             return store;
         }
 
@@ -253,11 +249,14 @@ namespace OrigoDB.Core
         /// Inject your custom storage factory here. StorageMode property will be set to Custom
         /// </summary>
         /// <param name="factory"></param>
-        public void SetStoreFactory(Func<EngineConfiguration, IStore> factory)
+        public void SetCommandStoreFactory(Func<EngineConfiguration, ICommandStore> factory)
         {
-            StoreType = Stores.Custom;
-            string registrationName = StoreType.ToString();
-            Register(args => factory.Invoke(this), registrationName);
+            Register(args => factory.Invoke(this));
+        }
+
+        public void SetSnapshotStoreFactory(Func<EngineConfiguration, ISnapshotStore> factory)
+        {
+            Register(args => factory.Invoke(this));
         }
 
         /// <summary>

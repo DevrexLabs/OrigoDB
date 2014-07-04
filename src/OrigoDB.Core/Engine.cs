@@ -30,7 +30,7 @@ namespace OrigoDB.Core
         static readonly ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
 
         readonly EngineConfiguration _config;
-        readonly IAuthorizer<Type> _authorizer;
+        readonly IAuthorizer _authorizer;
         private JournalAppender _journalAppender;
 
 
@@ -118,21 +118,21 @@ namespace OrigoDB.Core
         public TResult Execute<TModel, TResult>(Func<TModel, TResult> lambdaQuery) where TModel : Model
         {
             EnsureRunning();
-            EnsureAuthenticated(lambdaQuery.GetType());
+            EnsureAuthorized(lambdaQuery);
             return ExecuteQuery(new DelegateQuery<TModel, TResult>(lambdaQuery));
         }
 
         public TRresult Execute<TModel, TRresult>(Query<TModel, TRresult> query) where TModel : Model
         {
             EnsureRunning();
-            EnsureAuthenticated(query.GetType());
+            EnsureAuthorized(query);
             return ExecuteQuery(query);
         }
 
         public object Execute(Command command)
         {
             EnsureRunning();
-            EnsureAuthenticated(command.GetType());
+            EnsureAuthorized(command);
             FireExecutingEvent(command);
 
             lock (_commandSequenceLock)
@@ -196,11 +196,12 @@ namespace OrigoDB.Core
             }
         }
 
-        private void EnsureAuthenticated(Type operationType)
+        private void EnsureAuthorized(object securable)
         {
-            if (!_authorizer.Allows(operationType, Thread.CurrentPrincipal))
+            var principal = Thread.CurrentPrincipal;
+            if (!_authorizer.Allows(securable, principal))
             {
-                var msg = String.Format("Access denied to type {0}", operationType);
+                var msg = String.Format("Authorization failed, user {0}, transaction type: {1}", principal.Identity.Name, securable.GetType().FullName);
                 throw new UnauthorizedAccessException(msg);
             }
         }

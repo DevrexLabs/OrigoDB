@@ -11,14 +11,14 @@ namespace OrigoDB.Core.Security
     {
 
         protected readonly IAuthenticator _authenticator;
-        protected readonly IAuthorizer<Type> _authorizer;
+        protected readonly IAuthorizer _authorizer;
 
         public SecurityModel()
-            : this(new AuthenticationModel(), new TypeBasedPermissionSet())
+            : this(new AuthenticationModel(), new Authorizer())
         {
         }
 
-        protected SecurityModel(IAuthenticator authenticator, IAuthorizer<Type> authorizer)
+        protected SecurityModel(IAuthenticator authenticator, IAuthorizer authorizer)
         {
             _authorizer = authorizer;
             _authenticator = authenticator;

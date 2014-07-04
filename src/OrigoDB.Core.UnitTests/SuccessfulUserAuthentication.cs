@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using System.Security.Principal;
 
-namespace OrigoDB.Core.UnitTests
+namespace OrigoDB.Core.Test
 {
     [TestFixture]
     public class SuccessfulUserAuthentication

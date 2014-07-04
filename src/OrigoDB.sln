@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Core", "OrigoDB.Core\OrigoDB.Core.csproj", "{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Core.Test", "OrigoDB.Core.Test\OrigoDB.Core.Test.csproj", "{C85316AC-9295-4D8D-9511-637B7C876EBD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Test.MSTest", "OrigoDB.Core.Test\OrigoDB.Test.MSTest.csproj", "{C85316AC-9295-4D8D-9511-637B7C876EBD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Test.NUnit", "OrigoDB.Core.UnitTests\OrigoDB.Test.NUnit.csproj", "{200A39EE-0755-4349-985A-CFAB7FE94A8A}"
 EndProject

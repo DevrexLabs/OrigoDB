@@ -2,9 +2,7 @@
 
 namespace OrigoDB.Core.Test
 {
-    /// <summary>
-    /// Some extensions to aid setting up for test
-    /// </summary>
+
     public static class ConfigurationExtensions
     {
         public static EngineConfiguration WithRandomLocation(this EngineConfiguration config)

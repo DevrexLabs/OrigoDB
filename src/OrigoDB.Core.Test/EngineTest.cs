@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Linq;
+using OrigoDB.Core;
 using OrigoDB.Core.Proxy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OrigoDB.Core.Test;
 
 namespace OrigoDB.Core.Test
 {

@@ -5,6 +5,7 @@ using OrigoDB.Core.Journaling;
 using NUnit.Framework;
 using OrigoDB.Core;
 using OrigoDB.Core.Storage;
+using OrigoDB.Core.Test;
 
 namespace OrigoDB.Core.Test
 {

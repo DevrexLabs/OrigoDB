@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using OrigoDB.Core;
 using OrigoDB.Core.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -15,12 +16,12 @@ namespace OrigoDB.Core.Test
     class CompiledQuery
     {
 
-        public static object QueryExpr(OrigoDB.Core.Test.TestModel db, System.String @arg0)
+        public static object QueryExpr(TestModel db, System.String @arg0)
         {
             return (from customer in db.Customers where customer.Name.StartsWith(@arg0) orderby customer.Name select customer.Name).First();
         }
 
-        public static object Execute(Engine<OrigoDB.Core.Test.TestModel> engine, params object[] args)
+        public static object Execute(Engine<TestModel> engine, params object[] args)
         {
 
             return engine.Execute<TestModel, object>(model => QueryExpr(model, (System.String)args[0]));

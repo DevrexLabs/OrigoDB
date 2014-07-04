@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using OrigoDB.Core;
 
 namespace OrigoDB.Core.Test
 {

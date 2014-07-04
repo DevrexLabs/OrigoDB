@@ -86,6 +86,7 @@
     <Compile Include="Proxy\NoProxyAttribute.cs" />
     <Compile Include="Proxy\ProxyAttribute.cs" />
     <Compile Include="Proxy\QueryAttribute.cs" />
+    <Compile Include="Security\Authorizer.cs" />
     <Compile Include="Storage\FileSnapshot.cs" />
     <Compile Include="Storage\FileSnapshotStore.cs" />
     <Compile Include="Storage\FormatterExtensions.cs" />
@@ -167,15 +168,10 @@
     <Compile Include="Engine[M].cs" />
     <Compile Include="Configuration\JournalWriterMode.cs" />
     <Compile Include="Security\SecurityModel.cs" />
-    <Compile Include="Security\MatchAllRule.cs" />
     <Compile Include="Security\Permission.cs" />
-    <Compile Include="Security\PermissionSet.cs" />
     <Compile Include="Security\OrigoDBPrincipal.cs" />
     <Compile Include="Security\Role.cs" />
-    <Compile Include="Security\Rule[T].cs" />
     <Compile Include="Security\AuthenticationModel.cs" />
-    <Compile Include="Security\TypeBasedPermissionSet.cs" />
-    <Compile Include="Security\TypeBasedRule.cs" />
     <Compile Include="Storage\ICommandStore.cs" />
     <Compile Include="Storage\JournalFile.cs" />
     <Compile Include="Storage\Snapshot.cs" />

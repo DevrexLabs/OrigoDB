@@ -10,7 +10,7 @@ namespace OrigoDB.Core.Test
 		[TestMethod]
 		public void CanCreateLocalEngineClientFromConnectionString()
 		{
-			var engine = Engine.For<TestModel>("mode=embedded;location=" + Guid.NewGuid());
+			var engine = Engine.For<TestModel>(CreateConfig());
 			Assert.IsNotNull(engine);
 			Assert.IsInstanceOfType(engine, typeof(LocalEngineClient<TestModel>));
 		}
@@ -18,7 +18,7 @@ namespace OrigoDB.Core.Test
 		[TestMethod]
 		public void CanCreateLocalEngineClientFromModel()
 		{
-			var engine = Engine.For<TestModel>();
+			var engine = Engine.For<TestModel>(CreateConfig());
 			Assert.IsNotNull(engine);
 			Assert.IsInstanceOfType(engine, typeof(LocalEngineClient<TestModel>));
 		}

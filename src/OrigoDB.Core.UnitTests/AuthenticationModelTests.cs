@@ -3,18 +3,11 @@ using System.Linq;
 using OrigoDB.Core.Security;
 using NUnit.Framework;
 
-namespace OrigoDB.Core.UnitTests
+namespace OrigoDB.Core.Test
 {
     [TestFixture]
     public class AuthenticationModelTests
     {
-        [Test]
-        public void CanCreateAuthenticationModel()
-        {
-            new AuthenticationModel();
-        }
-
-
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void AddingNullRoleThrows()

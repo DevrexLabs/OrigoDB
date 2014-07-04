@@ -1,9 +1,11 @@
-﻿using OrigoDB.Core.Configuration;
+﻿using OrigoDB.Core;
+using OrigoDB.Core.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using OrigoDB.Core.Security;
 using System.Runtime.Serialization.Formatters.Binary;
+using OrigoDB.Core.Test;
 
 namespace OrigoDB.Core.Test
 {
@@ -111,7 +113,7 @@ namespace OrigoDB.Core.Test
         public void InjectedAuthorizerIsResolved()
         {
             var config = new EngineConfiguration();
-            var expected = new TypeBasedPermissionSet();
+            var expected = new Authorizer();
             config.SetAuthorizerFactory((c) => expected);
             var actual = config.CreateAuthorizer();
             Assert.AreSame(expected,actual);

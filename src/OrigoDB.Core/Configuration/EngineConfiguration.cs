@@ -113,7 +113,7 @@ namespace OrigoDB.Core
             PersistenceMode = PersistenceMode.Journaling;
 
             _registry = new TeenyIoc();
-            Register<IAuthorizer<Type>>(c => new TypeBasedPermissionSet(Permission.Allowed));
+            Register<IAuthorizer>(c => new Authorizer(Permission.Allowed));
             Register<IFormatter>(c => new BinaryFormatter(), FormatterUsage.Default.ToString());
             InitSynchronizers();
             InitStoreTypes();
@@ -190,9 +190,9 @@ namespace OrigoDB.Core
             return _registry.Resolve<ISynchronizer>(registrationName);
         }
 
-        public virtual IAuthorizer<Type> CreateAuthorizer()
+        public virtual IAuthorizer CreateAuthorizer()
         {
-            return _registry.Resolve<IAuthorizer<Type>>();
+            return _registry.Resolve<IAuthorizer>();
         }
 
 
@@ -230,7 +230,7 @@ namespace OrigoDB.Core
             _registry.Register(args => factory.Invoke(this), registrationName);
         }
 
-        public void SetAuthorizerFactory(Func<EngineConfiguration, IAuthorizer<Type>> factory)
+        public void SetAuthorizerFactory(Func<EngineConfiguration, IAuthorizer> factory)
         {
             Register(args => factory.Invoke(this));
         }

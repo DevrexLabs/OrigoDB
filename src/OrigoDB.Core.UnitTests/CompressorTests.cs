@@ -6,7 +6,7 @@ using OrigoDB.Core.Compression;
 using System.Diagnostics;
 using System.Text;
 
-namespace OrigoDB.Core.UnitTests
+namespace OrigoDB.Core.Test
 {
 
     [TestFixture]

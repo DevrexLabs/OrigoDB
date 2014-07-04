@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OrigoDB.Core;
 using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core.Test

@@ -1,9 +1,10 @@
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
+using OrigoDB.Core;
 using OrigoDB.Core.Migrations;
 using NUnit.Framework;
 
-namespace OrigoDB.Core.UnitTests
+namespace OrigoDB.Core.Test
 {
     [Serializable]
     class MigrationTestTypeA

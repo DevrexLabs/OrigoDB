@@ -8,7 +8,7 @@ namespace OrigoDB.Core.Test
 {
     /// <summary>
     /// The InMemoryCommandStore is a non durable CommandStore implementation
-    /// intended for tests
+    /// intended for integration/system tests
     /// </summary>
     public class InMemoryCommandStore : CommandStore
     {

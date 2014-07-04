@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization.Formatters.Binary;
+using OrigoDB.Core;
 using OrigoDB.Core.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;

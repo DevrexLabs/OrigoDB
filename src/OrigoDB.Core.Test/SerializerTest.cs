@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Runtime.Serialization;
+using OrigoDB.Core;
 
 namespace OrigoDB.Core.Test
 {

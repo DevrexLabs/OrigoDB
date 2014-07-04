@@ -1,6 +1,8 @@
 ﻿using System;
 using NUnit.Framework;
+using OrigoDB.Core;
 using OrigoDB.Core.Proxy;
+using OrigoDB.Core.Test;
 
 namespace OrigoDB.Core.Test
 {

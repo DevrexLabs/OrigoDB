@@ -8,8 +8,8 @@
     <ProjectGuid>{200A39EE-0755-4349-985A-CFAB7FE94A8A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OrigoDB.Core.UnitTests</RootNamespace>
-    <AssemblyName>OrigoDB.Core.UnitTests</AssemblyName>
+    <RootNamespace>OrigoDB.Test.NUnit</RootNamespace>
+    <AssemblyName>OrigoDB.Test.NUnit</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthenticationModelTests.cs" />
+    <Compile Include="AuthorizerTests.cs" />
     <Compile Include="ByteCountingStreamTest.cs" />
     <Compile Include="CommandJournalTest.cs" />
     <Compile Include="CommandTimestampTests.cs" />

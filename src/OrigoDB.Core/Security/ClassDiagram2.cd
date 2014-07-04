@@ -1,58 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="OrigoDB.Core.Security.AuthenticationModel">
-    <Position X="3.5" Y="0.5" Width="2.25" />
+    <Position X="5.75" Y="0.5" Width="2.25" />
     <Compartments>
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAAAAACAIAAAIAACAAAAAIAAgAAAIAAAAABAAAAAAA=</HashCode>
-      <FileName>Security\Authenticator.cs</FileName>
-      <NewMemberFileName>Security\AuthenticationModel.cs</NewMemberFileName>
+      <HashCode>AAAAAAASAIAAAIAAgAAAAAIAAgAAAIAgAAABAAAAAAA=</HashCode>
+      <FileName>Security\AuthenticationModel.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="OrigoDB.Core.Security.MatchAllRule&lt;T&gt;">
-    <Position X="11.5" Y="3.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>ABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Security\MatchAllRule.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="OrigoDB.Core.Rule&lt;T&gt;">
-    <Position X="10.25" Y="0.5" Width="2" />
-    <TypeIdentifier>
-      <HashCode>ABAAAAAAAAAAAAAAAAIAAAAAAgAgAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Security\Rule[T].cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="OrigoDB.Core.Security.PermissionSet&lt;T&gt;">
-    <Position X="6" Y="0.5" Width="2" />
-    <Compartments>
-      <Compartment Name="Fields" Collapsed="true" />
-    </Compartments>
-    <TypeIdentifier>
-      <HashCode>AgAAAAAAAAAIAAAAAgAAAAAAAAEAACAACAGAQABAgAA=</HashCode>
-      <FileName>Security\PermissionSet.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="OrigoDB.Core.Security.TypeBasedPermissionSet">
-    <Position X="6" Y="4" Width="2" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAQAAAAAA=</HashCode>
-      <FileName>Security\TypeBasedPermissionSet.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="OrigoDB.Core.Security.TypeBasedRule">
-    <Position X="9.5" Y="3.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>ABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Security\TypeBasedRule.cs</FileName>
-    </TypeIdentifier>
   </Class>
   <Class Name="OrigoDB.Core.Security.SecurityModel">
-    <Position X="2.25" Y="3.25" Width="1.75" />
+    <Position X="3.25" Y="0.5" Width="1.75" />
     <Compartments>
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>

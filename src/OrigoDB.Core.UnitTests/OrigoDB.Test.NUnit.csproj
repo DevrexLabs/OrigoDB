@@ -46,6 +46,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,13 +54,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\OrigoDB.Core.Test\Customer.cs">
+      <Link>Domain\Customer.cs</Link>
+    </Compile>
+    <Compile Include="..\OrigoDB.Core.Test\TestModel.cs">
+      <Link>Domain\TestModel.cs</Link>
+    </Compile>
     <Compile Include="AuthenticationModelTests.cs" />
     <Compile Include="AuthorizerTests.cs" />
     <Compile Include="ByteCountingStreamTest.cs" />
+    <Compile Include="CachingLinqCompilerTest.cs" />
     <Compile Include="CommandJournalTest.cs" />
     <Compile Include="CommandTimestampTests.cs" />
     <Compile Include="CompressorTests.cs" />
     <Compile Include="EngineEventsTests.cs" />
+    <Compile Include="ConfigDictionaryTests.cs" />
     <Compile Include="HashUtilityTest.cs" />
     <Compile Include="ImmutabilityTests.cs" />
     <Compile Include="LoggingTests.cs" />
@@ -67,6 +76,7 @@
     <Compile Include="PersistenceModeTests.cs" />
     <Compile Include="ProxyExceptionTests.cs" />
     <Compile Include="ProxyMethodMapTests.cs" />
+    <Compile Include="ProxyTest.cs" />
     <Compile Include="RolloverTests.cs" />
     <Compile Include="RoyalFoodTasterTests.cs" />
     <Compile Include="SchemaMigrationsTest.cs" />

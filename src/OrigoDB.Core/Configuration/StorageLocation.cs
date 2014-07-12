@@ -47,18 +47,6 @@ namespace OrigoDB.Core
                 result = dataDirectory;
             }
             return result;
-
-            ////Attempt web
-            //try
-            //{
-            //    string typeName = "System.Web.HttpContext, System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
-            //    Type type = Type.GetType(typeName);
-            //    object httpContext = type.GetProperty("Current").GetGetMethod().Invoke(null, null);
-            //    object httpServer = type.GetProperty("Server").GetGetMethod().Invoke(httpContext, null);
-            //    result = (string)httpServer.GetType().GetMethod("MapPath").Invoke(httpServer, new object[] { "~/App_Data" });
-            //}
-            //catch { }
-            //return result;
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using OrigoDB.Core.Security;
 using OrigoDB.Core.Configuration;
-using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core
 {
@@ -32,7 +31,7 @@ namespace OrigoDB.Core
         /// sacrificing durability under certain circumstances
         /// for performance.
         /// </summary>
-        public bool AsyncronousJournaling { get; set; }
+        public bool AsynchronousJournaling { get; set; }
 
         /// <summary>
         /// Set's the type of persistence used
@@ -105,7 +104,7 @@ namespace OrigoDB.Core
             Kernel = Kernels.Optimistic;
             LockTimeout = DefaultTimeout;
             Synchronization = SynchronizationMode.ReadWrite;
-            AsyncronousJournaling = false;
+            AsynchronousJournaling = false;
             MaxBytesPerJournalSegment = DefaultMaxBytesPerJournalSegment;
             MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
             EnsureSafeResults = true;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
 
@@ -27,18 +28,19 @@ namespace OrigoDB.Core.Proxy
                 throw new NotSupportedException("Only methodcalls supported");
             }
 
-            var proxyInfo = _proxyMethods.GetProxyMethodInfo(methodCall.MethodName);
+            var signatureName = methodCall.MethodName;
+            var proxyInfo = _proxyMethods.GetProxyMethodInfo(signatureName);
 
             object result;
             if (proxyInfo.IsCommand)
             {
-                var command = new ProxyCommand<TModel>(methodCall.MethodName, methodCall.InArgs);
+                var command = new ProxyCommand<TModel>(signatureName, methodCall.InArgs);
                 command.ResultIsSafe = !proxyInfo.ProxyAttribute.CloneResult;
                 result = _handler.Execute(command);
             }
             else if (proxyInfo.IsQuery)
             {
-                var query = new ProxyQuery<TModel>(methodCall.MethodName, methodCall.InArgs);
+                var query = new ProxyQuery<TModel>(signatureName, methodCall.InArgs);
                 query.ResultIsSafe = !proxyInfo.ProxyAttribute.CloneResult;
                 result = _handler.Execute(query);
             }

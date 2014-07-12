@@ -1,7 +1,6 @@
 ﻿using System.Linq;
-using OrigoDB.Core;
+using NUnit.Framework;
 using OrigoDB.Core.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Reflection;
 using System.Collections.Generic;
@@ -29,65 +28,16 @@ namespace OrigoDB.Core.Test
     }
 
 
-    /// <summary>
-    ///This is a test class for CachingLinqCompilerTest and is intended
-    ///to contain all CachingLinqCompilerTest Unit Tests
-    ///</summary>
-    [TestClass()]
-    public class CachingLinqCompilerTest : EngineTestBase
+    [TestFixture]
+    public class CachingLinqCompilerTest
     {
 
-
-        private TestContext testContextInstance;
-
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
+        private EngineConfiguration Config()
         {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
+            return EngineConfiguration.Create().ForIsolatedTest();
         }
 
-        #region Additional test attributes
-        // 
-        //You can use the following additional attributes as you write your tests:
-        //
-        //Use ClassInitialize to run code before running the first test in the class
-        //[ClassInitialize()]
-        //public static void MyClassInitialize(TestContext testContext)
-        //{
-        //}
-        //
-        //Use ClassCleanup to run code after all tests in a class have run
-        //[ClassCleanup()]
-        //public static void MyClassCleanup()
-        //{
-        //}
-        //
-        //Use TestInitialize to run code before running each test
-        //[TestInitialize()]
-        //public void MyTestInitialize()
-        //{
-        //}
-        //
-        //Use TestCleanup to run code after each test has run
-        //[TestCleanup()]
-        //public void MyTestCleanup()
-        //{
-        //}
-        //
-        #endregion
-
-
-        [TestMethod()]
+        [Test]
         public void CanCompileAllQueries()
         {
             int failedQueries = 0;
@@ -110,7 +60,7 @@ namespace OrigoDB.Core.Test
             Assert.AreEqual(0, failedQueries);
         }
 
-        [TestMethod]
+        [Test]
         public void RepeatedQueryIsCached()
         {
 			var target = new CachingLinqCompiler(typeof(TestModel));
@@ -123,7 +73,7 @@ namespace OrigoDB.Core.Test
             Assert.AreEqual(1, target.CompilerInvocations);
         }
 
-        [TestMethod]
+        [Test]
         public void RepeatedQueryIsCachedWhenParametersDiffer()
         {
             var target = new CachingLinqCompiler(typeof(TestModel));
@@ -135,7 +85,7 @@ namespace OrigoDB.Core.Test
             Assert.AreEqual(1, target.CompilerInvocations);
         }
 
-        [TestMethod]
+        [Test]
         public void RepeatedQueryIsCompiledWhenCompilationIsForced()
         {
 			var target = new CachingLinqCompiler(typeof(TestModel));
@@ -149,13 +99,13 @@ namespace OrigoDB.Core.Test
             Assert.AreEqual(2, target.CompilerInvocations);
         }
 
-        [TestMethod]
+        [Test]
         public void CanExecuteListQuery()
         {
             var model = new TestModel();
             model.AddCustomer("Zippy");
             model.AddCustomer("Droozy");
-            var engine = Engine.Create(model, CreateConfig());
+            var engine = Engine.Create(model, Config());
             var list = engine.Execute<TestModel, List<string>>(ListOfCustomerNames);
             Assert.AreEqual(list.Count, 2);
             Assert.AreEqual(list[0], "Zippy");
@@ -163,7 +113,7 @@ namespace OrigoDB.Core.Test
             engine.Close();
         }
 
-        [TestMethod]
+        [Test]
         public void CanCompileInjectedEvilCode()
         {
             var evilCode =
@@ -183,7 +133,7 @@ namespace OrigoDB.Core.Test
         }
 
 
-        [TestMethod]
+        [Test]
         public void CanExecuteQueryWithNewDifferentParameters()
         {
             string expected0 = "Homer Simpson";
@@ -194,7 +144,7 @@ namespace OrigoDB.Core.Test
             var model = new TestModel();
             model.AddCustomer(expected0);
             model.AddCustomer(expected1);
-            Engine<TestModel> engine = Engine.Create(model, CreateConfig());
+            Engine<TestModel> engine = Engine.Create(model, Config());
 
             string actual = engine.Execute<TestModel, string>(query, "Ho");
             Assert.AreEqual(expected0, actual);
@@ -203,7 +153,7 @@ namespace OrigoDB.Core.Test
             engine.Close();
         }
 
-        [TestMethod]
+        [Test]
         [ExpectedException(typeof(NullReferenceException))]
         public void CompilationFailsWhenPassedNullArgument()
         {
@@ -212,7 +162,7 @@ namespace OrigoDB.Core.Test
             compiler.GetCompiledQuery(FirstCustomersNameStartingWithArg0, args);
         }
 
-        [TestMethod]
+        [Test]
         [ExpectedException(typeof(TargetInvocationException))]
         public void ExecutionFailsForMismatchedArgumentTypeOnSecondInvocation()
         {
@@ -222,7 +172,7 @@ namespace OrigoDB.Core.Test
                 var args = new object[] { "H" };
                 var model = new TestModel();
                 model.AddCustomer("Homer Simpson");
-                engine = Engine.Create(model, CreateConfig());
+                engine = Engine.Create(model, Config());
                 engine.Execute(FirstCustomersNameStartingWithArg0, args);
 
                 args[0] = 42; //boxed int
@@ -238,7 +188,7 @@ namespace OrigoDB.Core.Test
 
         }
 
-        [TestMethod()]
+        [Test]
         public void CanExecuteFirstCustomerStartingWithArg0()
         {
             var expected = "Homer Simpson";
@@ -246,7 +196,7 @@ namespace OrigoDB.Core.Test
             var query = FirstCustomersNameStartingWithArg0;
             var model = new TestModel();
             model.AddCustomer(expected);
-            Engine<TestModel> engine = Engine.Create(model, CreateConfig());
+            Engine<TestModel> engine = Engine.Create(model, Config());
 
             string actual = engine.Execute<TestModel, string>(query, "Ho");
             Assert.AreEqual(expected, actual);

@@ -76,9 +76,11 @@
     <Compile Include="CommandExecutedEventArgs.cs" />
     <Compile Include="CommandExecutingEventArgs.cs" />
     <Compile Include="CommandFailedException.cs" />
+    <Compile Include="Configuration\ConfigDictionary.cs" />
     <Compile Include="Configuration\ConfigurationExtensions.cs" />
     <Compile Include="Configuration\FormatterUsage.cs" />
     <Compile Include="Configuration\TeenyIoc.cs" />
+    <Compile Include="Utilities\Utils.Converters.cs" />
     <Compile Include="Journaling\JournalAppender.cs" />
     <Compile Include="Journaling\ModelCreated.cs" />
     <Compile Include="PersistenceMode.cs" />
@@ -145,7 +147,7 @@
     <Compile Include="Storage\PacketingFormatter.cs" />
     <Compile Include="Utilities\ByteArrayExtensions.cs" />
     <Compile Include="Utilities\CompressionAlgorithms.cs" />
-    <Compile Include="Utilities\ConnectionPool.cs" />
+    <Compile Include="Clients\ConnectionPool.cs" />
     <Compile Include="Utilities\Disposable[T].cs" />
     <Compile Include="Linq\CachingLinqCompiler.cs" />
     <Compile Include="Linq\CompiledLinqExtensions.cs" />
@@ -183,8 +185,6 @@
     </Compile>
     <Compile Include="Utilities\ResourcePool.cs" />
     <Compile Include="Utilities\SocketExtensions.cs" />
-    <Compile Include="Utilities\DictionaryMapper.cs" />
-    <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Utilities\Immutable.cs" />
     <Compile Include="Security\User.cs" />
     <Compile Include="Configuration\SnapshotBehavior.cs" />

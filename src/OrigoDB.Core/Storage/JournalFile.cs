@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
+using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core
 {
@@ -47,14 +45,10 @@ namespace OrigoDB.Core
             Match match = journalFilenameParser.Match(filename);
             if (!match.Success) throw new ArgumentException("bad journal filename format");
 
-            long fileNr = (long) match.Groups["fileNr"].Value.ParsePadded();
-            ulong entryNr = match.Groups["entryNr"].Value.ParsePadded();
+            long fileNr = (long) FileSnapshot.ParsePadded(match.Groups["fileNr"].Value);
+            ulong entryNr = FileSnapshot.ParsePadded(match.Groups["entryNr"].Value);
             return new JournalFile(fileNr, entryNr);
         }
-
-
-
-
 
         public override string ToString()
         {

@@ -112,5 +112,6 @@ namespace OrigoDB.Core.Test
             var target = _map.GetProxyMethodInfo("MvccOperation");
             Assert.IsFalse(target.ProxyAttribute.CloneResult);
         }
+
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace OrigoDB.Core.Proxy
 {
@@ -60,6 +61,15 @@ namespace OrigoDB.Core.Proxy
 
         }
 
+
+        internal static string BuildNameFromMethodAndParameterTypes(string name, ParameterInfo[] args)
+        {
+            var parts = new List<string> {name};
+            parts.AddRange(args
+                .OrderBy(p => p.Position)
+                .Select(p => p.ParameterType.Name));
+            return string.Join("_", parts);
+        }
 
 
         internal ProxyMethodMap(Type type)

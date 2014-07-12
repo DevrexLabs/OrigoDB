@@ -1,4 +1,3 @@
-using Woocode.Utils;
 
 namespace OrigoDB.Core
 {
@@ -26,7 +25,8 @@ namespace OrigoDB.Core
 
 		public override string ToString()
 		{
-			return DictionaryMapper.ToPropertiesString(this, Default);
+		    return string.Format("Host={0};Port={1};MaxConnections={2};DedicatedPool={3}", Host, Port, MaxConnections,
+		        DedicatedPool);
 		}
 
 		public override IEngine<TModel> GetClient<TModel>()

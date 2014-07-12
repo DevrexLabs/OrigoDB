@@ -123,7 +123,7 @@ namespace OrigoDB.Core.Test
         public void AsyncJournalingYieldsAsyncWriter()
         {
             var config = new EngineConfiguration(Guid.NewGuid().ToString());
-            config.AsyncronousJournaling = true;
+            config.AsynchronousJournaling = true;
             config.SetCommandStoreFactory(c => new InMemoryCommandStore(c));
             var store = config.CreateCommandStore();
             var writer = store.CreateJournalWriter(1);
@@ -134,7 +134,7 @@ namespace OrigoDB.Core.Test
         public void SyncJournalingYieldsSyncWriter()
         {
             var config = new EngineConfiguration(Guid.NewGuid().ToString());
-            config.AsyncronousJournaling = false;
+            config.AsynchronousJournaling = false;
             config.SetCommandStoreFactory(c => new InMemoryCommandStore(c));
             var store = config.CreateCommandStore();
             var writer = store.CreateJournalWriter(1);
@@ -145,7 +145,7 @@ namespace OrigoDB.Core.Test
         public void SyncJournalingIsDefault()
         {
             var config = new EngineConfiguration();
-            Assert.IsFalse(config.AsyncronousJournaling);
+            Assert.IsFalse(config.AsynchronousJournaling);
         }
 
         [TestMethod()]

@@ -43,7 +43,7 @@ namespace OrigoDB.Core.Storage
         public virtual IJournalWriter CreateJournalWriter(ulong lastEntryId)
         {
             IJournalWriter writer = CreateStoreSpecificJournalWriter();
-            return _config.AsyncronousJournaling
+            return _config.AsynchronousJournaling
                        ? new AsynchronousJournalWriter(writer)
                        : writer;
         }

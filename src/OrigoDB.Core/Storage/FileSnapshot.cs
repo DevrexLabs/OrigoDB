@@ -8,9 +8,10 @@ namespace OrigoDB.Core.Storage
         public string Name { get { return ToString(); } }
 
 
-        public FileSnapshot(DateTime created, ulong lastEntryId) : base(created, lastEntryId)
+        public FileSnapshot(DateTime created, ulong lastEntryId)
+            : base(created, lastEntryId)
         {
-         
+
         }
 
         const string Pattern = @"^(?<entryNr>\d{9}).snapshot$";
@@ -21,13 +22,21 @@ namespace OrigoDB.Core.Storage
         {
             Match m = _parser.Match(fileName);
             if (!m.Success) throw new ArgumentException("Invalid snapshot filename");
-            ulong entryNr = m.Groups["entryNr"].Value.ParsePadded();
+            ulong entryNr = ParsePadded(m.Groups["entryNr"].Value);
             return new FileSnapshot(created, entryNr);
         }
 
         public override string ToString()
         {
             return String.Format("{0:000000000}.snapshot", Revision);
+        }
+
+        public static UInt64 ParsePadded(string number)
+        {
+            //Get rid of the leading zeros
+            number = number.TrimStart('0');
+            if (number == "") return 0;
+            return UInt64.Parse(number);
         }
     }
 }

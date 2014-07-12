@@ -1,6 +1,6 @@
 ﻿using System;
-using Woocode.Utils;
 using System.Configuration;
+using System.Text;
 
 namespace OrigoDB.Core
 {
@@ -34,37 +34,28 @@ namespace OrigoDB.Core
 			return new LocalClientConfiguration(config);
 		}
 
-        /// <summary>
-        /// Used as a container for the enum so we can use the DictionaryMapper
-        /// </summary>
-        private class ModeSetting
-        {
-            public Mode Mode { get; set; }
-        }
-
 		static ClientConfiguration CreateConfigFromConnectionString(string connectionstring)
 		{
-		    var dictionary = connectionstring.ParseProperties();
-            var mapper = new DictionaryMapper(dictionary);
+		    var configDictionary = ConfigDictionary.FromDelimitedString(connectionstring);
             
-            var modeSetting = new ModeSetting();
-            mapper.Map(modeSetting);
 
-            if (modeSetting.Mode == Mode.Embedded)
+		    var mode = configDictionary.Get("mode", () => Mode.Embedded);
+
+		    Func<string, bool> keyFilter = key => key.ToLowerInvariant() != "mode";
+
+            if (mode == Mode.Embedded)
             {
-                mapper.Converters[typeof(StorageLocation)] = s => new FileStorageLocation(s);
+                Utils.Converters[typeof(StorageLocation)] = s => new FileStorageLocation(s);
                 var config = EngineConfiguration.Create();
-                mapper.Map(config);
+                configDictionary.MapTo(config, keyFilter: keyFilter);
                 return new LocalClientConfiguration(config);
             }
-            else if (modeSetting.Mode == Mode.Remote)
+            else //Mode.Remote
             {
                 var config = new RemoteClientConfiguration();
-                mapper.Map(config);
+                configDictionary.MapTo(config, keyFilter: keyFilter);
 				return new FailoverClusterClientConfiguration(config);
             }
-
-            throw new InvalidOperationException();
 		}
 
 	    public abstract IEngine<TModel> GetClient<TModel>() where TModel : Model, new();

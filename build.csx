@@ -1,10 +1,10 @@
 using System.Text.RegularExpressions;
  
-var target = Argument("target", "NuGet");
+var target = Argument("target", "Default");
 var config = Argument("config", "Release");
 var output = "./build";
 var version = ParseVersion("./src/SharedAssemblyInfo.cs");
- 
+
 if(version == null)
 {
    // We make sure the version is set.
@@ -15,14 +15,14 @@ if(version == null)
 // TASKS
 ////////////////////////////////////////////////
  
-Task("Clean")
-   .Does(() =>
+
+Task("NuGetRestore").Does(ctx =>
 {
-   CleanDirectory(output);
+	NuGetRestore("./src/OrigoDB.sln");
 });
  
 Task("Build")
-   .IsDependentOn("Clean")
+   .IsDependentOn("NuGetRestore")
    .Does(() =>
 {
    MSBuild("./src/OrigoDB.sln", settings => 
@@ -39,52 +39,57 @@ Task("NUnitTest")
     NUnit("./src/*Tests/bin/" + config + "/*.Tests.dll");
 });
 
-/* No support for MS Test?
+
 Task("MSTest")
 	.IsDependentOn("Build")
 	.Does( () =>
 {
-    NUnit("./src/*Test/bin/" + config + "/*.Test.dll");
+    MSTest("./src/*Test/bin/" + config + "/*.Test.dll");
 });
-*/
 
-Task("Copy")
-   .IsDependentOn("Build")
-   .IsDependentOn("NUnitTest")
-   .Does(() =>
-{
-   var pattern = "src/OrigoDB.*/bin/" + config + "/OrigoDB.*";
-   CopyFiles(pattern, output);
-});
+Task("Tests")
+	.IsDependentOn("MSTest")
+	.IsDependentOn("NUnitTest");
+	
 
 Task("Zip")
-   .IsDependentOn("Copy")
+	.IsDependentOn("Build")
    .Does(() =>
 {
-   var root = "./build/";
-   var output = "./build/OrigoDB.Core.binaries." + version + "-" + config + ".zip";
-   var files = root + "/*";
+	//copy stuff to build directory and create a release package
+	CleanDirectory(output);
+
+	var pattern = "src/OrigoDB.*/bin/" + config + "/OrigoDB.*";
+	CopyFiles(pattern, output);
+
+	var root = "./build/";
+	var outFile = "./build/OrigoDB.Core.binaries." + version + "-" + config + ".zip";
+	var files = root + "/*";
  
-   // Package the bin folder.
-   Zip(root, output);	
+	// Package the bin folder.
+	Zip(root, outFile);	
 });
  
+ 
 Task("NuGet")
-   .IsDependentOn("Zip")
-   .Does(() =>
-{
+	.IsDependentOn("Build")
+.Does(() => {
    NuGetPack("./OrigoDB.Core.nuspec", new NuGetPackSettings {
       Version = version,
-      OutputDirectory = "./build",
 	  Symbols = true
    });
 });
+
+Task("Default")
+	.IsDependentOn("Zip")
+	.IsDependentOn("NuGet")
+	.IsDependentOn("Tests");
  
 ////////////////////////////////////////////////
 // RUN TASKS
 ////////////////////////////////////////////////
  
-Run(target);
+RunTarget(target);
  
 ////////////////////////////////////////////////
 // UTILITIES

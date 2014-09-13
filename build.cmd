@@ -3,9 +3,6 @@
 :Build
 cls
   
-echo Restoring NuGet packages for solution...
-"nuget.exe" "restore" "src/OrigoDB.sln"
-echo.
    
 if not exist tools\Cake\Cake.exe ( 
   	echo Installing Cake...

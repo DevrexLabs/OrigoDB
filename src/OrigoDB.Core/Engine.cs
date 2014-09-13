@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -38,6 +39,8 @@ namespace OrigoDB.Core
         private ISnapshotStore _snapshotStore;
         readonly ISynchronizer _synchronizer;
 
+        readonly List<IEvent> _capturedEvents = new List<IEvent>(100);
+
         private readonly object _commandSequenceLock = new object();
 
         Kernel _kernel;
@@ -51,14 +54,10 @@ namespace OrigoDB.Core
         protected Engine(Model model, EngineConfiguration config)
         {
             _config = config;
-            _commandStore = config.CreateCommandStore();
-            _snapshotStore = config.CreateSnapshotStore();
 
             _synchronizer = _config.CreateSynchronizer();
             _authorizer = _config.CreateAuthorizer();
-            _kernel = _config.CreateKernel(model);
-            _kernel.SetSynchronizer(_synchronizer);
-            _journalAppender = JournalAppender.Create(model.Revision + 1, _commandStore);
+            Configure(model);
 
             if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)
             {
@@ -77,12 +76,24 @@ namespace OrigoDB.Core
 
         private void Restore()
         {
+            var model = new ModelLoader(_config, _commandStore, _snapshotStore).LoadModel();
+            Configure(model);
+        }
+
+        /// <summary>
+        /// First time initialization and reconfig in case of restore
+        /// </summary>
+        /// <param name="model"></param>
+        private void Configure(Model model)
+        {
             _commandStore = _config.CreateCommandStore();
             _snapshotStore = _config.CreateSnapshotStore();
-            var model = new ModelLoader(_config, _commandStore, _snapshotStore).LoadModel();
             _journalAppender = JournalAppender.Create(model.Revision + 1, _commandStore);
             _kernel = _config.CreateKernel(model);
             _kernel.SetSynchronizer(_synchronizer);
+
+            //Capture events emitted during Command.Execute
+            model.EventDispatcher.Subscribe( e => _capturedEvents.Add(e));
         }
 
         /// <summary>
@@ -111,10 +122,6 @@ namespace OrigoDB.Core
         /// <summary>
         /// Execute a lambda query
         /// </summary>
-        /// <typeparam name="TModel"></typeparam>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="lambdaQuery"></param>
-        /// <returns></returns>
         public TResult Execute<TModel, TResult>(Func<TModel, TResult> lambdaQuery) where TModel : Model
         {
             EnsureRunning();
@@ -122,6 +129,9 @@ namespace OrigoDB.Core
             return ExecuteQuery(new DelegateQuery<TModel, TResult>(lambdaQuery));
         }
 
+        /// <summary>
+        /// Execute query overload
+        /// </summary>
         public TRresult Execute<TModel, TRresult>(Query<TModel, TRresult> query) where TModel : Model
         {
             EnsureRunning();
@@ -129,6 +139,9 @@ namespace OrigoDB.Core
             return ExecuteQuery(query);
         }
 
+        /// <summary>
+        /// Actual command execution
+        /// </summary>
         public object Execute(Command command)
         {
             EnsureRunning();
@@ -143,6 +156,7 @@ namespace OrigoDB.Core
                 ulong lastEntryId = PersistIfJournaling(command);
                 try
                 {
+                    _capturedEvents.Clear();
                     return _kernel.ExecuteCommand(command);
                 }
                 catch (Exception ex)
@@ -161,7 +175,7 @@ namespace OrigoDB.Core
                     _synchronizer.Exit();
                     if (!exceptionThrown)
                     {
-                        var args = new CommandExecutedEventArgs(lastEntryId, command, command.Timestamp, _executionTimer.Elapsed);
+                        var args = new CommandExecutedEventArgs(lastEntryId, command, command.Timestamp, _executionTimer.Elapsed, _capturedEvents);
                         CommandExecuted.Invoke(this, args);
                     }
                 }

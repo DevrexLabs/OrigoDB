@@ -1,18 +1,13 @@
 ﻿using System;
 using System.IO;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
-using OrigoDB.Core;
-using OrigoDB.Core.Utilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace OrigoDB.Core.Test
 {
-	[TestClass]
+	[TestFixture]
 	public class PacketTest
 	{
-        [TestMethod]
+        [Test]
         public void Packet_with_checksum_is_same_after_writing_reading()
         {
             var randomBytes = Guid.NewGuid().ToByteArray();
@@ -27,7 +22,7 @@ namespace OrigoDB.Core.Test
             Assert.AreEqual(new Guid(recreatedPacket.Bytes), new Guid(randomBytes));
         }
 
-        [TestMethod]
+        [Test]
         public void Packet_without_checksum_is_same_after_writing_reading()
         {
             var randomBytes = Guid.NewGuid().ToByteArray();

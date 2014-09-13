@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using OrigoDB.Core;
-using OrigoDB.Core.Test;
 
 namespace OrigoDB.Core.Test
 {

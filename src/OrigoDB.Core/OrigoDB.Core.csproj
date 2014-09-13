@@ -80,6 +80,12 @@
     <Compile Include="Configuration\ConfigurationExtensions.cs" />
     <Compile Include="Configuration\FormatterUsage.cs" />
     <Compile Include="Configuration\TeenyIoc.cs" />
+    <Compile Include="Events\FilteringEventDispatcher.cs" />
+    <Compile Include="Events\DelegateHandler.cs" />
+    <Compile Include="Events\DelegateSelector.cs" />
+    <Compile Include="Events\IEvent.cs" />
+    <Compile Include="Events\IHandleEvents.cs" />
+    <Compile Include="Events\ISelectEvents.cs" />
     <Compile Include="Utilities\Utils.Converters.cs" />
     <Compile Include="Journaling\JournalAppender.cs" />
     <Compile Include="Journaling\ModelCreated.cs" />
@@ -203,6 +209,7 @@
     <Compile Include="Utilities\DirectoryEx.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Events\Events.cd" />
     <None Include="Proxy\ClassDiagram1.cd" />
     <None Include="Storage\Filestorage.cd" />
     <None Include="Core.Public.cd" />

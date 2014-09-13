@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package>
-  <metadata>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>OrigoDB.Core</id>
     <title>OrigoDB Engine and Client</title>
     <version>0.10.1</version>
@@ -20,9 +20,9 @@
     <tags>OrigoDB in-memory imdb nosql database</tags>
   </metadata>
   <files>
-    <file src="build\OrigoDB.Core.dll" target="lib\net40" />
-    <file src="build\OrigoDB.Core.pdb" target="lib\net40" />
-    <file src="build\OrigoDB.Core.XML" target="lib\net40" />
-    <file src="src\OrigoDB.Core\**\*.cs" target="src" />
+    <file src="build/OrigoDB.Core.dll" target="lib\net40" />
+    <file src="build/OrigoDB.Core.pdb" target="lib\net40" />
+    <file src="build/OrigoDB.Core.XML" target="lib\net40" />
+    <file src="src/OrigoDB.Core/**/*.cs" target="src" />
   </files>
 </package>

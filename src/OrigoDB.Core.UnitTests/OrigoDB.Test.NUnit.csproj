@@ -67,12 +67,17 @@
     <Compile Include="CommandJournalTest.cs" />
     <Compile Include="CommandTimestampTests.cs" />
     <Compile Include="CompressorTests.cs" />
+    <Compile Include="EngineConfigurationTest.cs" />
+    <Compile Include="DomainEventTests.cs" />
     <Compile Include="EngineEventsTests.cs" />
     <Compile Include="ConfigDictionaryTests.cs" />
+    <Compile Include="GzipHelperTest.cs" />
     <Compile Include="HashUtilityTest.cs" />
     <Compile Include="ImmutabilityTests.cs" />
     <Compile Include="LoggingTests.cs" />
     <Compile Include="MergersTest.cs" />
+    <Compile Include="ModelTests.cs" />
+    <Compile Include="PacketTest.cs" />
     <Compile Include="PersistenceModeTests.cs" />
     <Compile Include="ProxyExceptionTests.cs" />
     <Compile Include="ProxyMethodMapTests.cs" />
@@ -80,6 +85,7 @@
     <Compile Include="RolloverTests.cs" />
     <Compile Include="RoyalFoodTasterTests.cs" />
     <Compile Include="SchemaMigrationsTest.cs" />
+    <Compile Include="SerializerTest.cs" />
     <Compile Include="SnapshotTests.cs" />
     <Compile Include="StoreTests.cs" />
     <Compile Include="SuccessfulUserAuthentication.cs" />

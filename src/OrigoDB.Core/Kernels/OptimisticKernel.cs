@@ -24,7 +24,9 @@ namespace OrigoDB.Core
                 _synchronizer.EnterUpgrade();
                 command.PrepareStub(_model);
                 _synchronizer.EnterWrite();
-                return command.ExecuteStub(_model);
+                var result = command.ExecuteStub(_model);
+                _model.Revision++;
+                return result;
             }
             finally
             {

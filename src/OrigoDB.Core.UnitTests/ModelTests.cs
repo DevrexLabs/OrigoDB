@@ -19,5 +19,15 @@ namespace OrigoDB.Core.Test
             Assert.IsInstanceOf<FilteringEventDispatcher>(target.EventDispatcher);
         }
 
+        [Test]
+        public void RevisionIsIncrementedWithEachCommand()
+        {
+            var config = EngineConfiguration.Create().ForIsolatedTest();
+            var target = Db.For<TestModel>(config);
+            Assert.AreEqual(0, target.Revision);
+            target.AddCustomer("Homer");
+            Assert.AreEqual(1, target.Revision);
+        }
+
     }
 }

@@ -8,18 +8,42 @@ using OrigoDB.Core.Logging;
 namespace OrigoDB.Core.Storage
 {
 
-    public abstract class CommandStore : Initialized, ICommandStore
+    /// <summary>
+    /// Base class with common behavior for CommandStore implementations
+    /// </summary>
+    public abstract class CommandStore : Initializable, ICommandStore
     {
         protected static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
         
         protected EngineConfiguration _config;
         protected IFormatter _formatter;
 
-
-        protected abstract IJournalWriter CreateStoreSpecificJournalWriter();
-        public abstract IEnumerable<JournalEntry> GetJournalEntriesFrom(ulong entryId);
-        public abstract IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime);
+        /// <summary>
+        /// Read the sequence of entries with id greater than or equal to a given entryId
+        /// </summary>
+        protected abstract IEnumerable<JournalEntry> GetJournalEntriesFromImpl(ulong entryId);
+        
+        
+        /// <summary>
+        /// Get an append-only stream for writing journal entries
+        /// </summary>
         public abstract Stream CreateJournalWriterStream(ulong firstEntryId = 1);
+        
+        /// <summary>
+        /// Override if necessary
+        /// </summary>
+        /// <param name="pointInTime"></param>
+        /// <returns></returns>
+        public virtual IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
+        {
+            return GetJournalEntriesFrom(0).TakeWhile(e => e.Created <= pointInTime);
+        }
+
+
+        protected virtual IJournalWriter CreateStoreSpecificJournalWriter()
+        {
+            return new StreamJournalWriter(_config, CreateJournalWriterStream);
+        }
 
 
         protected CommandStore(EngineConfiguration config)
@@ -28,16 +52,28 @@ namespace OrigoDB.Core.Storage
         }
 
 
+        public IEnumerable<JournalEntry> GetJournalEntriesFrom(ulong entryId)
+        {
+            bool firstEntry = true;
+            foreach (var entry in GetJournalEntriesFromImpl(entryId))
+            {
+                if (firstEntry && entry.Id > entryId && entryId > 0)
+                {
+                    string msg = String.Format("requested journal entry missing [{0}]", entryId);
+                    throw new InvalidOperationException(msg);
+                }
+                firstEntry = false;
+                yield return entry;
+            }
+        }
 
+        /// <summary>
+        /// Iterate all the entries in the journal
+        /// </summary>
+        /// <returns></returns>
         public virtual IEnumerable<JournalEntry> GetJournalEntries()
         {
             return GetJournalEntriesFrom(0);
-        }
-
-
-        public JournalAppender CreateAppender(ulong nextRevision)
-        {
-            return new JournalAppender(nextRevision, CreateJournalWriter(nextRevision));
         }
 
         public virtual IJournalWriter CreateJournalWriter(ulong lastEntryId)
@@ -54,7 +90,10 @@ namespace OrigoDB.Core.Storage
             base.Initialize();
         }
 
-        public bool IsEmpty
+        /// <summary>
+        /// True if the journal is empty
+        /// </summary>
+        public virtual bool IsEmpty
         {
             get
             {
@@ -62,23 +101,26 @@ namespace OrigoDB.Core.Storage
             }
         }
 
+        /// <summary>
+        /// Throw an exception unless the journal is empty
+        /// </summary>
         protected void AssertEmpty()
         {
-            if (!IsEmpty) throw new InvalidOperationException("Store must be empty");
+            if (!IsEmpty) throw new InvalidOperationException("Journal must be empty");
         }
 
         /// <summary>
-        /// Get commands beginning from a specific entry id (inclusive)
+        /// Get commited commands beginning from a specific entry id (inclusive)
         /// </summary>
         public IEnumerable<JournalEntry<Command>> CommandEntriesFrom(ulong entryId)
         {
-            return CommittedCommandEntries(() => GetJournalEntriesFrom(entryId));
+            return CommittedCommandEntries(() => GetJournalEntriesFromImpl(entryId));
         }
 
         /// <summary>
-        /// Get non rolled back commands from a point in time
+        /// Get committed commands from a point in time
         /// </summary>
-        public IEnumerable<JournalEntry<Command>> CommandEntriesFrom(DateTime pointInTime)
+        public IEnumerable<JournalEntry<Command>> CommandEntriesBeforeOrAt(DateTime pointInTime)
         {
             return CommittedCommandEntries(() => GetJournalEntriesBeforeOrAt(pointInTime));
         }
@@ -112,26 +154,5 @@ namespace OrigoDB.Core.Storage
         {
             return CommandEntriesFrom(1);
         }
-        //public virtual void Create<T>() where T : Model, new()
-        //{
-        //    AssertEmpty();
-        //    Create(typeof(T));
-        //}
-
-        //public virtual void Create(Type modelType)
-        //{
-        //    AssertEmpty();
-        //    var writer = CreateJournalWriter(0);
-        //    var appender = new JournalAppender(1, writer);
-        //    appender.AppendModelCreated(modelType);
-        //    writer.Close();
-        //}
-
-        //public virtual void Create(Model model)
-        //{
-        //    AssertEmpty();
-        //    WriteSnapshotImpl(model, 0);
-        //}
-
     }
 }

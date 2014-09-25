@@ -69,7 +69,11 @@ namespace OrigoDB.Core
                 Thread.Sleep(TimeSpan.FromMilliseconds(10));
             }
 
-            CommandExecuted += (s, e) => HandleSnapshotPersistence();
+            if (_config.PersistenceMode == PersistenceMode.SnapshotPerTransaction)
+            {
+                CommandExecuted += (s, e) => CreateSnapshot();
+            }
+            
             
             Core.Config.Engines.AddEngine(config.Location.OfJournal, this);
         }
@@ -124,7 +128,7 @@ namespace OrigoDB.Core
         /// </summary>
         public TResult Execute<TModel, TResult>(Func<TModel, TResult> lambdaQuery) where TModel : Model
         {
-            EnsureRunning();
+            EnsureNotDisposed();
             EnsureAuthorized(lambdaQuery);
             return ExecuteQuery(new DelegateQuery<TModel, TResult>(lambdaQuery));
         }
@@ -134,7 +138,7 @@ namespace OrigoDB.Core
         /// </summary>
         public TRresult Execute<TModel, TRresult>(Query<TModel, TRresult> query) where TModel : Model
         {
-            EnsureRunning();
+            EnsureNotDisposed();
             EnsureAuthorized(query);
             return ExecuteQuery(query);
         }
@@ -144,7 +148,7 @@ namespace OrigoDB.Core
         /// </summary>
         public object Execute(Command command)
         {
-            EnsureRunning();
+            EnsureNotDisposed();
             EnsureAuthorized(command);
             FireExecutingEvent(command);
 
@@ -153,7 +157,11 @@ namespace OrigoDB.Core
                 command.Timestamp = DateTime.Now;
                 bool exceptionThrown = false;
                 _executionTimer.Restart();
-                ulong lastEntryId = PersistIfJournaling(command);
+                
+                ulong lastEntryId = (_config.PersistenceMode == PersistenceMode.Journaling)
+                    ? _journalAppender.Append(command)
+                    : 0;
+
                 try
                 {
                     _capturedEvents.Clear();
@@ -194,21 +202,6 @@ namespace OrigoDB.Core
             return _kernel.ExecuteQuery(query);
         }
 
-
-        private ulong PersistIfJournaling(Command command)
-        {
-            return _config.PersistenceMode == PersistenceMode.Journaling
-                ? _journalAppender.Append(command)
-                : 0;
-        }
-
-        private void HandleSnapshotPersistence()
-        {
-            if (_config.PersistenceMode == PersistenceMode.SnapshotPerTransaction)
-            {
-                CreateSnapshot();
-            }
-        }
 
         private void EnsureAuthorized(object securable)
         {
@@ -266,6 +259,7 @@ namespace OrigoDB.Core
             if (_isDisposed) return;
             if (disposing)
             {
+                _journalAppender.Dispose();
                 //todo: bad dependency, use events instead
                 Core.Config.Engines.Remove(this);
                 if (_config.SnapshotBehavior == SnapshotBehavior.OnShutdown) CreateSnapshot();
@@ -289,7 +283,7 @@ namespace OrigoDB.Core
             Dispose(true); 
         }
 
-        private void EnsureRunning()
+        private void EnsureNotDisposed()
         {
             if (_isDisposed) throw new ObjectDisposedException(GetType().FullName);
         }

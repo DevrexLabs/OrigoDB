@@ -1,6 +1,6 @@
 ﻿namespace OrigoDB.Core.Storage
 {
-    public abstract class Initialized
+    public abstract class Initializable
     {
         protected bool IsInitialized = false;
 

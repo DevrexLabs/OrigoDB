@@ -6,6 +6,10 @@ using System.Text;
 namespace OrigoDB.Core
 {
 
+    /// <summary>
+    /// No synchronization at all.
+    /// </summary>
+
     public class NullSynchronizer : ISynchronizer
     {
 

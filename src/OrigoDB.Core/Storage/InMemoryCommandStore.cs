@@ -8,8 +8,12 @@ namespace OrigoDB.Core.Test
 {
     /// <summary>
     /// The InMemoryCommandStore is a non durable CommandStore implementation
-    /// intended for integration/system tests
+    /// intended for integration/system tests.
     /// </summary>
+    /// <remarks>
+    /// It's implemented using a list of memory streams to mimic 
+    /// the behavior of FileCommandStore as closely as possible.
+    /// </remarks>
     public class InMemoryCommandStore : CommandStore
     {
         /// <summary>
@@ -25,7 +29,8 @@ namespace OrigoDB.Core.Test
             }
         }
 
-        //State mementos by Location.OfJournal
+        //State mementos by Location.OfJournal.
+        //this pattern enables persistence across consecutive instances based on the location
         static readonly Dictionary<string, InMemoryCommandStoreState> _states
             = new Dictionary<string, InMemoryCommandStoreState>();
 
@@ -42,15 +47,7 @@ namespace OrigoDB.Core.Test
             _state = _states[key];
         }
 
-
-
-        protected override IJournalWriter CreateStoreSpecificJournalWriter()
-        {
-            return new StreamJournalWriter(_config, CreateJournalWriterStream);
-        }
-
-
-        public override IEnumerable<JournalEntry> GetJournalEntriesFrom(ulong entryId)
+        protected override IEnumerable<JournalEntry> GetJournalEntriesFromImpl(ulong entryId)
         {
             return _state.Journal.SelectMany(
                 journalSegment => _formatter
@@ -58,11 +55,11 @@ namespace OrigoDB.Core.Test
                     .SkipWhile(e => e.Id < entryId));
         }
 
-        public override IEnumerable<JournalEntry> GetJournalEntriesBeforeOrAt(DateTime pointInTime)
-        {
-            return GetJournalEntriesFrom(0).TakeWhile(entry => entry.Created <= pointInTime);
-        }
-
+        /// <summary>
+        /// Sets up and returns a MemoryStream for writing journal entries
+        /// </summary>
+        /// <param name="startId"></param>
+        /// <returns></returns>
         public override Stream CreateJournalWriterStream(ulong startId = 1)
         {
             var stream = new MemoryStream();

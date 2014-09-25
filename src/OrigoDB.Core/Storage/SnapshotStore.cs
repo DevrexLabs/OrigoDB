@@ -7,7 +7,7 @@ namespace OrigoDB.Core.Storage
     /// <summary>
     /// Base class for concrete Snapshot store implementations
     /// </summary>
-    public abstract class SnapshotStore : Initialized, ISnapshotStore
+    public abstract class SnapshotStore : Initializable, ISnapshotStore
     {
 
         protected IFormatter _formatter;

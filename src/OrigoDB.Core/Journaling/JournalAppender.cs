@@ -8,7 +8,7 @@ namespace OrigoDB.Core
     /// Wraps objects in JournalEntry and sends to an underlying writer.
     /// Responsible for maintaining the sequence number.
     /// </summary>
-    public class JournalAppender
+    public class JournalAppender : IDisposable
     {
         readonly IJournalWriter _writer;
         private ulong _nextEntryId;
@@ -87,6 +87,11 @@ namespace OrigoDB.Core
         public static JournalAppender Create(ulong nextEntryId, IJournalWriter writer)
         {
             return new JournalAppender(nextEntryId, writer);
+        }
+
+        public void Dispose()
+        {
+            _writer.Dispose();
         }
     }
 }

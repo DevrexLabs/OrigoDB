@@ -9,6 +9,29 @@ namespace OrigoDB.Core.Test
 {
 
     [TestFixture]
+    public class EngineLoadTest
+    {
+        [Test]
+        public void CanLoadAndCreateRepeatedly()
+        {
+            var config = EngineConfiguration.Create().WithRandomLocation();
+            try
+            {
+                var engine = Engine.LoadOrCreate<TestModel>(config);
+                engine.Execute(new TestCommandWithResult());
+                engine.Close();
+                engine = Engine.LoadOrCreate<TestModel>(config);
+                engine.Close();
+            }
+            finally
+            {
+                if (config.CreateCommandStore() is FileCommandStore)
+                    Directory.Delete(config.Location.OfJournal, true);    
+            }
+        }
+    }
+
+    [TestFixture]
     public class EngineConfigurationTest
     {
         [Test]

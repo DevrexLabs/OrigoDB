@@ -87,6 +87,10 @@
     <Compile Include="Events\IEvent.cs" />
     <Compile Include="Events\IHandleEvents.cs" />
     <Compile Include="Events\ISelectEvents.cs" />
+    <Compile Include="Storage\Rollover\CompositeRolloverStrategy.cs" />
+    <Compile Include="Storage\Rollover\MaxBytesRolloverStrategy.cs" />
+    <Compile Include="Storage\Rollover\MaxEntriesRolloverStrategy.cs" />
+    <Compile Include="Storage\Rollover\ScheduledRolloverStrategy.cs" />
     <Compile Include="Utilities\Utils.Converters.cs" />
     <Compile Include="Journaling\JournalAppender.cs" />
     <Compile Include="Journaling\ModelCreated.cs" />
@@ -99,7 +103,7 @@
     <Compile Include="Storage\FileSnapshot.cs" />
     <Compile Include="Storage\FileSnapshotStore.cs" />
     <Compile Include="Storage\FormatterExtensions.cs" />
-    <Compile Include="Storage\Initialized.cs" />
+    <Compile Include="Storage\Initializable.cs" />
     <Compile Include="Storage\InMemorySnapshotStore.cs" />
     <Compile Include="Storage\ISnapshotStore.cs" />
     <Compile Include="Storage\ModelLoader.cs" />
@@ -158,7 +162,7 @@
     <Compile Include="Utilities\Disposable[T].cs" />
     <Compile Include="Linq\CachingLinqCompiler.cs" />
     <Compile Include="Linq\CompiledLinqExtensions.cs" />
-    <Compile Include="Storage\RolloverStrategy.cs" />
+    <Compile Include="Storage\Rollover\RolloverStrategy.cs" />
     <Compile Include="Proxy\ModelProxy.cs" />
     <Compile Include="Proxy\ProxyMethodAttribute.cs" />
     <Compile Include="Proxy\ProxyCommand.cs" />

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using NUnit.Framework;
 
 namespace OrigoDB.Core.Test
@@ -82,11 +82,21 @@ namespace OrigoDB.Core.Test
         }
 
         [Test]
-        public void CanFilterBasedOnType()
+        public void CanFilterUsingTypeExpression()
         {
             var target = new FilteringEventDispatcher();
             int calls = 0;
             target.Subscribe(evt => calls++, evt => evt is Event);
+            target.Send(new Event());
+            Assert.AreEqual(1, calls);
+        }
+
+        [Test]
+        public void CanFilterUsingTypeParameter()
+        {
+            var calls = 0;
+            var target = new FilteringEventDispatcher();
+            target.On<Event>(e => calls++);
             target.Send(new Event());
             Assert.AreEqual(1, calls);
         }

@@ -44,9 +44,9 @@ namespace OrigoDB.Core
         /// <summary>
         /// Register or reregister a handler for all events of type T
         /// </summary>
-        public void Subscribe<T>(Action<IEvent> eventHandler) where T : IEvent
+        public void On<T>(Action<T> eventHandler) where T : IEvent
         {
-            Subscribe(eventHandler, e => e is T);
+            Subscribe(e => eventHandler.Invoke((T)e), e => e is T);
         }
 
 

@@ -44,7 +44,7 @@ namespace OrigoDB.Core
         /// <summary>
         /// Returns the dispatcher provided by CreateEventDispatcher() on the first call
         /// </summary>
-        protected internal FilteringEventDispatcher EventDispatcher
+        protected internal FilteringEventDispatcher Events
         {
             get
             {

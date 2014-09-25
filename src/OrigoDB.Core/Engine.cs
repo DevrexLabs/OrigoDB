@@ -97,7 +97,7 @@ namespace OrigoDB.Core
             _kernel.SetSynchronizer(_synchronizer);
 
             //Capture events emitted during Command.Execute
-            model.EventDispatcher.Subscribe( e => _capturedEvents.Add(e));
+            model.Events.Subscribe( e => _capturedEvents.Add(e));
         }
 
         /// <summary>

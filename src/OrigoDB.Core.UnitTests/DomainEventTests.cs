@@ -37,7 +37,7 @@ namespace OrigoDB.Core.Test
             {
                 for (int i = 0; i < _count; i++)
                 {
-                    model.EventDispatcher.Dispatch(_event);
+                    model.Events.Send(_event);
                 }
                 
             }
@@ -49,7 +49,7 @@ namespace OrigoDB.Core.Test
             var target = new FilteringEventDispatcher();
             int calls = 0;
             target.Subscribe(evt => calls++);
-            target.Dispatch(new Event());
+            target.Send(new Event());
             Assert.AreEqual(1, calls);
         }
 
@@ -60,11 +60,11 @@ namespace OrigoDB.Core.Test
             int calls = 0;
             Action<IEvent> handler = evt => calls++;
             target.Subscribe(handler);
-            target.Dispatch(new Event());
+            target.Send(new Event());
             Assert.AreEqual(1, calls);
             target.Unsubscribe(handler);
             calls = 0;
-            target.Dispatch(new Event());
+            target.Send(new Event());
             Assert.AreEqual(0, calls);
         }
 
@@ -77,7 +77,7 @@ namespace OrigoDB.Core.Test
             Action<IEvent> handler = evt => calls++;
             target.Subscribe(handler);
             target.Subscribe(handler);
-            target.Dispatch(new Event());
+            target.Send(new Event());
             Assert.AreEqual(1, calls);
         }
 
@@ -87,7 +87,7 @@ namespace OrigoDB.Core.Test
             var target = new FilteringEventDispatcher();
             int calls = 0;
             target.Subscribe(evt => calls++, evt => evt is Event);
-            target.Dispatch(new Event());
+            target.Send(new Event());
             Assert.AreEqual(1, calls);
         }
 
@@ -97,7 +97,7 @@ namespace OrigoDB.Core.Test
             var target = new FilteringEventDispatcher();
             int calls = 0;
             target.Subscribe(evt => calls++, evt => false);
-            target.Dispatch(new Event());
+            target.Send(new Event());
             Assert.AreEqual(0, calls);
         }
 
@@ -106,7 +106,7 @@ namespace OrigoDB.Core.Test
         {
             var target = new FilteringEventDispatcher();
             target.Subscribe(evt => {throw new Exception();});
-            target.Dispatch(new Event());
+            target.Send(new Event());
         }
 
         [Test]

@@ -9,14 +9,14 @@ namespace OrigoDB.Core.Test
         public void EventDispatcherReturnsSameObjectOnSubsequentCalls()
         {
             var target = new TestModel();
-            Assert.AreSame(target.EventDispatcher, target.EventDispatcher);
+            Assert.AreSame(target.Events, target.Events);
         }
 
         [Test]
         public void EventDispatcherIsFilteringEventDispatcher()
         {
             var target = new TestModel();
-            Assert.IsInstanceOf<FilteringEventDispatcher>(target.EventDispatcher);
+            Assert.IsInstanceOf<FilteringEventDispatcher>(target.Events);
         }
 
         [Test]

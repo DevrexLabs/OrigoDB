@@ -22,7 +22,6 @@
   <files>
     <file src="build/OrigoDB.Core.dll" target="lib\net40" />
     <file src="build/OrigoDB.Core.pdb" target="lib\net40" />
-    <file src="build/OrigoDB.Core.XML" target="lib\net40" />
     <file src="src/OrigoDB.Core/**/*.cs" target="src" />
   </files>
 </package>

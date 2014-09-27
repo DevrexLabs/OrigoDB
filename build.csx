@@ -36,7 +36,7 @@ Task("NUnitTest")
 	.IsDependentOn("Build")
 	.Does( () =>
 {
-    NUnit("./src/*Tests/bin/" + config + "/*.Tests.dll");
+    NUnit("./src/*Tests/bin/" + config + "/*.Test.NUnit.dll");
 });
 
 

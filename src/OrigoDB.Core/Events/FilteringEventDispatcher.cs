@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using OrigoDB.Core.Logging;
 
 namespace OrigoDB.Core
 {
@@ -9,6 +10,8 @@ namespace OrigoDB.Core
     /// </summary>
     public class FilteringEventDispatcher
     {
+        private static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
+
         readonly Dictionary<IHandleEvents, ISelectEvents> _eventHandlers;
 
         /// <summary>
@@ -39,6 +42,15 @@ namespace OrigoDB.Core
         }
 
         /// <summary>
+        /// Register or reregister a handler for all events of type T
+        /// </summary>
+        public void On<T>(Action<T> eventHandler) where T : IEvent
+        {
+            Subscribe(e => eventHandler.Invoke((T)e), e => e is T);
+        }
+
+
+        /// <summary>
         /// Remove a previously subscribed generic handler
         /// </summary>
         /// <param name="eventHandler"></param>
@@ -60,7 +72,7 @@ namespace OrigoDB.Core
         /// <summary>
         /// Pass an event to each matching event handler ignoring any exceptions
         /// </summary>
-        public void Dispatch(IEvent @event)
+        public void Send(IEvent @event)
         {
             foreach (KeyValuePair<IHandleEvents, ISelectEvents> pair in _eventHandlers)
             {
@@ -74,9 +86,9 @@ namespace OrigoDB.Core
                         handler.Handle(@event);
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
-                    //Swallow exceptions
+                    _log.Error(() => "Event handler threw exception: " + ex);
                 }
             }
         }

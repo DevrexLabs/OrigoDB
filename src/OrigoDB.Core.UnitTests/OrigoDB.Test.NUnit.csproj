@@ -79,9 +79,11 @@
     <Compile Include="ModelTests.cs" />
     <Compile Include="PacketTest.cs" />
     <Compile Include="PersistenceModeTests.cs" />
-    <Compile Include="ProxyExceptionTests.cs" />
-    <Compile Include="ProxyMethodMapTests.cs" />
-    <Compile Include="ProxyTest.cs" />
+    <Compile Include="Proxy\ModelWithOverloads.cs" />
+    <Compile Include="Proxy\ProxyExceptionTests.cs" />
+    <Compile Include="Proxy\ProxyMethodMapTests.cs" />
+    <Compile Include="Proxy\ProxyOverloadingTests.cs" />
+    <Compile Include="Proxy\ProxyTest.cs" />
     <Compile Include="RolloverTests.cs" />
     <Compile Include="RoyalFoodTasterTests.cs" />
     <Compile Include="SchemaMigrationsTest.cs" />

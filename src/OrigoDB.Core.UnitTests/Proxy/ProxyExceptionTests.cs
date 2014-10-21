@@ -12,7 +12,7 @@ namespace OrigoDB.Core.Test
 
         ProxyExceptionTestModel _proxy;
         Engine<ProxyExceptionTestModel> _engine;
-        int _callsToExecutíng, _callsToExecuted;
+        int _callsToExecuting, _callsToExecuted;
 
         [SetUp]
         public void Setup()
@@ -20,9 +20,9 @@ namespace OrigoDB.Core.Test
             var cfg = EngineConfiguration.Create().ForIsolatedTest();
             _engine = Engine.Create<ProxyExceptionTestModel>(cfg);
             _proxy = _engine.GetProxy();
-            _callsToExecutíng = 0;
+            _callsToExecuting = 0;
             _callsToExecuted = 0;
-            _engine.CommandExecuting += (sender, args) => _callsToExecutíng++;
+            _engine.CommandExecuting += (sender, args) => _callsToExecuting++;
             _engine.CommandExecuted += (sender, args) => _callsToExecuted++;
             
         }
@@ -37,7 +37,7 @@ namespace OrigoDB.Core.Test
             catch (Exception ex)
             {
                 Assert.IsInstanceOf<CommandAbortedException>(ex);
-                Assert.AreEqual(1, _callsToExecutíng);
+                Assert.AreEqual(1, _callsToExecuting);
                 Assert.AreEqual(0, _callsToExecuted);
 
                 //verify that the model wasn't rolled back
@@ -59,7 +59,7 @@ namespace OrigoDB.Core.Test
                 Assert.IsInstanceOf<CommandFailedException>(ex);
                 Assert.IsNotNull(ex.InnerException, "InnerException was null");
                 Assert.IsInstanceOf<ArgumentException>(ex.InnerException, "InnerException was not ArgumentException");
-                Assert.AreEqual(1, _callsToExecutíng, "CommandExecuting was not called");
+                Assert.AreEqual(1, _callsToExecuting, "CommandExecuting was not called");
                 Assert.AreEqual(0, _callsToExecuted, "CommandExecuted should not have been called");
 
                 Assert.AreEqual(0, _proxy.GetState(), "state was not rolled back");

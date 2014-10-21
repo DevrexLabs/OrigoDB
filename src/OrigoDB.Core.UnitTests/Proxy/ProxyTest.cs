@@ -7,7 +7,7 @@ using OrigoDB.Core.Proxy;
 
 namespace OrigoDB.Core.Test
 {
-	[TestFixture]
+    [TestFixture]
 	public class ProxyTest 
 	{
 

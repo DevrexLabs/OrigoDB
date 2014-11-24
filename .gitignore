@@ -6,6 +6,10 @@
 *.user
 *.sln.docstates
 
+# Tools
+tools/Cake/
+tools/NUnit.Runners/
+
 #OrigoDB snapshot and journal files
 *.snapshot
 *.journal

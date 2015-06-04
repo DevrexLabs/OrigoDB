@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Core", "OrigoDB.Core\OrigoDB.Core.csproj", "{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Test.MSTest", "OrigoDB.Core.Test\OrigoDB.Test.MSTest.csproj", "{C85316AC-9295-4D8D-9511-637B7C876EBD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Test.NUnit", "OrigoDB.Core.UnitTests\OrigoDB.Test.NUnit.csproj", "{200A39EE-0755-4349-985A-CFAB7FE94A8A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Benchmark", "OrigoDB.Benchmark\OrigoDB.Benchmark.csproj", "{57B02997-3495-4941-8065-2063E6EC1BA6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D537B99B-3521-46DE-B88A-E6454993DB99}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,21 +70,6 @@ Global
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|Mixed Platforms.Deploy.0 = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|x86.ActiveCfg = Release|Any CPU
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|x86.ActiveCfg = Debug|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|x86.Build.0 = Debug|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Nuget build|Any CPU.ActiveCfg = Nuget build|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Nuget build|Mixed Platforms.ActiveCfg = Nuget build|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Nuget build|Mixed Platforms.Build.0 = Nuget build|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Nuget build|x86.ActiveCfg = Nuget build|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Nuget build|x86.Build.0 = Nuget build|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Any CPU.ActiveCfg = Release|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Mixed Platforms.Build.0 = Release|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|x86.ActiveCfg = Release|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

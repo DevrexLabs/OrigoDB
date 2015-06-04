@@ -62,6 +62,7 @@
     </Compile>
     <Compile Include="AuthenticationModelTests.cs" />
     <Compile Include="AuthorizerTests.cs" />
+    <Compile Include="BenchmarkTests.cs" />
     <Compile Include="ByteCountingStreamTest.cs" />
     <Compile Include="CachingLinqCompilerTest.cs" />
     <Compile Include="CommandJournalTest.cs" />

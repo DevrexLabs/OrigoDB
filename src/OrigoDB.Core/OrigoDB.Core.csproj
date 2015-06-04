@@ -55,6 +55,14 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Benchmarking\Benchmark.cs" />
+    <Compile Include="Benchmarking\BenchmarkModel.cs" />
+    <Compile Include="Benchmarking\BenchmarkResult.cs" />
+    <Compile Include="Benchmarking\BenchmarkCommand.cs" />
+    <Compile Include="Models\KeyValueStore.cs" />
+    <Compile Include="Benchmarking\Timing.cs" />
+    <Compile Include="Benchmarking\RandomExtensions.cs" />
+    <Compile Include="Benchmarking\Statistics.cs" />
     <Compile Include="Clients\ClusterClient.cs" />
     <Compile Include="Clients\Dispatching\DedicatedQueryDispatchStrategy.cs" />
     <Compile Include="Clients\Dispatching\QueryDispatchStrategyBase.cs" />

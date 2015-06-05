@@ -40,13 +40,12 @@ namespace OrigoDB.Core.Models
         /// Retrieve an object from the store
         /// </summary>
         /// <param name="key">case insensitive string key</param>
-        /// <param name="version">A specific version, otherwise most recent value</param>
         /// <returns>the requested object or throws an exception</returns>
         public Node Get(string key)
         {
             Node node;
             if (_store.TryGetValue(key, out node)) return node;
-            throw new Exception("No such key");
+            throw new KeyNotFoundException("No such key: [" + key + "]");
         }
 
         /// <summary>
@@ -68,6 +67,17 @@ namespace OrigoDB.Core.Models
             }
             else node.ExpectVersion(expectedVersion);
             return node.BumpAndSet(value);
+        }
+
+        public void Remove(string key, int? expectedVersion)
+        {
+            Node node;
+            if (_store.TryGetValue(key, out node))
+            {
+                node.ExpectVersion(expectedVersion);
+            }
+            else throw new KeyNotFoundException("Key [" + key + "]");
+            _store.Remove(key);
         }
     }
 }

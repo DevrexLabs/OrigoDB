@@ -8,7 +8,6 @@ using System.Text;
 
 namespace OrigoDB.Core.Test
 {
-
     [TestFixture]
     public class CompressorTests
     {

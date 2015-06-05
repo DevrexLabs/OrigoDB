@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using OrigoDB.Core.Proxy;
 
 namespace OrigoDB.Core.Models
@@ -21,7 +22,17 @@ namespace OrigoDB.Core.Models
 
         [NonSerialized]
         private SortedDictionary<string, SortedSet<Edge>> _edgesByLabel;
-        
+
+
+        public IEnumerable<Node> Nodes
+        {
+            get { return _nodesById.Values; }
+        }
+
+        public IEnumerable<Edge> Edges
+        {
+            get { return _edgesById.Values; }
+        }
 
         public GraphStore()
         {
@@ -32,7 +43,7 @@ namespace OrigoDB.Core.Models
             _nodesByLabel = new SortedDictionary<string, SortedSet<Node>>(ignoreCase);
         }
 
-        public abstract class Item
+        public abstract class Item : IComparable<Item>
         {
             public readonly long Id;
             public readonly string Label;
@@ -55,6 +66,23 @@ namespace OrigoDB.Core.Models
             public void Set(string key, object value)
             {
                 Props[key] = value;
+            }
+
+            public int CompareTo(Item other)
+            {
+                return Math.Sign(Id - other.Id);
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj != null
+                && obj.GetType() == GetType() //Edge == Node should always be false
+                && ((Item) obj).Id == Id;
+            }
+
+            public override int GetHashCode()
+            {
+                return Id.GetHashCode();
             }
         }
 
@@ -100,6 +128,11 @@ namespace OrigoDB.Core.Models
             _nodesByLabel[node.Label].Remove(node);
         }
 
+        public T Query<T>(Expression<Func<GraphStore, T>> query)
+        {
+            return query.Compile().Invoke(this);
+        }
+
         private Node NodeById(long id)
         {
             return GetById(_nodesById, id);
@@ -142,8 +175,8 @@ namespace OrigoDB.Core.Models
         {
             public Node(long id, string label) : base(id,label){}
 
-            internal SortedSet<Edge> Out;
-            internal SortedSet<Edge> In;
+            internal ISet<Edge> Out = new SortedSet<Edge>();
+            internal ISet<Edge> In = new SortedSet<Edge>();
         }
 
         public class Edge : Item

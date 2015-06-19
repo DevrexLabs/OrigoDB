@@ -56,7 +56,7 @@ namespace OrigoDB.Test.NUnit
                 .ToArray();
 
             var normalized = doubles.Normalize();
-            Assert.AreEqual(1, normalized.Sum(),0.00001);
+            Assert.AreEqual(1, normalized.Sum(),0.001);
         }
 
         [Test]

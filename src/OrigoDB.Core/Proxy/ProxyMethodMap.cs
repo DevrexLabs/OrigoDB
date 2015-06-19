@@ -13,11 +13,11 @@ namespace OrigoDB.Core.Proxy
     internal class ProxyMethodMap
     {
 
-        private readonly static Dictionary<Type, ProxyMethodMap> _proxyMethodMaps
+        private readonly static Dictionary<Type, ProxyMethodMap> ProxyMethodMaps
             = new Dictionary<Type, ProxyMethodMap>();
 
 
-        private readonly Type modelType;
+        private readonly Type _modelType;
         
         /// <summary>
         /// Proxied methods by name
@@ -33,10 +33,10 @@ namespace OrigoDB.Core.Proxy
         internal static ProxyMethodMap MapFor(Type modelType)
         {
             ProxyMethodMap proxyMethodMap;
-            if (!_proxyMethodMaps.TryGetValue(modelType, out proxyMethodMap))
+            if (!ProxyMethodMaps.TryGetValue(modelType, out proxyMethodMap))
             {
-                proxyMethodMap = ProxyMethodMap.Create(modelType);
-                _proxyMethodMaps.Add(modelType, proxyMethodMap);
+                proxyMethodMap = Create(modelType);
+                ProxyMethodMaps.Add(modelType, proxyMethodMap);
             }
             return proxyMethodMap;
         }
@@ -51,37 +51,35 @@ namespace OrigoDB.Core.Proxy
 
         internal void Build()
         {
-            foreach (var methodInfo in modelType.GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            foreach (var methodInfo in _modelType.GetMethods(BindingFlags.Public | BindingFlags.Instance))
             {
                 var proxyMethodAttribute = GetProxyMethodAttribute(methodInfo);
                 string methodName = methodInfo.Name;
                 var proxyMethod = new ProxyMethodInfo(methodInfo, proxyMethodAttribute);
-                _proxyMethodInfoMap.Add(methodName, proxyMethod);
+                
+                //For backwards compatibility when overloads were not supported
+                //Only name was used.
+                if (!_proxyMethodInfoMap.ContainsKey(methodName))
+                {
+                    _proxyMethodInfoMap.Add(methodName, proxyMethod);
+                }
+                //use ToString() as key as that will capture the entire signature
+                _proxyMethodInfoMap.Add(methodInfo.ToString(), proxyMethod);
             }
 
-        }
-
-
-        internal static string BuildNameFromMethodAndParameterTypes(string name, ParameterInfo[] args)
-        {
-            var parts = new List<string> {name};
-            parts.AddRange(args
-                .OrderBy(p => p.Position)
-                .Select(p => p.ParameterType.Name));
-            return string.Join("_", parts);
         }
 
 
         internal ProxyMethodMap(Type type)
         {
             _proxyMethodInfoMap = new Dictionary<string, ProxyMethodInfo>();
-            modelType = type;
+            _modelType = type;
         }
 
         private ProxyAttribute GetProxyMethodAttribute(MethodInfo methodInfo)
         {
             var attribute = (ProxyAttribute)methodInfo
-                .GetCustomAttributes(typeof(ProxyAttribute), true)
+                .GetCustomAttributes(typeof(ProxyAttribute), inherit:true)
                 .FirstOrDefault();
 
             if (attribute == null)

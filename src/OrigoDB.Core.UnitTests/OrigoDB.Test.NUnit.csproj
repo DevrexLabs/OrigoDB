@@ -83,7 +83,7 @@
     <Compile Include="PersistenceModeTests.cs" />
     <Compile Include="Proxy\ModelWithOverloads.cs" />
     <Compile Include="Proxy\ProxyExceptionTests.cs" />
-    <Compile Include="Proxy\ProxyMethodMapTests.cs" />
+    <Compile Include="Proxy\MethodMapTests.cs" />
     <Compile Include="Proxy\ProxyOverloadingTests.cs" />
     <Compile Include="Proxy\ProxyTest.cs" />
     <Compile Include="RolloverTests.cs" />

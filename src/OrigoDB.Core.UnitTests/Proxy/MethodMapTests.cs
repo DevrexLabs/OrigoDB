@@ -4,9 +4,9 @@ using OrigoDB.Core.Proxy;
 namespace OrigoDB.Core.Test
 {
     [TestFixture]
-    public class ProxyMethodMapTests
+    public class MethodMapTests
     {
-        private ProxyMethodMap _map;
+        private MethodMap _map;
 
         public class TestModel
         {
@@ -47,13 +47,13 @@ namespace OrigoDB.Core.Test
         [SetUp]
         public void Init()
         {
-            _map = ProxyMethodMap.MapFor<TestModel>();
+            _map = MethodMap.MapFor<TestModel>();
         }
 
         [Test]
         public void Maps_are_cached()
         {
-            var map = ProxyMethodMap.MapFor<TestModel>();
+            var map = MethodMap.MapFor<TestModel>();
             Assert.AreSame(_map, map);
         }
 

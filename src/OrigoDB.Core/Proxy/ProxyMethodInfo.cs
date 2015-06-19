@@ -6,6 +6,7 @@ namespace OrigoDB.Core.Proxy
     internal class ProxyMethodInfo
     {
         public readonly MethodInfo MethodInfo;
+
         public readonly ProxyAttribute ProxyAttribute;
 
         public ProxyMethodInfo(MethodInfo methodInfo, ProxyAttribute proxyMethodAttribute)

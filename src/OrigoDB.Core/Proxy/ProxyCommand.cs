@@ -6,7 +6,11 @@ namespace OrigoDB.Core.Proxy
 	[Serializable]
     public class ProxyCommand<TModel> : Command<TModel, object> where TModel : Model
 	{
+        /// <summary>
+        /// Name that uniquely identifies the method to call, including overloads
+        /// </summary>
 		public string MethodName { get; set; }
+
 		public object[] Arguments { get; set; }
 
 		public ProxyCommand(string methodName, object[] inArgs)
@@ -19,7 +23,7 @@ namespace OrigoDB.Core.Proxy
 		{
 		    try
 		    {
-                var proxyMethod = ProxyMethodMap.MapFor<TModel>().GetProxyMethodInfo(MethodName);
+                var proxyMethod = MethodMap.MapFor<TModel>().GetProxyMethodInfo(MethodName);
                 MethodInfo methodInfo = proxyMethod.MethodInfo;
                 return methodInfo.Invoke(model, Arguments);
 		    }

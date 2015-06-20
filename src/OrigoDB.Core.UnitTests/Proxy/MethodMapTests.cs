@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using OrigoDB.Core.Proxy;
+using Proxying;
 
 namespace OrigoDB.Core.Test
 {
@@ -96,21 +96,21 @@ namespace OrigoDB.Core.Test
         public void CloneResults_is_default_implicit()
         {
             var target = _map.GetOperationInfo("ImplicitQuery");
-            Assert.IsTrue(target.ProxyAttribute.CloneResult);
+            Assert.IsTrue(target.OperationAttribute.CloneResult);
         }
 
         [Test]
         public void CloneResult_is_default_for_explicit()
         {
             var target = _map.GetOperationInfo("ExplicitCommandWithResult");
-            Assert.IsTrue(target.ProxyAttribute.CloneResult);
+            Assert.IsTrue(target.OperationAttribute.CloneResult);
         }
 
         [Test]
         public void Explicit_CloneResult_is_reported()
         {
             var target = _map.GetOperationInfo("MvccOperation");
-            Assert.IsFalse(target.ProxyAttribute.CloneResult);
+            Assert.IsFalse(target.OperationAttribute.CloneResult);
         }
 
     }

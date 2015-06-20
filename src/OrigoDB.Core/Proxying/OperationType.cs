@@ -1,4 +1,4 @@
-namespace OrigoDB.Core.Proxy
+namespace Proxying
 {
     public enum OperationType
     {

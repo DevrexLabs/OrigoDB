@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using OrigoDB.Core;
 using OrigoDB.Core.Configuration;
-using OrigoDB.Core.Proxy;
+using Proxying;
 using OrigoDB.Core.Test;
 
 namespace OrigoDB.Core.Test

@@ -1,6 +1,7 @@
 using System;
+using OrigoDB.Core;
 
-namespace OrigoDB.Core.Proxy
+namespace Proxying
 {
 	[Serializable]
 	public class ProxyQuery<T> : Query<T,object> where T : Model

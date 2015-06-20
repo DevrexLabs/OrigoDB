@@ -2,8 +2,9 @@
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
+using OrigoDB.Core;
 
-namespace OrigoDB.Core.Proxy
+namespace Proxying
 {
     public class Proxy<T> : RealProxy where T : Model
     {

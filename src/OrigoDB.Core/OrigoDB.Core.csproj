@@ -96,6 +96,8 @@
     <Compile Include="Events\IEvent.cs" />
     <Compile Include="Events\IHandleEvents.cs" />
     <Compile Include="Events\ISelectEvents.cs" />
+    <Compile Include="Proxying\CommandInfo.cs" />
+    <Compile Include="Proxying\QueryInfo.cs" />
     <Compile Include="Storage\Rollover\CompositeRolloverStrategy.cs" />
     <Compile Include="Storage\Rollover\MaxBytesRolloverStrategy.cs" />
     <Compile Include="Storage\Rollover\MaxEntriesRolloverStrategy.cs" />
@@ -104,10 +106,10 @@
     <Compile Include="Journaling\JournalAppender.cs" />
     <Compile Include="Journaling\ModelCreated.cs" />
     <Compile Include="PersistenceMode.cs" />
-    <Compile Include="Proxy\CommandAttribute.cs" />
-    <Compile Include="Proxy\NoProxyAttribute.cs" />
-    <Compile Include="Proxy\ProxyAttribute.cs" />
-    <Compile Include="Proxy\QueryAttribute.cs" />
+    <Compile Include="Proxying\CommandAttribute.cs" />
+    <Compile Include="Proxying\NoProxyAttribute.cs" />
+    <Compile Include="Proxying\OperationAttribute.cs" />
+    <Compile Include="Proxying\QueryAttribute.cs" />
     <Compile Include="Security\Authorizer.cs" />
     <Compile Include="Storage\FileSnapshot.cs" />
     <Compile Include="Storage\FileSnapshotStore.cs" />
@@ -145,7 +147,7 @@
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\LogProvider.cs" />
-    <Compile Include="Proxy\ModelProxyExtensions.cs" />
+    <Compile Include="Proxying\ProxyExtensions.cs" />
     <Compile Include="Transactions\Query.cs" />
     <Compile Include="Storage\InMemoryCommandStore.cs" />
     <Compile Include="Journaling\RollbackMarker.cs" />
@@ -159,8 +161,8 @@
     <Compile Include="Migrations\CustomBinder.cs" />
     <Compile Include="Migrations\Schema.cs" />
     <Compile Include="Kernels\OptimisticKernel.cs" />
-    <Compile Include="Proxy\OperationType.cs" />
-    <Compile Include="Proxy\ProxyMethodInfo.cs" />
+    <Compile Include="Proxying\OperationType.cs" />
+    <Compile Include="Proxying\OperationInfo.cs" />
     <Compile Include="Clients\Merge.cs" />
     <Compile Include="Kernels\RoyalFoodTaster.cs" />
     <Compile Include="Storage\ByteCountingStream.cs" />
@@ -172,11 +174,10 @@
     <Compile Include="Linq\CachingLinqCompiler.cs" />
     <Compile Include="Linq\CompiledLinqExtensions.cs" />
     <Compile Include="Storage\Rollover\RolloverStrategy.cs" />
-    <Compile Include="Proxy\Proxy.cs" />
-    <Compile Include="Proxy\ProxyMethodAttribute.cs" />
-    <Compile Include="Proxy\ProxyCommand.cs" />
-    <Compile Include="Proxy\MethodMap.cs" />
-    <Compile Include="Proxy\ProxyQuery.cs" />
+    <Compile Include="Proxying\Proxy.cs" />
+    <Compile Include="Proxying\ProxyCommand.cs" />
+    <Compile Include="Proxying\MethodMap.cs" />
+    <Compile Include="Proxying\ProxyQuery.cs" />
     <Compile Include="Security\NullAuthorizer.cs" />
     <Compile Include="Security\IAuthenticator.cs" />
     <Compile Include="Security\IAuthorizer.cs" />
@@ -224,7 +225,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Events\Events.cd" />
-    <None Include="Proxy\ClassDiagram1.cd" />
+    <None Include="Proxying\ClassDiagram1.cd" />
     <None Include="Storage\Filestorage.cd" />
     <None Include="Core.Public.cd" />
     <None Include="Security\ClassDiagram2.cd" />

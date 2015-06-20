@@ -2,16 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
+using OrigoDB.Core;
 
-namespace OrigoDB.Core.Proxy
+namespace Proxying
 {
 
     internal abstract class MethodMap
     {
-        /// <summary>
-        /// A cache
-        /// </summary>
         private static readonly Dictionary<Type, MethodMap> MethodMaps
             = new Dictionary<Type, MethodMap>();
 
@@ -47,17 +44,17 @@ namespace OrigoDB.Core.Proxy
             {
                 Validate(methodInfo);
 
-                var proxyMethodAttribute = GetProxyMethodAttribute(methodInfo);
+                var operationAttribute = GetOperationAttribute(methodInfo);
                 string methodName = methodInfo.Name;
-                var proxyMethod = OperationInfo<T>.Create(methodInfo, proxyMethodAttribute);
+                var operationInfo = OperationInfo<T>.Create(methodInfo, operationAttribute);
 
                 //For backwards compatibility when overloads were not supported
                 //Only name was used. Overloads were introduced with v 0.18.0
-                if (!methodMap.ContainsKey(methodName)) methodMap.Add(methodName, proxyMethod);
+                if (!methodMap.ContainsKey(methodName)) methodMap.Add(methodName, operationInfo);
                 
                 //use a unique signature based on the method name and argument types
                 var signature = methodInfo.ToString();
-                methodMap.Add(signature, proxyMethod);
+                methodMap.Add(signature, operationInfo);
             }
 
             var result = new MethodMap<T>(methodMap);
@@ -67,21 +64,18 @@ namespace OrigoDB.Core.Proxy
 
         private static void Validate(MethodInfo methodInfo)
         {
-            if ( HasRefArg(methodInfo) || HasOutArg(methodInfo))
+            if ( HasRefArg(methodInfo))
             {
                 throw new Exception("ref/out parameters not supported");
             }
         }
 
-        internal static Boolean HasOutArg(MethodInfo methodInfo)
-        {
-            return methodInfo.GetParameters().Any(p => p.IsOut);
-        }
-
+        
         internal static Boolean HasRefArg(MethodInfo methodInfo)
         {
-            const string pattern = " ByRef[,)]";
-            return Regex.IsMatch(methodInfo.ToString(), pattern);
+            return methodInfo
+                .GetParameters()
+                .Any(p => p.ParameterType.IsByRef || p.IsOut);
         }
 
 
@@ -90,28 +84,28 @@ namespace OrigoDB.Core.Proxy
             _theMap = methodMap;
         }
 
-        private static ProxyAttribute GetProxyMethodAttribute(MethodInfo methodInfo)
+        private static OperationAttribute GetOperationAttribute(MethodInfo methodInfo)
         {
             //If there is an explicit attribute present, return it
-            var attribute = (ProxyAttribute)methodInfo
-                .GetCustomAttributes(typeof(ProxyAttribute), inherit:true)
+            var attribute = (OperationAttribute)methodInfo
+                .GetCustomAttributes(typeof(OperationAttribute), inherit:true)
                 .FirstOrDefault();
             if (attribute != null) return attribute;
 
             var temp = methodInfo.GetCustomAttributes(typeof (NoProxyAttribute), true).FirstOrDefault();
-            if (temp != null) attribute = new ProxyAttribute{Operation = OperationType.Disallowed};
+            if (temp != null) attribute = new OperationAttribute{Type = OperationType.Disallowed};
 
-            return attribute ?? DeriveAttributeFromMethodInfo(methodInfo);
+            return attribute ?? GetDefaultOperationAttribute(methodInfo);
         }
 
         /// <summary>
         /// Void methods are considered as commands, methods with return values are considered queries.
         /// </summary>
-        private static ProxyAttribute DeriveAttributeFromMethodInfo(MethodInfo methodInfo)
+        private static OperationAttribute GetDefaultOperationAttribute(MethodInfo methodInfo)
         {
             return methodInfo.ReturnType == typeof(void)
-                ? (ProxyAttribute) new CommandAttribute()
-                : new QueryAttribute();
+                ? CommandAttribute.Default
+                : QueryAttribute.Default;
         }
 
         internal OperationInfo<T> GetOperationInfo(string signature)

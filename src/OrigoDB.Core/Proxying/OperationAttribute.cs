@@ -1,14 +1,14 @@
 using System;
 
-namespace OrigoDB.Core.Proxy
+namespace Proxying
 {
     [AttributeUsage(AttributeTargets.Event | AttributeTargets.Method | AttributeTargets.Property)]
-    public class ProxyAttribute : Attribute
+    public class OperationAttribute : Attribute
     {
-        internal OperationType Operation { get; set; }
+        internal OperationType Type { get; set; }
 
 
-        public ProxyAttribute()
+        public OperationAttribute()
         {
             CloneResult = true;
         }

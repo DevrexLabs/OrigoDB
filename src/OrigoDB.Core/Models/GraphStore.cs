@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using OrigoDB.Core.Proxy;
+using Proxying;
 
 namespace OrigoDB.Core.Models
 {

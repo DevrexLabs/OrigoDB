@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Reflection;
+using OrigoDB.Core;
 
-namespace OrigoDB.Core.Proxy
+namespace Proxying
 {
 	[Serializable]
     public class ProxyCommand<TModel> : Command<TModel, object> where TModel : Model

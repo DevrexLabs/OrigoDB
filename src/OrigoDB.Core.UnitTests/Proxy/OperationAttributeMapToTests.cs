@@ -1,10 +1,10 @@
 using NUnit.Framework;
-using OrigoDB.Core.Proxy;
+using Proxying;
 
 namespace OrigoDB.Core.Test
 {
     [TestFixture]
-    public class ProxyAttributeMapToTests
+    public class OperationAttributeMapToTests
     {
         internal class TestEngine : IEngine<TestModel>
         {

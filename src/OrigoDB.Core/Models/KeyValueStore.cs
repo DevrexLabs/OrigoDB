@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using OrigoDB.Core.Proxy;
+using Proxying;
 
 namespace OrigoDB.Core.Models
 {

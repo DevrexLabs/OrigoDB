@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Runtime.Serialization;
 using NUnit.Framework;
-using OrigoDB.Core.Proxy;
+using Proxying;
 
 namespace OrigoDB.Core.Test
 {
@@ -77,12 +77,12 @@ namespace OrigoDB.Core.Test
         }
 
         [Test]
-        public void Test()
+        public void CloneResult_attribute_is_recognized()
         {
             var map = MethodMap.MapFor<TestModel>();
             var signature = typeof (TestModel).GetMethod("GetCustomersCloned").ToString();
             var opInfo = map.GetOperationInfo(signature);
-            Assert.False(opInfo.ProxyAttribute.CloneResult);
+            Assert.False(opInfo.OperationAttribute.CloneResult);
 
         }
     }

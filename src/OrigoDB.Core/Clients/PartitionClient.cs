@@ -106,6 +106,16 @@ namespace OrigoDB.Core
 			return MergeResults(command, commandResults);
 		}
 
+        public override object Execute(Command command)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object Execute(Query query)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Execute a query on a specific node
         /// </summary>

@@ -82,6 +82,7 @@
     <Compile Include="PacketTest.cs" />
     <Compile Include="PersistenceModeTests.cs" />
     <Compile Include="Proxy\ModelWithOverloads.cs" />
+    <Compile Include="Proxy\ProxyAttributeMapToTests.cs" />
     <Compile Include="Proxy\ProxyExceptionTests.cs" />
     <Compile Include="Proxy\MethodMapTests.cs" />
     <Compile Include="Proxy\ProxyOverloadingTests.cs" />

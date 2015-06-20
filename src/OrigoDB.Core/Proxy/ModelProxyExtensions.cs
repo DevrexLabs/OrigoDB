@@ -4,7 +4,7 @@
     {
         public static TModel GetProxy<TModel>(this IEngine<TModel> engine) where TModel : Model
         {
-            return (TModel)new ModelProxy<TModel>(engine).GetTransparentProxy();
+            return (TModel)new Proxy<TModel>(engine).GetTransparentProxy();
         }
     }
 }

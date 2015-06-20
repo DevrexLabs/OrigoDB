@@ -7,24 +7,24 @@ using OrigoDB.Core.Clients.Dispatching;
 
 namespace OrigoDB.Core
 {
-	public class FailoverClusterClient<TModel> : ClusterClient<TModel, RemoteEngineClient<TModel>> where TModel : Model, new()
+	public class FailoverClusterClient<T> : ClusterClient<T, RemoteEngineClient<T>> where T : Model, new()
 	{
 		readonly object _lock = new object();
 		Guid _clusterId;
-		IClusterQueryDispatchStrategy<TModel> _dispatchStrategy;
+		IClusterQueryDispatchStrategy<T> _dispatchStrategy;
 		Guid _previousClusterId;
 
 		public FailoverClusterClient(RemoteClientConfiguration configuration)
 		{
 			Configuration = configuration;
-			MasterNode = (RemoteEngineClient<TModel>)configuration.GetClient<TModel>();
+			MasterNode = (RemoteEngineClient<T>)configuration.GetClient<T>();
 			// Todo move to config
-			_dispatchStrategy = new RoundRobinQueryDispatchStrategy<TModel>(Nodes);
+			_dispatchStrategy = new RoundRobinQueryDispatchStrategy<T>(Nodes);
 		}
 
 		public RemoteClientConfiguration Configuration { get; set; }
 
-		public RemoteEngineClient<TModel> MasterNode
+		public RemoteEngineClient<T> MasterNode
 		{
 			get
 			{
@@ -40,20 +40,13 @@ namespace OrigoDB.Core
 			}
 		}
 
-		public override TResult Execute<TResult>(Query<TModel, TResult> query)
+		public override TResult Execute<TResult>(Query<T, TResult> query)
 		{
-			RemoteEngineClient<TModel> node;
-			lock (_lock)
-			{
-				ThrowIfDisconnected();
-				node = _dispatchStrategy.GetDispatcher();
-			}
-
-			return (TResult)Execute(node, query);
+			return (TResult)Execute((Query)query);
 		}
 
 		bool _throwOnNodeError;
-		void RemoveNode(RemoteEngineClient<TModel> node)
+		void RemoveNode(RemoteEngineClient<T> node)
 		{
 			var nodeIndex = Nodes.IndexOf(node);
 
@@ -76,12 +69,12 @@ namespace OrigoDB.Core
 		{
 			_clusterId = Guid.Empty;
 			_previousClusterId = Guid.Empty;
-			MasterNode = (RemoteEngineClient<TModel>)Configuration.GetClient<TModel>();
+			MasterNode = (RemoteEngineClient<T>)Configuration.GetClient<T>();
 		}
 
-		public override void Execute(Command<TModel> command)
+		public override void Execute(Command<T> command)
 		{
-			RemoteEngineClient<TModel> node;
+			RemoteEngineClient<T> node;
 			lock (_lock)
 			{
 				node = MasterNode;
@@ -89,9 +82,9 @@ namespace OrigoDB.Core
 			Execute(node, command);
 		}
 
-		public override TResult Execute<TResult>(Command<TModel, TResult> command)
+		public override TResult Execute<TResult>(Command<T, TResult> command)
 		{
-			RemoteEngineClient<TModel> node;
+			RemoteEngineClient<T> node;
 			lock (_lock)
 			{
 				node = MasterNode;
@@ -99,7 +92,24 @@ namespace OrigoDB.Core
 			return (TResult)Execute(node, command);
 		}
 
-		object Execute<TMessage>(RemoteEngineClient<TModel> node, TMessage objectToExecute)
+	    public override object Execute(Command command)
+	    {
+	        return Execute(MasterNode, command);
+	    }
+
+	    public override object Execute(Query query)
+	    {
+            RemoteEngineClient<T> node;
+            lock (_lock)
+            {
+                ThrowIfDisconnected();
+                node = _dispatchStrategy.GetDispatcher();
+            }
+
+            return Execute(node, query);
+	    }
+
+	    object Execute<TMessage>(RemoteEngineClient<T> node, TMessage objectToExecute)
 		{
 			object result = null;
 			var request = new ClusterExecuteRequest(_clusterId, objectToExecute);
@@ -142,7 +152,7 @@ namespace OrigoDB.Core
 			throw new NotSupportedException("Format of returned data is unexpected.");
 		}
 
-		RemoteEngineClient<TModel> GetNode(string host, int port)
+		RemoteEngineClient<T> GetNode(string host, int port)
 		{
 			var node = Nodes.FirstOrDefault(n => n.Host.Equals(host, StringComparison.OrdinalIgnoreCase) && n.Port == port);
 
@@ -168,7 +178,7 @@ namespace OrigoDB.Core
 					Configuration.Host = clusterInfo.MasterHost;
 					Configuration.Port = clusterInfo.MasterPort;
 					Nodes.Clear();
-					MasterNode = (RemoteEngineClient<TModel>)Configuration.GetClient<TModel>();
+					MasterNode = (RemoteEngineClient<T>)Configuration.GetClient<T>();
 
 					foreach (var hostAndPort in clusterInfo.Slaves)
 					{
@@ -181,22 +191,22 @@ namespace OrigoDB.Core
 			}
 		}
 
-		RemoteEngineClient<TModel> CreateNode(string host, int port)
+		RemoteEngineClient<T> CreateNode(string host, int port)
 		{
 			var nodeConfig = new RemoteClientConfiguration();
 			nodeConfig.DedicatedPool = Configuration.DedicatedPool;
 			nodeConfig.MaxConnections = Configuration.MaxConnections;
 			nodeConfig.Host = host;
 			nodeConfig.Port = port;
-			var node = (RemoteEngineClient<TModel>) nodeConfig.GetClient<TModel>();
+			var node = (RemoteEngineClient<T>) nodeConfig.GetClient<T>();
 			Nodes.Add(node);
 			return node;
 		}
 
-		public static FailoverClusterClient<TModel> CreateFromNetwork(RemoteClientConfiguration baseConfiguration)
+		public static FailoverClusterClient<T> CreateFromNetwork(RemoteClientConfiguration baseConfiguration)
 		{
-			var client = new FailoverClusterClient<TModel>(baseConfiguration);
-			var initClient = (RemoteEngineClient<TModel>)baseConfiguration.GetClient<TModel>();
+			var client = new FailoverClusterClient<T>(baseConfiguration);
+			var initClient = (RemoteEngineClient<T>)baseConfiguration.GetClient<T>();
 			var response = initClient.SendAndRecieve<ClusterInfoResponse>(new ClusterInfoRequest());
 			client.UpdateClusterInformation(response.ClusterInfo);
 			return client;

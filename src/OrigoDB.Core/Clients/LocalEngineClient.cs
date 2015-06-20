@@ -27,6 +27,16 @@ namespace OrigoDB.Core
             return Engine.Execute(command);
         }
 
+        public object Execute(Command command)
+        {
+            return Engine.Execute(command);
+        }
+
+        public object Execute(Query query)
+        {
+            return Engine.Execute(query);
+        }
+
         public TResult Execute<TResult>(Func<TModel, TResult> query)
         {
             return Engine.Execute(query);

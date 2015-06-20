@@ -15,7 +15,7 @@ namespace OrigoDB.Core
         public static T For<T>() where T : Model, new()
         {
             var instance = Engine.For<T>();
-            return (T)new ModelProxy<T>(instance).GetTransparentProxy();
+            return (T)new Proxy<T>(instance).GetTransparentProxy();
         }
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace OrigoDB.Core
 		public static T For<T>(string clientIdentifier) where T : Model,new()
 		{
 			var instance = Engine.For<T>(clientIdentifier);
-			return (T)new ModelProxy<T>(instance).GetTransparentProxy();
+			return (T)new Proxy<T>(instance).GetTransparentProxy();
 		}
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace OrigoDB.Core
         public static T For<T>(EngineConfiguration config) where T : Model, new()
         {
             var instance = Engine.For<T>(config);
-            return (T)new ModelProxy<T>(instance).GetTransparentProxy();
+            return (T)new Proxy<T>(instance).GetTransparentProxy();
             
         }
 	}

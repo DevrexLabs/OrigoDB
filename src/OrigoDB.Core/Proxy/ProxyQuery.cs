@@ -3,7 +3,7 @@ using System;
 namespace OrigoDB.Core.Proxy
 {
 	[Serializable]
-	public class ProxyQuery<TModel> : Query<TModel,object> where TModel : Model
+	public class ProxyQuery<T> : Query<T,object> where T : Model
 	{
 		public string MethodName { get; set; }
 		public object[] Arguments { get; set; }
@@ -14,9 +14,9 @@ namespace OrigoDB.Core.Proxy
 			Arguments = inArgs;
 		}
 
-		public override object Execute(TModel model)
+		public override object Execute(T model)
 		{
-            var proxyMethod = MethodMap.MapFor<TModel>().GetProxyMethodInfo(MethodName);
+            var proxyMethod = MethodMap.MapFor<T>().GetOperationInfo(MethodName);
 		    var method = proxyMethod.MethodInfo;
 			return method.Invoke(model, Arguments);
 		}

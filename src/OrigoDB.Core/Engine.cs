@@ -120,7 +120,11 @@ namespace OrigoDB.Core
         /// <returns></returns>
         public object Execute(Query query)
         {
-            return Execute<Model, object>(query.ExecuteStub);
+            EnsureNotDisposed();
+            EnsureAuthorized(query);
+            var wrapped = new DelegateQuery<Model, object>(query.ExecuteStub);
+            wrapped.ResultIsSafe = query.ResultIsSafe;
+            return ExecuteQuery(wrapped);
         }
 
         /// <summary>

@@ -19,5 +19,7 @@ namespace OrigoDB.Core
 	    public abstract void Execute(Command<TModel> command);
 
 	    public abstract TResult Execute<TResult>(Command<TModel, TResult> command);
+	    public abstract object Execute(Command command);
+	    public abstract object Execute(Query query);
 	}
 }

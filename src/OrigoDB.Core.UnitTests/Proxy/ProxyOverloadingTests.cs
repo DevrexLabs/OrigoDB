@@ -19,12 +19,6 @@ namespace OrigoDB.Core.Test
         }
 
         [Test]
-        public void CanCreateMethodMap()
-        {
-            MethodMap.Create(typeof(ModelWithOverloads));
-        }
-
-        [Test]
         public void CanCallNoArgMethod()
         {
             _db.Meth();
@@ -48,6 +42,12 @@ namespace OrigoDB.Core.Test
             Assert.AreEqual(sum, result);
         }
 
+        [Test]
+        public void CanCallUsingNamedArgs()
+        {
+            var result = _db.Inc(with: 100, number: 200);
+            Assert.AreEqual(300, result);
+        }
 
         [Test]
         public void CanCallWithArrayAsParams()

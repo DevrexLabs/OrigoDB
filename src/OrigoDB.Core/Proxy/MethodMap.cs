@@ -3,69 +3,64 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core.Proxy
 {
 
-    /// <summary>
-    /// Map method signatures to MethodInfo
-    /// </summary>
-    internal class MethodMap
+    internal abstract class MethodMap
     {
-
         /// <summary>
         /// A cache
         /// </summary>
         private static readonly Dictionary<Type, MethodMap> MethodMaps
             = new Dictionary<Type, MethodMap>();
 
+        internal static MethodMap<T> MapFor<T>() where T : Model
+        {
+            Type type = typeof(T);
+            MethodMap methodMap;
+            if (!MethodMaps.TryGetValue(type, out methodMap))
+            {
+                methodMap = MethodMap<T>.Create(type);
+                MethodMaps.Add(type, methodMap);
+            }
+            return (MethodMap<T>)methodMap;
+        } 
+    }
 
-        
+    /// <summary>
+    /// Map method signatures to MethodInfo
+    /// </summary>
+    internal sealed class MethodMap<T> : MethodMap where T:Model
+    {
+     
         /// <summary>
         /// Proxied methods by signature
         /// </summary>
-        private readonly Dictionary<string, ProxyMethodInfo> _theMap;
+        private readonly Dictionary<string, OperationInfo<T>> _theMap;
 
 
-        internal static MethodMap MapFor<T>()
+        internal static MethodMap<T> Create(Type modelType)
         {
-            return MapFor(typeof(T));
-        }
-
-        internal static MethodMap MapFor(Type modelType)
-        {
-            MethodMap methodMap;
-            if (!MethodMaps.TryGetValue(modelType, out methodMap))
-            {
-                methodMap = Create(modelType);
-                MethodMaps.Add(modelType, methodMap);
-            }
-            return methodMap;
-        }
-
-
-        internal static MethodMap Create(Type modelType)
-        {
-            var methodMap = new Dictionary<string, ProxyMethodInfo>();
+            var methodMap = new Dictionary<string, OperationInfo<T>>();
             foreach (var methodInfo in modelType.GetMethods(BindingFlags.Public | BindingFlags.Instance))
             {
                 Validate(methodInfo);
 
                 var proxyMethodAttribute = GetProxyMethodAttribute(methodInfo);
                 string methodName = methodInfo.Name;
-                var proxyMethod = new ProxyMethodInfo(methodInfo, proxyMethodAttribute);
+                var proxyMethod = OperationInfo<T>.Create(methodInfo, proxyMethodAttribute);
 
                 //For backwards compatibility when overloads were not supported
                 //Only name was used. Overloads were introduced with v 0.18.0
                 if (!methodMap.ContainsKey(methodName)) methodMap.Add(methodName, proxyMethod);
                 
-                //use a unique signature based on the method name and arguments
+                //use a unique signature based on the method name and argument types
                 var signature = methodInfo.ToString();
                 methodMap.Add(signature, proxyMethod);
             }
 
-            var result = new MethodMap(methodMap);
+            var result = new MethodMap<T>(methodMap);
             return result;
         }
 
@@ -90,7 +85,7 @@ namespace OrigoDB.Core.Proxy
         }
 
 
-        internal MethodMap(Dictionary<string, ProxyMethodInfo> methodMap)
+        internal MethodMap(Dictionary<string, OperationInfo<T>> methodMap)
         {
             _theMap = methodMap;
         }
@@ -119,7 +114,7 @@ namespace OrigoDB.Core.Proxy
                 : new QueryAttribute();
         }
 
-        internal ProxyMethodInfo GetProxyMethodInfo(string signature)
+        internal OperationInfo<T> GetOperationInfo(string signature)
         {
             return _theMap[signature];
         }

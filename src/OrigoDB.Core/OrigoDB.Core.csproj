@@ -172,7 +172,7 @@
     <Compile Include="Linq\CachingLinqCompiler.cs" />
     <Compile Include="Linq\CompiledLinqExtensions.cs" />
     <Compile Include="Storage\Rollover\RolloverStrategy.cs" />
-    <Compile Include="Proxy\ModelProxy.cs" />
+    <Compile Include="Proxy\Proxy.cs" />
     <Compile Include="Proxy\ProxyMethodAttribute.cs" />
     <Compile Include="Proxy\ProxyCommand.cs" />
     <Compile Include="Proxy\MethodMap.cs" />

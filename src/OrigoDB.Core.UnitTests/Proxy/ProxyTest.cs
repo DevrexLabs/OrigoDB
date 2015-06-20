@@ -1,9 +1,7 @@
-﻿using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Linq;
+﻿using System.Linq;
+using System.Runtime.Serialization;
 using NUnit.Framework;
 using OrigoDB.Core.Proxy;
-
 
 namespace OrigoDB.Core.Test
 {
@@ -23,18 +21,6 @@ namespace OrigoDB.Core.Test
         }
 
 
-        [Test]
-        public void CanCloneMarshalByRefModel()
-        {
-            var model = new TestModel();
-            model.AddCustomer("Zippy");
-            
-            var clone = new BinaryFormatter().Clone(model);
-
-            //modify the original which should not effect the clone
-            model.AddCustomer("asfafse");
-            Assert.IsTrue(clone.Customers.Count() == 1);
-        }
 
 	    [Test]
 	    public void CanSetProperty()
@@ -61,8 +47,7 @@ namespace OrigoDB.Core.Test
 		[Test, ExpectedException(typeof(SerializationException))]
 		public void ThrowsExceptionOnYieldQuery()
 		{
-			int i = _proxy.GetNames().Count();
-			Assert.IsTrue(i == 10);
+			_proxy.GetNames().Count();
 		}
 
 		[Test]
@@ -89,6 +74,16 @@ namespace OrigoDB.Core.Test
             Customer robert = _proxy.GetCustomersCloned().First();
             Customer robert2 = _proxy.GetCustomersCloned().First();
             Assert.AreEqual(robert, robert2);
+        }
+
+        [Test]
+        public void Test()
+        {
+            var map = MethodMap.MapFor<TestModel>();
+            var signature = typeof (TestModel).GetMethod("GetCustomersCloned").ToString();
+            var opInfo = map.GetOperationInfo(signature);
+            Assert.False(opInfo.ProxyAttribute.CloneResult);
+
         }
     }
 }

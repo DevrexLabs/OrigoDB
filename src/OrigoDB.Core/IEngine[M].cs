@@ -21,5 +21,9 @@
         /// Execute a command that returns results
         /// </summary>
         TResult Execute<TResult>(Command<TModel, TResult> command);
+
+        object Execute(Command command);
+
+        object Execute(Query query);
     }
 }

@@ -6,9 +6,9 @@ namespace OrigoDB.Core.Test
     [TestFixture]
     public class MethodMapTests
     {
-        private MethodMap _map;
+        private MethodMap<TestModel> _map;
 
-        public class TestModel
+        public class TestModel : Model
         {
 
             public void ImplicitCommand(){}
@@ -60,56 +60,56 @@ namespace OrigoDB.Core.Test
         [Test]
         public void Implicit_command_IsCommand()
         {
-            var target = _map.GetProxyMethodInfo("ImplicitCommand");
-            Assert.IsTrue(target.IsCommand);
+            var target = _map. GetOperationInfo("ImplicitCommand");
+            Assert.IsTrue(target is CommandInfo<TestModel>);
         }
 
         [Test]
         public void Explicit_command_IsCommand()
         {
-            var target = _map.GetProxyMethodInfo("ExplicitCommandWithResult");
-            Assert.IsTrue(target.IsCommand);
+            var target = _map.GetOperationInfo("ExplicitCommandWithResult");
+            Assert.IsTrue(target is CommandInfo<TestModel>);
         }
 
         [Test]
         public void Explicit_query_IsQuery()
         {
-            var target = _map.GetProxyMethodInfo("ExplicitQuery");
-            Assert.IsTrue(target.IsQuery);
+            var target = _map.GetOperationInfo("ExplicitQuery");
+            Assert.IsTrue(target is QueryInfo<TestModel>);
         }
 
         [Test]
         public void Implicit_query_IsQuery()
         {
-            var target = _map.GetProxyMethodInfo("ImplicitQuery");
-            Assert.IsTrue(target.IsQuery);
+            var target = _map.GetOperationInfo("ImplicitQuery");
+            Assert.IsTrue(target is QueryInfo<TestModel>);
         }
 
         [Test]
         public void NoProxy_is_disallowed()
         {
-            var target = _map.GetProxyMethodInfo("NoProxyQuery");
+            var target = _map.GetOperationInfo("NoProxyQuery");
             Assert.IsFalse(target.IsAllowed);
         }
 
         [Test]
         public void CloneResults_is_default_implicit()
         {
-            var target = _map.GetProxyMethodInfo("ImplicitQuery");
+            var target = _map.GetOperationInfo("ImplicitQuery");
             Assert.IsTrue(target.ProxyAttribute.CloneResult);
         }
 
         [Test]
         public void CloneResult_is_default_for_explicit()
         {
-            var target = _map.GetProxyMethodInfo("ExplicitCommandWithResult");
+            var target = _map.GetOperationInfo("ExplicitCommandWithResult");
             Assert.IsTrue(target.ProxyAttribute.CloneResult);
         }
 
         [Test]
         public void Explicit_CloneResult_is_reported()
         {
-            var target = _map.GetProxyMethodInfo("MvccOperation");
+            var target = _map.GetOperationInfo("MvccOperation");
             Assert.IsFalse(target.ProxyAttribute.CloneResult);
         }
 

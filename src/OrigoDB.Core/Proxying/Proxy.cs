@@ -27,9 +27,9 @@ namespace Proxying
             }
 
             var signature = GetSignature(methodCall);
-            var proxyInfo = _methods.GetOperationInfo(signature);
-            if (!proxyInfo.IsAllowed) throw new Exception("Method not allowed");
-            var result = proxyInfo.Execute(_handler, methodCall, signature);
+            var operationInfo = _methods.GetOperationInfo(signature);
+            if (!operationInfo.IsAllowed) throw new Exception("Method not allowed");
+            var result = operationInfo.Execute(_handler, methodCall, signature);
             return new ReturnMessage(result, null, 0, methodCall.LogicalCallContext, methodCall);
         }
 

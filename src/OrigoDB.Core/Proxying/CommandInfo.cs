@@ -15,7 +15,7 @@ namespace Proxying
         {
             var command = (Command) operation;
             command = command ?? new ProxyCommand<T>(signature, args);
-            //todo: command.ResultIsSafe = !ProxyAttribute.CloneResult;
+            command.ResultIsSafe = !OperationAttribute.CloneResult;
             return engine.Execute(command);
         }
     }

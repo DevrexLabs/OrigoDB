@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Specialized;
-using System.Runtime.InteropServices;
-using Castle.Components.DictionaryAdapter;
 using NUnit.Framework;
 using OrigoDB.Core.Configuration;
 

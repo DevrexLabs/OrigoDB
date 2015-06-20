@@ -12,13 +12,6 @@ namespace OrigoDB.Core
             ResultIsSafe = ensuresResultIsDisconnected;
         }
         
-        /// <summary>
-        /// True if results are safe to return to client, default is false. Set to true if your command implementation 
-        /// gaurantees no references to mutable objects within the model are returned.
-        /// </summary>
-        public bool ResultIsSafe{ get; internal protected set; }
-
-
         public virtual void Prepare(TModel model) { }
 
 

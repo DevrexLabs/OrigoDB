@@ -25,12 +25,6 @@ namespace OrigoDB.Core.Test
                 return 4;
             }
 
-            [Query]
-            public void ExplicitQuery(out int result)
-            {
-                result = 42;
-            }
-
             public int ImplicitQuery()
             {
                 return 42;
@@ -69,13 +63,6 @@ namespace OrigoDB.Core.Test
         {
             var target = _map.GetOperationInfo("ExplicitCommandWithResult");
             Assert.IsTrue(target is CommandInfo<TestModel>);
-        }
-
-        [Test]
-        public void Explicit_query_IsQuery()
-        {
-            var target = _map.GetOperationInfo("ExplicitQuery");
-            Assert.IsTrue(target is QueryInfo<TestModel>);
         }
 
         [Test]

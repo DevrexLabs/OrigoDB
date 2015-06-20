@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 
 namespace Proxying
 {
@@ -10,6 +11,11 @@ namespace Proxying
         public QueryAttribute()
         {
             Type = OperationType.Query;
+        }
+
+        internal override OperationInfo<T> ToOperationInfo<T>(MethodInfo methodInfo)
+        {
+            return new QueryInfo<T>(methodInfo,this);
         }
     }
 }

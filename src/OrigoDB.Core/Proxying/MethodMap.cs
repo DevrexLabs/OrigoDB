@@ -42,11 +42,12 @@ namespace Proxying
             var methodMap = new Dictionary<string, OperationInfo<T>>();
             foreach (var methodInfo in modelType.GetMethods(BindingFlags.Public | BindingFlags.Instance))
             {
-                Validate(methodInfo);
+                //Validate(methodInfo);
 
                 var operationAttribute = GetOperationAttribute(methodInfo);
-                string methodName = methodInfo.Name;
-                var operationInfo = OperationInfo<T>.Create(methodInfo, operationAttribute);
+                var methodName = methodInfo.Name;
+                var operationInfo = operationAttribute.ToOperationInfo<T>(methodInfo);
+                if (operationAttribute.Type != OperationType.Disallowed) Validate(methodInfo);
 
                 //For backward compatibility, add using just name.
                 //Before overload support, only the method name was recorded to the journal.
@@ -79,7 +80,6 @@ namespace Proxying
             return result;
         }
 
-
         private static void Validate(MethodInfo methodInfo)
         {
             if ( HasRefArg(methodInfo))
@@ -87,7 +87,6 @@ namespace Proxying
                 throw new Exception("ref/out parameters not supported");
             }
         }
-
         
         internal static Boolean HasRefArg(MethodInfo methodInfo)
         {
@@ -95,7 +94,6 @@ namespace Proxying
                 .GetParameters()
                 .Any(p => p.ParameterType.IsByRef || p.IsOut);
         }
-
 
         internal MethodMap(Dictionary<string, OperationInfo<T>> methodMap)
         {

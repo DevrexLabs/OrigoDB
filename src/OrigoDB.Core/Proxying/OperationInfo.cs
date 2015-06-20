@@ -46,12 +46,5 @@ namespace Proxying
         }
 
         protected abstract object Execute(IEngine<T> engine, string signature, object operation, object[] args);
-
-        public static OperationInfo<T> Create(MethodInfo methodInfo, OperationAttribute proxyAttribute)
-        {
-            if (proxyAttribute.Type == OperationType.Command) return new CommandInfo<T>(methodInfo, proxyAttribute);
-            if (proxyAttribute.Type == OperationType.Query) return new QueryInfo<T>(methodInfo,proxyAttribute);
-            throw new ArgumentException("Expected operation Command or Query", "proxyAttribute");
-        }
     }
 }

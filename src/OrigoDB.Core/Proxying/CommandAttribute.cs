@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 
 namespace Proxying
 {
@@ -23,5 +24,9 @@ namespace Proxying
         /// </summary>
         public bool IsDefault{ get; set; }
 
+        internal override OperationInfo<T> ToOperationInfo<T>(MethodInfo methodInfo)
+        {
+            return new CommandInfo<T>(methodInfo,this);
+        }
     }
 }

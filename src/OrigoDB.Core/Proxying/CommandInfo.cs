@@ -1,7 +1,6 @@
 using System.Reflection;
-using OrigoDB.Core;
 
-namespace Proxying
+namespace OrigoDB.Core.Proxying
 {
     internal sealed class CommandInfo<T> : OperationInfo<T> where T:Model
     {

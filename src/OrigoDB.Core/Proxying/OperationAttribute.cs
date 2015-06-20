@@ -1,8 +1,9 @@
 using System;
 using System.Reflection;
-using OrigoDB.Core;
+using OrigoDB.Core.Proxying;
 
-namespace Proxying
+
+namespace OrigoDB.Core
 {
     [AttributeUsage(AttributeTargets.Method)]
     public abstract class OperationAttribute : Attribute

@@ -1,4 +1,4 @@
-using Proxying;
+using OrigoDB.Core.Proxying;
 
 namespace OrigoDB.Core
 {

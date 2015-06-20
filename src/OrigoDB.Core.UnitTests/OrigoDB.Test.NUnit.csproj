@@ -72,12 +72,16 @@
     <Compile Include="DomainEventTests.cs" />
     <Compile Include="EngineEventsTests.cs" />
     <Compile Include="ConfigDictionaryTests.cs" />
-    <Compile Include="GraphModelTests.cs" />
+    <Compile Include="Models\GraphModelTests.cs" />
     <Compile Include="GzipHelperTest.cs" />
     <Compile Include="HashUtilityTest.cs" />
     <Compile Include="ImmutabilityTests.cs" />
     <Compile Include="LoggingTests.cs" />
     <Compile Include="MergersTest.cs" />
+    <Compile Include="Models\Redis\KeyTests.cs" />
+    <Compile Include="Models\Redis\RangeTests.cs" />
+    <Compile Include="Models\Redis\RedisTestBase.cs" />
+    <Compile Include="Models\Redis\SortedSetTests.cs" />
     <Compile Include="ModelTests.cs" />
     <Compile Include="PacketTest.cs" />
     <Compile Include="PersistenceModeTests.cs" />

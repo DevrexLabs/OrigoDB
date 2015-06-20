@@ -1,10 +1,8 @@
-using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting.Messaging;
-using OrigoDB.Core;
 
-namespace Proxying
+namespace OrigoDB.Core.Proxying
 {
     internal abstract class OperationInfo<T> where T : Model
     {

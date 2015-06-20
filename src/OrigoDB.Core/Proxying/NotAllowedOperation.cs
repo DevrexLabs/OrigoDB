@@ -1,8 +1,8 @@
 using System;
 using System.Reflection;
-using OrigoDB.Core;
 
-namespace Proxying
+
+namespace OrigoDB.Core.Proxying
 {
     internal class NotAllowedOperation<T> : OperationInfo<T> where T : Model
     {

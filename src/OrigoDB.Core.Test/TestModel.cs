@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Proxying;
 
 namespace OrigoDB.Core.Test
 {

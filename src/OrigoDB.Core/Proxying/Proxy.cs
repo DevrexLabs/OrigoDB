@@ -2,9 +2,8 @@
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
-using OrigoDB.Core;
 
-namespace Proxying
+namespace OrigoDB.Core.Proxying
 {
     public class Proxy<T> : RealProxy where T : Model
     {
@@ -28,14 +27,16 @@ namespace Proxying
 
             var signature = GetSignature(methodCall);
             var operationInfo = _methods.GetOperationInfo(signature);
-            //if (!operationInfo.IsAllowed) throw new Exception("Method not allowed");
             var result = operationInfo.Execute(_handler, methodCall, signature);
             return new ReturnMessage(result, null, 0, methodCall.LogicalCallContext, methodCall);
         }
 
         internal static string GetSignature(IMethodCallMessage callMessage)
         {
-            var argTypes = callMessage.InArgs.Select(a => a.GetType()).ToArray();
+            var argTypes = callMessage.MethodBase
+                .GetParameters()
+                .Select(pi => pi.ParameterType).ToArray();
+            
             // ReSharper disable once PossibleNullReferenceException
             return Type.GetType(callMessage.TypeName)
                 .GetMethod(callMessage.MethodName, argTypes).ToString();

@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Proxying
+namespace OrigoDB.Core.Proxying
 {
     internal class NotAllowedAttribute : OperationAttribute
     {

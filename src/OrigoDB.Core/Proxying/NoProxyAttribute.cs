@@ -1,6 +1,6 @@
 using System;
 
-namespace Proxying
+namespace OrigoDB.Core
 {
     /// <summary>
     /// Explicitly disallow when proxying, invocation will throw an Exception if called through the proxy

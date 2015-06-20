@@ -1,7 +1,8 @@
 using System;
 using System.Reflection;
+using OrigoDB.Core.Proxying;
 
-namespace Proxying
+namespace OrigoDB.Core
 {
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class QueryAttribute : OperationAttribute

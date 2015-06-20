@@ -1,7 +1,8 @@
 using System;
 using System.Reflection;
+using OrigoDB.Core.Proxying;
 
-namespace Proxying
+namespace OrigoDB.Core
 {
     /// <summary>
     /// Used to mark non-void methods as commands so they won't be interpreted as queries.

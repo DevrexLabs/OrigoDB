@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using OrigoDB.Core;
 
-namespace Proxying
+namespace OrigoDB.Core.Proxying
 {
 
     internal abstract class MethodMap

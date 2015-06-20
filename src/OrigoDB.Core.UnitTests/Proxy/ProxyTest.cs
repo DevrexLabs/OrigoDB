@@ -25,8 +25,10 @@ namespace OrigoDB.Core.Test
 	    [Test]
 	    public void CanSetProperty()
 	    {
+	        int flag = 0;
+	        _engine.CommandExecuted += (sender, args) => flag ++;
 	        _proxy.CommandsExecuted = 42;
-            Assert.AreEqual(42, _proxy.CommandsExecuted);
+            Assert.AreEqual(1, flag);
 	    }
 
 

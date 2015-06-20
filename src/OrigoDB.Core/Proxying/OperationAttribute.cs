@@ -2,13 +2,13 @@ using System;
 
 namespace Proxying
 {
-    [AttributeUsage(AttributeTargets.Event | AttributeTargets.Method | AttributeTargets.Property)]
-    public class OperationAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Method)]
+    public abstract class OperationAttribute : Attribute
     {
         internal OperationType Type { get; set; }
 
 
-        public OperationAttribute()
+        protected OperationAttribute()
         {
             CloneResult = true;
         }

@@ -2,7 +2,7 @@ using System;
 
 namespace Proxying
 {
-    [AttributeUsage(AttributeTargets.Event | AttributeTargets.Method | AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Method)]
     public sealed class QueryAttribute : OperationAttribute
     {
         public static readonly OperationAttribute Default = new QueryAttribute();

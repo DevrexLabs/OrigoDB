@@ -48,9 +48,27 @@ namespace Proxying
                 string methodName = methodInfo.Name;
                 var operationInfo = OperationInfo<T>.Create(methodInfo, operationAttribute);
 
-                //For backwards compatibility when overloads were not supported
-                //Only name was used. Overloads were introduced with v 0.18.0
+                //For backward compatibility, add using just name.
+                //Before overload support, only the method name was recorded to the journal.
+                //This will support the cases where there are no overloads.
                 if (!methodMap.ContainsKey(methodName)) methodMap.Add(methodName, operationInfo);
+
+                // For backward compatibility:
+                //Handle the case when overloads are introduced to an existing model. The user can 
+                //map a method name in the journal to a specific overload 
+                var commandAttribute = operationAttribute as CommandAttribute;
+                if (commandAttribute != null && commandAttribute.IsDefault)
+                {
+                    //ensure there is only one method in the group marked default
+                    if (methodMap.ContainsKey(methodName))
+                    {
+                        var previousOperation = methodMap[methodName].OperationAttribute as CommandAttribute;
+                        if (previousOperation != null && previousOperation.IsDefault)
+                            throw new Exception("Only one method per group can be marked IsDefault");
+                    }
+
+                    methodMap[methodName] = operationInfo;
+                }
                 
                 //use a unique signature based on the method name and argument types
                 var signature = methodInfo.ToString();
@@ -93,7 +111,7 @@ namespace Proxying
             if (attribute != null) return attribute;
 
             var temp = methodInfo.GetCustomAttributes(typeof (NoProxyAttribute), true).FirstOrDefault();
-            if (temp != null) attribute = new OperationAttribute{Type = OperationType.Disallowed};
+            if (temp != null) attribute = NotAllowedAttribute.Default;
 
             return attribute ?? GetDefaultOperationAttribute(methodInfo);
         }

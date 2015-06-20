@@ -97,6 +97,7 @@
     <Compile Include="Events\IHandleEvents.cs" />
     <Compile Include="Events\ISelectEvents.cs" />
     <Compile Include="Proxying\CommandInfo.cs" />
+    <Compile Include="Proxying\NotAllowedAttribute.cs" />
     <Compile Include="Proxying\QueryInfo.cs" />
     <Compile Include="Storage\Rollover\CompositeRolloverStrategy.cs" />
     <Compile Include="Storage\Rollover\MaxBytesRolloverStrategy.cs" />

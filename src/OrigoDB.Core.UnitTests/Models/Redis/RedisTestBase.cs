@@ -14,7 +14,7 @@ namespace Models.Redis.Tests
         {
             //_target = new RedisModel();
             var config = EngineConfiguration.Create().ForIsolatedTest();
-            _target = Engine.For<RedisModel>(config).GetProxy();
+            _target = Db.For<RedisModel>(config);
 
         }
     }

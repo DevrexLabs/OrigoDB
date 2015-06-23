@@ -8,7 +8,7 @@ using OrigoDB.Core;
 namespace OrigoDB.Models.Redis
 {
     /// <summary>
-    /// Redis clone for OrigoDB
+    /// Redis clone
     /// </summary>
     [Serializable]
     public class RedisModel : Model
@@ -30,14 +30,54 @@ namespace OrigoDB.Models.Redis
             Max
         }
 
+        [Serializable]
+        internal class Expiration : IComparable<Expiration>
+        {
+            public readonly string Key;
+            public readonly DateTime Expires;
+
+            public Expiration(string key, DateTime expires)
+            {
+                Key = key;
+                Expires = expires;
+            }
+
+            public int CompareTo(Expiration other)
+            {
+                if (Expires > other.Expires) return 1;
+                if (Expires < other.Expires) return -1;
+                return 0;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is Expiration && ((Expiration) obj).Key == Key;
+            }
+
+            public override int GetHashCode()
+            {
+                return Key.GetHashCode();
+            }
+        }
+
         private readonly Random _random = new Random();
 
         /// <summary>
         /// This is where all the data goes
         /// </summary>
-        private readonly SortedDictionary<string, object> _structures = new SortedDictionary<string, object>();
+        private readonly SortedDictionary<string, object> _structures 
+            = new SortedDictionary<string, object>();
 
-        /// <summary>
+        //expirations sorted by expire time
+        private readonly SortedSet<Expiration> _expirations = new SortedSet<Expiration>();
+
+        //key -> expiration lookup
+        private readonly SortedDictionary<string, Expiration> _expirationKeys 
+            = new SortedDictionary<string, Expiration>();
+
+
+
+            /// <summary>
         /// Removes the specified keys. A key is ignored if it does not exist.
         /// Returns number of keys removed.
         /// </summary>
@@ -70,6 +110,17 @@ namespace OrigoDB.Models.Redis
         public bool Exists(string key)
         {
             return _structures.ContainsKey(key);
+        }
+
+        [Command]
+        public bool Expire(string key, DateTime at)
+        {
+            if (!Exists(key)) return false;
+            var expiration = new Expiration(key, at);
+            _expirations.Remove(expiration);
+            _expirationKeys[key] = expiration;
+            _expirations.Add(expiration);
+            return true;
         }
 
         /// <summary>
@@ -117,8 +168,24 @@ namespace OrigoDB.Models.Redis
         /// <param name="value"></param>
         public void Set(string key, string value)
         {
+            Persist(key);
             _structures[key] = new StringBuilder(value);
         }
+
+
+        /// <summary>
+        /// Set key to hold string value if key does not exist. In that case, it is equal to SET. 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns>true if key was set, otherwise false</returns>
+        public bool SetUnlessExists(string key, string value)
+        {
+            if (Exists(key)) return false;
+            Set(key, value);
+            return true;
+        }
+           
 
         /// <summary>
         /// Get the value of key. If the key does not exist the special value nil is returned. An error is returned
@@ -131,6 +198,25 @@ namespace OrigoDB.Models.Redis
             var builder = GetStringBuilder(key);
             if (builder != null) return builder.ToString();
             else return null;
+        }
+
+        /// <summary>
+        /// Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
+        /// Negative offsets can be used in order to provide an offset starting from the end of the string.
+        /// So -1 means the last character, -2 the penultimate and so forth. 
+        /// The function handles out of range requests by limiting the resulting range to the actual length of the string.
+        /// </summary>
+        public string GetRange(string key, int start, int end)
+        {
+            var sb = GetStringBuilder(key);
+            var range = new Range(start, end, sb.Length);
+            if (range.FirstIdx >= sb.Length) return string.Empty;
+            int lastIdx = Math.Min(range.LastIdx, sb.Length-1);
+            int length = lastIdx - range.FirstIdx + 1;
+            if (length <= 0) return "";
+            var result = new char[length];
+            sb.CopyTo(range.FirstIdx, result, 0, length);
+            return new String(result);
         }
 
 
@@ -569,6 +655,29 @@ namespace OrigoDB.Models.Redis
             int result = list.Count;
             if (list.Count == 0) _structures.Remove(key);
             return result;
+        }
+
+        [Command]
+        public bool Persist(string key)
+        {
+            Expiration expiration;
+            if (_expirationKeys.TryGetValue(key, out expiration))
+            {
+                _expirations.Remove(expiration);
+                _expirationKeys.Remove(key);
+                return true;
+            }
+            return false;
+        }
+
+        public DateTime? Expires(string key)
+        {
+            Expiration expiration;
+            if (_expirationKeys.TryGetValue(key, out expiration))
+            {
+                return expiration.Expires;
+            }
+            return null;
         }
 
         /// <summary>
@@ -1348,13 +1457,14 @@ namespace OrigoDB.Models.Redis
             object val;
             if (_structures.TryGetValue(key, out val))
             {
-                if (val is T) return (T)val;
+                var structure = val as T;
+                if (structure != null) return structure;
                 throw new CommandAbortedException("WRONGTYPE Operation against a key holding the wrong kind of value");
             }
             return null;
         }
 
-        private IEnumerable<Tuple<string, string>> ToPairs(string[] interlaced)
+        private static IEnumerable<Tuple<string, string>> ToPairs(string[] interlaced)
         {
             if (interlaced.Length % 2 != 0)
             {

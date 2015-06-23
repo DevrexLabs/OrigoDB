@@ -97,9 +97,10 @@
     <Compile Include="Events\IEvent.cs" />
     <Compile Include="Events\IHandleEvents.cs" />
     <Compile Include="Events\ISelectEvents.cs" />
-    <Compile Include="Models\Range.cs" />
-    <Compile Include="Models\RedisModel.cs" />
-    <Compile Include="Models\ZSetEntry.cs" />
+    <Compile Include="Models\Redis\Extensions.cs" />
+    <Compile Include="Models\Redis\Range.cs" />
+    <Compile Include="Models\Redis\RedisModel.cs" />
+    <Compile Include="Models\Redis\ZSetEntry.cs" />
     <Compile Include="Proxying\CommandInfo.cs" />
     <Compile Include="Proxying\NotAllowedAttribute.cs" />
     <Compile Include="Proxying\NotAllowedOperation.cs" />

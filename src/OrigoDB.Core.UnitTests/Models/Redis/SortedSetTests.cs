@@ -6,8 +6,6 @@ using OrigoDB.Models.Redis;
 
 namespace Models.Redis.Tests
 {
-
-
     [TestFixture]
     public class SortedSetTests : RedisTestBase
     {
@@ -39,7 +37,7 @@ namespace Models.Redis.Tests
         {
             _target.ZAdd("key", "47", "dad", "12", "boy", "10", "girl");
             var newScore = _target.ZIncrementBy("key", 4.0, "boy");
-            Assert.AreEqual(16, newScore, "0.00000001");
+            Assert.AreEqual(16, newScore, 0.00000001);
         }
 
         [Test]

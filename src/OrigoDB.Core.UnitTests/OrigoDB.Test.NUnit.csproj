@@ -82,6 +82,7 @@
     <Compile Include="Models\Redis\RangeTests.cs" />
     <Compile Include="Models\Redis\RedisTestBase.cs" />
     <Compile Include="Models\Redis\SortedSetTests.cs" />
+    <Compile Include="Models\Redis\StringTests.cs" />
     <Compile Include="ModelTests.cs" />
     <Compile Include="PacketTest.cs" />
     <Compile Include="PersistenceModeTests.cs" />

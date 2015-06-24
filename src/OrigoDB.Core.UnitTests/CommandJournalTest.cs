@@ -79,13 +79,13 @@ namespace OrigoDB.Core.Test
         public void RollbackMarkerIsWrittenOnRollback()
         {
             //Arrange
+            ExecutionContext.Begin();
             var config = EngineConfiguration.Create().ForIsolatedTest();
             var store = new InMemoryCommandStore(config);
             store.Initialize();
             var target = new JournalAppender(1, new StreamJournalWriter(config, store.CreateJournalWriterStream));
 
             var command = new ACommand();
-            command.Timestamp = DateTime.Now;
             target.Append(command);
             target.Append(command);
 

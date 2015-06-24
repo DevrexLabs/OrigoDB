@@ -17,7 +17,7 @@ namespace OrigoDB.Core
 
         internal override object ExecuteStub(Model model)
         {
-            Execute(model as TModel);
+            Execute(model as  TModel);
             return null;
         }
 

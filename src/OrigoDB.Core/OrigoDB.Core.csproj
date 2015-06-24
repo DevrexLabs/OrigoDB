@@ -60,6 +60,7 @@
     <Compile Include="Benchmarking\BenchmarkModel.cs" />
     <Compile Include="Benchmarking\BenchmarkResult.cs" />
     <Compile Include="Benchmarking\BenchmarkCommand.cs" />
+    <Compile Include="ExecutionContext.cs" />
     <Compile Include="Models\GraphStore.cs" />
     <Compile Include="Models\KeyValueStore.cs" />
     <Compile Include="Benchmarking\Timing.cs" />
@@ -91,12 +92,7 @@
     <Compile Include="Configuration\ConfigurationExtensions.cs" />
     <Compile Include="Configuration\FormatterUsage.cs" />
     <Compile Include="Configuration\TeenyIoc.cs" />
-    <Compile Include="Events\FilteringEventDispatcher.cs" />
-    <Compile Include="Events\DelegateHandler.cs" />
-    <Compile Include="Events\DelegateSelector.cs" />
-    <Compile Include="Events\IEvent.cs" />
-    <Compile Include="Events\IHandleEvents.cs" />
-    <Compile Include="Events\ISelectEvents.cs" />
+    <Compile Include="IEvent.cs" />
     <Compile Include="Models\Redis\Extensions.cs" />
     <Compile Include="Models\Redis\Range.cs" />
     <Compile Include="Models\Redis\RedisModel.cs" />
@@ -112,7 +108,7 @@
     <Compile Include="Utilities\Utils.Converters.cs" />
     <Compile Include="Journaling\JournalAppender.cs" />
     <Compile Include="Journaling\ModelCreated.cs" />
-    <Compile Include="PersistenceMode.cs" />
+    <Compile Include="Configuration\PersistenceMode.cs" />
     <Compile Include="Proxying\CommandAttribute.cs" />
     <Compile Include="Proxying\NoProxyAttribute.cs" />
     <Compile Include="Proxying\OperationAttribute.cs" />
@@ -231,7 +227,6 @@
     <Compile Include="Utilities\DirectoryEx.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Events\Events.cd" />
     <None Include="Storage\Filestorage.cd" />
     <None Include="Core.Public.cd" />
     <None Include="Security\ClassDiagram2.cd" />

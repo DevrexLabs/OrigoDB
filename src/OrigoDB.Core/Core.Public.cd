@@ -4,7 +4,6 @@
     <Position X="4.25" Y="0.5" Width="2.5" />
     <Members>
       <Field Name="_authorizer" Hidden="true" />
-      <Field Name="_commandJournal" Hidden="true" />
       <Field Name="_config" Hidden="true" />
       <Field Name="_isDisposed" Hidden="true" />
       <Field Name="_log" Hidden="true" />
@@ -12,8 +11,6 @@
       <Method Name="Engine" Hidden="true" />
       <Method Name="ExecuteQuery" Hidden="true" />
       <Method Name="GetSnapshot" Hidden="true" />
-      <Method Name="ThrowIfDisposed" Hidden="true" />
-      <Method Name="ThrowUnlessAuthenticated" Hidden="true" />
       <Method Name="WriteSnapshotToStream" Hidden="true" />
     </Members>
     <Compartments>
@@ -21,49 +18,49 @@
       <Compartment Name="Properties" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAIgAgAAiAAgnQCAAAAEEiAIEAgAEAIAAAAAALAAAA=</HashCode>
+      <HashCode>AAAIiAgAQiDAAFQDAIBKEEiAIEAgAEAoAAABAADAAAA=</HashCode>
       <FileName>Engine.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="OrigoDB.Core.Model">
-    <Position X="4.75" Y="4" Width="2.5" />
+    <Position X="8.75" Y="5" Width="2.5" />
     <TypeIdentifier>
-      <HashCode>AAAQAAAAAAAAEAAAAAAMAAAAAAEAABAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAgAAAAAAAAIAAAAAkEAAAAAAQAAAAAAAAA=</HashCode>
       <FileName>Model.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="OrigoDB.Core.Command&lt;M, R&gt;">
-    <Position X="10.25" Y="3" Width="2" />
-    <Members>
-      <Method Name="ExecuteStub" Hidden="true" />
-      <Method Name="PrepareStub" Hidden="true" />
-    </Members>
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAQAAQAQBAAAAAgAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Command[M,R].cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="OrigoDB.Core.Command&lt;M&gt;">
-    <Position X="8" Y="3" Width="2" />
+  <Class Name="OrigoDB.Core.Command&lt;TModel, TResult&gt;">
+    <Position X="12.5" Y="2.5" Width="2" />
     <Members>
       <Method Name="ExecuteStub" Hidden="true" />
       <Method Name="PrepareStub" Hidden="true" />
     </Members>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAQAAQAQBAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Command[M].cs</FileName>
+      <FileName>Operations\Command[M,R].cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="OrigoDB.Core.Command&lt;TModel&gt;">
+    <Position X="7.25" Y="3.25" Width="2" />
+    <Members>
+      <Method Name="ExecuteStub" Hidden="true" />
+      <Method Name="PrepareStub" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAQAQBAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Operations\Command[M].cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="OrigoDB.Core.Query&lt;M, R&gt;">
+  <Class Name="OrigoDB.Core.Query&lt;TModel, TResult&gt;">
     <Position X="7.25" Y="1" Width="2" />
     <Members>
       <Method Name="ExecuteStub" Hidden="true" />
     </Members>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAQAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Query[M,R].cs</FileName>
+      <FileName>Operations\Query[M,R].cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="OrigoDB.Core.Command">
@@ -74,19 +71,18 @@
       <Method Name="Redo" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAQAAACABAAAAAAABAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Command.cs</FileName>
+      <HashCode>EAAAAAAAAQAAACABAAACAgABAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Operations\Command.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="OrigoDB.Core.EngineConfiguration">
     <Position X="0.75" Y="0.5" Width="2.5" />
     <Members>
       <Field Name="_registry" Hidden="true" />
-      <Method Name="InitFormatters" Hidden="true" />
       <Method Name="InitSynchronizers" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>CABCBBgAAACAIIIAQEIAAAMSwQAhAEMQAAIAgiBAAgg=</HashCode>
+      <HashCode>CAACABAAAAAAIIBAQAIAICMywQAhAEEQQAAAgiJAAAg=</HashCode>
       <FileName>Configuration\EngineConfiguration.cs</FileName>
     </TypeIdentifier>
   </Class>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using FakeItEasy;
 using NUnit.Framework;
 
@@ -26,17 +27,11 @@ namespace OrigoDB.Core.Test
 
             public override void Execute(TestModel model)
             {
-                model.SetTime(Timestamp);
+                var ts = ExecutionContext.Current.Timestamp;
+                model.SetTime(ts);
             }
         }
 
-
-        [Test]
-        public void Read_timestamp_throws_when_unassigned()
-        {
-            var command = new SetTimeCommand();
-            Assert.Catch(() => { var _ = command.Timestamp; });
-        }
 
         [Test]
         public void Timestamp_is_copied_to_journal_entry()
@@ -50,14 +45,16 @@ namespace OrigoDB.Core.Test
                 {
                     entry = je;
                 });
-            
+
+            var before = DateTime.Now;
+            ExecutionContext.Begin();
             var command = new SetTimeCommand();
-            command.Timestamp = DateTime.Now;
             var target = new JournalAppender(0, fake);
+            var after = DateTime.Now;
             target.Append(command);
 
             Assert.IsNotNull(entry);
-            Assert.AreEqual(command.Timestamp, entry.Created);
+            Assert.IsTrue(before <= entry.Created && entry.Created <= after);
         }
 
         [Test]
@@ -71,8 +68,7 @@ namespace OrigoDB.Core.Test
 
             var store = config.CreateCommandStore();
             var entry = store.CommandEntries().Single();
-            Assert.AreEqual(entry.Created, entry.Item.Timestamp);
-            Assert.AreEqual(command.Timestamp, entry.Created);
+            Assert.AreEqual(entry.Created, ((TestModel) engine.GetModel()).Sometime);
         }
     }
 }

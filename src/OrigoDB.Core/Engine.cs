@@ -39,7 +39,7 @@ namespace OrigoDB.Core
         private ISnapshotStore _snapshotStore;
         readonly ISynchronizer _synchronizer;
 
-        readonly List<IEvent> _capturedEvents = new List<IEvent>(100);
+        //readonly List<IEvent> _capturedEvents = new List<IEvent>(100);
 
         private readonly object _commandSequenceLock = new object();
 
@@ -95,9 +95,6 @@ namespace OrigoDB.Core
             _journalAppender = JournalAppender.Create(model.Revision + 1, _commandStore);
             _kernel = _config.CreateKernel(model);
             _kernel.SetSynchronizer(_synchronizer);
-
-            //Capture events emitted during Command.Execute
-            model.Events.Subscribe( e => _capturedEvents.Add(e));
         }
 
         /// <summary>
@@ -158,7 +155,7 @@ namespace OrigoDB.Core
 
             lock (_commandSequenceLock)
             {
-                command.Timestamp = DateTime.Now;
+                var ctx = ExecutionContext.Begin();
                 bool exceptionThrown = false;
                 _executionTimer.Restart();
                 
@@ -168,7 +165,6 @@ namespace OrigoDB.Core
 
                 try
                 {
-                    _capturedEvents.Clear();
                     return _kernel.ExecuteCommand(command);
                 }
                 catch (Exception ex)
@@ -187,9 +183,11 @@ namespace OrigoDB.Core
                     _synchronizer.Exit();
                     if (!exceptionThrown)
                     {
-                        var args = new CommandExecutedEventArgs(lastEntryId, command, command.Timestamp, _executionTimer.Elapsed, _capturedEvents);
+                        
+                        var args = new CommandExecutedEventArgs(lastEntryId, command, ctx.Timestamp, _executionTimer.Elapsed, ctx.Events);
                         CommandExecuted.Invoke(this, args);
                     }
+                    ExecutionContext.Current = null;
                 }
             }
         }

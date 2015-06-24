@@ -42,6 +42,7 @@ namespace OrigoDB.Core.Models
             _nodesByLabel = new SortedDictionary<string, SortedSet<Node>>(ignoreCase);
         }
 
+        [Serializable]
         public abstract class Item : IComparable<Item>
         {
             public readonly long Id;
@@ -170,6 +171,7 @@ namespace OrigoDB.Core.Models
             foreach(var edge in _edgesById.Values) AddByLabel(_edgesByLabel, edge, edge.Label);
         }
 
+        [Serializable]
         public class Node : Item
         {
             public Node(long id, string label) : base(id,label){}
@@ -178,7 +180,7 @@ namespace OrigoDB.Core.Models
             internal ISet<Edge> In = new SortedSet<Edge>();
         }
 
-        
+        [Serializable]
         public class Edge : Item
         {
             public Edge(long id, string label) : base(id,label){}

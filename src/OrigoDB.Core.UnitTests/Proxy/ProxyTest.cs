@@ -88,7 +88,7 @@ namespace OrigoDB.Core.Test
 
         }
 
-        [Test]
+        [Test,Ignore]
         public void GenericQuery()
         {
             var customer = new Customer();

@@ -31,15 +31,12 @@ namespace OrigoDB.Core.Proxying
             return new ReturnMessage(result, null, 0, methodCall.LogicalCallContext, methodCall);
         }
 
-        internal static string GetSignature(IMethodCallMessage callMessage)
+        private static string GetSignature(IMethodMessage callMessage)
         {
             var argTypes = callMessage.MethodBase
                 .GetParameters()
                 .Select(pi => pi.ParameterType).ToArray();
-            
-            // ReSharper disable once PossibleNullReferenceException
-            return Type.GetType(callMessage.TypeName)
-                .GetMethod(callMessage.MethodName, argTypes).ToString();
+            return typeof(T).GetMethod(callMessage.MethodName, argTypes).ToString();
         }
     }
 }

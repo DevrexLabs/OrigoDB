@@ -30,6 +30,16 @@ namespace OrigoDB.Core.Test
                 return 42;
             }
 
+            public void GenericCommand<T>(T item)
+            {
+                
+            }
+
+            public T GenericQuery<T>(T item)
+            {
+                return item;
+            }
+
             [Command(CloneResult = false)]
             public TestModel MvccOperation()
             {

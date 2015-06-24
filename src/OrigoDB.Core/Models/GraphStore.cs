@@ -178,6 +178,7 @@ namespace OrigoDB.Core.Models
             internal ISet<Edge> In = new SortedSet<Edge>();
         }
 
+        
         public class Edge : Item
         {
             public Edge(long id, string label) : base(id,label){}

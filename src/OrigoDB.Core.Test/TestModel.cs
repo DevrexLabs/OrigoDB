@@ -84,6 +84,16 @@ namespace OrigoDB.Core.Test
         {
             _customers.Add(new Customer{Name = name});
         }
+
+        public void Add<T>(T item)
+        {
+            
+        }
+
+        public T GenericQuery<T>(T item)
+        {
+            return item;
+        }
     }
 
 	[Serializable]

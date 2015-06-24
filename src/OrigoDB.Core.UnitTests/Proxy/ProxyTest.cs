@@ -87,5 +87,14 @@ namespace OrigoDB.Core.Test
             Assert.False(opInfo.OperationAttribute.CloneResult);
 
         }
+
+        [Test]
+        public void GenericQuery()
+        {
+            var customer = new Customer();
+            var clone = _proxy.GenericQuery(customer);
+            Assert.AreNotSame(clone,customer);
+            Assert.IsInstanceOf<Customer>(clone);
+        }
     }
 }

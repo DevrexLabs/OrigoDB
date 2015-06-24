@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -14,7 +13,8 @@ namespace OrigoDB.Core.Test
         [Test]
         public void SmokeTest()
         {
-            var store = new GraphStore();
+            var config = EngineConfiguration.Create().ForIsolatedTest();
+            var store = Db.For<GraphStore>(config);
             var user1 = store.CreateNode("user");
             var user2 = store.CreateNode("user");
             var tweet = store.CreateNode("tweet");

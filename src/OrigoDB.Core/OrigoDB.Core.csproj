@@ -224,7 +224,6 @@
     <Compile Include="Storage\FileCommandStore.cs" />
     <Compile Include="Journaling\StreamJournalWriter.cs" />
     <Compile Include="Utilities\HashUtility.cs" />
-    <Compile Include="Utilities\DirectoryEx.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Storage\Filestorage.cd" />

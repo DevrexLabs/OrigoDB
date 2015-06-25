@@ -9,15 +9,15 @@ using OrigoDB.Core.Models;
 namespace OrigoDB.Core.Test
 {
     [TestFixture]
-    public class GraphStoreTests
+    public class GraphModelTests
     {
-        private GraphStore _graph;
+        private GraphModel _graph;
         private long _user1;
 
         [SetUp]
         public void Init()
         {
-            _graph = new GraphStore();
+            _graph = new GraphModel();
             _user1 = _graph.CreateNode("user");
             var user2 = _graph.CreateNode("user");
             var tweet = _graph.CreateNode("tweet");
@@ -36,7 +36,7 @@ namespace OrigoDB.Core.Test
         public void Queries()
         {
             //how many users have at least one tweet?
-            Expression<Func<GraphStore, int>> query = 
+            Expression<Func<GraphModel, int>> query = 
                 g => g.Nodes.Count(n => n.Label == "user" && n.Out.Any(e => e.Label == "tweeted"));
             var result = _graph.Query(query);
             Assert.AreEqual(1, result);
@@ -49,7 +49,7 @@ namespace OrigoDB.Core.Test
             Assert.AreEqual(1, result);
 
             //nodes having self references
-            Expression<Func<GraphStore, IEnumerable<GraphStore.Node>>> query2 =
+            Expression<Func<GraphModel, IEnumerable<GraphModel.Node>>> query2 =
                 g => g.Nodes.Where(n => n.Out.Any(e => n.In.Contains(e)));
 
             var node = _graph.Query(query2).Single();

@@ -61,7 +61,7 @@
     <Compile Include="Benchmarking\BenchmarkResult.cs" />
     <Compile Include="Benchmarking\BenchmarkCommand.cs" />
     <Compile Include="ExecutionContext.cs" />
-    <Compile Include="Models\GraphStore.cs" />
+    <Compile Include="Models\GraphModel.cs" />
     <Compile Include="Models\KeyValueStore.cs" />
     <Compile Include="Benchmarking\Timing.cs" />
     <Compile Include="Benchmarking\RandomExtensions.cs" />

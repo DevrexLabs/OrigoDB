@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 namespace OrigoDB.Core.Models
 {
     [Serializable]
-    public class GraphStore : Model
+    public class GraphModel : Model
     {
         /// <summary>
         /// Unique id generator, shared by nodes and edges
@@ -33,7 +33,7 @@ namespace OrigoDB.Core.Models
             get { return _edgesById.Values; }
         }
 
-        public GraphStore()
+        public GraphModel()
         {
             var ignoreCase = StringComparer.InvariantCultureIgnoreCase;
             _edgesById = new SortedDictionary<long, Edge>();
@@ -128,7 +128,7 @@ namespace OrigoDB.Core.Models
             _nodesByLabel[node.Label].Remove(node);
         }
 
-        public T Query<T>(Expression<Func<GraphStore, T>> query)
+        public T Query<T>(Expression<Func<GraphModel, T>> query)
         {
             return query.Compile().Invoke(this);
         }

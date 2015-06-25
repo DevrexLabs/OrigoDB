@@ -1,13 +1,36 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 using OrigoDB.Core.Proxying;
 
 namespace OrigoDB.Core.Test
 {
+
+    public static class ModelExtensions
+    {
+        //Generics wont proxy. this is a workaround.
+        public static T Add<T>(this ProxyTest.MyModel model, T item)
+        {
+            return (T)model.Add(item.GetType(), item);
+        }
+    }
+
     [TestFixture]
 	public class ProxyTest 
 	{
+        [Serializable]
+        public class MyModel : Model
+        {
+            public int Calls { get; private set; }
+
+            [Command]
+            public object Add(Type t, object item)
+            {
+                Calls++;
+                return item;
+            }
+        }
 
         TestModel _proxy;
 	    Engine<TestModel> _engine;
@@ -95,6 +118,15 @@ namespace OrigoDB.Core.Test
             var clone = _proxy.GenericQuery(customer);
             Assert.AreNotSame(clone,customer);
             Assert.IsInstanceOf<Customer>(clone);
+        }
+
+        [Test]
+        public void Generics_using_extension_methods()
+        {
+            var config = new EngineConfiguration().ForIsolatedTest();
+            var proxy = Db.For<MyModel>(config);
+            proxy.Add(new Customer());
+            Assert.AreEqual(1, proxy.Calls);
         }
     }
 }

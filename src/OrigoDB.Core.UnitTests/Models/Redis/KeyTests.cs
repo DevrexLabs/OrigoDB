@@ -34,7 +34,7 @@ namespace Models.Redis.Tests
         }
 
         [Test]
-        void Delete_returns_number_of_keys_deleted()
+        public void Delete_returns_number_of_keys_deleted()
         {
             var db = Db.For<RedisModel>();
             db.Set("number", "42");

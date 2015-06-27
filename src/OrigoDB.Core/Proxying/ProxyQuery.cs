@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace OrigoDB.Core.Proxying
 {
@@ -7,18 +8,24 @@ namespace OrigoDB.Core.Proxying
 	{
 		public string MethodName { get; set; }
 		public object[] Arguments { get; set; }
-
-		public ProxyQuery(string methodName, object[] inArgs)
+        public Type[] GenericTypeArguments { get; set; }
+		public ProxyQuery(string methodName, object[] inArgs, Type[] genericTypeArguments)
 		{
 			MethodName = methodName;
 			Arguments = inArgs;
+		    GenericTypeArguments = genericTypeArguments;
 		}
 
 		public override object Execute(T model)
 		{
             var proxyMethod = MethodMap.MapFor<T>().GetOperationInfo(MethodName);
 		    var method = proxyMethod.MethodInfo;
-			return method.Invoke(model, Arguments);
+
+		    if (method.IsGenericMethod)
+		    {
+		        method = method.MakeGenericMethod(GenericTypeArguments);
+		    }
+		    return method.Invoke(model, Arguments);
 		}
 	}
 }

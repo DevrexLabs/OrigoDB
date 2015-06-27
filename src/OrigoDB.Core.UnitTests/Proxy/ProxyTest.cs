@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using NUnit.Framework;
@@ -7,31 +8,9 @@ using OrigoDB.Core.Proxying;
 namespace OrigoDB.Core.Test
 {
 
-    public static class ModelExtensions
-    {
-        //Generics wont proxy. this is a workaround.
-        public static T Add<T>(this ProxyTest.MyModel model, T item)
-        {
-            return (T)model.Add(item.GetType(), item);
-        }
-    }
-
     [TestFixture]
 	public class ProxyTest 
 	{
-        [Serializable]
-        public class MyModel : Model
-        {
-            public int Calls { get; private set; }
-
-            [Command]
-            public object Add(Type t, object item)
-            {
-                Calls++;
-                return item;
-            }
-        }
-
         TestModel _proxy;
 	    Engine<TestModel> _engine;
 
@@ -111,7 +90,7 @@ namespace OrigoDB.Core.Test
 
         }
 
-        [Test,Ignore]
+        [Test]
         public void GenericQuery()
         {
             var customer = new Customer();
@@ -121,12 +100,65 @@ namespace OrigoDB.Core.Test
         }
 
         [Test]
-        public void Generics_using_extension_methods()
+        public void GenericCommand()
         {
-            var config = new EngineConfiguration().ForIsolatedTest();
-            var proxy = Db.For<MyModel>(config);
-            proxy.Add(new Customer());
-            Assert.AreEqual(1, proxy.Calls);
+            _proxy.GenericCommand(DateTime.Now);
+            Assert.AreEqual(1, _proxy.CommandsExecuted);
+        }
+
+        [Test]
+        public void ComplexGeneric()
+        {
+            double result = _proxy.ComplexGeneric(new KeyValuePair<string, double>("dog", 42.0));
+            Assert.AreEqual(result, 42.0, 0.0001);
+            Assert.AreEqual(1, _proxy.CommandsExecuted);
+        }
+
+        [Test]
+        public void Indexer()
+        {
+            _proxy.AddCustomer("Homer");
+            Assert.AreEqual(1, _proxy.CommandsExecuted);
+
+            var customer = _proxy[0];
+            Assert.AreEqual("Homer", customer.Name);
+
+            customer.Name = "Bart";
+            _proxy[0] = customer;
+            Assert.AreEqual(2, _proxy.CommandsExecuted);
+            var customers = _proxy.GetCustomers();
+            Assert.True(customers.Single().Name == "Bart");
+        }
+
+        [Test]
+        public void DefaultArgs()
+        {
+            var result = _proxy.DefaultArgs(10, 10);
+            Assert.AreEqual(62, result);
+
+            result = _proxy.DefaultArgs(10, 10, 10);
+            Assert.AreEqual(30,result);
+        }
+
+        [Test]
+        public void NamedArgs()
+        {
+            var result = _proxy.DefaultArgs(b: 4, a: 2);
+            Assert.AreEqual(48, result);
+        }
+
+        [Test]
+        public void ExplicitGeneric()
+        {
+            var dt = _proxy.ExplicitGeneric<DateTime>();
+            Assert.IsInstanceOf<DateTime>(dt);
+            Assert.AreEqual(default(DateTime), dt);
+        }
+
+        [Test]
+        public void GenericOverloads()
+        {
+            Assert.Inconclusive();
         }
     }
 }

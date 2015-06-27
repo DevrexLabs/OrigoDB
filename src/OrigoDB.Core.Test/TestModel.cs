@@ -19,6 +19,16 @@ namespace OrigoDB.Core.Test
             }
         }
 
+        public Customer this[int customerId]
+        {
+            get { return _customers[customerId]; }
+            set
+            {
+                CommandsExecuted++;
+                _customers[customerId] = value;
+            }
+        }
+
         public int CommandsExecuted { get; set; }
 
         public bool OnLoadExecuted { get; private set; }
@@ -82,17 +92,40 @@ namespace OrigoDB.Core.Test
 
         public void AddCustomer(string name)
         {
+            CommandsExecuted++;
             _customers.Add(new Customer{Name = name});
         }
 
-        public void Add<T>(T item)
+        public void GenericCommand<T>(T item)
         {
-            
+            CommandsExecuted++;
+        }
+
+        [Command]
+        public R ComplexGeneric<T, R>(KeyValuePair<T,R> pair )
+        {
+            CommandsExecuted++;
+            return pair.Value;
         }
 
         public T GenericQuery<T>(T item)
         {
             return item;
+        }
+
+        public T GenericQuery<T>(T item, int s)
+        {
+            return default(T);
+        }
+
+        public int DefaultArgs(int a, int b, int c = 42)
+        {
+            return a + b + c;
+        }
+
+        public T ExplicitGeneric<T>()
+        {
+            return default(T);
         }
     }
 

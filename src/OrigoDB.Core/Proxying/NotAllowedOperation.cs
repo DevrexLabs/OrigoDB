@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Runtime.Remoting.Messaging;
 
 
 namespace OrigoDB.Core.Proxying
@@ -11,9 +12,10 @@ namespace OrigoDB.Core.Proxying
         {
         }
 
-        protected override object Execute(IEngine<T> engine, string signature, object operation, object[] args)
+
+        protected override object Execute(IEngine<T> engine, string signature, object operation, IMethodCallMessage methodCall)
         {
-            throw new Exception("Proxy method not allowed");
+            throw new NotSupportedException("Proxy method not allowed");            
         }
     }
 }

@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.Remoting.Messaging;
 
 namespace OrigoDB.Core.Proxying
 {
@@ -10,10 +11,10 @@ namespace OrigoDB.Core.Proxying
 
         }
 
-        protected override object Execute(IEngine<T> engine, string signature, object operation, object[] args)
+        protected override object Execute(IEngine<T> engine, string signature, object operation, IMethodCallMessage methodCallMessage)
         {
             var query = (Query) operation;
-            query = query ?? new ProxyQuery<T>(signature, args);
+            query = query ?? new ProxyQuery<T>(signature, methodCallMessage.Args, methodCallMessage.MethodBase.GetGenericArguments());
             query.ResultIsSafe = !OperationAttribute.CloneResult;
             return engine.Execute(query);
         }

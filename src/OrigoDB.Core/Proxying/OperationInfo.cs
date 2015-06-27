@@ -29,6 +29,11 @@ namespace OrigoDB.Core.Proxying
             get { return OperationAttribute.MapTo != null; }
         }
 
+        /// <summary>
+        /// If operation attribute had a MapTo property selecting a Command or
+        /// Query type to map to, return an instance of that type, otherwise null
+        /// </summary>
+        /// <returns></returns>
         private object GetMappedOperation(IMethodCallMessage callMessage)
         {
             var mapTo = OperationAttribute.MapTo;
@@ -40,9 +45,9 @@ namespace OrigoDB.Core.Proxying
         public object Execute(IEngine<T> engine, IMethodCallMessage callMessage, string signature)
         {
             var operation = IsMapped ? GetMappedOperation(callMessage) : null;
-            return Execute(engine, signature, operation, callMessage.InArgs);
+            return Execute(engine, signature, operation, callMessage);
         }
 
-        protected abstract object Execute(IEngine<T> engine, string signature, object operation, object[] args);
+        protected abstract object Execute(IEngine<T> engine, string signature, object operation, IMethodCallMessage methodCall);
     }
 }

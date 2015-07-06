@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
@@ -32,7 +31,7 @@ namespace OrigoDB.Core.Proxying
             return new ReturnMessage(result, null, 0, methodCall.LogicalCallContext, methodCall);
         }
 
-        private static string GetSignature(IMethodCallMessage callMessage)
+        private static string GetSignature(IMethodMessage callMessage)
         {
             return callMessage.MethodBase.IsGenericMethod 
                 ? ((MethodInfo) callMessage.MethodBase).GetGenericMethodDefinition().ToString() 

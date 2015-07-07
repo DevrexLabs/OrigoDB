@@ -162,8 +162,7 @@
     <Compile Include="Engines.cs" />
     <Compile Include="IImmutable.cs" />
     <Compile Include="IOperationWithResult.cs" />
-    <Compile Include="Migrations\CustomBinder.cs" />
-    <Compile Include="Migrations\Schema.cs" />
+    <Compile Include="Configuration\CustomBinder.cs" />
     <Compile Include="Kernels\OptimisticKernel.cs" />
     <Compile Include="Proxying\OperationType.cs" />
     <Compile Include="Proxying\OperationInfo.cs" />

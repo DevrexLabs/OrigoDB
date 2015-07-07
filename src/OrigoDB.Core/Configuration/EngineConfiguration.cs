@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using OrigoDB.Core.Security;
 using OrigoDB.Core.Configuration;
+using OrigoDB.Core.Security;
+using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core
 {
     public class EngineConfiguration : ConfigurationBase
     {
         protected TeenyIoc _registry;
+
+        private CustomBinder _binder;
 
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
         public const string DefaultDateFormatString = "yyyy.MM.dd.hh.mm.ss.fff";
@@ -119,6 +123,7 @@ namespace OrigoDB.Core
             InitKernels();
         }
 
+
         private void InitKernels()
         {
             Register<Kernel>((cfg, args) => new OptimisticKernel(cfg, (Model) args["model"]), Kernels.Optimistic.ToString());
@@ -170,12 +175,16 @@ namespace OrigoDB.Core
             var formatter = _registry.CanResolve<IFormatter>(formatterUsage.ToString())
                 ? _registry.Resolve<IFormatter>(formatterUsage.ToString())
                 : _registry.Resolve<IFormatter>(FormatterUsage.Default.ToString());
-                
+
+            if (_binder != null && formatter is BinaryFormatter)
+            {
+                ((BinaryFormatter)formatter).Binder = _binder;
+            }
+    
             if (formatterUsage == FormatterUsage.Journal && PacketOptions != null)
             {
                 formatter = new PacketingFormatter(formatter, PacketOptions.Value);
             }
-
             return formatter;
         }
 
@@ -232,6 +241,16 @@ namespace OrigoDB.Core
         public void SetAuthorizerFactory(Func<EngineConfiguration, IAuthorizer> factory)
         {
             Register(args => factory.Invoke(this));
+        }
+
+        /// <summary>
+        /// Set types to serialize to given full name of types in the serialization stream
+        /// </summary>
+        /// <param name="typesByName"></param>
+        public void SetSerializationTypeMappings(IDictionary<string, Type> typesByName)
+        {
+            Ensure.NotNull(typesByName, "typesByName");
+            _binder = new CustomBinder(typesByName);
         }
 
         /// <summary>

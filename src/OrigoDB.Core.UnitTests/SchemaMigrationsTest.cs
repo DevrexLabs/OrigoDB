@@ -1,25 +1,36 @@
 using System;
-using System.Runtime.Serialization.Formatters.Binary;
-using OrigoDB.Core;
-using OrigoDB.Core.Migrations;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 using NUnit.Framework;
 
 namespace OrigoDB.Core.Test
 {
     [Serializable]
-    class MigrationTestTypeA
+    class TypeA
     {
         public string Foo { get; set; }
     }
 
     [Serializable]
-    class MigrationTestTypeB
+    class TypeB
     {
         public string Foo { get; set; }
     }
 
     [Serializable]
-    class GenericDummy<T,U>
+    class NestedA
+    {
+        public TypeA A { get; set; }
+    }
+
+    [Serializable]
+    class NestedB
+    {
+        public TypeB B { get; set; }
+    }
+
+    [Serializable]
+    class GenericDummy<T1, T2>
     {
     }
 
@@ -27,55 +38,49 @@ namespace OrigoDB.Core.Test
     public class SchemaMigrationTest
     {
 
-        private BinaryFormatter _formatter;
+        private IFormatter _formatter;
 
         [SetUp]
         public void Setup()
         {
-            Schema.Current.TypeSubstitutions.Clear();
-            _formatter = new BinaryFormatter();
-            _formatter.Binder = new CustomBinder(Schema.Current);
+            var substitutions = new Dictionary<string, Type>();
+            substitutions[typeof (TypeA).FullName] = typeof (TypeB);
+            substitutions[typeof (GenericDummy<TypeA, TypeA>).FullName] =
+                typeof (GenericDummy<TypeB, TypeB>);
+            substitutions[typeof (NestedA).FullName] = typeof (NestedB);
+            var config = new EngineConfiguration();
+            config.SetSerializationTypeMappings(substitutions);
+            _formatter = config.CreateFormatter(FormatterUsage.Default);
         }
 
 
 
         [Test]
-        public void CanRenameType()
+        public void CanRenameSimpleType()
         {
-            Schema
-                .Substitute(typeof(MigrationTestTypeA).FullName)
-                .With<MigrationTestTypeB>();
-
-            var bytes = _formatter.ToByteArray(new MigrationTestTypeA());
+            var bytes = _formatter.ToByteArray(new TypeA());
             var actual = _formatter.FromByteArray<object>(bytes).GetType();
-            var expected = typeof(MigrationTestTypeB);
+            var expected = typeof(TypeB);
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public void CanRenameGenericTypeParameterSpecifically()
+        public void CanRenameGenericTypeParameters()
         {
-            Schema
-                .Substitute(typeof(GenericDummy<MigrationTestTypeA, MigrationTestTypeA>).FullName)
-                .With<GenericDummy<MigrationTestTypeB, MigrationTestTypeB>>();
-
-            var bytes = _formatter.ToByteArray(new GenericDummy<MigrationTestTypeA, MigrationTestTypeA>());
+            var bytes = _formatter.ToByteArray(new GenericDummy<TypeA, TypeA>());
             var actual = _formatter.FromByteArray<object>(bytes).GetType();
-            var expected = typeof(GenericDummy<MigrationTestTypeB, MigrationTestTypeB>);
+            var expected = typeof(GenericDummy<TypeB, TypeB>);
             Assert.AreEqual(expected, actual);
         }
 
-        [Test, Ignore]
-        public void CanRenameGenericTypeParameterType2()
+        [Test]
+        public void CanRenameNestedTypes()
         {
-            Schema
-                .Substitute(typeof(MigrationTestTypeA).FullName)
-                .With<MigrationTestTypeB>();
-
-            var bytes = _formatter.ToByteArray(new GenericDummy<MigrationTestTypeA, MigrationTestTypeA>());
+            var bytes = _formatter.ToByteArray(new NestedA{A = new TypeA()});
             var actual = _formatter.FromByteArray<object>(bytes).GetType();
-            var expected = typeof(GenericDummy<MigrationTestTypeB, MigrationTestTypeB>);
-            Assert.AreEqual(expected, actual);            
+            var expected = typeof(NestedB);
+            Assert.AreEqual(expected, actual);
+               
         }
     }
 }

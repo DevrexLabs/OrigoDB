@@ -1,6 +1,7 @@
 ﻿using System;
 using FakeItEasy;
 using NUnit.Framework;
+using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core.Test
 {

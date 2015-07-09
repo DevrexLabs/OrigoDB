@@ -99,7 +99,6 @@ namespace Models.Redis.Tests
             redis = engine.GetProxy();
             Assert.AreEqual(redis.KeyCount(), 1);
             engine.Close();
-            
         }
     }
 }

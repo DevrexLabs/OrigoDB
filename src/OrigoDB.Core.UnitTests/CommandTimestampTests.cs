@@ -2,6 +2,7 @@
 using System.Linq;
 using FakeItEasy;
 using NUnit.Framework;
+using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core.Test
 {
@@ -62,12 +63,14 @@ namespace OrigoDB.Core.Test
             var command = new SetTimeCommand();
             var config = EngineConfiguration.Create().ForIsolatedTest();
             var engine = Engine.Create<TestModel>(config);
+
+            DateTime timeStamp = default(DateTime);
+            engine.CommandExecuted += (sender, args) => { timeStamp = args.StartTime; };
             engine.Execute(command);
+            engine.Close();
 
-
-            var store = config.CreateCommandStore();
-            var entry = store.CommandEntries().Single();
-            Assert.AreEqual(entry.Created, ((TestModel) engine.GetModel()).Sometime);
+            engine = Engine.Load<TestModel>(config);
+            Assert.AreEqual(timeStamp, ((TestModel) engine.GetModel()).Sometime);
         }
     }
 }

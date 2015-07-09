@@ -37,5 +37,12 @@ namespace OrigoDB.Core
         /// persistent storage and before the engine is available for transactions.
         /// </summary>
         protected internal virtual void JournalRestored() { }
+
+        /// <summary>
+        /// Called after model is loaded or created but before engine starts accepting requests 
+        /// </summary>
+        /// <param name="engine">The engine which loaded or created the model.</param>
+        protected internal virtual void Starting(Engine engine)
+        { }
     }
 }

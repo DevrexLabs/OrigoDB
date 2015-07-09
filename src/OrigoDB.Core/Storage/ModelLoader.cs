@@ -45,10 +45,12 @@ namespace OrigoDB.Core.Storage
                 model = (Model)Activator.CreateInstance(modelType);
             }
 
-
+            ExecutionContext.Begin();
+            ExecutionContext.Current.IgnoreEvents = true;
             //Replay commands
             foreach (var commandEntry in _commandStore.CommandEntriesFrom(model.Revision + 1))
             {
+                ExecutionContext.Current.Timestamp = commandEntry.Created;
                 commandEntry.Item.Redo(ref model);
                 model.Revision++;
             }

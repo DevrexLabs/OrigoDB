@@ -36,10 +36,9 @@ namespace Models.Redis.Tests
         [Test]
         public void Delete_returns_number_of_keys_deleted()
         {
-            var db = Db.For<RedisModel>();
-            db.Set("number", "42");
-            db.Set("name", "ringnes");
-            int actual = db.Delete("number", "name");
+            _target.Set("number", "42");
+            _target.Set("name", "ringnes");
+            int actual = _target.Delete("number", "name");
             Assert.AreEqual(2, actual);
         }
     }

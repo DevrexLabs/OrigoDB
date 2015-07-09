@@ -8,6 +8,7 @@ namespace OrigoDB.Core
         [ThreadStatic]
         private static ExecutionContext _current;
 
+        internal bool IgnoreEvents { get; set; }
 
         public ExecutionContext()
             :this(DateTime.Now)
@@ -36,7 +37,7 @@ namespace OrigoDB.Core
         /// </summary>
         public void AddEvent(IEvent @event)
         {
-            Events.Add(@event);
+            if(!IgnoreEvents) Events.Add(@event);
         }
 
 

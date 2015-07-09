@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Timers;
 using OrigoDB.Core;
 
 namespace OrigoDB.Models.Redis
@@ -46,7 +47,7 @@ namespace OrigoDB.Models.Redis
             {
                 if (Expires > other.Expires) return 1;
                 if (Expires < other.Expires) return -1;
-                return 0;
+                return Key.CompareTo(other.Key);
             }
 
             public override bool Equals(object obj)
@@ -61,6 +62,7 @@ namespace OrigoDB.Models.Redis
         }
 
         private readonly Random _random = new Random();
+        private TimeSpan _purgeInterval = TimeSpan.FromSeconds(1);
 
         /// <summary>
         /// This is where all the data goes
@@ -77,13 +79,15 @@ namespace OrigoDB.Models.Redis
 
 
 
-            /// <summary>
+        /// <summary>
         /// Removes the specified keys. A key is ignored if it does not exist.
         /// Returns number of keys removed.
         /// </summary>
         [Command]
         public int Delete(params string[] keys)
         {
+            // clear expiration if any
+            foreach (var key in keys) Persist(key);
             return keys.Count(key => _structures.Remove(key));
         }
 
@@ -92,6 +96,8 @@ namespace OrigoDB.Models.Redis
         /// </summary>
         public void Clear()
         {
+            _expirations.Clear();
+            _expirationKeys.Clear();
             _structures.Clear();
         }
 
@@ -669,6 +675,13 @@ namespace OrigoDB.Models.Redis
             }
             return false;
         }
+
+        [Command(MapTo = typeof(PurgeExpiredKeysCommand))]
+        public int PurgeExpired()
+        {
+            return Delete(GetExpiredKeys());
+        }
+
 
         public DateTime? Expires(string key)
         {
@@ -1452,6 +1465,15 @@ namespace OrigoDB.Models.Redis
             return result;
         }
 
+        public string[] GetExpiredKeys()
+        {
+            var ctx = ExecutionContext.Current;
+            var timeStamp = ctx != null ? ctx.Timestamp : DateTime.Now;
+            return _expirations.TakeWhile(ex => timeStamp > ex.Expires)
+                .Select(ex => ex.Key)
+                .ToArray();
+        }
+
         private T GetStructure<T>(string key) where T : class
         {
             object val;
@@ -1471,10 +1493,25 @@ namespace OrigoDB.Models.Redis
                 throw new CommandAbortedException("Odd number of arguments to MSet/HMSet");
             }
 
-            for (int i = 0; i < interlaced.Length; i += 2)
+            for (var i = 0; i < interlaced.Length; i += 2)
             {
                 yield return Tuple.Create(interlaced[i], interlaced[i + 1]);
             }
         }
-    }
+
+        protected internal override void Starting(Engine engine)
+        {
+            var timer = new Timer(_purgeInterval.TotalMilliseconds);
+            timer.Elapsed += (sender, args) =>
+            {
+                var expired = engine.Execute((RedisModel m) => m.GetExpiredKeys());
+                if (expired.Any()) engine.Execute(new PurgeExpiredKeysCommand());
+            };
+
+            timer.Interval = _purgeInterval.TotalMilliseconds;
+            timer.Start();
+
+            engine.Closing += delegate { timer.Close(); };
+        }
+    } 
 }

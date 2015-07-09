@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Security.Permissions;
 using NUnit.Framework;
 using OrigoDB.Core.Types;
 
 namespace OrigoDB.Test.NUnit.Models
 {
-
     [TestFixture]
     class RangeTests
     {
-
         private static object[] overlapsData =
         {
             new Object[]

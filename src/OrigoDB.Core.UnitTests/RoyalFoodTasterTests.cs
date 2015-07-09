@@ -4,8 +4,6 @@ using OrigoDB.Core.Configuration;
 
 namespace OrigoDB.Core.Test
 {
-
-    
     [TestFixture]
     public class RoyalFoodTasterTests
     {

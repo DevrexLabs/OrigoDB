@@ -11,7 +11,7 @@ namespace OrigoDB.Core.Test
         {
             LogProvider.SetFactory(new ConsoleLoggerFactory());
             ConsoleLogger logger = (ConsoleLogger) LogProvider.Factory.GetLoggerForCallingType();
-            string expectedName = this.GetType().FullName;
+            string expectedName = GetType().FullName;
             Assert.AreEqual(expectedName, logger.Name);
         }
     }

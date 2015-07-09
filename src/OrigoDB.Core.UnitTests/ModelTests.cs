@@ -5,7 +5,6 @@ namespace OrigoDB.Core.Test
     [TestFixture]
     public class ModelTests
     {
-
         [Test]
         public void RevisionIsIncrementedWithEachCommand()
         {

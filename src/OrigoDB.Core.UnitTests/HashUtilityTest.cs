@@ -7,7 +7,6 @@ namespace OrigoDB.Core.Test
     [TestFixture]
     public class HashUtilityTest
     {
-
         [Test,ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void RejectsZeroSaltLength()
         {
@@ -48,7 +47,7 @@ namespace OrigoDB.Core.Test
         [TestCase(100)]
         public void HashWithSpecificSaltLengthIsVerified(int saltLength)
         {
-            string plainText = "abc" + saltLength.ToString();
+            string plainText = "abc" + saltLength;
             string hash = HashUtility.CreateHashWithRandomSalt(plainText);
             Assert.IsTrue(HashUtility.Verify(plainText, hash));
         }

@@ -7,7 +7,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace OrigoDB.Core.Test
 {
-
     [TestFixture]
     public class EngineLoadTest
     {
@@ -55,7 +54,6 @@ namespace OrigoDB.Core.Test
             Assert.IsInstanceOf<PacketingFormatter>(actual);
         }
 
-
         [Test]
         public void FileStorageIsDefault()
         {
@@ -68,7 +66,6 @@ namespace OrigoDB.Core.Test
         [Test]
         public void InjectedStorageIsResolved()
         {
-
             var config = new EngineConfiguration()
                 .WithRandomLocation();
             var expected = new FileCommandStore(config);

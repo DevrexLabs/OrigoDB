@@ -11,7 +11,6 @@ namespace OrigoDB.Core.Test
     [TestFixture]
     public class CompressorTests
     {
-
         List<string> results = new List<string>();
         
         [TestFixtureTearDown]

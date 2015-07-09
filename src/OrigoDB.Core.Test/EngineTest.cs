@@ -9,7 +9,6 @@ namespace OrigoDB.Core.Test
     [TestClass]
     public class EngineTest : EngineTestBase
     {
-
         private TestContext testContextInstance;
 
         /// <summary>
@@ -24,26 +23,6 @@ namespace OrigoDB.Core.Test
                 testContextInstance = value;
             }
         }
-
-        #region Additional test attributes
-        //
-        // You can use the following additional attributes as you write your tests:
-        //
-        // Use ClassInitialize to run code before running the first test in the class
-		//[ClassInitialize()]
-		//public static void MyClassInitialize(TestContext testContext) { }
-        //
-        // Use ClassCleanup to run code after all tests in a class have run
-        // [ClassCleanup()]
-        // public static void MyClassCleanup() { }
-        //
-         //Use TestInitialize to run code before running each test 
-
-
-
-        //Use TestCleanup to run code after each test has run
-
-        #endregion
 
         [TestMethod]
         public void CanCreateEngine()

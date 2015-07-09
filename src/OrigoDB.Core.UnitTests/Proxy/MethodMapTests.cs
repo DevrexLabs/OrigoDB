@@ -47,7 +47,6 @@ namespace OrigoDB.Core.Test
             }
         }
 
-
         [SetUp]
         public void Init()
         {

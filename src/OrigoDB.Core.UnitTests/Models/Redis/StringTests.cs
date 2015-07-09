@@ -16,10 +16,6 @@ namespace Models.Redis.Tests
             new Object[]{"This is a string", 0, -1, "This is a string"},
             new Object[]{"This is a string", 10, 100, "string"},
             new Object[]{"This is a string", 100, 3, ""}
-
-
-
-
         };
 
         [Test, TestCaseSource("rangeData")]

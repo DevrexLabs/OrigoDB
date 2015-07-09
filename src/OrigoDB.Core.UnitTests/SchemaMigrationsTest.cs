@@ -37,7 +37,6 @@ namespace OrigoDB.Core.Test
     [TestFixture]
     public class SchemaMigrationTest
     {
-
         private IFormatter _formatter;
 
         [SetUp]
@@ -52,8 +51,6 @@ namespace OrigoDB.Core.Test
             config.SetSerializationTypeMappings(substitutions);
             _formatter = config.CreateFormatter(FormatterUsage.Default);
         }
-
-
 
         [Test]
         public void CanRenameSimpleType()
@@ -80,7 +77,6 @@ namespace OrigoDB.Core.Test
             var actual = _formatter.FromByteArray<object>(bytes).GetType();
             var expected = typeof(NestedB);
             Assert.AreEqual(expected, actual);
-               
         }
     }
 }

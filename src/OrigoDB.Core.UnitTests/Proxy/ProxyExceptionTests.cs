@@ -6,7 +6,6 @@ namespace OrigoDB.Core.Test
     [TestFixture]
     public class ProxyExceptionTests
     {
-
         ProxyExceptionTestModel _proxy;
         Engine<ProxyExceptionTestModel> _engine;
         int _callsToExecuting, _callsToExecuted;
@@ -21,7 +20,6 @@ namespace OrigoDB.Core.Test
             _callsToExecuted = 0;
             _engine.CommandExecuting += (sender, args) => _callsToExecuting++;
             _engine.CommandExecuted += (sender, args) => _callsToExecuted++;
-            
         }
 
         [Test]
@@ -64,7 +62,6 @@ namespace OrigoDB.Core.Test
             }
             Assert.Fail("Expected exception");
         }
-
     }
 
 

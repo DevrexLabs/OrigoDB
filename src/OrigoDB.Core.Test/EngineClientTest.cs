@@ -69,7 +69,6 @@ namespace OrigoDB.Core.Test
 		[TestMethod]
 		public void PartitionClient()
 		{
-			
 			var client = new PartitionClient<TestModel>();
 			var engine1 = Engine.For<TestModel>("mode=embedded;location=" + Guid.NewGuid());
 			var engine2 = Engine.For<TestModel>("mode=embedded;location=" + Guid.NewGuid());

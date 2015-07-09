@@ -1,16 +1,13 @@
 ﻿using System.Linq;
 using NUnit.Framework;
-using OrigoDB.Core;
 using OrigoDB.Core.Journaling;
 using OrigoDB.Core.Storage;
-using OrigoDB.Core.Test;
 
 namespace OrigoDB.Core.Test
 {
     [TestFixture]
     public class StoreTests
     {
-
         EngineConfiguration _config;
         private ICommandStore _commandStore;
 
@@ -25,7 +22,6 @@ namespace OrigoDB.Core.Test
         [Test]
         public void Can_create_with_ModelCreatedEntry_in_journal()
         {
-
             JournalAppender.Create(0, _commandStore).AppendModelCreated(typeof(ImmutableModel));
             var entries = _commandStore.GetJournalEntries().ToArray();
             Assert.AreEqual(1, entries.Length);

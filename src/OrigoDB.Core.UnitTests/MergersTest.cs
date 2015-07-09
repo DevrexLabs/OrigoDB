@@ -4,14 +4,9 @@ using NUnit.Framework;
 
 namespace OrigoDB.Core.Test
 {
-    /// <summary>
-    ///This is a test class for ArrayFunctionsTest and is intended
-    ///to contain all ArrayFunctionsTest Unit Tests
-    ///</summary>
     [TestFixture]
     public class MergersTest
     {
-
         [Test]
         public void OrderedArraysStreamed_results_are_ordered()
         {
@@ -42,7 +37,6 @@ namespace OrigoDB.Core.Test
             Assert.IsTrue(IsOrdered(sorted, comparer));
         }
 
-
         private int[][] RandomArrays(int numArrays)
         {
             int[][] arrays = new int[numArrays][];
@@ -53,7 +47,6 @@ namespace OrigoDB.Core.Test
             }
             return arrays;
         }
-
 
         private bool IsOrdered<T>(T[] array) where T : IComparable<T>
         {
@@ -70,16 +63,16 @@ namespace OrigoDB.Core.Test
             return true;
         }
 
-        Random random = new Random(42);
+        private readonly Random _random = new Random(42);
 
         private int[] RandomArray()
         {
-            int size = random.Next() % 10;
+            int size = _random.Next() % 10;
             size++; //avoid size == 0
             int[] result = new int[size];
             for (int i = 0; i < size; i++)
             {
-                result[i] = random.Next() % 100;
+                result[i] = _random.Next() % 100;
             }
             return result;
         }

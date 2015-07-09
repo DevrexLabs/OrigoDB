@@ -14,15 +14,12 @@ namespace OrigoDB.Core.Test
         TestModel _proxy;
 	    Engine<TestModel> _engine;
 
-
         [SetUp]
         public void TestSetup()
         {
             _engine = Engine.Create(new TestModel(), new EngineConfiguration().ForIsolatedTest());
             _proxy = _engine.GetProxy();
         }
-
-
 
 	    [Test]
 	    public void CanSetProperty()
@@ -32,7 +29,6 @@ namespace OrigoDB.Core.Test
 	        _proxy.CommandsExecuted = 42;
             Assert.AreEqual(1, flag);
 	    }
-
 
 		[Test]
 		public void CanExecuteCommandMethod()
@@ -70,7 +66,6 @@ namespace OrigoDB.Core.Test
             Assert.AreNotEqual(robert, robert2);
         }
 
-
 	    [Test]
         public void SafeQueryResultsAreNotCloned()
         {
@@ -87,7 +82,6 @@ namespace OrigoDB.Core.Test
             var signature = typeof (TestModel).GetMethod("GetCustomersCloned").ToString();
             var opInfo = map.GetOperationInfo(signature);
             Assert.False(opInfo.OperationAttribute.CloneResult);
-
         }
 
         [Test]

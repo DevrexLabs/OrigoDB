@@ -65,8 +65,5 @@ namespace OrigoDB.Core.Test
             Assert.IsTrue(events.SelectMany(e => e).All(e => e == @event));
 
         }
-
-        
-
     }
 }

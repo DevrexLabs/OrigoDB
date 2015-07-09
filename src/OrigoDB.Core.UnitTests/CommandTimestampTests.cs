@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Linq;
 using FakeItEasy;
 using NUnit.Framework;
-using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core.Test
 {
     [TestFixture]
     public class CommandTimestampTests
     {
-
         [Serializable]
         class TestModel : Model
         {
@@ -31,7 +28,6 @@ namespace OrigoDB.Core.Test
                 model.SetTime(ts);
             }
         }
-
 
         [Test]
         public void Timestamp_is_copied_to_journal_entry()

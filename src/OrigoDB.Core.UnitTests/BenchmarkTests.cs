@@ -9,7 +9,6 @@ namespace OrigoDB.Test.NUnit
     [TestFixture]
     public class BenchmarkTests
     {
-
         [Test]
         public void WeightedRandomizationTest()
         {
@@ -33,7 +32,6 @@ namespace OrigoDB.Test.NUnit
             double[] scaledSamples = samples.Normalize();
 
             //the generated samples should approach the original distribution
-
             for (int i = 0; i < weights.Length; i++)
             {
                 Assert.AreEqual(scaledSamples[i], scaledWeights[i], 0.01, "failed at " + i);
@@ -102,6 +100,5 @@ namespace OrigoDB.Test.NUnit
 
             }
         }
-
     }
 }

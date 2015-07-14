@@ -6,11 +6,7 @@ namespace OrigoDB.Core
 	{
 		public static IEngine<TModel> For<TModel>() where TModel : Model, new()
 		{
-			//return For<TModel>(typeof(TModel).Name);
-            var type = typeof(TModel);
-            var arguments = type.GetGenericArguments();
-            var name = Regex.Replace(type.Name, @"`\d*", "_" + arguments[0].Name);
-            return For<TModel>(name);
+			return For<TModel>(typeof(TModel).Name);
 		}
 
 		public static IEngine<TModel> For<TModel>(string clientIdentifier) where TModel : Model, new()

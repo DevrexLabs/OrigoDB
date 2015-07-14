@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Threading;
 using OrigoDB.Core.Logging;
 using OrigoDB.Core.Security;
-using System.Runtime.Serialization;
 using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core
@@ -18,28 +17,30 @@ namespace OrigoDB.Core
     {
 
         /// <summary>
-        /// Fired just before the command is executed
+        /// Fired just before a command is executed. Execution can be canceled through the eventargs.
         /// </summary>
         public event EventHandler<CommandExecutingEventArgs> CommandExecuting = delegate { };
 
         /// <summary>
-        /// Fired after the command has successfully executed
+        /// Fired after a command has successfully executed, args include domain events emitted.
         /// </summary>
         public event EventHandler<CommandExecutedEventArgs> CommandExecuted = delegate { };
 
+        /// <summary>
+        /// Close() or Dispose() have been called, engine is shutting down.
+        /// </summary>
+        public event EventHandler<EventArgs> Closing = delegate { };
+
+
         readonly Stopwatch _executionTimer = new Stopwatch();
-        static readonly ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
+        static readonly ILogger Logger = LogProvider.Factory.GetLoggerForCallingType();
 
         readonly EngineConfiguration _config;
         readonly IAuthorizer _authorizer;
         private JournalAppender _journalAppender;
-
-
         private ICommandStore _commandStore;
         private ISnapshotStore _snapshotStore;
         readonly ISynchronizer _synchronizer;
-
-        readonly List<IEvent> _capturedEvents = new List<IEvent>(100);
 
         private readonly object _commandSequenceLock = new object();
 
@@ -57,11 +58,12 @@ namespace OrigoDB.Core
 
             _synchronizer = _config.CreateSynchronizer();
             _authorizer = _config.CreateAuthorizer();
+            
             Configure(model);
 
             if (_config.SnapshotBehavior == SnapshotBehavior.AfterRestore)
             {
-                _log.Info("Starting snaphot job on threadpool");
+                Logger.Info("Starting snaphot job on threadpool");
 
                 ThreadPool.QueueUserWorkItem(_ => CreateSnapshot());
 
@@ -73,8 +75,8 @@ namespace OrigoDB.Core
             {
                 CommandExecuted += (s, e) => CreateSnapshot();
             }
-            
-            
+
+            model.Starting(this);          
             Core.Config.Engines.AddEngine(config.Location.OfJournal, this);
         }
 
@@ -95,9 +97,6 @@ namespace OrigoDB.Core
             _journalAppender = JournalAppender.Create(model.Revision + 1, _commandStore);
             _kernel = _config.CreateKernel(model);
             _kernel.SetSynchronizer(_synchronizer);
-
-            //Capture events emitted during Command.Execute
-            model.Events.Subscribe( e => _capturedEvents.Add(e));
         }
 
         /// <summary>
@@ -120,7 +119,11 @@ namespace OrigoDB.Core
         /// <returns></returns>
         public object Execute(Query query)
         {
-            return Execute<Model, object>(query.ExecuteStub);
+            EnsureNotDisposed();
+            EnsureAuthorized(query);
+            var wrapped = new DelegateQuery<Model, object>(query.ExecuteStub);
+            wrapped.ResultIsSafe = query.ResultIsSafe;
+            return ExecuteQuery(wrapped);
         }
 
         /// <summary>
@@ -154,7 +157,7 @@ namespace OrigoDB.Core
 
             lock (_commandSequenceLock)
             {
-                command.Timestamp = DateTime.Now;
+                var ctx = ExecutionContext.Begin();
                 bool exceptionThrown = false;
                 _executionTimer.Restart();
                 
@@ -164,7 +167,6 @@ namespace OrigoDB.Core
 
                 try
                 {
-                    _capturedEvents.Clear();
                     return _kernel.ExecuteCommand(command);
                 }
                 catch (Exception ex)
@@ -183,9 +185,11 @@ namespace OrigoDB.Core
                     _synchronizer.Exit();
                     if (!exceptionThrown)
                     {
-                        var args = new CommandExecutedEventArgs(lastEntryId, command, command.Timestamp, _executionTimer.Elapsed, _capturedEvents);
+                        
+                        var args = new CommandExecutedEventArgs(lastEntryId, command, ctx.Timestamp, _executionTimer.Elapsed, ctx.Events);
                         CommandExecuted.Invoke(this, args);
                     }
+                    ExecutionContext.Current = null;
                 }
             }
         }
@@ -251,19 +255,21 @@ namespace OrigoDB.Core
 
         void IDisposable.Dispose()
         {
-            Dispose(true);
+            Dispose(finalizing:false);
         }
 
-        private void Dispose(bool disposing)
+        private void Dispose(bool finalizing)
         {
-            if (_isDisposed) return;
-            if (disposing)
+            lock (this)
             {
-                _journalAppender.Dispose();
+                if (_isDisposed) return;
+                _isDisposed = true;
+                if (Closing != null) Closing.Invoke(this, EventArgs.Empty);
+                if (_journalAppender != null) _journalAppender.Dispose();
+                if (finalizing) return;
                 //todo: bad dependency, use events instead
                 Core.Config.Engines.Remove(this);
                 if (_config.SnapshotBehavior == SnapshotBehavior.OnShutdown) CreateSnapshot();
-                _isDisposed = true;
                 GC.SuppressFinalize(this);
             }
         }
@@ -271,16 +277,16 @@ namespace OrigoDB.Core
 
         ~Engine()
         {
-            Dispose(false);
-            Close();
+            Logger.Warn("Finalizer, Engine.Close() or Engine.Dispose() should be called implicitly");
+            Dispose(finalizing:true);
         }
 
         /// <summary>
-        /// Shuts down the engine and any associated open resources
+        /// Shuts down the engine and any associated open resources by calling Dispose
         /// </summary>
         public void Close()
         {
-            Dispose(true); 
+            Dispose(false);
         }
 
         private void EnsureNotDisposed()
@@ -438,12 +444,12 @@ namespace OrigoDB.Core
             if (store.IsEmpty)
             {
                 result = Create(new TModel(), config);
-                _log.Debug("Engine Created");
+                Logger.Debug("Engine Created");
             }
             else
             {
                 result = Load<TModel>(config);
-                _log.Debug("Engine Loaded");
+                Logger.Debug("Engine Loaded");
             }
             return result;
         }

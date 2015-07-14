@@ -5,10 +5,7 @@ namespace OrigoDB.Core
 
     public class Engine<TModel> : Engine, IEngine<TModel> where TModel : Model
     {
-
-
         public Engine(TModel model, EngineConfiguration config) : base(model, config) { }
-
 
         public TResult Execute<TResult>(Func<TModel, TResult> query)
         {

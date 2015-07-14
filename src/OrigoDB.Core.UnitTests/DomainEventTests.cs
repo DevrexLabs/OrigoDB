@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using NUnit.Framework;
 
 namespace OrigoDB.Core.Test
@@ -37,86 +36,10 @@ namespace OrigoDB.Core.Test
             {
                 for (int i = 0; i < _count; i++)
                 {
-                    model.Events.Send(_event);
+                    ExecutionContext.Current.AddEvent(_event);
                 }
                 
             }
-        }
-
-        [Test]
-        public void CanRegisterGenericHandler()
-        {
-            var target = new FilteringEventDispatcher();
-            int calls = 0;
-            target.Subscribe(evt => calls++);
-            target.Send(new Event());
-            Assert.AreEqual(1, calls);
-        }
-
-        [Test]
-        public void CanUnregisterGenericHandler()
-        {
-            var target = new FilteringEventDispatcher();
-            int calls = 0;
-            Action<IEvent> handler = evt => calls++;
-            target.Subscribe(handler);
-            target.Send(new Event());
-            Assert.AreEqual(1, calls);
-            target.Unsubscribe(handler);
-            calls = 0;
-            target.Send(new Event());
-            Assert.AreEqual(0, calls);
-        }
-
-
-        [Test]
-        public void CanReRegisterGenericHandler()
-        {
-            var target = new FilteringEventDispatcher();
-            int calls = 0;
-            Action<IEvent> handler = evt => calls++;
-            target.Subscribe(handler);
-            target.Subscribe(handler);
-            target.Send(new Event());
-            Assert.AreEqual(1, calls);
-        }
-
-        [Test]
-        public void CanFilterUsingTypeExpression()
-        {
-            var target = new FilteringEventDispatcher();
-            int calls = 0;
-            target.Subscribe(evt => calls++, evt => evt is Event);
-            target.Send(new Event());
-            Assert.AreEqual(1, calls);
-        }
-
-        [Test]
-        public void CanFilterUsingTypeParameter()
-        {
-            var calls = 0;
-            var target = new FilteringEventDispatcher();
-            target.On<Event>(e => calls++);
-            target.Send(new Event());
-            Assert.AreEqual(1, calls);
-        }
-
-        [Test]
-        public void CanFilter()
-        {
-            var target = new FilteringEventDispatcher();
-            int calls = 0;
-            target.Subscribe(evt => calls++, evt => false);
-            target.Send(new Event());
-            Assert.AreEqual(0, calls);
-        }
-
-        [Test]
-        public void IgnoresExceptions()
-        {
-            var target = new FilteringEventDispatcher();
-            target.Subscribe(evt => {throw new Exception();});
-            target.Send(new Event());
         }
 
         [Test]
@@ -135,7 +58,6 @@ namespace OrigoDB.Core.Test
 
             //each invocation should produce an array of events
             Assert.AreEqual(4, events.Count);
-            CollectionAssert.AllItemsAreInstancesOfType(events, typeof(IEvent[]));
             Assert.AreEqual(1, events[0].Count());
             Assert.AreEqual(0, events[1].Count());
             Assert.AreEqual(2, events[2].Count());
@@ -143,8 +65,5 @@ namespace OrigoDB.Core.Test
             Assert.IsTrue(events.SelectMany(e => e).All(e => e == @event));
 
         }
-
-        
-
     }
 }

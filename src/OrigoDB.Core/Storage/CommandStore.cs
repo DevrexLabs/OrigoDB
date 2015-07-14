@@ -138,7 +138,7 @@ namespace OrigoDB.Core.Storage
             {
                 if (current is JournalEntry<Command>)
                 {
-                    (current as JournalEntry<Command>).Item.Timestamp = current.Created;
+                    //todo:(current as JournalEntry<Command>).Item.Timestamp = current.Created;
                     if (previous != null) yield return previous;
                     previous = (JournalEntry<Command>)current;
                 }

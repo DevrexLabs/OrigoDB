@@ -8,3 +8,4 @@ namespace OrigoDB.Core.Utilities
         Custom
     }
 }
+

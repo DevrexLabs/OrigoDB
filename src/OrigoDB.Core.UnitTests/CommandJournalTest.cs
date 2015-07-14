@@ -1,16 +1,12 @@
-﻿using System.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using OrigoDB.Core.Journaling;
+using System.Linq;
 using NUnit.Framework;
-using OrigoDB.Core;
+using OrigoDB.Core.Journaling;
 using OrigoDB.Core.Storage;
-using OrigoDB.Core.Test;
 
 namespace OrigoDB.Core.Test
 {
-
-
     /// <summary>
     ///This is a test class for CommandJournalTest and is intended
     ///to contain all CommandJournalTest Unit Tests
@@ -74,18 +70,17 @@ namespace OrigoDB.Core.Test
             return testEntries;
         }
 
-
         [Test]
         public void RollbackMarkerIsWrittenOnRollback()
         {
             //Arrange
+            ExecutionContext.Begin();
             var config = EngineConfiguration.Create().ForIsolatedTest();
             var store = new InMemoryCommandStore(config);
             store.Initialize();
             var target = new JournalAppender(1, new StreamJournalWriter(config, store.CreateJournalWriterStream));
 
             var command = new ACommand();
-            command.Timestamp = DateTime.Now;
             target.Append(command);
             target.Append(command);
 

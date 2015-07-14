@@ -51,7 +51,6 @@ namespace OrigoDB.Test.BehaviorTests
             var command = TC.Bag.InsertCommand as InsertCommand<Entity>;
             engine.Execute(command);
             TC.Bag.InsertedEntityID = (TC.Bag.Entity as Entity).Id;
-            TC.Bag.CommandTimeStamp = command.Timestamp;
         }
         [Then(@"the command should work")]
         public void ThenTheCommandShouldWork()

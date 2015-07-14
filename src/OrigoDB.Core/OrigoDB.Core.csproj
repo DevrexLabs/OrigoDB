@@ -44,6 +44,7 @@
     <DocumentationFile>
     </DocumentationFile>
     <NoWarn>1591</NoWarn>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -55,6 +56,16 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Benchmarking\Benchmark.cs" />
+    <Compile Include="Benchmarking\BenchmarkModel.cs" />
+    <Compile Include="Benchmarking\BenchmarkResult.cs" />
+    <Compile Include="Benchmarking\BenchmarkCommand.cs" />
+    <Compile Include="ExecutionContext.cs" />
+    <Compile Include="Models\GraphModel.cs" />
+    <Compile Include="Models\KeyValueStore.cs" />
+    <Compile Include="Benchmarking\Timing.cs" />
+    <Compile Include="Benchmarking\RandomExtensions.cs" />
+    <Compile Include="Benchmarking\Statistics.cs" />
     <Compile Include="Clients\ClusterClient.cs" />
     <Compile Include="Clients\Dispatching\DedicatedQueryDispatchStrategy.cs" />
     <Compile Include="Clients\Dispatching\QueryDispatchStrategyBase.cs" />
@@ -81,12 +92,17 @@
     <Compile Include="Configuration\ConfigurationExtensions.cs" />
     <Compile Include="Configuration\FormatterUsage.cs" />
     <Compile Include="Configuration\TeenyIoc.cs" />
-    <Compile Include="Events\FilteringEventDispatcher.cs" />
-    <Compile Include="Events\DelegateHandler.cs" />
-    <Compile Include="Events\DelegateSelector.cs" />
-    <Compile Include="Events\IEvent.cs" />
-    <Compile Include="Events\IHandleEvents.cs" />
-    <Compile Include="Events\ISelectEvents.cs" />
+    <Compile Include="IEvent.cs" />
+    <Compile Include="Models\Redis\PurgeExpiredKeysCommand.cs" />
+    <Compile Include="Models\Types\Range.cs" />
+    <Compile Include="Models\Redis\Extensions.cs" />
+    <Compile Include="Models\Redis\Range.cs" />
+    <Compile Include="Models\Redis\RedisModel.cs" />
+    <Compile Include="Models\Redis\ZSetEntry.cs" />
+    <Compile Include="Proxying\CommandInfo.cs" />
+    <Compile Include="Proxying\NotAllowedAttribute.cs" />
+    <Compile Include="Proxying\NotAllowedOperation.cs" />
+    <Compile Include="Proxying\QueryInfo.cs" />
     <Compile Include="Storage\Rollover\CompositeRolloverStrategy.cs" />
     <Compile Include="Storage\Rollover\MaxBytesRolloverStrategy.cs" />
     <Compile Include="Storage\Rollover\MaxEntriesRolloverStrategy.cs" />
@@ -94,11 +110,11 @@
     <Compile Include="Utilities\Utils.Converters.cs" />
     <Compile Include="Journaling\JournalAppender.cs" />
     <Compile Include="Journaling\ModelCreated.cs" />
-    <Compile Include="PersistenceMode.cs" />
-    <Compile Include="Proxy\CommandAttribute.cs" />
-    <Compile Include="Proxy\NoProxyAttribute.cs" />
-    <Compile Include="Proxy\ProxyAttribute.cs" />
-    <Compile Include="Proxy\QueryAttribute.cs" />
+    <Compile Include="Configuration\PersistenceMode.cs" />
+    <Compile Include="Proxying\CommandAttribute.cs" />
+    <Compile Include="Proxying\NoProxyAttribute.cs" />
+    <Compile Include="Proxying\OperationAttribute.cs" />
+    <Compile Include="Proxying\QueryAttribute.cs" />
     <Compile Include="Security\Authorizer.cs" />
     <Compile Include="Storage\FileSnapshot.cs" />
     <Compile Include="Storage\FileSnapshotStore.cs" />
@@ -109,8 +125,8 @@
     <Compile Include="Storage\ModelLoader.cs" />
     <Compile Include="Storage\NullWriteStream.cs" />
     <Compile Include="Storage\SnapshotStore.cs" />
-    <Compile Include="Transactions\Command[M].cs" />
-    <Compile Include="Transactions\Command[M,R].cs" />
+    <Compile Include="Operations\Command[M].cs" />
+    <Compile Include="Operations\Command[M,R].cs" />
     <Compile Include="Compression\DeflateStreamCompressor.cs" />
     <Compile Include="Compression\GzipCompressor.cs" />
     <Compile Include="Compression\ICompressor.cs" />
@@ -127,31 +143,30 @@
     <Compile Include="Configuration\FileStorageLocation.cs" />
     <Compile Include="Configuration\StorageLocation.cs" />
     <Compile Include="Kernels\ImmutabilityKernel.cs" />
-    <Compile Include="Transactions\IImmutabilityCommand.cs" />
-    <Compile Include="Transactions\IImmutabilityCommandWithResult.cs" />
-    <Compile Include="Transactions\ImmutabilityCommand.cs" />
+    <Compile Include="Operations\IImmutabilityCommand.cs" />
+    <Compile Include="Operations\IImmutabilityCommandWithResult.cs" />
+    <Compile Include="Operations\ImmutabilityCommand.cs" />
     <Compile Include="Logging\ConsoleLogger.cs" />
     <Compile Include="Logging\ConsoleLoggerFactory.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\LogProvider.cs" />
-    <Compile Include="Proxy\ModelProxyExtensions.cs" />
-    <Compile Include="Transactions\Query.cs" />
+    <Compile Include="Proxying\ProxyExtensions.cs" />
+    <Compile Include="Operations\Query.cs" />
     <Compile Include="Storage\InMemoryCommandStore.cs" />
     <Compile Include="Journaling\RollbackMarker.cs" />
     <Compile Include="Kernels\Kernel.cs" />
-    <Compile Include="Transactions\DelegateQuery.cs" />
+    <Compile Include="Operations\DelegateQuery.cs" />
     <Compile Include="Engine.For.cs" />
     <Compile Include="Db.cs" />
     <Compile Include="Engines.cs" />
     <Compile Include="IImmutable.cs" />
     <Compile Include="IOperationWithResult.cs" />
-    <Compile Include="Migrations\CustomBinder.cs" />
-    <Compile Include="Migrations\Schema.cs" />
+    <Compile Include="Configuration\CustomBinder.cs" />
     <Compile Include="Kernels\OptimisticKernel.cs" />
-    <Compile Include="Proxy\OperationType.cs" />
-    <Compile Include="Proxy\ProxyMethodInfo.cs" />
+    <Compile Include="Proxying\OperationType.cs" />
+    <Compile Include="Proxying\OperationInfo.cs" />
     <Compile Include="Clients\Merge.cs" />
     <Compile Include="Kernels\RoyalFoodTaster.cs" />
     <Compile Include="Storage\ByteCountingStream.cs" />
@@ -163,17 +178,16 @@
     <Compile Include="Linq\CachingLinqCompiler.cs" />
     <Compile Include="Linq\CompiledLinqExtensions.cs" />
     <Compile Include="Storage\Rollover\RolloverStrategy.cs" />
-    <Compile Include="Proxy\ModelProxy.cs" />
-    <Compile Include="Proxy\ProxyMethodAttribute.cs" />
-    <Compile Include="Proxy\ProxyCommand.cs" />
-    <Compile Include="Proxy\ProxyMethodMap.cs" />
-    <Compile Include="Proxy\ProxyQuery.cs" />
+    <Compile Include="Proxying\Proxy.cs" />
+    <Compile Include="Proxying\ProxyCommand.cs" />
+    <Compile Include="Proxying\MethodMap.cs" />
+    <Compile Include="Proxying\ProxyQuery.cs" />
     <Compile Include="Security\NullAuthorizer.cs" />
     <Compile Include="Security\IAuthenticator.cs" />
     <Compile Include="Security\IAuthorizer.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Journaling\AsynchronousJournalWriter.cs" />
-    <Compile Include="Transactions\Command.cs" />
+    <Compile Include="Operations\Command.cs" />
     <Compile Include="CommandAbortedException.cs" />
     <Compile Include="Configuration\SynchronizationMode.cs" />
     <Compile Include="Engine.cs" />
@@ -205,17 +219,14 @@
     <Compile Include="Journaling\JournalEntry.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="Synchronization\NullSynchronizer.cs" />
-    <Compile Include="Transactions\Query[M,R].cs" />
+    <Compile Include="Operations\Query[M,R].cs" />
     <Compile Include="Synchronization\ReadWriteSynchronizer.cs" />
     <Compile Include="Synchronization\ExclusiveSynchronizer.cs" />
     <Compile Include="Storage\FileCommandStore.cs" />
     <Compile Include="Journaling\StreamJournalWriter.cs" />
     <Compile Include="Utilities\HashUtility.cs" />
-    <Compile Include="Utilities\DirectoryEx.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Events\Events.cd" />
-    <None Include="Proxy\ClassDiagram1.cd" />
     <None Include="Storage\Filestorage.cd" />
     <None Include="Core.Public.cd" />
     <None Include="Security\ClassDiagram2.cd" />

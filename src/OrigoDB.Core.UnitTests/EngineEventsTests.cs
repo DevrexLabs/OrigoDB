@@ -8,9 +8,8 @@ namespace OrigoDB.Core.Test
     [TestFixture]
     public class EngineEventsTests
     {
-
         [Test]
-        public void Commands_executed_event_contains_sequential_entry_ids()
+        public void CommandExecuted_event_contains_sequential_entry_ids()
         {
             var config = EngineConfiguration.Create()
                 .ForImmutability()
@@ -25,10 +24,8 @@ namespace OrigoDB.Core.Test
             {
                 Console.WriteLine(entryId);
             }
-            var sum = engine.Execute((ImmutableModel m) => m.Numbers().Sum());
-            Assert.AreEqual((decimal) sum, sequence.Sum<ulong>(n => (decimal) n));
-
-
+            var sum = engine.Execute(m => m.Numbers().Sum());
+            Assert.AreEqual(sum, sequence.Sum(n => (decimal) n));
         }
             
         [Test]

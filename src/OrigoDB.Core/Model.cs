@@ -38,27 +38,11 @@ namespace OrigoDB.Core
         /// </summary>
         protected internal virtual void JournalRestored() { }
 
-        [NonSerialized]
-        private FilteringEventDispatcher _eventDispatcher;
-
         /// <summary>
-        /// Returns the dispatcher provided by CreateEventDispatcher() on the first call
+        /// Called after model is loaded or created but before engine starts accepting requests 
         /// </summary>
-        protected internal FilteringEventDispatcher Events
-        {
-            get
-            {
-                return _eventDispatcher ?? (_eventDispatcher = CreateEventDispatcher());
-            }
-        }
-
-        /// <summary>
-        /// Returns a new FilteringEventDispatcher
-        /// </summary>
-        protected virtual FilteringEventDispatcher CreateEventDispatcher()
-        {
-            return new FilteringEventDispatcher();
-        }
-
+        /// <param name="engine">The engine which loaded or created the model.</param>
+        protected internal virtual void Starting(Engine engine)
+        { }
     }
 }

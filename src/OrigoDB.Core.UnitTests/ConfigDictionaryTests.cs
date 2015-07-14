@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Specialized;
-using System.Runtime.InteropServices;
-using Castle.Components.DictionaryAdapter;
 using NUnit.Framework;
 using OrigoDB.Core.Configuration;
 
 namespace OrigoDB.Core.Test
 {
-    
-    
     [TestFixture]
     public class ConfigDictionaryTests
     {
-
         private ConfigDictionary _configDictionary;
         private EngineConfiguration _expected;
 
@@ -47,7 +41,6 @@ namespace OrigoDB.Core.Test
             Assert.AreEqual(config.MaxBytesPerJournalSegment, _expected.MaxBytesPerJournalSegment);
             Assert.AreEqual(config.LockTimeout, _expected.LockTimeout);
         }
-
 
         [Test]
         public void LoadFromString()

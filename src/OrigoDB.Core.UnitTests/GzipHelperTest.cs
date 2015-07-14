@@ -5,19 +5,9 @@ using System;
 
 namespace OrigoDB.Core.Test
 {
-    
-    
-    /// <summary>
-    ///This is a test class for GzipHelperTest and is intended
-    ///to contain all GzipHelperTest Unit Tests
-    ///</summary>
     [TestFixture]
     public class GzipHelperTest
     {
-
-        /// <summary>
-        ///A test for Compress
-        ///</summary>
         [Test]
         public void CompressTest()
         {

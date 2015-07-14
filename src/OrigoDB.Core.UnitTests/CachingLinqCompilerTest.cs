@@ -7,8 +7,6 @@ using System.Collections.Generic;
 
 namespace OrigoDB.Core.Test
 {
-
-
     /// <summary>
     /// This is what is generated, if it doesn't compile here it won't compile dynamically :)
     /// </summary>
@@ -22,7 +20,6 @@ namespace OrigoDB.Core.Test
 
         public static object Execute(Engine<TestModel> engine, params object[] args)
         {
-
             return engine.Execute<TestModel, object>(model => QueryExpr(model, (System.String)args[0]));
         }
     }
@@ -132,7 +129,6 @@ namespace OrigoDB.Core.Test
             compiler.GetCompiledQuery(evilCode, new object[0]);
         }
 
-
         [Test]
         public void CanExecuteQueryWithNewDifferentParameters()
         {
@@ -192,7 +188,6 @@ namespace OrigoDB.Core.Test
         public void CanExecuteFirstCustomerStartingWithArg0()
         {
             var expected = "Homer Simpson";
-
             var query = FirstCustomersNameStartingWithArg0;
             var model = new TestModel();
             model.AddCustomer(expected);

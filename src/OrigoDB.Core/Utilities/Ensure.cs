@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace OrigoDB.Core.Utilities
 {
@@ -14,7 +11,7 @@ namespace OrigoDB.Core.Utilities
 
         internal static void NotNullOrEmpty(string name, string paramName)
         {
-            Ensure.NotNull(name, paramName);
+            NotNull(name, paramName);
             if(String.IsNullOrWhiteSpace(name)) throw new ArgumentException(paramName);
         }
 

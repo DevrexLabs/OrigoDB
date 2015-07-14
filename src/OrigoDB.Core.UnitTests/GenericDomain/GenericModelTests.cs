@@ -43,7 +43,6 @@ namespace OrigoDB.Test.NUnit.GenericDomain
             var engine = TC.Bag.Engine as IEngine<GenericModel<Person, Guid>>;
             var command = TC.Bag.InsertCommand as InsertCommand<Person, Guid>;
             engine.Execute(command);
-            TC.Bag.CommandTimeStamp = command.Timestamp;
         }
 
         public void ThenTheInsertedPersonShouldBeRetrievedByAQuery()
@@ -106,7 +105,6 @@ namespace OrigoDB.Test.NUnit.GenericDomain
             var engine = TC.Bag.Engine as IEngine<GenericModel<Product, Guid>>;
             var command = TC.Bag.InsertCommand as InsertCommand<Product, Guid>;
             engine.Execute(command);
-            TC.Bag.CommandTimeStamp = command.Timestamp;
         }
 
         public void ThenTheInsertedProductShouldBeRetrievedByAQuery()
@@ -168,7 +166,6 @@ namespace OrigoDB.Test.NUnit.GenericDomain
             var engine = TC.Bag.Engine as IEngine<GenericModel<Order, Guid>>;
             var command = TC.Bag.InsertCommand as InsertCommand<Order, Guid>;
             engine.Execute(command);
-            TC.Bag.CommandTimeStamp = command.Timestamp;
         }
 
         private void ThenTheInsertedOrderShouldBeRetrievedByAQuery()

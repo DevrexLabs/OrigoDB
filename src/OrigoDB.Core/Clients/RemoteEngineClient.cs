@@ -60,5 +60,15 @@ namespace OrigoDB.Core
         {
 			return SendAndRecieve<TResult>(command);
         }
-    }
+
+        public object Execute(Command command)
+        {
+            return SendAndRecieve(command);
+        }
+
+        public object Execute(Query query)
+        {
+            return SendAndRecieve(query);
+        }
+	}
 }

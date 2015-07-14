@@ -5,11 +5,9 @@ using NUnit.Framework;
 
 namespace OrigoDB.Core.Test
 {
-    
     [TestFixture]
     public class SerializerTest
     {
-
         [Test]
         public void SizeOf_reports_actual_size()
         {
@@ -30,6 +28,5 @@ namespace OrigoDB.Core.Test
             var target = new BinaryFormatter();
             target.SizeOf(null);
         }
-
     }
 }

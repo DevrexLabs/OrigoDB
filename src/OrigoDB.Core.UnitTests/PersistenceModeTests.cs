@@ -1,7 +1,5 @@
 ﻿using System.Linq;
 using NUnit.Framework;
-using OrigoDB.Core;
-using OrigoDB.Core.Test;
 
 namespace OrigoDB.Core.Test
 {
@@ -32,7 +30,6 @@ namespace OrigoDB.Core.Test
             Assert.AreEqual(3, snapshotStore.Snapshots.Count());
             Assert.AreEqual(0, commandStore.GetJournalEntries().OfType<JournalEntry<Command>>().Count());
         }
-
 
         [Test]
         public void ManualSnaphots()

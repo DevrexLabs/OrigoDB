@@ -14,7 +14,6 @@ namespace OrigoDB.Core
 	        
 	    }
 
-	
 		public IEnumerable<Engine> All { get { return _engines.Select(kv => kv.Value); } }
 
 		public void AddEngine(string identifier, Engine engine)

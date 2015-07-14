@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Linq;
 using FakeItEasy;
 using NUnit.Framework;
+using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core.Test
 {
     [TestFixture]
     public class CommandTimestampTests
     {
-
         [Serializable]
         class TestModel : Model
         {
@@ -26,16 +25,9 @@ namespace OrigoDB.Core.Test
 
             public override void Execute(TestModel model)
             {
-                model.SetTime(Timestamp);
+                var ts = ExecutionContext.Current.Timestamp;
+                model.SetTime(ts);
             }
-        }
-
-
-        [Test]
-        public void Read_timestamp_throws_when_unassigned()
-        {
-            var command = new SetTimeCommand();
-            Assert.Catch(() => { var _ = command.Timestamp; });
         }
 
         [Test]
@@ -50,14 +42,16 @@ namespace OrigoDB.Core.Test
                 {
                     entry = je;
                 });
-            
+
+            var before = DateTime.Now;
+            ExecutionContext.Begin();
             var command = new SetTimeCommand();
-            command.Timestamp = DateTime.Now;
             var target = new JournalAppender(0, fake);
+            var after = DateTime.Now;
             target.Append(command);
 
             Assert.IsNotNull(entry);
-            Assert.AreEqual(command.Timestamp, entry.Created);
+            Assert.IsTrue(before <= entry.Created && entry.Created <= after);
         }
 
         [Test]
@@ -66,13 +60,14 @@ namespace OrigoDB.Core.Test
             var command = new SetTimeCommand();
             var config = EngineConfiguration.Create().ForIsolatedTest();
             var engine = Engine.Create<TestModel>(config);
+
+            DateTime timeStamp = default(DateTime);
+            engine.CommandExecuted += (sender, args) => { timeStamp = args.StartTime; };
             engine.Execute(command);
+            engine.Close();
 
-
-            var store = config.CreateCommandStore();
-            var entry = store.CommandEntries().Single();
-            Assert.AreEqual(entry.Created, entry.Item.Timestamp);
-            Assert.AreEqual(command.Timestamp, entry.Created);
+            engine = Engine.Load<TestModel>(config);
+            Assert.AreEqual(timeStamp, ((TestModel) engine.GetModel()).Sometime);
         }
     }
 }

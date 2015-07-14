@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Test.MSTest", "Orig
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Test.NUnit", "OrigoDB.Core.UnitTests\OrigoDB.Test.NUnit.csproj", "{200A39EE-0755-4349-985A-CFAB7FE94A8A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Benchmark", "OrigoDB.Benchmark\OrigoDB.Benchmark.csproj", "{57B02997-3495-4941-8065-2063E6EC1BA6}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Test.BehaviorTests", "OrigoDB.Test.BehaviorTests\OrigoDB.Test.BehaviorTests.csproj", "{F5037BDF-5939-4361-891E-81268A221AA9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Test.Common", "OrigoDB.Test.Common\OrigoDB.Test.Common.csproj", "{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}"
@@ -74,21 +72,6 @@ Global
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|Mixed Platforms.Deploy.0 = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Release|x86.ActiveCfg = Release|Any CPU
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|x86.ActiveCfg = Debug|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Debug|x86.Build.0 = Debug|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Nuget build|Any CPU.ActiveCfg = Nuget build|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Nuget build|Mixed Platforms.ActiveCfg = Nuget build|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Nuget build|Mixed Platforms.Build.0 = Nuget build|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Nuget build|x86.ActiveCfg = Nuget build|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Nuget build|x86.Build.0 = Nuget build|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Any CPU.ActiveCfg = Release|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Mixed Platforms.Build.0 = Release|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|x86.ActiveCfg = Release|x86
-		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|x86.Build.0 = Release|x86
 		{F5037BDF-5939-4361-891E-81268A221AA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F5037BDF-5939-4361-891E-81268A221AA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5037BDF-5939-4361-891E-81268A221AA9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

@@ -1,14 +1,9 @@
 ﻿using System;
 using NUnit.Framework;
-using OrigoDB.Core;
 using OrigoDB.Core.Configuration;
-using OrigoDB.Core.Proxy;
-using OrigoDB.Core.Test;
 
 namespace OrigoDB.Core.Test
 {
-
-    
     [TestFixture]
     public class RoyalFoodTasterTests
     {

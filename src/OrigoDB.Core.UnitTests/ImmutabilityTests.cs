@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using OrigoDB.Core;
 using OrigoDB.Core.Configuration;
 
 namespace OrigoDB.Core.Test
@@ -12,8 +11,7 @@ namespace OrigoDB.Core.Test
     {
         private readonly List<int> _numbers;
 
-        public ImmutableModel()
-            : this(Enumerable.Empty<int>())
+        public ImmutableModel() : this(Enumerable.Empty<int>())
         {
             
         }
@@ -53,7 +51,6 @@ namespace OrigoDB.Core.Test
             Number = number;
         }
 
-
         public override void Execute(ImmutableModel model, out ImmutableModel result)
         {
             result = model.WithNewNumber(Number);
@@ -83,8 +80,7 @@ namespace OrigoDB.Core.Test
             return model.Numbers().Sum();
         }
     }
-
-
+    
     [TestFixture]
     public class ImmutabilityTests
     {
@@ -97,7 +93,7 @@ namespace OrigoDB.Core.Test
             config.SetCommandStoreFactory(cfg => new InMemoryCommandStore(cfg));
             var  kernel = new ImmutabilityKernel(config, model);
 
-            int actual = (int) kernel.ExecuteCommand(new AppendNumberAndGetSumCommand(42));
+            var actual = (int) kernel.ExecuteCommand(new AppendNumberAndGetSumCommand(42));
             Assert.AreEqual(42, actual);
             kernel.ExecuteCommand(new AppendNumberCommand(58));
             actual = kernel.ExecuteQuery(new NumberSumQuery());

@@ -1,19 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using OrigoDB.Core.Storage;
-using System;
 
 namespace OrigoDB.Core.Test
 {
-    
     [TestFixture]
     public class ByteCountingStreamTest
     {
-
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Write_throws_when_buffer_is_null()

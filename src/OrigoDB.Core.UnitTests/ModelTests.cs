@@ -6,20 +6,6 @@ namespace OrigoDB.Core.Test
     public class ModelTests
     {
         [Test]
-        public void EventDispatcherReturnsSameObjectOnSubsequentCalls()
-        {
-            var target = new TestModel();
-            Assert.AreSame(target.Events, target.Events);
-        }
-
-        [Test]
-        public void EventDispatcherIsFilteringEventDispatcher()
-        {
-            var target = new TestModel();
-            Assert.IsInstanceOf<FilteringEventDispatcher>(target.Events);
-        }
-
-        [Test]
         public void RevisionIsIncrementedWithEachCommand()
         {
             var config = EngineConfiguration.Create().ForIsolatedTest();

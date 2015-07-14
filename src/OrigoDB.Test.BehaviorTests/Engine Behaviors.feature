@@ -1,6 +1,6 @@
 ﻿@AndrePires
 Feature: Engine.For Behaviors
-	Some new behaviors for the Engine type
+	Some new behavior tests for the Engine type
 
 @AndrePires
 Scenario: Engine For should work correctly when using generic models

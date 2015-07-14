@@ -72,6 +72,7 @@
     <Compile Include="DomainEventTests.cs" />
     <Compile Include="EngineEventsTests.cs" />
     <Compile Include="ConfigDictionaryTests.cs" />
+    <Compile Include="GenericModelTest.cs" />
     <Compile Include="Models\GraphModelTests.cs" />
     <Compile Include="GzipHelperTest.cs" />
     <Compile Include="HashUtilityTest.cs" />

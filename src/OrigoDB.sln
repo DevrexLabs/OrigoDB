@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Core", "OrigoDB.Core\OrigoDB.Core.csproj", "{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Test.MSTest", "OrigoDB.Core.Test\OrigoDB.Test.MSTest.csproj", "{C85316AC-9295-4D8D-9511-637B7C876EBD}"
@@ -8,6 +10,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Test.NUnit", "OrigoDB.Core.UnitTests\OrigoDB.Test.NUnit.csproj", "{200A39EE-0755-4349-985A-CFAB7FE94A8A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Benchmark", "OrigoDB.Benchmark\OrigoDB.Benchmark.csproj", "{57B02997-3495-4941-8065-2063E6EC1BA6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Test.BehaviorTests", "OrigoDB.Test.BehaviorTests\OrigoDB.Test.BehaviorTests.csproj", "{F5037BDF-5939-4361-891E-81268A221AA9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Test.Common", "OrigoDB.Test.Common\OrigoDB.Test.Common.csproj", "{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +89,36 @@ Global
 		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|Mixed Platforms.Build.0 = Release|x86
 		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|x86.ActiveCfg = Release|x86
 		{57B02997-3495-4941-8065-2063E6EC1BA6}.Release|x86.Build.0 = Release|x86
+		{F5037BDF-5939-4361-891E-81268A221AA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5037BDF-5939-4361-891E-81268A221AA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5037BDF-5939-4361-891E-81268A221AA9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F5037BDF-5939-4361-891E-81268A221AA9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F5037BDF-5939-4361-891E-81268A221AA9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F5037BDF-5939-4361-891E-81268A221AA9}.Nuget build|Any CPU.ActiveCfg = Release|Any CPU
+		{F5037BDF-5939-4361-891E-81268A221AA9}.Nuget build|Any CPU.Build.0 = Release|Any CPU
+		{F5037BDF-5939-4361-891E-81268A221AA9}.Nuget build|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F5037BDF-5939-4361-891E-81268A221AA9}.Nuget build|Mixed Platforms.Build.0 = Release|Any CPU
+		{F5037BDF-5939-4361-891E-81268A221AA9}.Nuget build|x86.ActiveCfg = Release|Any CPU
+		{F5037BDF-5939-4361-891E-81268A221AA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5037BDF-5939-4361-891E-81268A221AA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5037BDF-5939-4361-891E-81268A221AA9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F5037BDF-5939-4361-891E-81268A221AA9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F5037BDF-5939-4361-891E-81268A221AA9}.Release|x86.ActiveCfg = Release|Any CPU
+		{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}.Nuget build|Any CPU.ActiveCfg = Release|Any CPU
+		{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}.Nuget build|Any CPU.Build.0 = Release|Any CPU
+		{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}.Nuget build|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}.Nuget build|Mixed Platforms.Build.0 = Release|Any CPU
+		{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}.Nuget build|x86.ActiveCfg = Release|Any CPU
+		{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{52FDC4DD-FAE3-4407-A29E-A18D0FF92CA2}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

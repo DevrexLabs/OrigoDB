@@ -71,6 +71,15 @@
     <Compile Include="DomainEventTests.cs" />
     <Compile Include="EngineEventsTests.cs" />
     <Compile Include="ConfigDictionaryTests.cs" />
+    <Compile Include="GenericDomain\Order.cs" />
+    <Compile Include="GenericDomain\Product.cs" />
+    <Compile Include="GenericDomain\TestContext.cs" />
+    <Compile Include="GenericDomain\GenericModelTests.cs" />
+    <Compile Include="GenericDomain\InsertCommand.cs" />
+    <Compile Include="GenericDomain\GetByQuery.cs" />
+    <Compile Include="GenericDomain\GenericModel.cs" />
+    <Compile Include="GenericDomain\IDomainElement.cs" />
+    <Compile Include="GenericDomain\Person.cs" />
     <Compile Include="GzipHelperTest.cs" />
     <Compile Include="HashUtilityTest.cs" />
     <Compile Include="ImmutabilityTests.cs" />

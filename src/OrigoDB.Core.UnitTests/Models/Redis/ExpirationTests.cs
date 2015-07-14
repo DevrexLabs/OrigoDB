@@ -21,7 +21,7 @@ namespace Models.Redis.Tests
             var expires = DateTime.Now;
             target.Expire(key, expires);
             var keys = target.GetExpiredKeys();
-            Assert.IsTrue(keys.Single() == key);
+            Assert.AreEqual(keys.Single(), key);
             var expected = target.Expires(key);
             Assert.IsTrue(expected.HasValue);
             Assert.AreEqual(expected.Value, expires);

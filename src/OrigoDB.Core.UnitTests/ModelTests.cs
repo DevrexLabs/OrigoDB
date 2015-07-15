@@ -14,6 +14,5 @@ namespace OrigoDB.Core.Test
             target.AddCustomer("Homer");
             Assert.AreEqual(1, target.Revision);
         }
-
     }
 }

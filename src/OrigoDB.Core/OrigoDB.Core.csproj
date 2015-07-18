@@ -61,6 +61,8 @@
     <Compile Include="Benchmarking\BenchmarkResult.cs" />
     <Compile Include="Benchmarking\BenchmarkCommand.cs" />
     <Compile Include="ExecutionContext.cs" />
+    <Compile Include="Models\Messaging\BinaryMessage.cs" />
+    <Compile Include="Models\Messaging\DequeueCommand.cs" />
     <Compile Include="Models\GraphModel.cs" />
     <Compile Include="Models\KeyValueStore.cs" />
     <Compile Include="Benchmarking\Timing.cs" />
@@ -93,6 +95,10 @@
     <Compile Include="Configuration\FormatterUsage.cs" />
     <Compile Include="Configuration\TeenyIoc.cs" />
     <Compile Include="IEvent.cs" />
+    <Compile Include="Models\Messaging\Message.cs" />
+    <Compile Include="Models\Messaging\MessageBrokerExtensions.cs" />
+    <Compile Include="Models\Messaging\MessageBroker.cs" />
+    <Compile Include="Models\Messaging\TextMessage.cs" />
     <Compile Include="Models\Redis\PurgeExpiredKeysCommand.cs" />
     <Compile Include="Models\Types\Range.cs" />
     <Compile Include="Models\Redis\Extensions.cs" />

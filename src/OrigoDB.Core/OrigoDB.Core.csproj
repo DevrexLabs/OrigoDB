@@ -61,6 +61,7 @@
     <Compile Include="Benchmarking\BenchmarkResult.cs" />
     <Compile Include="Benchmarking\BenchmarkCommand.cs" />
     <Compile Include="ExecutionContext.cs" />
+    <Compile Include="Models\GeoPoint.cs" />
     <Compile Include="Models\Messaging\BinaryMessage.cs" />
     <Compile Include="Models\Messaging\DequeueCommand.cs" />
     <Compile Include="Models\GraphModel.cs" />

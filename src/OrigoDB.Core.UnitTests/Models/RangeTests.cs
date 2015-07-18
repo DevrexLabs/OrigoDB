@@ -5,7 +5,7 @@ using OrigoDB.Core.Types;
 namespace OrigoDB.Test.NUnit.Models
 {
     [TestFixture]
-    class RangeTests
+    public class RangeTests
     {
         private static object[] overlapsData =
         {

@@ -94,6 +94,7 @@
     <Compile Include="Configuration\TeenyIoc.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="Models\Redis\PurgeExpiredKeysCommand.cs" />
+    <Compile Include="Models\Relational.cs" />
     <Compile Include="Models\Types\Range.cs" />
     <Compile Include="Models\Redis\Extensions.cs" />
     <Compile Include="Models\Redis\Range.cs" />

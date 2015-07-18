@@ -1,10 +1,24 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 // ReSharper disable once CheckNamespace
 namespace OrigoDB.Core.Models
 {
+
+    [Serializable]
+    public class BrokerStatus
+    {
+        public IDictionary<String,int> Queues { get; internal set; }
+        public IDictionary<String,IDictionary<Guid,int>> Topics { get; internal set; }
+
+        internal BrokerStatus()
+        {
+            
+        }
+    }
     /// <summary>
     /// Message broker supporting any number of queues (competing consumers)
     /// or topics (multiple subscribers)
@@ -146,6 +160,18 @@ namespace OrigoDB.Core.Models
         public void DeleteTopic(string topicName)
         {
             if (!_topics.Remove(topicName)) throw new CommandAbortedException("No such topic");
+        }
+
+        public BrokerStatus GetStatus()
+        {
+            return new BrokerStatus
+            {
+                Queues = _queues.ToDictionary(ks => ks.Key, vs => vs.Value.Count),
+                Topics = _topics.ToDictionary(
+                    ks => ks.Key,
+                    vs => (IDictionary<Guid, int>) vs.Value.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count))
+            };
+
         }
 
         private Topic GetTopic(string name, bool mustExist = true)

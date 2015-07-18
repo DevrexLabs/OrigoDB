@@ -51,6 +51,21 @@ namespace OrigoDB.Core.Test
             Assert.AreEqual(subscribers.Length, 1);
             Assert.AreEqual(aSubscriber, subscribers[0]);
 
+            broker.Enqueue(aQueue, aMessage);
+            broker.Enqueue(aQueue, aMessage);
+            broker.Enqueue(aQueue, aMessage);
+            broker.Publish(aTopic, aMessage);
+
+            var status = broker.GetStatus();
+            Assert.AreEqual(status.Queues.Count, 1);
+            Assert.AreEqual(status.Topics.Count, 1);
+
+            Assert.AreEqual(status.Queues[aQueue], 3);
+            Assert.AreEqual(status.Topics[aTopic].Count, 1, "Expected one subscriber");
+            Assert.AreEqual(1, status.Topics[aTopic][aSubscriber]);
+
+            
+
             broker.Unsubscribe(aSubscriber, aTopic);
             Assert.AreEqual(broker.GetSubscribers(aTopic).Length, 0);
         }

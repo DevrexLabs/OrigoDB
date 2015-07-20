@@ -17,7 +17,7 @@ namespace OrigoDB.Models.Redis
         public int CompareTo(ZSetEntry other)
         {
             int result = Math.Sign(Score - other.Score);
-            if (result == 0) result = String.Compare(Member, other.Member, StringComparison.InvariantCulture);
+            if (result == 0) result = String.Compare(Member, other.Member, StringComparison.Ordinal);
             return result;
         }
 

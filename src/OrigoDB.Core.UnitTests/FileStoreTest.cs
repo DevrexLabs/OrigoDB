@@ -22,7 +22,7 @@ namespace OrigoDB.Core.Test
         //
         //Use ClassInitialize to run code before running the first test in the class
         [SetUp]
-        public void MyTestInitialize()
+        public void SetUp()
         {
             Directory.CreateDirectory(_path);
             _config = EngineConfiguration.Create();
@@ -44,6 +44,15 @@ namespace OrigoDB.Core.Test
             if (Directory.Exists(_path))
                 Directory.Delete(_path, true);
         }
+
+        //Use TestCleanup to run code after each test has run
+        [TearDown]
+        public void TearDown()
+        {
+            if (Directory.Exists(_path))
+                Directory.Delete(_path, true);
+        }
+		
 
         [Test, ExpectedException(typeof(InvalidOperationException))]
 		public void JournalReadThrowsIfSequenceStartIsMissing()

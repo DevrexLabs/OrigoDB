@@ -18,6 +18,16 @@ namespace OrigoDB.Core.Test
 	    EngineConfiguration _config;
 	    static string _path = Guid.NewGuid().ToString();
 
+        //You can use the following additional attributes as you write your tests:
+        //
+        //Use ClassInitialize to run code before running the first test in the class
+        [SetUp]
+        public static void MyClassInitialize(TestContext testContext)
+        {
+            if (Directory.Exists(_path))
+                Directory.Delete(_path, true);
+        }
+
         [Test, ExpectedException(typeof(InvalidOperationException))]
 		public void JournalReadThrowsIfSequenceStartIsMissing()
 		{

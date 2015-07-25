@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Core", "OrigoDB.Core\OrigoDB.Core.csproj", "{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Test.MSTest", "OrigoDB.Core.Test\OrigoDB.Test.MSTest.csproj", "{C85316AC-9295-4D8D-9511-637B7C876EBD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrigoDB.Test.NUnit", "OrigoDB.Core.UnitTests\OrigoDB.Test.NUnit.csproj", "{200A39EE-0755-4349-985A-CFAB7FE94A8A}"
 EndProject
@@ -37,21 +35,6 @@ Global
 		{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{CC2165E7-5F7F-41E2-8A1C-28AF88BA7AA1}.Release|x86.ActiveCfg = Release|Any CPU
-		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Nuget build|Any CPU.ActiveCfg = Release|Any CPU
-		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Nuget build|Any CPU.Build.0 = Release|Any CPU
-		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Nuget build|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Nuget build|Mixed Platforms.Build.0 = Release|Any CPU
-		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Nuget build|x86.ActiveCfg = Release|Any CPU
-		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{C85316AC-9295-4D8D-9511-637B7C876EBD}.Release|x86.ActiveCfg = Release|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{200A39EE-0755-4349-985A-CFAB7FE94A8A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

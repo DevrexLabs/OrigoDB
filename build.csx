@@ -37,15 +37,7 @@ Task("NUnitTest")
 });
 
 
-Task("MSTest")
-	.IsDependentOn("Build")
-	.Does(() =>
-{
-    MSTest("./src/*Test/bin/" + config + "/*.Test.dll");
-});
-
 Task("Tests")
-	.IsDependentOn("MSTest")
 	.IsDependentOn("NUnitTest");
 
 Task("Zip")

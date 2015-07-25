@@ -22,7 +22,24 @@ namespace OrigoDB.Core.Test
         //
         //Use ClassInitialize to run code before running the first test in the class
         [SetUp]
-        public static void MyClassInitialize(TestContext testContext)
+        public void MyTestInitialize()
+        {
+            Directory.CreateDirectory(_path);
+            _config = EngineConfiguration.Create();
+            _config.Location.OfJournal = _path;
+            _config.MaxEntriesPerJournalSegment = 10;
+            _store = new FileCommandStore(_config);
+            _store.Initialize();
+
+            var writer = _store.CreateJournalWriter(0);
+            for (ulong i = 0; i < 30; i++)
+            {
+                writer.Write(new JournalEntry<Command>(i + 1, new TestCommandWithoutResult()));
+            }
+            writer.Close();
+        }
+        [TestFixtureSetUp]
+        public static void TestFixtureSetup()
         {
             if (Directory.Exists(_path))
                 Directory.Delete(_path, true);

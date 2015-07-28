@@ -9,8 +9,8 @@ namespace OrigoDB.Core
     /// </summary>
     public class PacketingFormatter : IFormatter
     {
-        PacketOptions _options;
-        IFormatter _decoratedFormatter;
+        readonly PacketOptions _options;
+        readonly IFormatter _decoratedFormatter;
 
 
         public PacketingFormatter(IFormatter decoratedFormatter, PacketOptions options)

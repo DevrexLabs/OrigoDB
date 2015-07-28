@@ -1,19 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace OrigoDB.Core
 {
 
     /// <summary>
-    /// Single thread at a time for either reading or writing. 
-    /// Use for baseline performance testing to be compared with concurrent reading
+    /// ISychronizer implementation allowing a single reader or writer at any given time.
+    /// For some workloads, this simpler lock may outperform ReadWriteSynchronizer. Measure!
     /// </summary>
     public class ExclusiveSynchronizer : ISynchronizer
     {
-        object _lock = new object();
+        readonly object _lock = new object();
 
         public ExclusiveSynchronizer(TimeSpan timeout)
         {

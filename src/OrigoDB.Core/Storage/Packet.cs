@@ -5,7 +5,6 @@ using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core
 {
-
     [Flags]
     public enum PacketOptions : byte
     {

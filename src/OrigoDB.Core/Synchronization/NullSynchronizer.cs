@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace OrigoDB.Core
+﻿namespace OrigoDB.Core
 {
-
     /// <summary>
-    /// No synchronization at all.
+    /// No synchronization at all. Used with immutable models or when synchronization
+    /// is managed at the client level.
     /// </summary>
-
     public class NullSynchronizer : ISynchronizer
     {
 

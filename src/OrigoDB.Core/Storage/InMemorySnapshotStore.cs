@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OrigoDB.Core;
 using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core.Test
 {
+    /// <summary>
+    /// Like a FileSnapshotStore except the snapshots are stored in memory as byte arrays. Intended for tests.
+    /// </summary>
     public class InMemorySnapshotStore : SnapshotStore
     {
-        
-
+        /// <summary>
+        /// Map location strings to stores simulating a file system
+        /// </summary>
         static readonly Dictionary<string, InMemorySnapshotStoreState> _states
             = new Dictionary<string, InMemorySnapshotStoreState>();
 
@@ -26,6 +29,9 @@ namespace OrigoDB.Core.Test
 
         private class InMemorySnapshotStoreState
         {
+            /// <summary>
+            /// Store contains multiple snapshots
+            /// </summary>
             public readonly Dictionary<Snapshot, byte[]> Snapshots;
 
             public InMemorySnapshotStoreState()
@@ -49,7 +55,6 @@ namespace OrigoDB.Core.Test
             {
                 throw new ArgumentException("No such snapshot");
             }
-
             return _formatter.FromByteArray<Model>(_state.Snapshots[snapshot]);
         }
 

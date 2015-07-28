@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace OrigoDB.Core
+﻿namespace OrigoDB.Core
 {
-    //TODO: make disposable, provide base implementationtry/finally and Exit in dispose?
+    /// <summary>
+    /// Interface for synchronizing reads and writes consumed by the Engine and Kernel
+    /// </summary>
     public interface ISynchronizer
     {
         void EnterRead();

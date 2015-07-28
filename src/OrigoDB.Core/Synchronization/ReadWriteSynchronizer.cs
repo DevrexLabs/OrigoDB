@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace OrigoDB.Core
 {
 
     /// <summary>
-    /// Wrapper for System.Threading.ReaderWriterLockSlim class
+    /// The default ISynchronizer implementation supporting a single writer or multiple readers.
     /// </summary>
     public class ReadWriteSynchronizer : ISynchronizer
     {

@@ -25,7 +25,7 @@ namespace OrigoDB.Core.Benchmarking
         }
 
         /// <summary>
-        /// Scale each value proportionately so all weights add up to 1.0
+        /// Scale each value so they all add up to 1.0
         /// </summary>
 
         public static double[] Normalize(this double[] values)

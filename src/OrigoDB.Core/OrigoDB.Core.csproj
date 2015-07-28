@@ -61,8 +61,10 @@
     <Compile Include="Benchmarking\BenchmarkResult.cs" />
     <Compile Include="Benchmarking\BenchmarkCommand.cs" />
     <Compile Include="ExecutionContext.cs" />
-    <Compile Include="Models\Geo\GeoLocationSet.cs" />
-    <Compile Include="Models\Geo\GeoPoint.cs" />
+    <Compile Include="Models\Geo\ArcDistance.cs" />
+    <Compile Include="Models\Geo\GeoSpatialDictionary.cs" />
+    <Compile Include="Models\Geo\GeoLocation.cs" />
+    <Compile Include="Models\Geo\LatLon.cs" />
     <Compile Include="Models\Messaging\BinaryMessage.cs" />
     <Compile Include="Models\Messaging\DequeueCommand.cs" />
     <Compile Include="Models\GraphModel.cs" />
@@ -102,7 +104,7 @@
     <Compile Include="Models\Messaging\MessageBroker.cs" />
     <Compile Include="Models\Messaging\TextMessage.cs" />
     <Compile Include="Models\Redis\PurgeExpiredKeysCommand.cs" />
-    <Compile Include="Models\Types\Range.cs" />
+    <Compile Include="Models\Range.cs" />
     <Compile Include="Models\Redis\Extensions.cs" />
     <Compile Include="Models\Redis\Range.cs" />
     <Compile Include="Models\Redis\RedisModel.cs" />
@@ -240,6 +242,7 @@
     <None Include="Security\ClassDiagram2.cd" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Models\Types\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

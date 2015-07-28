@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using NUnit.Framework;
 using OrigoDB.Core.Models;
-using OrigoDB.Core.Types;
 
 namespace OrigoDB.Test.NUnit.Models
 {
@@ -20,8 +19,8 @@ namespace OrigoDB.Test.NUnit.Models
 
         private IEnumerable<GeoLocation> RandomSample()
         {
-            var rnd = new Random(42);
-            return TestData().Where(_ => rnd.NextDouble() < 0.01).Take(100);
+            var rnd = new Random(43);
+            return TestData().Where(_ => rnd.NextDouble() < 0.001).Take(20);
         }
 
         private IEnumerable<GeoLocation>TestData()
@@ -36,33 +35,33 @@ namespace OrigoDB.Test.NUnit.Models
                 seen.Add(name);
                 var lat = Double.Parse(arr[1], CultureInfo.InvariantCulture);
                 var lon = Double.Parse(arr[2], CultureInfo.InvariantCulture);
-                var point = new GeoPoint(lat, lon);
+                var point = new LatLon(lat, lon);
                 yield return new GeoLocation(name, point);
             }
         }
 
-        private static GeoSpatialIndex<String> _places;
+        private static GeoSpatialDictionary<String> _places;
 
         [Test, TestCaseSource("_distances")]
         public void Distance(double[] data)
         {
-            var a = new GeoPoint(data[1], data[0]);
-            var b = new GeoPoint(data[3], data[2]);
-            var actual = GeoPoint.DistanceInKm(a, b);
-            var actualInverse = GeoPoint.DistanceInKm(b, a);
+            var a = new LatLon(data[1], data[0]);
+            var b = new LatLon(data[3], data[2]);
+            var actual = LatLon.Distance(a, b);
+            var actualInverse = LatLon.Distance(b, a);
             Assert.AreEqual(actual, actualInverse, "dist(b,a) should equal dist(a,b)");
             double faultTolerance = data[4]*0.005;
-            Assert.AreEqual(data[4], actual, faultTolerance);
+            Assert.AreEqual(data[4], actual.ToKilometers(), faultTolerance);
         }
 
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            _places = new GeoSpatialIndex<string>();
+            _places = new GeoSpatialDictionary<string>();
             foreach (var item in TestData())
             {
-                _places.Add(item.Point, item.Name);
+                _places.Add(item.Name, item.Point);
             }
         }
 
@@ -73,26 +72,31 @@ namespace OrigoDB.Test.NUnit.Models
             const double radius = 100;
 
             Console.WriteLine("Sample: " + sample.Name + " " + sample.Point);
-            var within = _places.WithinDistance(sample.Point, radius).OrderBy(p => p.Value).ToArray();
+            var within = _places.WithinRadius(sample.Point, radius).OrderBy(p => p.Value).ToArray();
             Console.WriteLine("-------------------- Search results --------------------");
 
             foreach (var keyValuePair in within)
             {
                 Console.WriteLine(keyValuePair.Key + " -> " + keyValuePair.Value);
-                Assert.IsTrue(keyValuePair.Value <= radius);
+                Assert.IsTrue(keyValuePair.Value.ToKilometers() <= radius);
             }
 
             Console.WriteLine("\n------------------------- Failures ------------------------------");
             var withinNames = new HashSet<string>(within.Select(kvp => kvp.Key));
             int failures = 0;
-            foreach (var pair in _places)
+            foreach (var keyValuePair in _places)
             {
-                var name = pair.Value;
-                var distance = GeoPoint.DistanceInKm(sample.Point, pair.Key);
-                if (!(distance >= radius ^ withinNames.Contains(name)))
+                var name = keyValuePair.Key;
+                var distance = LatLon.Distance(sample.Point, keyValuePair.Value);
+                if (distance.ToKilometers() > radius && withinNames.Contains(name))
                 {
                     failures++;
-                    Console.WriteLine("Fail: " + name + ", d=" + distance );
+                    Console.WriteLine("false positive: " + name + ", d=" + distance );
+                }
+                if (distance.ToKilometers() <= radius && !withinNames.Contains(name))
+                {
+                    failures++;
+                    Console.WriteLine("false negative: " + name + ", d=" + distance);
                 }
                 
             }
@@ -100,6 +104,7 @@ namespace OrigoDB.Test.NUnit.Models
         }
 
 
+        //swedish cities/locations taken from http://www.geonames.org/
         private string raw = @"Gåshällan	63.65	20.25
 Viggen	63.63333	20.23333
 Kallen	63.64167	20.21667

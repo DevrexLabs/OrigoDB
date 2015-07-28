@@ -1,24 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 // ReSharper disable once CheckNamespace
-namespace OrigoDB.Core.Models
+namespace OrigoDB.Core.Types.Messaging
 {
-
-    [Serializable]
-    public class BrokerStatus
-    {
-        public IDictionary<String,int> Queues { get; internal set; }
-        public IDictionary<String,IDictionary<Guid,int>> Topics { get; internal set; }
-
-        internal BrokerStatus()
-        {
-            
-        }
-    }
     /// <summary>
     /// Message broker supporting any number of queues (competing consumers)
     /// or topics (multiple subscribers)
@@ -27,18 +13,13 @@ namespace OrigoDB.Core.Models
     public class MessageBroker : Model
     {
         [Serializable]
-        class MessageQueue : Queue<Message>
-        {
-            
-        }
+        class MessageQueue : Queue<Message> { }
         
         /// <summary>
         /// A topic is simply a set of subscribers, each with it's own message queue
         /// </summary>
         [Serializable]
-        class Topic : Dictionary<Guid, MessageQueue>
-        {
-        }
+        class Topic : Dictionary<Guid, MessageQueue> { }
 
         private readonly Dictionary<String, MessageQueue> _queues 
             = new Dictionary<string, MessageQueue>(StringComparer.OrdinalIgnoreCase);

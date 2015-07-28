@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Timers;
 
-namespace OrigoDB.Core.Models
+namespace OrigoDB.Core.Types.Messaging
 {
     public static class MessageBrokerExtensions
     {

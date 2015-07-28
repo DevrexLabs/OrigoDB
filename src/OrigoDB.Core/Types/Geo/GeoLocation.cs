@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OrigoDB.Core.Models
+namespace OrigoDB.Core.Types.Geo
 {
     [Serializable]
     public class GeoLocation

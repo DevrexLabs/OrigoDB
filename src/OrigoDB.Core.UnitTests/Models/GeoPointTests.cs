@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using NUnit.Framework;
-using OrigoDB.Core.Models;
+using OrigoDB.Core.Types.Geo;
 
 namespace OrigoDB.Test.NUnit.Models
 {

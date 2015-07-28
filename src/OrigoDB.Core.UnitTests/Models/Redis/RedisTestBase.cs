@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using OrigoDB.Core;
 using OrigoDB.Core.Test;
-using OrigoDB.Models.Redis;
+using OrigoDB.Core.Types.Redis;
 
 namespace Models.Redis.Tests
 {

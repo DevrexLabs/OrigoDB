@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace OrigoDB.Core.Models
+namespace OrigoDB.Core.Types
 {
     [Serializable]
     public class GraphModel : Model

@@ -61,14 +61,15 @@
     <Compile Include="Benchmarking\BenchmarkResult.cs" />
     <Compile Include="Benchmarking\BenchmarkCommand.cs" />
     <Compile Include="ExecutionContext.cs" />
-    <Compile Include="Models\Geo\ArcDistance.cs" />
-    <Compile Include="Models\Geo\GeoSpatialDictionary.cs" />
-    <Compile Include="Models\Geo\GeoLocation.cs" />
-    <Compile Include="Models\Geo\LatLon.cs" />
-    <Compile Include="Models\Messaging\BinaryMessage.cs" />
-    <Compile Include="Models\Messaging\DequeueCommand.cs" />
-    <Compile Include="Models\GraphModel.cs" />
-    <Compile Include="Models\KeyValueStore.cs" />
+    <Compile Include="Types\Geo\ArcDistance.cs" />
+    <Compile Include="Types\Geo\GeoSpatialDictionary.cs" />
+    <Compile Include="Types\Geo\GeoLocation.cs" />
+    <Compile Include="Types\Geo\LatLon.cs" />
+    <Compile Include="Types\Messaging\BinaryMessage.cs" />
+    <Compile Include="Types\Messaging\BrokerStatus.cs" />
+    <Compile Include="Types\Messaging\DequeueCommand.cs" />
+    <Compile Include="Types\GraphModel.cs" />
+    <Compile Include="Types\KeyValueStore.cs" />
     <Compile Include="Benchmarking\Timing.cs" />
     <Compile Include="Benchmarking\RandomExtensions.cs" />
     <Compile Include="Benchmarking\Statistics.cs" />
@@ -99,16 +100,16 @@
     <Compile Include="Configuration\FormatterUsage.cs" />
     <Compile Include="Configuration\TeenyIoc.cs" />
     <Compile Include="IEvent.cs" />
-    <Compile Include="Models\Messaging\Message.cs" />
-    <Compile Include="Models\Messaging\MessageBrokerExtensions.cs" />
-    <Compile Include="Models\Messaging\MessageBroker.cs" />
-    <Compile Include="Models\Messaging\TextMessage.cs" />
-    <Compile Include="Models\Redis\PurgeExpiredKeysCommand.cs" />
-    <Compile Include="Models\Range.cs" />
-    <Compile Include="Models\Redis\Extensions.cs" />
-    <Compile Include="Models\Redis\Range.cs" />
-    <Compile Include="Models\Redis\RedisModel.cs" />
-    <Compile Include="Models\Redis\ZSetEntry.cs" />
+    <Compile Include="Types\Messaging\Message.cs" />
+    <Compile Include="Types\Messaging\MessageBrokerExtensions.cs" />
+    <Compile Include="Types\Messaging\MessageBroker.cs" />
+    <Compile Include="Types\Messaging\TextMessage.cs" />
+    <Compile Include="Types\Redis\PurgeExpiredKeysCommand.cs" />
+    <Compile Include="Types\Range.cs" />
+    <Compile Include="Types\Redis\Extensions.cs" />
+    <Compile Include="Types\Redis\Range.cs" />
+    <Compile Include="Types\Redis\RedisModel.cs" />
+    <Compile Include="Types\Redis\ZSetEntry.cs" />
     <Compile Include="Proxying\CommandInfo.cs" />
     <Compile Include="Proxying\NotAllowedAttribute.cs" />
     <Compile Include="Proxying\NotAllowedOperation.cs" />
@@ -242,7 +243,6 @@
     <None Include="Security\ClassDiagram2.cd" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Models\Types\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

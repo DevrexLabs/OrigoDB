@@ -1,7 +1,6 @@
 ﻿using System;
-using OrigoDB.Core;
 
-namespace OrigoDB.Models.Redis
+namespace OrigoDB.Core.Types.Redis
 {
     [Serializable]
     public class PurgeExpiredKeysCommand : Command<RedisModel>

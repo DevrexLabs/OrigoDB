@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 
-namespace OrigoDB.Core.Models
+namespace OrigoDB.Core.Types
 {
     [Serializable]
     public class KeyValueStore : Model

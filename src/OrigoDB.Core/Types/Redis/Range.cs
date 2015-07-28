@@ -1,6 +1,6 @@
-namespace OrigoDB.Models.Redis
+namespace OrigoDB.Core.Types.Redis
 {
-    public class Range
+    internal class Range
     {
         public readonly int FirstIdx;
         public readonly int LastIdx;

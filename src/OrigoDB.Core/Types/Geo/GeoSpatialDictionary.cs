@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OrigoDB.Core.Models
+namespace OrigoDB.Core.Types.Geo
 {
     [Serializable]
     public class GeoSpatialDictionary<T> : IDictionary<T,LatLon>
@@ -36,7 +36,7 @@ namespace OrigoDB.Core.Models
             public readonly LatLon Point;
             public readonly T Item;
 
-            public Entry(LatLon point, T item)
+            public Entry(T item, LatLon point)
             {
                 Point = point;
                 Item = item;
@@ -120,7 +120,7 @@ namespace OrigoDB.Core.Models
         public void Add(KeyValuePair<T, LatLon> item)
         {
             if (_entries.ContainsKey(item.Key)) throw new InvalidOperationException("Key already exists");
-            var entry = new Entry(item.Value, item.Key);
+            var entry = new Entry(item.Key, item.Value);
             _entries.Add(item.Key, entry);
             _byLatitude.Add(entry);
             _byLongitude.Add(entry);
@@ -171,7 +171,7 @@ namespace OrigoDB.Core.Models
         public void Add(T key, LatLon value)
         {
             if (_entries.ContainsKey(key)) throw new InvalidOperationException("Key already exists");
-            var item = new Entry(value,key);
+            var item = new Entry(key,value);
             _byLatitude.Remove(item);
             _byLatitude.Add(item);
             _byLongitude.Remove(item);

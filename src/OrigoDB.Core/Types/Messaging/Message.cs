@@ -1,6 +1,6 @@
 using System;
 
-namespace OrigoDB.Core.Models
+namespace OrigoDB.Core.Types.Messaging
 {
     /// <summary>
     /// All messages handled by MessageBroker derive from Message

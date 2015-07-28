@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace OrigoDB.Core.Models
+namespace OrigoDB.Core.Types.Messaging
 {
     [Serializable]
     public class DequeueCommand : Command<MessageBroker, Message>

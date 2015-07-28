@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
-using OrigoDB.Core.Models;
+using OrigoDB.Core.Types;
 
 namespace OrigoDB.Core.Test
 {

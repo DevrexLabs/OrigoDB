@@ -1,6 +1,6 @@
 using System;
 
-namespace OrigoDB.Models.Redis
+namespace OrigoDB.Core.Types.Redis
 {
     [Serializable]
     public class ZSetEntry : IComparable<ZSetEntry>

@@ -1,6 +1,6 @@
 using System;
 using NUnit.Framework;
-using OrigoDB.Core.Models;
+using OrigoDB.Core.Types.Messaging;
 
 namespace OrigoDB.Core.Test
 {

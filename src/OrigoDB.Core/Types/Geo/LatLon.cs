@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace OrigoDB.Core.Models
+namespace OrigoDB.Core.Types.Geo
 {
     /// <summary>
-    /// A point on the surface of the earth represented as Latitude and Longitude
+    /// A point on the surface of the earth
     /// </summary>
     [Serializable]
     public class LatLon

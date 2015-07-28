@@ -1,4 +1,4 @@
-namespace OrigoDB.Core.Types.Redis
+namespace OrigoDB.Core.Modeling.Redis
 {
     internal class Range
     {

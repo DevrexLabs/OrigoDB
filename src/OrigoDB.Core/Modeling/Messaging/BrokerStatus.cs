@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace OrigoDB.Core.Types.Messaging
+namespace OrigoDB.Core.Modeling.Messaging
 {
     [Serializable]
     public class BrokerStatus

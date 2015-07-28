@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Timers;
 
-namespace OrigoDB.Core.Types.Redis
+namespace OrigoDB.Core.Modeling.Redis
 {
     /// <summary>
     /// Redis clone

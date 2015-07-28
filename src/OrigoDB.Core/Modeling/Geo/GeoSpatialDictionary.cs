@@ -3,8 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OrigoDB.Core.Types.Geo
+namespace OrigoDB.Core.Modeling.Geo
 {
+    /// <summary>
+    /// A collection that maps elements of type T to latitude/longitude coordinate pairs.
+    /// Useful for finding nearby elements by calling WithinRadius()
+    /// </summary>
     [Serializable]
     public class GeoSpatialDictionary<T> : IDictionary<T,LatLon>
     {

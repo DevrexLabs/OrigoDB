@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OrigoDB.Core.Types.Geo
+namespace OrigoDB.Core.Modeling.Geo
 {
     /// <summary>
     /// A point on the surface of the earth

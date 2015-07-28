@@ -1,6 +1,6 @@
 using System;
 
-namespace OrigoDB.Core.Types.Messaging
+namespace OrigoDB.Core.Modeling.Messaging
 {
     [Serializable]
     public class BinaryMessage : Message, IImmutable

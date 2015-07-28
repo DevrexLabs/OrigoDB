@@ -3,13 +3,24 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using NUnit.Framework;
-using OrigoDB.Core.Types.Geo;
+using OrigoDB.Core.Modeling.Geo;
 
 namespace OrigoDB.Test.NUnit.Models
 {
     [TestFixture]
     public class GeoPointTests
     {
+        public class GeoLocation
+        {
+            public readonly string Name;
+            public readonly LatLon Point;
+
+            public GeoLocation(string name, LatLon point)
+            {
+                Point = point;
+                Name = name;
+            }
+        }
         private readonly double[][] _distances =
         {
             //palermo, catania

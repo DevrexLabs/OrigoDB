@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using OrigoDB.Core.Types.Redis;
+using OrigoDB.Core.Modeling.Redis;
 
 namespace Models.Redis.Tests
 {

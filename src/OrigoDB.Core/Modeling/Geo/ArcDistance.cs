@@ -1,7 +1,10 @@
 ﻿using System;
 
-namespace OrigoDB.Core.Types.Geo
+namespace OrigoDB.Core.Modeling.Geo
 {
+    /// <summary>
+    /// Distance between two points on the surface of the earth
+    /// </summary>
     [Serializable]
     public class ArcDistance : IEquatable<ArcDistance>, IComparable<ArcDistance>
     {

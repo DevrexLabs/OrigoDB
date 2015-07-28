@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 // ReSharper disable once CheckNamespace
-namespace OrigoDB.Core.Types.Messaging
+namespace OrigoDB.Core.Modeling.Messaging
 {
     /// <summary>
     /// Message broker supporting any number of queues (competing consumers)

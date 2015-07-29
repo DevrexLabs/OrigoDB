@@ -103,6 +103,7 @@
     <Compile Include="Modeling\Messaging\MessageBrokerExtensions.cs" />
     <Compile Include="Modeling\Messaging\MessageBroker.cs" />
     <Compile Include="Modeling\Messaging\TextMessage.cs" />
+    <Compile Include="Modeling\Redis\NamedGeoPoint.cs" />
     <Compile Include="Modeling\Redis\PurgeExpiredKeysCommand.cs" />
     <Compile Include="Modeling\Range.cs" />
     <Compile Include="Modeling\Redis\Extensions.cs" />

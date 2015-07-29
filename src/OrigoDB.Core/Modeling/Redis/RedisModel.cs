@@ -1,9 +1,11 @@
+using OrigoDB.Core.Modeling.Geo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Timers;
+using System.Xml;
 
 namespace OrigoDB.Core.Modeling.Redis
 {
@@ -20,7 +22,8 @@ namespace OrigoDB.Core.Modeling.Redis
             List,
             Hash,
             Set,
-            SortedSet
+            SortedSet,
+            GeoSet
         }
 
         public enum AggregateType
@@ -602,6 +605,84 @@ namespace OrigoDB.Core.Modeling.Redis
             if (hash == null) return new string[0];
             return hash.Values.ToArray();
         }
+
+        /// <summary>
+        /// Add one or more Name -> GeoPoint pairs
+        /// </summary>
+        /// <returns>The number of elements added, not including elements already existing for which the score was updated.</returns>
+        [Command]
+        public int GeoAdd(string key, params NamedGeoPoint[] points)
+        {
+            var geo = GetGeoSpatialDictionary(key);
+            int result = 0;
+            foreach (var namedGeoPoint in points)
+            {
+                if (!geo.ContainsKey(namedGeoPoint.Name)) result++;
+                geo[namedGeoPoint.Name] = namedGeoPoint.Point;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Return the distance between two members in a geospatial index.
+        /// </summary>
+        /// <returns>The command returns the distance as a double in the specified unit, or NULL if one or both the elements are missing.</returns>
+        public ArcDistance GeoDist(string key, string member1, string member2)
+        {
+            var geo = GetGeoSpatialDictionary(key);
+            GeoPoint p1, p2;
+            if (geo.TryGetValue(member1, out p1) && geo.TryGetValue(member2, out p2)) return p1.DistanceTo(p2);
+            return null;
+        }
+
+        /// <summary>
+        /// Return the positions (longitude,latitude) of all the specified members of the geospatial index
+        /// </summary>
+        /// <returns>An array of GeoPoint objects. Any non-existing field will yield null</returns>
+        public GeoPoint[] GeoPos(string key, params string[] fields)
+        {
+            var geo = GetGeoSpatialDictionary(key);
+
+            List<GeoPoint> result = new List<GeoPoint>(fields.Length);
+            foreach (var field in fields)
+            {
+                GeoPoint point;
+                geo.TryGetValue(field, out point);
+                result.Add(point);
+            }
+            return result.ToArray();
+        }
+
+        /// <summary>
+        /// Find members within a given radius.
+        /// </summary>
+        /// <param name="key">The geospatial index to search</param>
+        /// <param name="center">origin of the search</param>
+        /// <param name="radiusKm">maximum distance from origin</param>
+        /// <param name="count">Maximum number of results</param>
+        /// <returns>NamedGeoPoints and distances ordered by nearest first</returns>
+        public KeyValuePair<NamedGeoPoint, ArcDistance>[] GeoRadius(string key, GeoPoint center, double radiusKm,
+            int count = Int32.MaxValue)
+        {
+            var geo = GetGeoSpatialDictionary(key);
+            return geo.WithinRadius(center, radiusKm)
+                .Select(p => new KeyValuePair<NamedGeoPoint, ArcDistance>(new NamedGeoPoint(p.Key, geo[p.Key]), p.Value))
+                .Take(count)
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Exact same behavior as GeoRadius but takes a member name instead of a point.
+        /// </summary>
+        /// <exception cref="KeyNotFoundException">If member doesn't exist</exception>
+        public KeyValuePair<NamedGeoPoint, ArcDistance>[] GeoRadiusByMember(string key, string member, double radiusKm,
+            int count = Int32.MaxValue)
+        {
+            var center = GeoPos(key, member)[0];
+            if (center == null) throw new KeyNotFoundException("No such member: " + member);
+            return GeoRadius(key, center, radiusKm, count);
+        }
+        
 
         /// <summary>
         /// Get an element from a list by its index
@@ -1427,6 +1508,12 @@ namespace OrigoDB.Core.Modeling.Redis
             return
                 sortedSet.Skip(range.FirstIdx)
                     .Take(range.Length);
+        }
+
+
+        private GeoSpatialDictionary<String> GetGeoSpatialDictionary(string key, bool create = false)
+        {
+            return As<GeoSpatialDictionary<string>>(key, create);
         }
 
         private SortedSet<ZSetEntry> GetSortedSet(string key, bool create = false)

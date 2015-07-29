@@ -15,7 +15,7 @@ namespace OrigoDB.Core.Modeling.Geo
 
         public double ToKilometers()
         {
-            return Radians * LatLon.EarthRadiusKm;
+            return Radians * GeoPoint.EarthRadiusKm;
         }
 
         public double Radians { get; private set; }

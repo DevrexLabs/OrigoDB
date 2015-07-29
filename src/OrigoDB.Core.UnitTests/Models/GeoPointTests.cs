@@ -13,9 +13,9 @@ namespace OrigoDB.Test.NUnit.Models
         public class GeoLocation
         {
             public readonly string Name;
-            public readonly LatLon Point;
+            public readonly GeoPoint Point;
 
-            public GeoLocation(string name, LatLon point)
+            public GeoLocation(string name, GeoPoint point)
             {
                 Point = point;
                 Name = name;
@@ -46,7 +46,7 @@ namespace OrigoDB.Test.NUnit.Models
                 seen.Add(name);
                 var lat = Double.Parse(arr[1], CultureInfo.InvariantCulture);
                 var lon = Double.Parse(arr[2], CultureInfo.InvariantCulture);
-                var point = new LatLon(lat, lon);
+                var point = new GeoPoint(lat, lon);
                 yield return new GeoLocation(name, point);
             }
         }
@@ -56,10 +56,10 @@ namespace OrigoDB.Test.NUnit.Models
         [Test, TestCaseSource("_distances")]
         public void Distance(double[] data)
         {
-            var a = new LatLon(data[1], data[0]);
-            var b = new LatLon(data[3], data[2]);
-            var actual = LatLon.Distance(a, b);
-            var actualInverse = LatLon.Distance(b, a);
+            var a = new GeoPoint(data[1], data[0]);
+            var b = new GeoPoint(data[3], data[2]);
+            var actual = GeoPoint.Distance(a, b);
+            var actualInverse = GeoPoint.Distance(b, a);
             Assert.AreEqual(actual, actualInverse, "dist(b,a) should equal dist(a,b)");
             double faultTolerance = data[4]*0.005;
             Assert.AreEqual(data[4], actual.ToKilometers(), faultTolerance);
@@ -98,7 +98,7 @@ namespace OrigoDB.Test.NUnit.Models
             foreach (var keyValuePair in _places)
             {
                 var name = keyValuePair.Key;
-                var distance = LatLon.Distance(sample.Point, keyValuePair.Value);
+                var distance = GeoPoint.Distance(sample.Point, keyValuePair.Value);
                 if (distance.ToKilometers() > radius && withinNames.Contains(name))
                 {
                     failures++;

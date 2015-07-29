@@ -10,13 +10,16 @@ namespace OrigoDB.Core.Modeling.Geo
     /// Useful for finding nearby elements by calling WithinRadius()
     /// </summary>
     [Serializable]
-    public class GeoSpatialDictionary<T> : IDictionary<T,LatLon>
+    public class GeoSpatialDictionary<T> : IDictionary<T,GeoPoint>
     {
 
         private readonly SortedDictionary<T, Entry> _entries;
         private readonly SortedSet<Entry> _byLatitude;
         private readonly SortedSet<Entry> _byLongitude;
 
+        /// <summary>
+        /// Used for sorting by latitude and longitude
+        /// </summary>
         private class DelegateComparer : IComparer<Entry>
         {
             readonly Func<Entry, Entry, int> _comparer;
@@ -34,13 +37,16 @@ namespace OrigoDB.Core.Modeling.Geo
             }
         }
 
+        /// <summary>
+        /// Type for SortedSet
+        /// </summary>
         [Serializable]
         private class Entry
         {
-            public readonly LatLon Point;
+            public readonly GeoPoint Point;
             public readonly T Item;
 
-            public Entry(T item, LatLon point)
+            public Entry(T item, GeoPoint point)
             {
                 Point = point;
                 Item = item;
@@ -48,7 +54,7 @@ namespace OrigoDB.Core.Modeling.Geo
 
             public Entry(double lat, double lon)
             {
-                Point = new LatLon(lat, lon);
+                Point = new GeoPoint(lat, lon);
             }
         }
 
@@ -61,13 +67,13 @@ namespace OrigoDB.Core.Modeling.Geo
                 new SortedSet<Entry>(new DelegateComparer((a, b) => a.Point.Longitude.CompareTo(b.Point.Longitude)));
         }
 
-        const double EarthCircumference = LatLon.EarthRadiusKm*2*Math.PI;
+        const double EarthCircumference = GeoPoint.EarthRadiusKm*2*Math.PI;
 
         /// <summary>
-        /// Find all the locations within a given radius of a specified point
+        /// Find all the items within a given radius.
         /// </summary>
-        /// <returns>Items and their distances to the origin ordered by distance </returns>
-        public IEnumerable<KeyValuePair<T, ArcDistance>> WithinRadius(LatLon origin, double radiusInKm)
+        /// <returns>Items and their distances to the origin ordered by distance, closest first</returns>
+        public IEnumerable<KeyValuePair<T, ArcDistance>> WithinRadius(GeoPoint origin, double radiusInKm)
         {
             //scale radius from km to degrees
             //add 0.5% margin to account for error in distance function
@@ -88,7 +94,7 @@ namespace OrigoDB.Core.Modeling.Geo
 
             return _byLatitude.GetViewBetween(south, north)
                 .Intersect(LongitudeRange(minlon,maxlon))
-                .Select(entry => new KeyValuePair<T, ArcDistance>(entry.Item, LatLon.Distance(entry.Point, origin)))
+                .Select(entry => new KeyValuePair<T, ArcDistance>(entry.Item, GeoPoint.Distance(entry.Point, origin)))
                 .Where(kvp => kvp.Value.ToKilometers() <= radiusInKm)
                 .OrderBy(kvp => kvp.Value);
         }
@@ -111,9 +117,12 @@ namespace OrigoDB.Core.Modeling.Geo
             return _byLongitude.GetViewBetween(new Entry(0, from), new Entry(0, to));
         }
 
-        public IEnumerator<KeyValuePair<T, LatLon>> GetEnumerator()
+        /// <summary>
+        /// Returns key value pairs ordered by T
+        /// </summary>
+        public IEnumerator<KeyValuePair<T, GeoPoint>> GetEnumerator()
         {
-            return _entries.Values.Select(e => new KeyValuePair<T, LatLon>(e.Item, e.Point)).GetEnumerator();
+            return _entries.Values.Select(e => new KeyValuePair<T, GeoPoint>(e.Item, e.Point)).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -121,7 +130,11 @@ namespace OrigoDB.Core.Modeling.Geo
             return GetEnumerator();
         }
 
-        public void Add(KeyValuePair<T, LatLon> item)
+        /// <summary>
+        /// Will fail if the key already exists
+        /// </summary>
+        /// <param name="item"></param>
+        public void Add(KeyValuePair<T, GeoPoint> item)
         {
             if (_entries.ContainsKey(item.Key)) throw new InvalidOperationException("Key already exists");
             var entry = new Entry(item.Key, item.Value);
@@ -137,14 +150,22 @@ namespace OrigoDB.Core.Modeling.Geo
             _byLongitude.Clear();
         }
 
-        public bool Contains(KeyValuePair<T, LatLon> item)
+        /// <summary>
+        /// Returns true if key exists and GeoPoint has same value
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public bool Contains(KeyValuePair<T, GeoPoint> item)
         {
             Entry entry;
             _entries.TryGetValue(item.Key, out entry);
             return entry != null && entry.Point == item.Value;
         }
 
-        public void CopyTo(KeyValuePair<T, LatLon>[] array, int arrayIndex)
+        /// <summary>
+        /// Copies without veryfing target array capacity
+        /// </summary>
+        public void CopyTo(KeyValuePair<T, GeoPoint>[] array, int arrayIndex)
         {
             foreach (var pair in this)
             {
@@ -152,7 +173,12 @@ namespace OrigoDB.Core.Modeling.Geo
             }
         }
 
-        public bool Remove(KeyValuePair<T, LatLon> item)
+        /// <summary>
+        /// Will remove if the key exists and has the same GeoPoint value
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public bool Remove(KeyValuePair<T, GeoPoint> item)
         {
             return Contains(item) && Remove(item.Key);
         }
@@ -162,6 +188,9 @@ namespace OrigoDB.Core.Modeling.Geo
             get { return _entries.Count; }
         }
 
+        /// <summary>
+        /// Always false
+        /// </summary>
         public bool IsReadOnly
         {
             get { return false; }
@@ -172,7 +201,10 @@ namespace OrigoDB.Core.Modeling.Geo
             return _entries.ContainsKey(key);
         }
 
-        public void Add(T key, LatLon value)
+        /// <summary>
+        /// Will throw an InvalidOperationException if the key already exists
+        /// </summary>
+        public void Add(T key, GeoPoint value)
         {
             if (_entries.ContainsKey(key)) throw new InvalidOperationException("Key already exists");
             var item = new Entry(key,value);
@@ -195,7 +227,7 @@ namespace OrigoDB.Core.Modeling.Geo
             return result;
         }
 
-        public bool TryGetValue(T key, out LatLon value)
+        public bool TryGetValue(T key, out GeoPoint value)
         {
             value = null;
             Entry entry;
@@ -204,7 +236,10 @@ namespace OrigoDB.Core.Modeling.Geo
             return result;
         }
 
-        public LatLon this[T key]
+        /// <summary>
+        /// Setter will create new entry or overwrite existing. Getter will throw a KeyNotFoundException if key is missing
+        /// </summary>
+        public GeoPoint this[T key]
         {
             get
             {
@@ -218,12 +253,18 @@ namespace OrigoDB.Core.Modeling.Geo
             }
         }
 
+        /// <summary>
+        /// Returns the key collection of a wrapped SortedDictionary
+        /// </summary>
         public ICollection<T> Keys
         {
             get { return _entries.Keys; }
         }
 
-        public ICollection<LatLon> Values
+        /// <summary>
+        /// Returns an array of all the GeoPoints in the dictionary
+        /// </summary>
+        public ICollection<GeoPoint> Values
         {
             get { return _entries.Values.Select(e => e.Point).ToArray(); }
         }

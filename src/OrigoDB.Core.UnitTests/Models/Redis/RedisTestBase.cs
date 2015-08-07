@@ -12,10 +12,8 @@ namespace Models.Redis.Tests
         [SetUp]
         public void Setup()
         {
-            //_target = new RedisModel();
             var config = EngineConfiguration.Create().ForIsolatedTest();
             _target = Db.For<RedisModel>(config);
-
         }
     }
 }

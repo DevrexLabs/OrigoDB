@@ -1,11 +1,10 @@
-using OrigoDB.Core.Modeling.Geo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Timers;
-using System.Xml;
+using OrigoDB.Core.Modeling.Geo;
 
 namespace OrigoDB.Core.Modeling.Redis
 {
@@ -1053,7 +1052,6 @@ namespace OrigoDB.Core.Modeling.Redis
                     result[i++] = member;
                 }
             }
-
             return randomIndicies.Select(idx => result[idx]).ToArray();
         }
 
@@ -1349,7 +1347,7 @@ namespace OrigoDB.Core.Modeling.Redis
         }
 
         /// <summary>
-        /// 
+        /// Retrieve a range in reverse order
         /// </summary>
         /// <param name="key"></param>
         /// <param name="start"></param>

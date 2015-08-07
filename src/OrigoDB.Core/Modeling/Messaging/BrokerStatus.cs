@@ -7,7 +7,7 @@ namespace OrigoDB.Core.Modeling.Messaging
     public class BrokerStatus
     {
         public IDictionary<String,int> Queues { get; internal set; }
-        public IDictionary<String,IDictionary<Guid,int>> Topics { get; internal set; }
+        public IDictionary<String,IDictionary<Guid,int>> Buses { get; internal set; }
 
         internal BrokerStatus()
         {

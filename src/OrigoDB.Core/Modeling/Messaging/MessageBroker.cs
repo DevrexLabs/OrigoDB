@@ -7,7 +7,7 @@ namespace OrigoDB.Core.Modeling.Messaging
 {
     /// <summary>
     /// Message broker supporting any number of queues (competing consumers)
-    /// or topics (multiple subscribers)
+    /// or buses (multiple subscribers)
     /// </summary>
     [Serializable]
     public class MessageBroker : Model
@@ -16,38 +16,38 @@ namespace OrigoDB.Core.Modeling.Messaging
         class MessageQueue : Queue<Message> { }
         
         /// <summary>
-        /// A topic is simply a set of subscribers, each with it's own message queue
+        /// A bus is simply a set of subscribers, each with it's own message queue
         /// </summary>
         [Serializable]
-        class Topic : Dictionary<Guid, MessageQueue> { }
+        class Bus : Dictionary<Guid, MessageQueue> { }
 
         private readonly Dictionary<String, MessageQueue> _queues 
             = new Dictionary<string, MessageQueue>(StringComparer.OrdinalIgnoreCase);
 
-        private readonly Dictionary<String, Topic> _topics
-            = new Dictionary<string, Topic>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<String, Bus> _buses
+            = new Dictionary<string, Bus>(StringComparer.OrdinalIgnoreCase);
 
 
-        public void Subscribe(Guid subscriber, String topicName)
+        public void Subscribe(Guid subscriber, String busName)
         {
-            var topic = GetTopic(topicName);
-            if (topic.ContainsKey(subscriber)) throw new CommandAbortedException("Already subscribed");
-            topic[subscriber] = new MessageQueue();
+            var bus = GetBus(busName);
+            if (bus.ContainsKey(subscriber)) throw new CommandAbortedException("Already subscribed");
+            bus[subscriber] = new MessageQueue();
         }
 
         /// <summary>
-        /// remove subscriber from topic and return any remaining messages
+        /// Remove subscriber from bus and return any remaining messages
         /// </summary>
-        public Message[] Unsubscribe(Guid subscriber, String topicName)
+        public Message[] Unsubscribe(Guid subscriber, String busName)
         {
-            var topic = GetTopic(topicName);
+            var bus = GetBus(busName);
             MessageQueue q;
 
-            if (!topic.TryGetValue(subscriber, out q))
+            if (!bus.TryGetValue(subscriber, out q))
             {
                 throw new CommandAbortedException("No such subscriber");
             }
-            topic.Remove(subscriber);
+            bus.Remove(subscriber);
             return q.ToArray();
         }
 
@@ -70,14 +70,14 @@ namespace OrigoDB.Core.Modeling.Messaging
         }
 
         /// <summary>
-        /// Leave a message to every subscriber of a given topic
+        /// Leave a message to every subscriber of a given bus
         /// </summary>
-        /// <param name="topicName"></param>
+        /// <param name="busName"></param>
         /// <param name="message"></param>
-        public void Publish(string topicName, Message message)
+        public void Publish(string busName, Message message)
         {
-            var topic = GetTopic(topicName);
-            foreach (var queue in topic.Values)
+            var bus = GetBus(busName);
+            foreach (var queue in bus.Values)
             {
                 queue.Enqueue(message);
             }
@@ -87,15 +87,15 @@ namespace OrigoDB.Core.Modeling.Messaging
         /// Grab messages for a given subscription
         /// </summary>
         /// <param name="subscriber">id of the subscriber</param>
-        /// <param name="topicName">Case-insensitive name of the topic</param>
+        /// <param name="busName">Case-insensitive name of the bus</param>
         /// <param name="maxMessages">maximum number of messages, default is 10</param>
         /// <returns>an array of messages, possibly empty</returns>
         [Command]
-        public Message[] Poll(Guid subscriber, string topicName, int maxMessages = 10)
+        public Message[] Poll(Guid subscriber, string busName, int maxMessages = 10)
         {
-            var topic = GetTopic(topicName);
+            var bus = GetBus(busName);
             MessageQueue queue;
-            if (!topic.TryGetValue(subscriber, out queue)) throw new CommandAbortedException("No such subscriber");
+            if (!bus.TryGetValue(subscriber, out queue)) throw new CommandAbortedException("No such subscriber");
             int count = Math.Min(maxMessages, queue.Count);
             var result = new Message[count];
             for (int i = 0; i < count; i++)
@@ -110,15 +110,15 @@ namespace OrigoDB.Core.Modeling.Messaging
             return _queues.Keys.ToArray();
         }
 
-        public String[] GetTopicNames()
+        public String[] GetBusNames()
         {
-            return _topics.Keys.ToArray();
+            return _buses.Keys.ToArray();
         }
 
-        public Guid[] GetSubscribers(string topicName)
+        public Guid[] GetSubscribers(string busName)
         {
-            var topic = GetTopic(topicName);
-            return topic.Keys.ToArray();
+            var buses = GetBus(busName);
+            return buses.Keys.ToArray();
         }
 
         public void CreateQueue(string name)
@@ -127,10 +127,10 @@ namespace OrigoDB.Core.Modeling.Messaging
             _queues[name] = new MessageQueue();
         }
 
-        public void CreateTopic(string name)
+        public void CreateBus(string name)
         {
-            if (_topics.ContainsKey(name)) throw new CommandAbortedException("Topic already exists");
-            _topics[name] = new Topic();
+            if (_buses.ContainsKey(name)) throw new CommandAbortedException("Bus already exists");
+            _buses[name] = new Bus();
         }
 
         public void DeleteQueue(string queueName)
@@ -138,9 +138,9 @@ namespace OrigoDB.Core.Modeling.Messaging
             if (!_queues.Remove(queueName)) throw new CommandAbortedException("No such queue");
         }
 
-        public void DeleteTopic(string topicName)
+        public void DeleteBus(string busName)
         {
-            if (!_topics.Remove(topicName)) throw new CommandAbortedException("No such topic");
+            if (!_buses.Remove(busName)) throw new CommandAbortedException("No such bus");
         }
 
         public BrokerStatus GetStatus()
@@ -148,19 +148,19 @@ namespace OrigoDB.Core.Modeling.Messaging
             return new BrokerStatus
             {
                 Queues = _queues.ToDictionary(ks => ks.Key, vs => vs.Value.Count),
-                Topics = _topics.ToDictionary(
+                Buses = _buses.ToDictionary(
                     ks => ks.Key,
                     vs => (IDictionary<Guid, int>) vs.Value.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count))
             };
 
         }
 
-        private Topic GetTopic(string name, bool mustExist = true)
+        private Bus GetBus(string name, bool mustExist = true)
         {
-            Topic topic;
-            _topics.TryGetValue(name, out topic);
-            if (topic == null && mustExist) throw new CommandAbortedException("No such topic: " + name);
-            return topic;
+            Bus bus;
+            _buses.TryGetValue(name, out bus);
+            if (bus == null && mustExist) throw new CommandAbortedException("No such bus: " + name);
+            return bus;
             
         }
 

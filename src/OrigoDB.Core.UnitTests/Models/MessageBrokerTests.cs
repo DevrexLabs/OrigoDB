@@ -30,7 +30,7 @@ namespace OrigoDB.Core.Test
             message = (TextMessage) broker.Dequeue(aQueue);
             Assert.IsNull(message);
 
-            broker.CreateTopic(aTopic);
+            broker.CreateBus(aTopic);
             
             //no op, no subscribers
             broker.Publish(aTopic, aMessage);
@@ -58,11 +58,11 @@ namespace OrigoDB.Core.Test
 
             var status = broker.GetStatus();
             Assert.AreEqual(status.Queues.Count, 1);
-            Assert.AreEqual(status.Topics.Count, 1);
+            Assert.AreEqual(status.Buses.Count, 1);
 
             Assert.AreEqual(status.Queues[aQueue], 3);
-            Assert.AreEqual(status.Topics[aTopic].Count, 1, "Expected one subscriber");
-            Assert.AreEqual(1, status.Topics[aTopic][aSubscriber]);
+            Assert.AreEqual(status.Buses[aTopic].Count, 1, "Expected one subscriber");
+            Assert.AreEqual(1, status.Buses[aTopic][aSubscriber]);
 
             
 

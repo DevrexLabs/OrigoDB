@@ -1,5 +1,5 @@
 using System.Text.RegularExpressions;
- 
+
 var target = Argument("target", "Default");
 var config = Argument("config", "Release");
 var nunit = Argument("nunit", false);
@@ -16,16 +16,16 @@ Task("NuGetRestore")
 {
 	NuGetRestore("./src/OrigoDB.sln");
 });
- 
+
 Task("Build")
    .IsDependentOn("NuGetRestore")
    .Does(() =>
 {
-	MSBuild("./src/OrigoDB.sln", settings => 
+	MSBuild("./src/OrigoDB.sln", settings =>
 		settings.SetConfiguration(config)
 			.UseToolVersion(MSBuildToolVersion.VS2012)
 			.WithTarget("clean")
-			.WithTarget("build")); 	
+			.WithTarget("build"));
 });
 
 Task("NUnitTest")
@@ -53,15 +53,15 @@ Task("Zip")
 	var root = "./build/";
 	var outFile = "./build/OrigoDB.Core.binaries." + version + "-" + config + ".zip";
 	var files = root + "/*";
- 
+
 	// Package the bin folder.
-	Zip(root, outFile);	
+	Zip(root, outFile);
 });
- 
- 
+
+
 Task("NuGet")
 	.IsDependentOn("Tests")
-	.Does(() => 
+	.Does(() =>
 {
 	NuGetPack("./OrigoDB.Core.nuspec", new NuGetPackSettings {
 		Version = version,
@@ -69,11 +69,18 @@ Task("NuGet")
    });
 });
 
+Task("ApiDocs")
+  .IsDependentOn("Build")
+  .Does(() => {
+    XmlTransform("Documenation.xsl", @"bin\Release\OrigoDB.Core.XML", output + "/api-docs.html")
+  })
+  ;
 Task("Default")
 	.IsDependentOn("Zip")
 	.IsDependentOn("NuGet")
-	.IsDependentOn("Tests");
- 
+	.IsDependentOn("Tests")
+  .IsDependentOn("ApiDocs")
+
 ////////////////////////////////////////////////
 
 RunTarget(target);

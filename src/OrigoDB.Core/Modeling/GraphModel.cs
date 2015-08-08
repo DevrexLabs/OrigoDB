@@ -35,7 +35,7 @@ namespace OrigoDB.Core.Types
 
         public GraphModel()
         {
-            var ignoreCase = StringComparer.InvariantCultureIgnoreCase;
+            var ignoreCase = StringComparer.OrdinalIgnoreCase;
             _edgesById = new SortedDictionary<long, Edge>();
             _edgesByLabel = new SortedDictionary<string, SortedSet<Edge>>(ignoreCase);
             _nodesById = new SortedDictionary<long, Node>();
@@ -53,7 +53,7 @@ namespace OrigoDB.Core.Types
             {
                 Id = id;
                 Label = label;
-                Props = new SortedDictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+                Props = new SortedDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             }
 
             public object Get(string key)

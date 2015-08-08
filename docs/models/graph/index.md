@@ -13,6 +13,8 @@ On this page:
 GraphModel is a minimal built-in generic graph model similar to Neo4j. The model is under design and lacking in features, primarily querying. Maybe you would like to contribute?
 
 ### Example
+The example demonstrates a twitter graph. Tweets and users are nodes, actions (tweeted, retweeted, followed, favorited) are edges. Querying uses LINQ on the sets of nodes and edges.
+
 {% highlight csharp %}
 [TestFixture]
 public class GraphModelTests

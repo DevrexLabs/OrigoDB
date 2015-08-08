@@ -19,7 +19,10 @@ The distance between two points calculated using the haversine formula to an acc
 ## GeoSpatialIndex<T>
 A custom implementation of `IDictionary<T,GeoPoint>`. It uses three SortedSet structures to achieve radius search at O(log N). Use only for radius search, otherwise it's just a waste of memory.
 
-## Example
+## Examples
+
+The [graph modeling example](../graph/) uses a GeoSpatialIndex.
+
 {% highlight csharp %}
 var cheops = new GeoPoint(29.9792345,31.1342019);
 var eiffel = new GeoPoint(48.8583701,2.2944813);
@@ -27,7 +30,7 @@ ArcDistance d = cheops.DistanceTo(eiffel);
 Console.WriteLine("Distance in radians: " d.Radians);
 Console.WriteLine("Distance in km: " d.ToKilometers());
 
-var geoIndex = new GeoSpatialDictionary<string>();
+var geoIndex = new GeoSpatialIndex<string>();
 geoIndex["cheops"] = cheops;
 geoIndex["eiffel"] = eiffel;
 geoIndex["notre dame"] = new GeoPoint(48.8493659, 2.3386519);

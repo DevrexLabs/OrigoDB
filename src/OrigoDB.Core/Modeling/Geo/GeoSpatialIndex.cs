@@ -10,7 +10,7 @@ namespace OrigoDB.Core.Modeling.Geo
     /// Useful for finding nearby elements by calling WithinRadius()
     /// </summary>
     [Serializable]
-    public class GeoSpatialDictionary<T> : IDictionary<T,GeoPoint>
+    public class GeoSpatialIndex<T> : IDictionary<T,GeoPoint>
     {
 
         private readonly SortedDictionary<T, Entry> _entries;
@@ -58,7 +58,7 @@ namespace OrigoDB.Core.Modeling.Geo
             }
         }
 
-        public GeoSpatialDictionary()
+        public GeoSpatialIndex()
         {
             _entries = new SortedDictionary<T, Entry>();
             _byLatitude =

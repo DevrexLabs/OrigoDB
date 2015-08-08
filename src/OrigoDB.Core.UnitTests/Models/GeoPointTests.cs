@@ -51,7 +51,7 @@ namespace OrigoDB.Test.NUnit.Models
             }
         }
 
-        private static GeoSpatialDictionary<String> _places;
+        private static GeoSpatialIndex<String> _places;
 
         [Test, TestCaseSource("_distances")]
         public void Distance(double[] data)
@@ -69,7 +69,7 @@ namespace OrigoDB.Test.NUnit.Models
         [TestFixtureSetUp]
         public void Setup()
         {
-            _places = new GeoSpatialDictionary<string>();
+            _places = new GeoSpatialIndex<string>();
             foreach (var item in TestData())
             {
                 _places.Add(item.Name, item.Point);

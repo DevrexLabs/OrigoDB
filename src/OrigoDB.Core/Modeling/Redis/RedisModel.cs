@@ -1509,9 +1509,9 @@ namespace OrigoDB.Core.Modeling.Redis
         }
 
 
-        private GeoSpatialDictionary<String> GetGeoSpatialDictionary(string key, bool create = false)
+        private GeoSpatialIndex<String> GetGeoSpatialDictionary(string key, bool create = false)
         {
-            return As<GeoSpatialDictionary<string>>(key, create);
+            return As<GeoSpatialIndex<string>>(key, create);
         }
 
         private SortedSet<ZSetEntry> GetSortedSet(string key, bool create = false)

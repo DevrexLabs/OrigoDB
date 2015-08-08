@@ -33,7 +33,7 @@ redis.Set("key", "42");
 redis.Increment("key");
 redis.IncrementBy("key", 4);
 string number = redis.Get("key");
-{% end highlight %}
+{% endhighlight %}
 
 ### Keys
 

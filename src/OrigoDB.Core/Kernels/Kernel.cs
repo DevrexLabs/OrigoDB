@@ -14,6 +14,8 @@ namespace OrigoDB.Core
 
         private static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
 
+        private bool _ensureSafeResults = true;
+
         protected Model _model;
         protected ISynchronizer _synchronizer;
         protected readonly IFormatter _resultFormatter;
@@ -46,6 +48,7 @@ namespace OrigoDB.Core
             _resultFormatter = config.CreateFormatter(FormatterUsage.Results);
             _synchronizer = config.CreateSynchronizer();
             _model = model;
+            _ensureSafeResults = config.EnsureSafeResults;
         }
 
         /// <summary>
@@ -53,7 +56,7 @@ namespace OrigoDB.Core
         /// </summary>
         protected virtual void EnsureNoMutableReferences(ref object result, IOperationWithResult operation)
         {
-            if (result != null)
+            if (result != null && _ensureSafeResults)
             {
                 bool operationIsResponsible = operation != null && operation.ResultIsSafe;
 

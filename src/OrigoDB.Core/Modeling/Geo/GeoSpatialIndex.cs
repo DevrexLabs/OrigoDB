@@ -17,9 +17,11 @@ namespace OrigoDB.Core.Modeling.Geo
         private readonly SortedSet<Entry> _byLatitude;
         private readonly SortedSet<Entry> _byLongitude;
 
+        
         /// <summary>
         /// Used for sorting by latitude and longitude
         /// </summary>
+        [Serializable]
         private class DelegateComparer : IComparer<Entry>
         {
             readonly Func<Entry, Entry, int> _comparer;

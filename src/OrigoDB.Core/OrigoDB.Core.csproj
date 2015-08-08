@@ -61,7 +61,7 @@
     <Compile Include="Benchmarking\BenchmarkCommand.cs" />
     <Compile Include="ExecutionContext.cs" />
     <Compile Include="Modeling\Geo\ArcDistance.cs" />
-    <Compile Include="Modeling\Geo\GeoSpatialDictionary.cs" />
+    <Compile Include="Modeling\Geo\GeoSpatialIndex.cs" />
     <Compile Include="Modeling\Geo\GeoPoint.cs" />
     <Compile Include="Modeling\Messaging\BinaryMessage.cs" />
     <Compile Include="Modeling\Messaging\BrokerStatus.cs" />

@@ -2,7 +2,8 @@ using System;
 
 namespace OrigoDB.Core.Types
 {
-    public class Range<T> where T : IComparable<T>
+    [Serializable]
+    public class Range<T> : IComparable<Range<T>> where T : IComparable<T>
     {
         public readonly T Start;
         public readonly T End;
@@ -29,6 +30,16 @@ namespace OrigoDB.Core.Types
             return Start.CompareTo(value) > 0;
         }
 
+        public bool Precedes(Range<T> other)
+        {
+            return Precedes(other.Start);
+        }
+
+        public bool Succeeds(Range<T> other)
+        {
+            return Succeeds(other.End);
+        }
+
         public bool Overlaps(Range<T> other)
         {
             return !(End.CompareTo(other.Start) < 0 || Start.CompareTo(other.End) > 0);
@@ -48,14 +59,17 @@ namespace OrigoDB.Core.Types
 
         public static T Min(T a, T b)
         {
-            if (a.CompareTo(b) < 0) return a;
-            return b;
+            return a.CompareTo(b) < 0 ? a : b;
         }
 
         public static T Max(T a, T b)
         {
-            if (a.CompareTo(b) > 0) return a;
-            return b;
+            return a.CompareTo(b) > 0 ? a : b;
+        }
+
+        public int CompareTo(Range<T> other)
+        {
+            return Start.CompareTo(other.Start);
         }
     }
 }

@@ -20,10 +20,6 @@ namespace OrigoDB.Core.Test
             engine.CommandExecuted += (s, e) => sequence.Add(e.JournalEntryId);
 
             for(int i = 1; i <=100; i++) engine.Execute(new AppendNumberCommand(i));
-            foreach (var entryId in sequence)
-            {
-                Console.WriteLine(entryId);
-            }
             var sum = engine.Execute(m => m.Numbers().Sum());
             Assert.AreEqual(sum, sequence.Sum(n => (decimal) n));
         }

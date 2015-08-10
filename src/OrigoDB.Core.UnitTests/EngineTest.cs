@@ -127,10 +127,8 @@ namespace OrigoDB.Core.Test
         private void AssertJournalEntriesAreSequential(ICommandStore storage)
         {
             ulong expected = 1;
-            Console.WriteLine("JournalEntry Ids:");
             foreach (var journalEntry in storage.CommandEntries())
             {
-                Console.WriteLine(journalEntry.Id);
                 Assert.AreEqual(expected, journalEntry.Id);
                 expected++;
             }

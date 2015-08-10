@@ -148,11 +148,5 @@ namespace OrigoDB.Core.Test
             Assert.IsInstanceOf<DateTime>(dt);
             Assert.AreEqual(default(DateTime), dt);
         }
-
-        [Test]
-        public void GenericOverloads()
-        {
-            Assert.Inconclusive();
-        }
     }
 }

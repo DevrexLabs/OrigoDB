@@ -20,6 +20,7 @@ namespace Models.Redis.Tests
             target.Set(key, "value");
             var expires = DateTime.Now;
             target.Expire(key, expires);
+            Thread.Sleep(TimeSpan.FromMilliseconds(1));
             var keys = target.GetExpiredKeys();
             Assert.IsTrue(keys.Single() == key);
             var expected = target.Expires(key);

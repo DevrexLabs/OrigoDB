@@ -9,6 +9,7 @@
 # Tools
 tools/Cake/
 tools/NUnit.Runners/
+tools/nuget.exe
 
 #OrigoDB snapshot and journal files
 *.snapshot
@@ -94,7 +95,6 @@ publish
 # Others
 [Bb]in
 [Oo]bj
-sql
 TestResults
 [Tt]est[Rr]esult*
 *.Cache

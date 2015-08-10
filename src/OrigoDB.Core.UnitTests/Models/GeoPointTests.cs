@@ -82,17 +82,13 @@ namespace OrigoDB.Test.NUnit.Models
         {
             const double radius = 100;
 
-            Console.WriteLine("Sample: " + sample.Name + " " + sample.Point);
             var within = _places.WithinRadius(sample.Point, radius).OrderBy(p => p.Value).ToArray();
-            Console.WriteLine("-------------------- Search results --------------------");
 
             foreach (var keyValuePair in within)
             {
-                Console.WriteLine(keyValuePair.Key + " -> " + keyValuePair.Value);
                 Assert.IsTrue(keyValuePair.Value.ToKilometers() <= radius);
             }
 
-            Console.WriteLine("\n------------------------- Failures ------------------------------");
             var withinNames = new HashSet<string>(within.Select(kvp => kvp.Key));
             int failures = 0;
             foreach (var keyValuePair in _places)

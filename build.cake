@@ -72,8 +72,8 @@ Task("NuGet")
 Task("ApiDocs")
   .IsDependentOn("Build")
   .Does(() => {
-    XmlTransform("Documenation.xsl",
-		@"bin\Release\OrigoDB.Core.XML", output + "/api-docs.html");
+    XmlTransform("Documentation.xsl",
+		@"src\OrigoDB.Core\bin\Release\OrigoDB.Core.XML", output + "/api-docs.html");
 });
 
 Task("Default")

@@ -49,6 +49,7 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
@@ -117,17 +118,20 @@
     <Compile Include="Storage\Rollover\MaxBytesRolloverStrategy.cs" />
     <Compile Include="Storage\Rollover\MaxEntriesRolloverStrategy.cs" />
     <Compile Include="Storage\Rollover\ScheduledRolloverStrategy.cs" />
+    <Compile Include="Storage\Sql\SqlCommandStore.cs" />
+    <Compile Include="Storage\Sql\SqlJournalWriter.cs" />
+    <Compile Include="Storage\Sql\SqlStatements.cs" />
     <Compile Include="Utilities\Utils.Converters.cs" />
-    <Compile Include="Journaling\JournalAppender.cs" />
-    <Compile Include="Journaling\ModelCreated.cs" />
+    <Compile Include="Storage\Journaling\JournalAppender.cs" />
+    <Compile Include="Storage\Journaling\ModelCreated.cs" />
     <Compile Include="Configuration\PersistenceMode.cs" />
     <Compile Include="Proxying\CommandAttribute.cs" />
     <Compile Include="Proxying\NoProxyAttribute.cs" />
     <Compile Include="Proxying\OperationAttribute.cs" />
     <Compile Include="Proxying\QueryAttribute.cs" />
     <Compile Include="Security\Authorizer.cs" />
-    <Compile Include="Storage\FileSnapshot.cs" />
-    <Compile Include="Storage\FileSnapshotStore.cs" />
+    <Compile Include="Storage\File\FileSnapshot.cs" />
+    <Compile Include="Storage\File\FileSnapshotStore.cs" />
     <Compile Include="Storage\FormatterExtensions.cs" />
     <Compile Include="Storage\Initializable.cs" />
     <Compile Include="Storage\InMemorySnapshotStore.cs" />
@@ -165,7 +169,7 @@
     <Compile Include="Proxying\ProxyExtensions.cs" />
     <Compile Include="Operations\Query.cs" />
     <Compile Include="Storage\InMemoryCommandStore.cs" />
-    <Compile Include="Journaling\RollbackMarker.cs" />
+    <Compile Include="Storage\Journaling\RollbackMarker.cs" />
     <Compile Include="Kernels\Kernel.cs" />
     <Compile Include="Operations\DelegateQuery.cs" />
     <Compile Include="Engine.For.cs" />
@@ -196,7 +200,7 @@
     <Compile Include="Security\IAuthenticator.cs" />
     <Compile Include="Security\IAuthorizer.cs" />
     <Compile Include="Logging\ILogger.cs" />
-    <Compile Include="Journaling\AsynchronousJournalWriter.cs" />
+    <Compile Include="Storage\Journaling\AsynchronousJournalWriter.cs" />
     <Compile Include="Operations\Command.cs" />
     <Compile Include="CommandAbortedException.cs" />
     <Compile Include="Configuration\SynchronizationMode.cs" />
@@ -210,7 +214,7 @@
     <Compile Include="Security\Role.cs" />
     <Compile Include="Security\AuthenticationModel.cs" />
     <Compile Include="Storage\ICommandStore.cs" />
-    <Compile Include="Storage\JournalFile.cs" />
+    <Compile Include="Storage\File\JournalFile.cs" />
     <Compile Include="Storage\Snapshot.cs" />
     <Compile Include="Storage\CommandStore.cs" />
     <Compile Include="Utilities\Ensure.cs" />
@@ -224,20 +228,19 @@
     <Compile Include="Security\User.cs" />
     <Compile Include="Configuration\SnapshotBehavior.cs" />
     <Compile Include="Synchronization\ISynchronizer.cs" />
-    <Compile Include="Journaling\IJournalWriter.cs" />
+    <Compile Include="Storage\Journaling\IJournalWriter.cs" />
     <Compile Include="IEngine[M].cs" />
-    <Compile Include="Journaling\JournalEntry.cs" />
+    <Compile Include="Storage\Journaling\JournalEntry.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="Synchronization\NullSynchronizer.cs" />
     <Compile Include="Operations\Query[M,R].cs" />
     <Compile Include="Synchronization\ReadWriteSynchronizer.cs" />
     <Compile Include="Synchronization\ExclusiveSynchronizer.cs" />
-    <Compile Include="Storage\FileCommandStore.cs" />
-    <Compile Include="Journaling\StreamJournalWriter.cs" />
+    <Compile Include="Storage\File\FileCommandStore.cs" />
+    <Compile Include="Storage\Journaling\StreamJournalWriter.cs" />
     <Compile Include="Utilities\HashUtility.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Storage\Filestorage.cd" />
     <None Include="Core.Public.cd" />
     <None Include="Security\ClassDiagram2.cd" />
   </ItemGroup>

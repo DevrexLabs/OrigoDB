@@ -14,11 +14,8 @@ if not exist tools\NUnit.Runners\tools\nunit-console.exe (
 	tools\nuget\nuget.exe install nunit.runners -OutputDirectory tools -ExcludeVersion -NonInteractive
 	echo.
 )
-			 
-SET BUILDMODE="Release"
-IF NOT [%1]==[] (set BUILDMODE="%1")
 			  
 echo Starting Cake...
-"tools\Cake\Cake.exe" "build.csx" "-verbosity=verbose" "-config=%BUILDMODE%"
+"tools\Cake\Cake.exe" "build.cake" "-verbosity=verbose"
 			   
 exit /b %errorlevel%

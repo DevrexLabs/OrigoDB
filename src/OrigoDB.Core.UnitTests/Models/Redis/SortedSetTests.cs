@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using OrigoDB.Core.Modeling.Redis;
@@ -145,14 +145,14 @@ namespace Models.Redis.Tests
 
             CollectionAssert.AreEqual(expectedSet, _target.ZRangeWithScores("s3"));
 
-            //Console.WriteLine("s3 members:");
-            //foreach (var pair in _target.ZRangeWithScores("s3")) Console.WriteLine(pair);
+            Trace.WriteLine("s3 members:");
+            foreach (var pair in _target.ZRangeWithScores("s3")) Trace.WriteLine(pair);
 
-            //Console.WriteLine("s1 members:");
-            //foreach (var pair in _target.ZRangeWithScores("s1")) Console.WriteLine(pair);
+            Trace.WriteLine("s1 members:");
+            foreach (var pair in _target.ZRangeWithScores("s1")) Trace.WriteLine(pair);
 
-            //Console.WriteLine("s2 members:");
-            //foreach (var pair in _target.ZRangeWithScores("s2")) Console.WriteLine(pair);
+            Trace.WriteLine("s2 members:");
+            foreach (var pair in _target.ZRangeWithScores("s2")) Trace.WriteLine(pair);
         }
 
         [Test]
@@ -162,7 +162,7 @@ namespace Models.Redis.Tests
             var expected = new[] { "b", "c", "d", "a" };
             var elements = _target.ZRange("s1");
             CollectionAssert.AreEqual(expected, elements);
-            //foreach (string member in elements) Console.WriteLine(member);
+            foreach (string member in elements) Trace.WriteLine(member);
         }
 
         [Test]
@@ -190,10 +190,10 @@ namespace Models.Redis.Tests
             var actual = _target.ZRank("s1", "c");
             Assert.IsTrue(actual.HasValue);
             Assert.AreEqual(1, actual.Value);
-            //foreach (var keyValuePair in _target.ZRangeWithScores("s1"))
-            //{
-            //    Console.WriteLine(keyValuePair);
-            //}
+            foreach (var keyValuePair in _target.ZRangeWithScores("s1"))
+            {
+                Trace.WriteLine(keyValuePair);
+            }
         }
 
         [Test]
@@ -259,14 +259,14 @@ namespace Models.Redis.Tests
             var elementCount = _target.ZUnionStore("s3", new[] { "s1", "s2" }, null, aggregateType);
             Assert.AreEqual(set1.Select(s => s.Key).Union(set2.Select(s => s.Key)).Count(), elementCount);
 
-            //Console.WriteLine("s3 members:");
-            //foreach (var pair in _target.ZRangeWithScores("s3")) Console.WriteLine(pair);
+            Trace.WriteLine("s3 members:");
+            foreach (var pair in _target.ZRangeWithScores("s3")) Trace.WriteLine(pair);
 
-            //Console.WriteLine("s1 members:");
-            //foreach (var pair in _target.ZRangeWithScores("s1")) Console.WriteLine(pair);
+            Trace.WriteLine("s1 members:");
+            foreach (var pair in _target.ZRangeWithScores("s1")) Trace.WriteLine(pair);
 
-            //Console.WriteLine("s2 members:");
-            //foreach (var pair in _target.ZRangeWithScores("s2")) Console.WriteLine(pair);
+            Trace.WriteLine("s2 members:");
+            foreach (var pair in _target.ZRangeWithScores("s2")) Trace.WriteLine(pair);
         }
 
         [Test]

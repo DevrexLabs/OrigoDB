@@ -1,5 +1,6 @@
 ﻿using System.Runtime.Serialization.Formatters.Binary;
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 
@@ -17,7 +18,7 @@ namespace OrigoDB.Core.Test
             testModel.AddCustomer("Bart");
             long actual = target.SizeOf(testModel);
             long expected = target.ToByteArray(testModel).Length;
-            Console.WriteLine("SizeOf(TestModel with 2 customers) using BinaryFormatter = " + expected);
+            Trace.WriteLine("SizeOf(TestModel with 2 customers) using BinaryFormatter = " + expected);
             Assert.AreEqual(expected, actual);
         }
 

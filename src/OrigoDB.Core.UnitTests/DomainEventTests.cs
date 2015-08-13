@@ -38,7 +38,6 @@ namespace OrigoDB.Core.Test
                 {
                     ExecutionContext.Current.AddEvent(_event);
                 }
-                
             }
         }
 
@@ -63,7 +62,6 @@ namespace OrigoDB.Core.Test
             Assert.AreEqual(2, events[2].Count());
             Assert.AreEqual(4, events[3].Count());
             Assert.IsTrue(events.SelectMany(e => e).All(e => e == @event));
-
         }
     }
 }

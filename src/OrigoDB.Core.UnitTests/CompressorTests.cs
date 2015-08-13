@@ -1,27 +1,16 @@
-using System;
-using System.Linq;
-using NUnit.Framework;
 using System.Collections.Generic;
-using OrigoDB.Core.Compression;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
+using NUnit.Framework;
+using OrigoDB.Core.Compression;
 
 namespace OrigoDB.Core.Test
 {
     [TestFixture]
     public class CompressorTests
     {
-        List<string> results = new List<string>();
         
-        [TestFixtureTearDown]
-        public void PrintResults()
-        {
-            foreach (var result in results)
-            {
-                Console.WriteLine(result);
-            }
-        }
-
         [Test, TestCaseSource("TestCases")]
         public void Compress_decompression_yields_original_data(ICompressor compressor)
         {
@@ -35,10 +24,10 @@ namespace OrigoDB.Core.Test
             }
         }
 
-        [Test, Ignore, TestCaseSource("TestCases")]
+        [Test, TestCaseSource("TestCases")]
         public void Performance(ICompressor compressor)
         {
-            results.Add("---------" + compressor.GetType() + "---------");
+            Trace.WriteLine("---------" + compressor.GetType() + "---------");
             byte[] indata = Encoding.UTF8.GetBytes(testData);
 
             Stopwatch stopwatch = new Stopwatch();
@@ -50,7 +39,7 @@ namespace OrigoDB.Core.Test
             }
             stopwatch.Stop();
             long ticks = stopwatch.ElapsedTicks;
-            results.Add("Compress: " +  ticks);
+            Trace.WriteLine("Compress: " +  ticks);
 
             stopwatch.Reset();
             stopwatch.Start();
@@ -62,8 +51,8 @@ namespace OrigoDB.Core.Test
             }
             stopwatch.Stop();
             ticks = stopwatch.ElapsedTicks;
-            results.Add("Decompress: " + ticks);
-            results.Add("Compression: " + result.Length / (1.0 * indata.Length));
+            Trace.WriteLine("Decompress: " + ticks);
+            Trace.WriteLine("Compression: " + result.Length / (1.0 * indata.Length));
         }
 
 
@@ -71,7 +60,6 @@ namespace OrigoDB.Core.Test
         {
             yield return new DeflateStreamCompressor();
             yield return new GzipCompressor();
-            //yield return new LzfCompressionAdapter();
         }
 
         private const string testData = @"Now that there is the Tec-9, a crappy spray gun from South Miami. This gun is advertised as the most popular gun in American crime. Do you believe that shit? It actually says that in the little book that comes with it: the most popular gun in American crime. Like they're actually proud of that shit. 

@@ -94,6 +94,7 @@ namespace OrigoDB.Test.NUnit
                 {
                     Trace.Write(count + ", ");
                 }
+                Trace.WriteLine("");
                 
                 Assert.AreEqual(stat.Value.Count, stat.Value.Histogram(10).Sum());
                 Assert.AreEqual(stat.Value.Count, stat.Value.Histogram(20).Sum());

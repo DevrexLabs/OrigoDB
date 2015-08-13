@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using NUnit.Framework;
@@ -98,12 +99,12 @@ namespace OrigoDB.Test.NUnit.Models
                 if (distance.ToKilometers() > radius && withinNames.Contains(name))
                 {
                     failures++;
-                    Console.WriteLine("false positive: " + name + ", d=" + distance );
+                    Trace.WriteLine("false positive: " + name + ", d=" + distance );
                 }
                 if (distance.ToKilometers() <= radius && !withinNames.Contains(name))
                 {
                     failures++;
-                    Console.WriteLine("false negative: " + name + ", d=" + distance);
+                    Trace.WriteLine("false negative: " + name + ", d=" + distance);
                 }
                 
             }

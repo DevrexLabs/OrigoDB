@@ -4,6 +4,7 @@ using OrigoDB.Core.Linq;
 using System;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace OrigoDB.Core.Test
 {
@@ -50,8 +51,8 @@ namespace OrigoDB.Core.Test
                 catch (Exception ex)
                 {
                     failedQueries++;
-                    Console.WriteLine("Query id {0} failed", i);
-                    Console.WriteLine(ex);
+                    Trace.WriteLine(string.Format("Query id {0} failed", i));
+                    Trace.WriteLine(ex);
                 }
             }
             Assert.AreEqual(0, failedQueries);

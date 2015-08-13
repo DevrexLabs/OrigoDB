@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace OrigoDB.Core.Test
 {
@@ -78,8 +77,7 @@ namespace OrigoDB.Core.Test
             engine.Close();
             engine =Engine.Load<TestModel>(config);
             int numCommandsExecuted = engine.Execute(new GetNumberOfCommandsExecutedQuery());
-            engine.Close();
-            
+            engine.Close();           
             Assert.AreEqual(1, numCommandsExecuted);
         }
 

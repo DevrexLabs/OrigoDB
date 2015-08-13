@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using NUnit.Framework;
 using OrigoDB.Core.Configuration;
 
@@ -72,7 +73,7 @@ namespace OrigoDB.Core.Test
                                          };
             foreach(var s in validStringsA)
             {
-                Console.WriteLine(s);
+                Trace.WriteLine(s);
                 var config = ConfigDictionary.FromDelimitedString(s);
                 Assert.AreEqual(1, config.Count);
                 Assert.IsTrue(config.ContainsKey("a"));
@@ -81,7 +82,7 @@ namespace OrigoDB.Core.Test
 
             foreach (var s in validStringsB)
             {
-                Console.WriteLine(s);
+                Trace.WriteLine(s);
                 var config = ConfigDictionary.FromDelimitedString(s);
                 Assert.AreEqual("b", config.Get<string>("a"));
                 Assert.AreEqual("c", config.Get<string>("b"));

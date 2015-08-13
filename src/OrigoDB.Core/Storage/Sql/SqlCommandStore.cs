@@ -33,7 +33,7 @@ namespace OrigoDB.Core.Storage.Sql
             var config = ConfigDictionary.FromDelimitedString(connectionString);
             var settings = new ConnectionStringSettings();
             settings.ProviderName = config.Get("Provider", () => MsSqlProvider.ProviderName);
-            var tableName = GetTableName(config);
+            var tableName = "table";
             settings.ConnectionString = connectionString;
             _provider = SqlProvider.Create(settings, tableName);
             _provider.Initialize();
@@ -43,14 +43,9 @@ namespace OrigoDB.Core.Storage.Sql
         private void Inititialize(ConnectionStringSettings settings)
         {
             var config = ConfigDictionary.FromDelimitedString(settings.ConnectionString);
-            var tableName = GetTableName(config);
+            var tableName = "table";
             _provider = SqlProvider.Create(settings, tableName);
             _provider.Initialize();
-        }
-
-        private string GetTableName(ConfigDictionary config)
-        {
-            return config.Get("Table", () => "origo_journal");
         }
 
         protected override IEnumerable<JournalEntry> GetJournalEntriesFromImpl(ulong entryId)

@@ -35,9 +35,9 @@ namespace OrigoDB.Core.Test
         public void MsSqlProviderIntegrationTest()
         {
             var config = EngineConfiguration.Create();
-            config.CommandStorage = StorageType.Sql;
+            config.JournalStorage = StorageType.Sql;
             config.Location.OfJournal = "Data Source=.;Initial Catalog=fish;Integrated Security=True;";
-            config.Location.OfSnapshots = "fish";
+            config.Location.OfSnapshots = "dish";
             var engine = Engine.For<TestModel>(config);
             int initial = engine.Execute(new DelegateQuery<TestModel, int>(m => m.CommandsExecuted));
             engine.Execute(new TestCommandWithoutResult());

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OrigoDB.Core
 {
-    public abstract class ClientConfiguration : ConfigurationBase
+    public abstract class ClientConfiguration
     {
 	    private enum Mode
 	    {

@@ -9,9 +9,9 @@ using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core
 {
-    public class EngineConfiguration : ConfigurationBase
+    public class EngineConfiguration
     {
-        protected TeenyIoc _registry;
+        protected TeenyIoc Registry;
 
         private CustomBinder _binder;
 
@@ -89,7 +89,7 @@ namespace OrigoDB.Core
         /// Location.OfJournal is interpreted as a relative path to directory of
         /// journal files or connectionString name when type is Sql.
         /// </remarks>
-        public StorageType CommandStorage { get; set; }
+        public StorageType JournalStorage { get; set; }
 
         /// <summary>
         /// Maximum number of journal entries per segment. Applies only to storage 
@@ -116,7 +116,7 @@ namespace OrigoDB.Core
 
             //Set default values
             Kernel = Kernels.Optimistic;
-            CommandStorage = StorageType.File;
+            JournalStorage = StorageType.File;
             LockTimeout = DefaultTimeout;
             Synchronization = SynchronizationMode.ReadWrite;
             AsynchronousJournaling = false;
@@ -126,7 +126,7 @@ namespace OrigoDB.Core
             PacketOptions = null;
             PersistenceMode = PersistenceMode.Journaling;
 
-            _registry = new TeenyIoc();
+            Registry = new TeenyIoc();
             Register<IAuthorizer>(c => new Authorizer(Permission.Allowed));
             Register<IFormatter>(c => new BinaryFormatter(), FormatterUsage.Default.ToString());
             InitSynchronizers();
@@ -164,16 +164,13 @@ namespace OrigoDB.Core
         }
 
         /// <summary>
-        /// Looks up a custom implementation in app config file
+        /// Creates an EngineConfiguration by calling the constructor
         /// </summary>
         /// <returns></returns>
+        [Obsolete("just call the constructor instead")]
         public static EngineConfiguration Create()
         {
-            //we need an instance to be able to call an instance method
-            var bootloader = new EngineConfiguration();
-
-            //look for specific implementation in config file, otherwise return self
-            return bootloader.LoadFromConfigOrDefault(() => bootloader);
+            return new EngineConfiguration();
         }
 
         /// <summary>
@@ -184,9 +181,9 @@ namespace OrigoDB.Core
         /// <returns>An IFormatter instance provided by the </returns>
         public virtual IFormatter CreateFormatter(FormatterUsage formatterUsage)
         {
-            var formatter = _registry.CanResolve<IFormatter>(formatterUsage.ToString())
-                ? _registry.Resolve<IFormatter>(formatterUsage.ToString())
-                : _registry.Resolve<IFormatter>(FormatterUsage.Default.ToString());
+            var formatter = Registry.CanResolve<IFormatter>(formatterUsage.ToString())
+                ? Registry.Resolve<IFormatter>(formatterUsage.ToString())
+                : Registry.Resolve<IFormatter>(FormatterUsage.Default.ToString());
 
             if (_binder != null && formatter is BinaryFormatter)
             {
@@ -207,25 +204,25 @@ namespace OrigoDB.Core
         public virtual ISynchronizer CreateSynchronizer()
         {
             string registrationName = Synchronization.ToString();
-            return _registry.Resolve<ISynchronizer>(registrationName);
+            return Registry.Resolve<ISynchronizer>(registrationName);
         }
 
         public virtual IAuthorizer CreateAuthorizer()
         {
-            return _registry.Resolve<IAuthorizer>();
+            return Registry.Resolve<IAuthorizer>();
         }
 
 
         public virtual ISnapshotStore CreateSnapshotStore()
         {
-            var store = _registry.Resolve<ISnapshotStore>();
+            var store = Registry.Resolve<ISnapshotStore>();
             store.Initialize();
             return store;
         }
 
         public virtual ICommandStore CreateCommandStore()
         {
-            var store =  _registry.Resolve<ICommandStore>(CommandStorage.ToString());
+            var store =  Registry.Resolve<ICommandStore>(JournalStorage.ToString());
             store.Initialize();
             return store;
         }
@@ -233,13 +230,13 @@ namespace OrigoDB.Core
 
         protected void Register<T>(Func<EngineConfiguration, T> factory, string registrationName = "") where T : class
         {
-            _registry.Register(args => factory.Invoke(this), registrationName);
+            Registry.Register(args => factory.Invoke(this), registrationName);
         }
 
         protected void Register<T>(Func<EngineConfiguration, TeenyIoc.Args, T> factory,
             string registrationName = "") where T : class
         {
-            _registry.Register(args => factory.Invoke(this, args), registrationName);
+            Registry.Register(args => factory.Invoke(this, args), registrationName);
         }
 
 
@@ -247,7 +244,7 @@ namespace OrigoDB.Core
         {
             Synchronization = SynchronizationMode.Custom;
             string registrationName = Synchronization.ToString();
-            _registry.Register(args => factory.Invoke(this), registrationName);
+            Registry.Register(args => factory.Invoke(this), registrationName);
         }
 
         public void SetAuthorizerFactory(Func<EngineConfiguration, IAuthorizer> factory)
@@ -281,8 +278,8 @@ namespace OrigoDB.Core
         /// <param name="factory"></param>
         public void SetCommandStoreFactory(Func<EngineConfiguration, ICommandStore> factory)
         {
-            CommandStorage = StorageType.Custom;
-            Register(args => factory.Invoke(this), CommandStorage.ToString());
+            JournalStorage = StorageType.Custom;
+            Register(args => factory.Invoke(this), JournalStorage.ToString());
         }
 
         public void SetSnapshotStoreFactory(Func<EngineConfiguration, ISnapshotStore> factory)
@@ -315,7 +312,7 @@ namespace OrigoDB.Core
         {
             string registrationName = Kernel.ToString();
             var args = new TeenyIoc.Args { { "model", model } };
-            return _registry.Resolve<Kernel>(args, registrationName);
+            return Registry.Resolve<Kernel>(args, registrationName);
         }
     }
 }

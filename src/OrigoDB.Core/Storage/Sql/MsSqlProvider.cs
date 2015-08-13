@@ -8,20 +8,19 @@ namespace OrigoDB.Core.Storage.Sql
     /// </summary>
     public class MsSqlProvider : SqlProvider
     {
+        /// <summary>
+        /// Name of provider as recognized by DataProviderFactories.
+        /// </summary>
+        public const string Name = "System.Data.SqlClient";
 
-        public const string ProviderName = "System.Data.SqlClient";
 
-
-        public MsSqlProvider(ConnectionStringSettings settings, string tableName)
-            : base(settings, tableName)
+        public MsSqlProvider(SqlSettings config)
+            : base(config)
         {
             ReadEntriesStatement = "SELECT Id, Created, Data FROM [" + TableName + "] WHERE Id  >= @id ORDER BY Id";
             InitStatement = BuildInitStatement();
-            AppendEntryStatement = "INSERT INTO [" + tableName + "] VALUES (@Id, @Created, @Type, @Data);";
+            AppendEntryStatement = "INSERT INTO [" + TableName + "] VALUES (@Id, @Created, @Type, @Data);";
         }
-
-
-
 
         private string BuildInitStatement()
         {

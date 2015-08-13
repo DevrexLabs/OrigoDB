@@ -60,6 +60,7 @@
     <Compile Include="Benchmarking\BenchmarkModel.cs" />
     <Compile Include="Benchmarking\BenchmarkResult.cs" />
     <Compile Include="Benchmarking\BenchmarkCommand.cs" />
+    <Compile Include="Configuration\SqlSettings.cs" />
     <Compile Include="Configuration\StorageType.cs" />
     <Compile Include="ExecutionContext.cs" />
     <Compile Include="Modeling\Geo\ArcDistance.cs" />

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 
 namespace OrigoDB.Core.Storage.Sql
 {
+
+    /// <summary>
+    /// Command store implementation using a backing Sql database.
+    /// </summary>
     public class SqlCommandStore : CommandStore
     {
         private SqlProvider _provider;
@@ -18,31 +21,7 @@ namespace OrigoDB.Core.Storage.Sql
         public override void Initialize()
         {
             base.Initialize();
-            var connectionString = _config.JournalPath;
-
-            var settings = ConfigurationManager.ConnectionStrings[connectionString];
-            if (settings != null) Inititialize(settings);
-            else if (connectionString.Contains("=")) Initialize(connectionString);
-            else throw new Exception("Unrecognized sql connection identifier. expected connection string name or connection string");
-        }
-
-        private void Initialize(string connectionString)
-        {
-            var config = ConfigDictionary.FromDelimitedString(connectionString);
-            var settings = new ConnectionStringSettings();
-            settings.ProviderName = config.Get("Provider", () => MsSqlProvider.ProviderName);
-            var tableName = "table";
-            settings.ConnectionString = connectionString;
-            _provider = SqlProvider.Create(settings, tableName);
-            _provider.Initialize();
-
-        }
-
-        private void Inititialize(ConnectionStringSettings settings)
-        {
-            var config = ConfigDictionary.FromDelimitedString(settings.ConnectionString);
-            var tableName = "table";
-            _provider = SqlProvider.Create(settings, tableName);
+            _provider = SqlProvider.Create(_config.SqlSettings);
             _provider.Initialize();
         }
 

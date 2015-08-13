@@ -22,18 +22,7 @@ namespace OrigoDB.Core
         public const int DefaultMaxCommandsPerJournalSegment = 10000;
 
 
-        /// <summary>
-        /// Configure this instance for use with an immutable kernel.
-        /// </summary>
-        /// <returns></returns>
-        public EngineConfiguration ForImmutability()
-        {
-            Kernel = Kernels.Immutability;
-            Synchronization = SynchronizationMode.None;
-            EnsureSafeResults = false;
-            return this;
-        }
-
+        public SqlSettings SqlSettings { get; set; }
 
         /// <summary>
         /// Append journal entries using a background thread
@@ -137,6 +126,7 @@ namespace OrigoDB.Core
             EnsureSafeResults = true;
             PacketOptions = null;
             PersistenceMode = PersistenceMode.Journaling;
+            SqlSettings = new SqlSettings();
 
             Registry = new TeenyIoc();
             Register<IAuthorizer>(c => new Authorizer(Permission.Allowed));
@@ -278,14 +268,14 @@ namespace OrigoDB.Core
         /// Inject a custom IFormatter factory.
         /// </summary>
         /// <param name="factory">Function that provides an IFormatter</param>
-        /// <param name="formatterUsage">The usage</param>
+        /// <param name="formatterUsage">What type of objects to format</param>
         public void SetFormatterFactory(Func<EngineConfiguration, FormatterUsage, IFormatter> factory, FormatterUsage formatterUsage = FormatterUsage.Default)
         {
             Register(args => factory.Invoke(this, formatterUsage), formatterUsage.ToString());
         }
 
         /// <summary>
-        /// Inject your custom storage factory here. StorageMode property will be set to Custom
+        /// Inject a custom command storage factory here. StorageMode property will be set to Custom
         /// </summary>
         /// <param name="factory"></param>
         public void SetCommandStoreFactory(Func<EngineConfiguration, ICommandStore> factory)
@@ -294,6 +284,10 @@ namespace OrigoDB.Core
             Register(args => factory.Invoke(this), JournalStorage.ToString());
         }
 
+        /// <summary>
+        /// Configure an alternative snapshot store
+        /// </summary>
+        /// <param name="factory"></param>
         public void SetSnapshotStoreFactory(Func<EngineConfiguration, ISnapshotStore> factory)
         {
             Register(args => factory.Invoke(this));
@@ -327,11 +321,20 @@ namespace OrigoDB.Core
             return Registry.Resolve<Kernel>(args, registrationName);
         }
 
+        /// <summary>
+        /// Get the JournalPath
+        /// </summary>
+        /// <returns></returns>
         public string GetJournalPath()
         {
-            return MakeAbsolute(JournalPath);
+            return MakeAbsolute(JournalPath ?? ModelType.Name);
         }
 
+        /// <summary>
+        /// Get the directory for snapshots. Only relevant when using FileCommandStore
+        /// </summary>
+        /// <param name="makeAbsolute">Passes the result through the MakeAbsolute method. default is true</param>
+        /// <returns></returns>
         public string GetSnapshotPath(bool makeAbsolute = true)
         {
             string path = SnapshotPath ?? JournalPath;
@@ -347,11 +350,19 @@ namespace OrigoDB.Core
             return Path.Combine(GetBaseDirectory(), path);
         }
 
+        /// <summary>
+        /// True if snapshots are stored in at path different from JournalPath
+        /// </summary>
+        /// <returns></returns>
         public bool HasAlternativeSnapshotPath()
         {
             return SnapshotPath != null && SnapshotPath != JournalPath;
         }
 
+        /// <summary>
+        /// The type of the model. Must be set when JournalPath is null
+        /// because path is derived from type name.
+        /// </summary>
         public Type ModelType { get; set; }
 
         /// <summary>
@@ -368,6 +379,18 @@ namespace OrigoDB.Core
                 result = dataDirectory;
             }
             return result;
+        }
+
+        /// <summary>
+        /// Configure this instance for use with an immutable kernel.
+        /// </summary>
+        /// <returns></returns>
+        public EngineConfiguration ForImmutability()
+        {
+            Kernel = Kernels.Immutability;
+            Synchronization = SynchronizationMode.None;
+            EnsureSafeResults = false;
+            return this;
         }
     }
 }

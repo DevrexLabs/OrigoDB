@@ -1,19 +1,21 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Data.Common;
 
 namespace OrigoDB.Core.Storage.Sql
 {
     /// <summary>
-    /// Provider from sql based command storage.
+    /// Base class for vendor specific sql databases
     /// </summary>
     public abstract class SqlProvider
     {
 
-        public delegate SqlProvider ProviderConstructor(ConnectionStringSettings settings, String tableName);
+        public delegate SqlProvider ProviderConstructor(SqlSettings settings);
      
+        /// <summary>
+        /// Registered providers by provider name
+        /// </summary>
         public static readonly IDictionary<string, ProviderConstructor> Providers
             = new Dictionary<string, ProviderConstructor>();
 
@@ -27,9 +29,12 @@ namespace OrigoDB.Core.Storage.Sql
             Providers[providerName] = constructor;
         }
 
+        /// <summary>
+        /// Register core provider classes
+        /// </summary>
         static SqlProvider()
         {
-            Register(MsSqlProvider.ProviderName, (settings,table) => new MsSqlProvider(settings,table));
+            Register(MsSqlProvider.Name, settings => new MsSqlProvider(settings));
         }
 
         protected readonly DbProviderFactory ProviderFactory;
@@ -52,9 +57,9 @@ namespace OrigoDB.Core.Storage.Sql
         /// </summary>
         public string AppendEntryStatement { get; set; }
 
-        protected SqlProvider(ConnectionStringSettings settings, string tableName)
+        protected SqlProvider(SqlSettings settings)
         {
-            TableName = tableName;
+            TableName = settings.TableName;
             ProviderFactory = DbProviderFactories.GetFactory(settings.ProviderName);
             ConnectionString = settings.ConnectionString;
         }
@@ -65,7 +70,7 @@ namespace OrigoDB.Core.Storage.Sql
         /// </summary>
         /// <param name="firstEntry">id of first entry to</param>
         /// <param name="deserializer"></param>
-        /// <returns></returns>
+        /// <returns>a stream of journal entry objects</returns>
         public virtual IEnumerable<JournalEntry> ReadJournalEntries(ulong firstEntry, Func<byte[], object> deserializer)
         {
             var connection = CreateConnection();
@@ -166,14 +171,21 @@ namespace OrigoDB.Core.Storage.Sql
             dbCommand.Parameters[3].Value = payload;
         }
 
-        internal static SqlProvider Create(ConnectionStringSettings settings, string tableName)
+        /// <summary>
+        /// Create a vendor specific provider 
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns>an instance of a SqlProvider subclass</returns>
+        /// <exception cref="ArgumentException">Thrown when provider name not present in Providers</exception>
+        internal static SqlProvider Create(SqlSettings config)
         {
-            var providerName = settings.ProviderName;
+            config.ResolveConnectionString();
+            var providerName = config.ProviderName;
             if (!Providers.ContainsKey(providerName))
             {
                 throw new ArgumentException("No such provider:" + providerName);
             }
-            return Providers[providerName].Invoke(settings, tableName);
+            return Providers[providerName].Invoke(config);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using NUnit.Framework;
@@ -67,33 +68,33 @@ namespace OrigoDB.Test.NUnit
             target.AddComponent("Queries", RandomSleep(2,5), 10);
             BenchmarkResult result = target.Run();
 
-            Console.WriteLine("Elapsed: " + result.Elapsed);
+            Trace.WriteLine("Elapsed: " + result.Elapsed);
 
             var stats = result.StatisticsByKey();
             stats.Add("Totals", result.TotalStatistics());
             foreach (var stat in stats)
             {
-                Console.WriteLine(stat.Key);
-                if (stat.Key != "Totals") Console.WriteLine("Weight: " + result.Weights[stat.Key]);
-                Console.WriteLine("count  : " + stat.Value.Count);
-                Console.WriteLine("sum    : " + stat.Value.Sum);
-                Console.WriteLine("avg    : " + stat.Value.MeanAverage);
-                Console.WriteLine("min    : " + stat.Value.Min);
-                Console.WriteLine("max    : " + stat.Value.Max);
-                Console.WriteLine("TPS    : " + stat.Value.Count / result.Elapsed.TotalSeconds);
-                Console.WriteLine("Percentiles: ");
+                Trace.WriteLine(stat.Key);
+                if (stat.Key != "Totals") Trace.WriteLine("Weight: " + result.Weights[stat.Key]);
+                Trace.WriteLine("count  : " + stat.Value.Count);
+                Trace.WriteLine("sum    : " + stat.Value.Sum);
+                Trace.WriteLine("avg    : " + stat.Value.MeanAverage);
+                Trace.WriteLine("min    : " + stat.Value.Min);
+                Trace.WriteLine("max    : " + stat.Value.Max);
+                Trace.WriteLine("TPS    : " + stat.Value.Count / result.Elapsed.TotalSeconds);
+                Trace.WriteLine("Percentiles: ");
                 foreach (var p in new[]{10,20,30,40,50,60,70,80,90,99})
                 {
                     var percentile = stat.Value.Percentile(p);
-                    Console.WriteLine("{0}\t{1}", p, percentile);
+                    Trace.WriteLine( p + "\t" + percentile);
                 }
-                Console.WriteLine();
-                Console.Write("Histogram: ");
+                Trace.WriteLine("");
+                Trace.Write("Histogram: ");
                 foreach (var count in stat.Value.Histogram(10))
                 {
-                    Console.Write(count + ", ");
+                    Trace.Write(count + ", ");
                 }
-                Console.WriteLine();
+                
                 Assert.AreEqual(stat.Value.Count, stat.Value.Histogram(10).Sum());
                 Assert.AreEqual(stat.Value.Count, stat.Value.Histogram(20).Sum());
                 Assert.AreEqual(stat.Value.Count, stat.Value.Histogram(30).Sum());

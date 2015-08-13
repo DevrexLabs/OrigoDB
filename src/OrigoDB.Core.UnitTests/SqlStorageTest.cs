@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
@@ -15,9 +16,10 @@ namespace OrigoDB.Core.Test
         [Test, Ignore]
         public void MsSqlProviderSmokeTest()
         {
-            ConnectionStringSettings settings = new ConnectionStringSettings("fish",
-                "Data Source=.;Initial Catalog=fish;Integrated Security=True", "System.Data.SqlClient");
-            var provider = SqlProvider.Create(settings, "fish");
+            var settings = new SqlSettings();
+            settings.ConnectionString = "Data Source=.;Initial Catalog=fish;Integrated Security=True";
+            settings.ProviderName = "System.Data.SqlClient";
+            var provider = SqlProvider.Create(settings);
             provider.Initialize();
             var formatter = new BinaryFormatter();
             var writer = new SqlJournalWriter(formatter, provider);
@@ -27,7 +29,7 @@ namespace OrigoDB.Core.Test
 
             foreach (var entry in provider.ReadJournalEntries(1, bytes => formatter.FromByteArray<object>(bytes)))
             {
-                Console.WriteLine(entry.GetItem());
+                Trace.WriteLine(entry.GetItem());
             }
             writer.Dispose();
         }
@@ -36,8 +38,8 @@ namespace OrigoDB.Core.Test
         {
             var config = new EngineConfiguration();
             config.JournalStorage = StorageType.Sql;
-            config.JournalPath = "Data Source=.;Initial Catalog=fish;Integrated Security=True;";
-            config.SnapshotPath = "dish";
+            config.SqlSettings.ConnectionString = "Data Source=.;Initial Catalog=fish;Integrated Security=True;";
+            config.SqlSettings.ProviderName = MsSqlProvider.Name;
             var engine = Engine.For<TestModel>(config);
             int initial = engine.Execute(new DelegateQuery<TestModel, int>(m => m.CommandsExecuted));
             engine.Execute(new TestCommandWithoutResult());

@@ -1,43 +1,51 @@
 ﻿using System;
-using System.Data;
-using System.Data.Common;
+using System.Configuration;
+using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
+using OrigoDB.Core.Journaling;
+using OrigoDB.Core.Storage.Sql;
 
 namespace OrigoDB.Core.Test
 {
-    
-    
-    /// <summary>
-    ///This is a test class for SqlStorageTest and is intended
-    ///to contain all SqlStorageTest Unit Tests
-    ///</summary>
+
     [TestFixture]
     public class SqlStorageTest
     {
-
-
-
-        [Test]
-        public void CanLoadSqlProviderFactory()
+        [Test, Ignore]
+        public void MsSqlProviderSmokeTest()
         {
-            var dataTable = DbProviderFactories.GetFactoryClasses();
-            foreach (DataColumn column in dataTable.Columns)
-            {
-                Console.WriteLine(column.ColumnName);
-            }
-            Console.WriteLine("------------------------------------------------------");
-            foreach (DataRow row in dataTable.Rows)
-            {
+            ConnectionStringSettings settings = new ConnectionStringSettings("fish",
+                "Data Source=.;Initial Catalog=fish;Integrated Security=True", "System.Data.SqlClient");
+            var provider = SqlProvider.Create(settings, "fish");
+            provider.Initialize();
+            var formatter = new BinaryFormatter();
+            var writer = new SqlJournalWriter(formatter, provider);
+            writer.Write(JournalEntry.Create(1UL, DateTime.Now, new ModelCreated(typeof (TestModel))));
+            writer.Write(JournalEntry.Create(2UL, DateTime.Now.AddSeconds(1), new AppendNumberCommand(42)));
+            writer.Write(JournalEntry.Create(3UL, DateTime.Now.AddSeconds(2), new AppendNumberCommand(64)));
 
-                foreach (object item in row.ItemArray)
-                {
-                    Console.WriteLine(item);
-                }
-                Console.WriteLine("---------------------------------------------------");
+            foreach (var entry in provider.ReadJournalEntries(1, bytes => formatter.FromByteArray<object>(bytes)))
+            {
+                Console.WriteLine(entry.GetItem());
             }
-
-            var factory = DbProviderFactories.GetFactory("System.Data.SqlClient");
-            Assert.IsNotNull(factory);
+            writer.Dispose();
+        }
+        [Test, Ignore]
+        public void MsSqlProviderIntegrationTest()
+        {
+            var config = EngineConfiguration.Create();
+            config.CommandStorage = StorageType.Sql;
+            config.Location.OfJournal = "Data Source=.;Initial Catalog=fish;Integrated Security=True;";
+            config.Location.OfSnapshots = "fish";
+            var engine = Engine.For<TestModel>(config);
+            int initial = engine.Execute(new DelegateQuery<TestModel, int>(m => m.CommandsExecuted));
+            engine.Execute(new TestCommandWithoutResult());
+            int actual = engine.Execute(new TestCommandWithResult());
+            Assert.AreEqual(initial + 2, actual);
+            (engine as LocalEngineClient<TestModel>).Engine.Close();
+            engine = Engine.For<TestModel>(config);
+            actual = engine.Execute(new TestCommandWithResult());
+            Assert.AreEqual(initial + 3, actual);
         }
     }
 }

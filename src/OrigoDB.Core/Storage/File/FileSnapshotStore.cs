@@ -24,6 +24,12 @@ namespace OrigoDB.Core
             return fileSnapshot;
         }
 
+        public override void Initialize()
+        {
+            FileCommandStore.EnsureDirectoryExists(_config.Location.OfSnapshots);
+            base.Initialize();
+        }
+
         protected override IEnumerable<Snapshot> ReadSnapshotMetaData()
         {
             var snapshots = new List<FileSnapshot>();

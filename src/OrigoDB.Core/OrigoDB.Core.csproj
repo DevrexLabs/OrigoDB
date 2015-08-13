@@ -60,6 +60,7 @@
     <Compile Include="Benchmarking\BenchmarkModel.cs" />
     <Compile Include="Benchmarking\BenchmarkResult.cs" />
     <Compile Include="Benchmarking\BenchmarkCommand.cs" />
+    <Compile Include="Configuration\StorageType.cs" />
     <Compile Include="ExecutionContext.cs" />
     <Compile Include="Modeling\Geo\ArcDistance.cs" />
     <Compile Include="Modeling\Geo\GeoSpatialIndex.cs" />
@@ -120,7 +121,8 @@
     <Compile Include="Storage\Rollover\ScheduledRolloverStrategy.cs" />
     <Compile Include="Storage\Sql\SqlCommandStore.cs" />
     <Compile Include="Storage\Sql\SqlJournalWriter.cs" />
-    <Compile Include="Storage\Sql\SqlStatements.cs" />
+    <Compile Include="Storage\Sql\MsSqlProvider.cs" />
+    <Compile Include="Storage\Sql\SqlProvider.cs" />
     <Compile Include="Utilities\Utils.Converters.cs" />
     <Compile Include="Storage\Journaling\JournalAppender.cs" />
     <Compile Include="Storage\Journaling\ModelCreated.cs" />

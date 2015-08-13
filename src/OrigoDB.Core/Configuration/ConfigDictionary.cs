@@ -11,13 +11,11 @@ namespace OrigoDB.Core
     [Serializable]
     public class ConfigDictionary : Dictionary<string, string>
     {
-
         public ConfigDictionary()
-            : base(StringComparer.InvariantCultureIgnoreCase)
+            : base(StringComparer.OrdinalIgnoreCase )
         {
 
         }
-
 
         public void Set(string key, object value)
         {

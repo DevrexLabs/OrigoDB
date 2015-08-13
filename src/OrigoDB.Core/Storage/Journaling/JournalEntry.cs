@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using OrigoDB.Core.Journaling;
 
 namespace OrigoDB.Core
 {
@@ -47,12 +48,28 @@ namespace OrigoDB.Core
             else if (_unsignedIdsInJournal.Value) Id = info.GetUInt64("Id");
             else Id = (ulong) info.GetInt64("Id");
         }
+
+
+        internal abstract object GetItem();
+
+        internal static JournalEntry Create(ulong id, DateTime created, object item)
+        {
+            if (item is ModelCreated) return new JournalEntry<ModelCreated>(id, (ModelCreated) item, created);
+            if (item is RollbackMarker) return new JournalEntry<RollbackMarker>(id, (RollbackMarker) item, created);
+            if (item is Command) return new JournalEntry<Command>(id, (Command) item, created);
+            throw new ArgumentOutOfRangeException("unrecognized journal entry item :" + item);
+        }
     }
 
 
     [Serializable]
     public class JournalEntry<T> : JournalEntry
     {
+        internal override object GetItem()
+        {
+            return Item;
+        }
+
         public T Item { get; protected internal set; }
 
         public JournalEntry(ulong id, T item, DateTime? created = null)

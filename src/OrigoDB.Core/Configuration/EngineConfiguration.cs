@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using OrigoDB.Core.Configuration;
 using OrigoDB.Core.Security;
+using OrigoDB.Core.Storage.Sql;
 using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core
@@ -82,6 +83,15 @@ namespace OrigoDB.Core
         public SynchronizationMode Synchronization { get; set; }
 
         /// <summary>
+        /// The type of storage to use for the journal. File is default.
+        /// </summary>
+        /// <remarks>
+        /// Location.OfJournal is interpreted as a relative path to directory of
+        /// journal files or connectionString name when type is Sql.
+        /// </remarks>
+        public StorageType CommandStorage { get; set; }
+
+        /// <summary>
         /// Maximum number of journal entries per segment. Applies only to storage 
         /// providers which split up the journal in segments and ignored by others.
         /// </summary>
@@ -106,6 +116,7 @@ namespace OrigoDB.Core
 
             //Set default values
             Kernel = Kernels.Optimistic;
+            CommandStorage = StorageType.File;
             LockTimeout = DefaultTimeout;
             Synchronization = SynchronizationMode.ReadWrite;
             AsynchronousJournaling = false;
@@ -147,7 +158,8 @@ namespace OrigoDB.Core
 
         private void InitStoreTypes()
         {
-            Register<ICommandStore>(cfg => new FileCommandStore(cfg));
+            Register<ICommandStore>(cfg => new FileCommandStore(cfg), StorageType.File.ToString());
+            Register<ICommandStore>(cfg => new SqlCommandStore(cfg), StorageType.Sql.ToString());
             Register<ISnapshotStore>(cfg => new FileSnapshotStore(cfg));
         }
 
@@ -213,7 +225,7 @@ namespace OrigoDB.Core
 
         public virtual ICommandStore CreateCommandStore()
         {
-            var store =  _registry.Resolve<ICommandStore>();
+            var store =  _registry.Resolve<ICommandStore>(CommandStorage.ToString());
             store.Initialize();
             return store;
         }
@@ -269,7 +281,8 @@ namespace OrigoDB.Core
         /// <param name="factory"></param>
         public void SetCommandStoreFactory(Func<EngineConfiguration, ICommandStore> factory)
         {
-            Register(args => factory.Invoke(this));
+            CommandStorage = StorageType.Custom;
+            Register(args => factory.Invoke(this), CommandStorage.ToString());
         }
 
         public void SetSnapshotStoreFactory(Func<EngineConfiguration, ISnapshotStore> factory)

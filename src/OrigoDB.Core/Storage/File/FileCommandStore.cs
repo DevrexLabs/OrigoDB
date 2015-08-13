@@ -77,7 +77,7 @@ namespace OrigoDB.Core
         }
 
 
-        private void EnsureDirectoryExists(string directory)
+        internal static void EnsureDirectoryExists(string directory)
         {
             if (!Directory.Exists(directory))
             {

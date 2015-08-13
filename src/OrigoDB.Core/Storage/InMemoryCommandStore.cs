@@ -40,9 +40,9 @@ namespace OrigoDB.Core.Test
         public InMemoryCommandStore(EngineConfiguration config)
             : base(config)
         {
-            if (_config.Location.HasAlternativeSnapshotLocation) throw new NotSupportedException();
+            if (_config.HasAlternativeSnapshotPath()) throw new NotSupportedException("SnapshotPath must be same as JournalPath");
 
-            string key = _config.Location.OfJournal;
+            string key = _config.JournalPath;
             if (!_states.ContainsKey(key)) _states.Add(key, new InMemoryCommandStoreState());
             _state = _states[key];
         }

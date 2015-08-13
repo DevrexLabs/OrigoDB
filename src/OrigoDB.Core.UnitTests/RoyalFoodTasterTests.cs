@@ -29,7 +29,7 @@ namespace OrigoDB.Core.Test
         [Test]
         public void Corrupting_command_effects_ignored()
         {
-            var config = EngineConfiguration.Create().ForIsolatedTest();
+            var config = new EngineConfiguration().ForIsolatedTest();
             config.Kernel = Kernels.RoyalFoodTaster;
             var db = Engine.For<MyModel>(config).GetProxy();
             Assert.Catch(db.MutateAndThrow);

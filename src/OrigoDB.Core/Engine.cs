@@ -77,7 +77,7 @@ namespace OrigoDB.Core
             }
 
             model.Starting(this);          
-            Core.Config.Engines.AddEngine(config.Location.OfJournal, this);
+            Core.Config.Engines.AddEngine(config.JournalPath, this);
         }
 
         private void Restore()
@@ -303,8 +303,8 @@ namespace OrigoDB.Core
         /// <returns></returns>
         public static Engine Load(string location)
         {
-            var config = EngineConfiguration.Create();
-            config.Location.OfJournal = location;
+            var config = new EngineConfiguration();
+            config.JournalPath = location;
             return Load(config);
         }
 
@@ -315,7 +315,7 @@ namespace OrigoDB.Core
         /// <returns>A non generic Engine</returns>
         public static Engine Load(EngineConfiguration config)
         {
-            if (!config.Location.HasJournal) 
+            if (config.JournalPath == null) 
                 throw new InvalidOperationException("Specify location to load from in non-generic load");
             
             var model = new ModelLoader(config).LoadModel();
@@ -325,16 +325,15 @@ namespace OrigoDB.Core
 
         public static Engine Create(Model model, string location)
         {
-            var config = EngineConfiguration.Create();
-            config.Location.OfJournal = location;
+            var config = new EngineConfiguration(location);
             return Create(model, config);
         }
 
         public static Engine Create(Model model, EngineConfiguration config = null)
         {
 
-            config = config ?? EngineConfiguration.Create();
-            if (!config.Location.HasJournal) config.Location.SetLocationFromType(model.GetType());
+            config = config ?? new EngineConfiguration();
+            config.ModelType = model.GetType();
             return Create<Model>(model, config);
 
         }
@@ -348,8 +347,7 @@ namespace OrigoDB.Core
         /// <returns></returns>
         public static Engine<TModel> Load<TModel>(string location) where TModel : Model
         {
-            var config = EngineConfiguration.Create();
-            config.Location.OfJournal = location;
+            var config = new EngineConfiguration(location);
             return Load<TModel>(config);
         }
 
@@ -361,8 +359,8 @@ namespace OrigoDB.Core
         /// <returns></returns>
         public static Engine<TModel> Load<TModel>(EngineConfiguration config = null) where TModel : Model
         {
-            config = config ?? EngineConfiguration.Create();
-            if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
+            config = config ?? new EngineConfiguration();
+            config.ModelType = typeof(TModel);
             var model = (TModel) new ModelLoader(config).LoadModel();
             return new Engine<TModel>(model, config);
         }
@@ -375,8 +373,7 @@ namespace OrigoDB.Core
         /// <returns>The newly created engine</returns>
         public static Engine<TModel> Create<TModel>(string location) where TModel : Model, new()
         {
-            var config = EngineConfiguration.Create();
-            config.Location.OfJournal = location;
+            var config = new EngineConfiguration(location);
             return Create<TModel>(config);
         }
 
@@ -388,8 +385,8 @@ namespace OrigoDB.Core
         /// <returns></returns>
         public static Engine<TModel> Create<TModel>(EngineConfiguration config = null) where TModel : Model, new()
         {
-            config = config ?? EngineConfiguration.Create();
-            if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
+            config = config ?? new EngineConfiguration();
+            config.ModelType = typeof(TModel);
             var commandStore = config.CreateCommandStore();
             if (!commandStore.IsEmpty) throw new InvalidOperationException("Cannot Create(): empty CommandStore required");
             if (!config.CreateSnapshotStore().IsEmpty) throw new InvalidOperationException("Can't Create(): empty SnapshotStore required");
@@ -408,9 +405,9 @@ namespace OrigoDB.Core
         /// <returns></returns>
         public static Engine<TModel> Create<TModel>(TModel model, EngineConfiguration config = null) where TModel : Model
         {
-            config = config ?? EngineConfiguration.Create();
-            if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
-            ISnapshotStore store = config.CreateSnapshotStore();
+            config = config ?? new EngineConfiguration();
+            config.ModelType = typeof (TModel);
+            var store = config.CreateSnapshotStore();
             store.WriteSnapshot(model);
             return Load<TModel>(config);
         }
@@ -423,8 +420,7 @@ namespace OrigoDB.Core
         /// <returns></returns>
         public static Engine<TModel> LoadOrCreate<TModel>(string location) where TModel : Model, new()
         {
-            var config = EngineConfiguration.Create();
-            config.Location.OfJournal = location;
+            var config = new EngineConfiguration(location);
             return LoadOrCreate<TModel>(config);
         }
 
@@ -437,8 +433,8 @@ namespace OrigoDB.Core
         /// <returns>A running engine</returns>
         public static Engine<TModel> LoadOrCreate<TModel>(EngineConfiguration config = null) where TModel : Model, new()
         {
-            config = config ?? EngineConfiguration.Create();
-            if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
+            config = config ?? new EngineConfiguration();
+            config.ModelType = typeof(TModel);
             Engine<TModel> result = null;
 
             var commandStore = config.CreateCommandStore();

@@ -20,7 +20,7 @@ namespace OrigoDB.Core
 	    public static ClientConfiguration Create(string clientIdentifier = null)
 		{
 			if(string.IsNullOrEmpty(clientIdentifier))
-				return new LocalClientConfiguration(EngineConfiguration.Create());
+				return new LocalClientConfiguration(new EngineConfiguration());
 
 			var isConnectionString = clientIdentifier.Contains("=");
 			if(isConnectionString)
@@ -29,8 +29,8 @@ namespace OrigoDB.Core
             if (ConfigurationManager.AppSettings[clientIdentifier] != null)
                 return Create(ConfigurationManager.AppSettings[clientIdentifier]);
 
-            var config = EngineConfiguration.Create();
-			config.Location.OfJournal = clientIdentifier;
+            var config = new EngineConfiguration();
+			config.JournalPath = clientIdentifier;
 			return new LocalClientConfiguration(config);
 		}
 
@@ -40,13 +40,12 @@ namespace OrigoDB.Core
             
 
 		    var mode = configDictionary.Get("mode", () => Mode.Embedded);
-
+            
 		    Func<string, bool> keyFilter = key => key.ToLowerInvariant() != "mode";
 
             if (mode == Mode.Embedded)
             {
-                Utils.Converters[typeof(StorageLocation)] = s => new FileStorageLocation(s);
-                var config = EngineConfiguration.Create();
+                var config = new EngineConfiguration();
                 configDictionary.MapTo(config, keyFilter: keyFilter);
                 return new LocalClientConfiguration(config);
             }

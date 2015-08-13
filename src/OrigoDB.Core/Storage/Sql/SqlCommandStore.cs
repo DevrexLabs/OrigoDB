@@ -18,9 +18,7 @@ namespace OrigoDB.Core.Storage.Sql
         public override void Initialize()
         {
             base.Initialize();
-            var connectionString = _config.Location.RelativeLocation;
-
-            string tableName;
+            var connectionString = _config.JournalPath;
 
             var settings = ConfigurationManager.ConnectionStrings[connectionString];
             if (settings != null) Inititialize(settings);

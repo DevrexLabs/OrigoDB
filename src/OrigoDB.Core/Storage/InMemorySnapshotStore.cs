@@ -22,7 +22,7 @@ namespace OrigoDB.Core.Test
         public InMemorySnapshotStore(EngineConfiguration config)
             : base(config)
         {
-            string key = _config.Location.OfSnapshots;
+            string key = _config.GetSnapshotPath(makeAbsolute:false);
             if (!_states.ContainsKey(key)) _states.Add(key, new InMemorySnapshotStoreState());
             _state = _states[key];
         }

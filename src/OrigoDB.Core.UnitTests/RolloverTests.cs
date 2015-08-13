@@ -8,7 +8,7 @@ namespace OrigoDB.Core.Test
         [Test]
         public void CompositeIsDefault()
         {
-            var config = EngineConfiguration.Create();
+            var config = new EngineConfiguration();
             var strategy = config.CreateRolloverStrategy();
             Assert.IsInstanceOf<CompositeRolloverStrategy>(strategy);
         }
@@ -16,7 +16,7 @@ namespace OrigoDB.Core.Test
         [Test]
         public void EitherMaxTriggersRollover()
         {
-            var config = EngineConfiguration.Create();
+            var config = new EngineConfiguration();
             var strategy = config.CreateRolloverStrategy();
             var maxBytes = config.MaxBytesPerJournalSegment;
             var maxEntries = config.MaxEntriesPerJournalSegment;

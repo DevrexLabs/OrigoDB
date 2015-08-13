@@ -2,11 +2,11 @@ namespace OrigoDB.Core
 {
 	public class LocalClientConfiguration : ClientConfiguration
 	{
-		private EngineConfiguration _engineConfiguration;
+		private readonly EngineConfiguration _config;
 
-		public LocalClientConfiguration(EngineConfiguration engineConfiguration)
+		public LocalClientConfiguration(EngineConfiguration config)
 		{
-			_engineConfiguration = engineConfiguration;
+			_config = config;
 			CreateWhenNotExists = true;
 		}
 
@@ -14,18 +14,16 @@ namespace OrigoDB.Core
 
 		public override IEngine<TModel> GetClient<TModel>()
 		{
-
-		    var location = _engineConfiguration.Location;
-			if(!location.HasJournal)
-		    {
-		        location.SetLocationFromType<TModel>();
-		    }
+			if(_config.JournalPath == null)
+			{
+			    _config.JournalPath = _config.JournalPath ?? typeof (TModel).Name;
+			}
 
             Engine engine;
-		    if (!Config.Engines.TryGetEngine(location.OfJournal, out engine))
+		    if (!Config.Engines.TryGetEngine(_config.JournalPath, out engine))
 		    {
-                if (CreateWhenNotExists) engine = Engine.LoadOrCreate<TModel>(_engineConfiguration);
-                else engine = Engine.Load<TModel>(_engineConfiguration);
+                if (CreateWhenNotExists) engine = Engine.LoadOrCreate<TModel>(_config);
+                else engine = Engine.Load<TModel>(_config);
 		    }
 			return new LocalEngineClient<TModel>((Engine<TModel>)engine);
 		}

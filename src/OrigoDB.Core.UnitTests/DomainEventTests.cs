@@ -45,7 +45,7 @@ namespace OrigoDB.Core.Test
         [Test]
         public void DomainEventsAreDispatched()
         {
-            var config = EngineConfiguration.Create().ForIsolatedTest();
+            var config = new EngineConfiguration().ForIsolatedTest();
             var engine = Engine.Create<TestModel>(config);
             var @event = new Event();
             var events = new List<IEvent[]>();

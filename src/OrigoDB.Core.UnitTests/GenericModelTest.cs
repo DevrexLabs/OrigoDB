@@ -37,7 +37,7 @@ namespace OrigoDB.Core.Test
         [Test]
         public void Test()
         {
-            var config = EngineConfiguration.Create().ForIsolatedTest();
+            var config = new EngineConfiguration().ForIsolatedTest();
             var engine = Engine.For<MyModel<String>>(config);
             var db = engine.GetProxy();
             db.Add("Fish");

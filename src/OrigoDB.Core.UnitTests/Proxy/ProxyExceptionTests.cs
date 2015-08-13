@@ -13,7 +13,7 @@ namespace OrigoDB.Core.Test
         [SetUp]
         public void Setup()
         {
-            var cfg = EngineConfiguration.Create().ForIsolatedTest();
+            var cfg = new EngineConfiguration().ForIsolatedTest();
             _engine = Engine.Create<ProxyExceptionTestModel>(cfg);
             _proxy = _engine.GetProxy();
             _callsToExecuting = 0;

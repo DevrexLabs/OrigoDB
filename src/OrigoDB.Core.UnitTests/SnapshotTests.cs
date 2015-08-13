@@ -11,7 +11,7 @@ namespace OrigoDB.Core.Test
         [Test]
         public void Snapshots_are_numbered_correctly()
         {
-            var config = EngineConfiguration.Create().ForImmutability().ForIsolatedTest();
+            var config = new EngineConfiguration().ForImmutability().ForIsolatedTest();
             var engine = Engine.Create<ImmutableModel>(config);
 
             engine.Execute(new AppendNumberCommand(42));

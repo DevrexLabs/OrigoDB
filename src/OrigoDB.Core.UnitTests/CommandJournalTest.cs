@@ -31,7 +31,6 @@ namespace OrigoDB.Core.Test
         [TestCaseSource("_testCases")]
         public void RolledBackCommandsAreSkipped(Tuple<List<JournalEntry>, string> testCase)
         {
-            ICommandStore target = new InMemoryCommandStore(EngineConfiguration.Create().ForIsolatedTest());
 
             string failureMessage = testCase.Item2;
             var testEntries = testCase.Item1;
@@ -75,7 +74,7 @@ namespace OrigoDB.Core.Test
         {
             //Arrange
             ExecutionContext.Begin();
-            var config = EngineConfiguration.Create().ForIsolatedTest();
+            var config = new EngineConfiguration().ForIsolatedTest();
             var store = new InMemoryCommandStore(config);
             store.Initialize();
             var target = new JournalAppender(1, new StreamJournalWriter(config, store.CreateJournalWriterStream));

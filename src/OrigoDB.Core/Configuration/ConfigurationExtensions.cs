@@ -7,7 +7,7 @@ namespace OrigoDB.Core.Test
     {
         public static EngineConfiguration WithRandomLocation(this EngineConfiguration config)
         {
-            config.Location.OfJournal = Guid.NewGuid().ToString();
+            config.JournalPath = Guid.NewGuid().ToString();
             return config;
         }
 

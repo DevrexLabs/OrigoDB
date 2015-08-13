@@ -70,8 +70,8 @@ namespace OrigoDB.Core.Test
         public void PartitionClient()
         {
             var client = new PartitionClient<TestModel>();
-            var engine1 = Engine.For<TestModel>("mode=embedded;location=" + Guid.NewGuid());
-            var engine2 = Engine.For<TestModel>("mode=embedded;location=" + Guid.NewGuid());
+            var engine1 = Engine.For<TestModel>("mode=embedded;journalpath=" + Guid.NewGuid());
+            var engine2 = Engine.For<TestModel>("mode=embedded;journalpath=" + Guid.NewGuid());
 
             client.Nodes.Add(engine1);
             client.Nodes.Add(engine2);

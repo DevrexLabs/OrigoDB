@@ -155,8 +155,6 @@
     <Compile Include="Configuration\LocalClientConfiguration.cs" />
     <Compile Include="Configuration\PartitionClusterClientConfiguration.cs" />
     <Compile Include="Configuration\RemoteClientConfiguration.cs" />
-    <Compile Include="Configuration\FileStorageLocation.cs" />
-    <Compile Include="Configuration\StorageLocation.cs" />
     <Compile Include="Kernels\ImmutabilityKernel.cs" />
     <Compile Include="Operations\IImmutabilityCommand.cs" />
     <Compile Include="Operations\IImmutabilityCommandWithResult.cs" />

@@ -58,7 +58,7 @@ namespace OrigoDB.Core.Test
         public void Timestamp_preserved_on_restore()
         {
             var command = new SetTimeCommand();
-            var config = EngineConfiguration.Create().ForIsolatedTest();
+            var config = new EngineConfiguration().ForIsolatedTest();
             var engine = Engine.Create<TestModel>(config);
 
             DateTime timeStamp = default(DateTime);

@@ -14,7 +14,7 @@ namespace OrigoDB.Core.Test
         [SetUp]
         public void Init()
         {
-            _config = EngineConfiguration.Create().ForIsolatedTest().ForImmutability();
+            _config = new EngineConfiguration().ForIsolatedTest().ForImmutability();
             _commandStore = new InMemoryCommandStore(_config);
             _commandStore.Initialize();
         }

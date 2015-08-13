@@ -42,7 +42,7 @@ namespace OrigoDB.Core.Test
         [Test]
         public void CanGetModelReference()
         {
-            var config = EngineConfiguration.Create().ForIsolatedTest();
+            var config = new EngineConfiguration().ForIsolatedTest();
             var engine = Engine.Create<TestModel>(config);
             engine.Execute(new TestCommandWithoutResult());
             var model = engine.GetModel();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using OrigoDB.Core.Configuration;
@@ -21,7 +22,10 @@ namespace OrigoDB.Core
         public const int DefaultMaxCommandsPerJournalSegment = 10000;
 
 
-
+        /// <summary>
+        /// Configure this instance for use with an immutable kernel.
+        /// </summary>
+        /// <returns></returns>
         public EngineConfiguration ForImmutability()
         {
             Kernel = Kernels.Immutability;
@@ -103,8 +107,16 @@ namespace OrigoDB.Core
         /// </summary>
         public int MaxBytesPerJournalSegment { get; set; }
 
+        /// <summary>
+        /// Path where journal files will be saved. Relative current directory or App_Data in web context.
+        /// Leave unassigned (null) and type name of model will be used.
+        /// </summary>
+        public String JournalPath { get; set; }
 
-        public StorageLocation Location { get; set; }
+        /// <summary>
+        /// Directory where snapshots are written. Leave unassigned and JournalPath will be used.
+        /// </summary>
+        public string SnapshotPath { get; set; }
 
         /// <summary>
         /// Create an EngineConfiguration instance using default values
@@ -112,7 +124,7 @@ namespace OrigoDB.Core
         /// <param name="targetLocation"></param>
         public EngineConfiguration(string targetLocation = null)
         {
-            Location = new FileStorageLocation(targetLocation);
+            JournalPath = targetLocation;
 
             //Set default values
             Kernel = Kernels.Optimistic;
@@ -313,6 +325,49 @@ namespace OrigoDB.Core
             string registrationName = Kernel.ToString();
             var args = new TeenyIoc.Args { { "model", model } };
             return Registry.Resolve<Kernel>(args, registrationName);
+        }
+
+        public string GetJournalPath()
+        {
+            return MakeAbsolute(JournalPath);
+        }
+
+        public string GetSnapshotPath(bool makeAbsolute = true)
+        {
+            string path = SnapshotPath ?? JournalPath;
+            if (makeAbsolute) path = MakeAbsolute(path);
+            return path;
+        }
+
+        /// <summary>
+        /// Make absolute by combining with GetDefaultDirectory()
+        /// </summary>
+        public static string MakeAbsolute(string path)
+        {
+            return Path.Combine(GetBaseDirectory(), path);
+        }
+
+        public bool HasAlternativeSnapshotPath()
+        {
+            return SnapshotPath != null && SnapshotPath != JournalPath;
+        }
+
+        public Type ModelType { get; set; }
+
+        /// <summary>
+        /// Either current directory or App_Data when running in a web context
+        /// </summary>
+        public static string GetBaseDirectory()
+        {
+            string result = Directory.GetCurrentDirectory();
+
+            String dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory") as String;
+
+            if (dataDirectory != null && dataDirectory.EndsWith("App_Data"))
+            {
+                result = dataDirectory;
+            }
+            return result;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Models.Redis.Tests
         [SetUp]
         public void Setup()
         {
-            var config = EngineConfiguration.Create().ForIsolatedTest();
+            var config = new EngineConfiguration().ForIsolatedTest();
             _target = Db.For<RedisModel>(config);
         }
     }

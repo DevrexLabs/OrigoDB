@@ -5,12 +5,6 @@ using NUnit.Framework;
 
 namespace OrigoDB.Core.Test
 {
-    
-    
-    /// <summary>
-    ///This is a test class for FileStoreTest and is intended
-    ///to contain all FileStoreTest Unit Tests
-    ///</summary>
 	[TestFixture]
 	public class FileStoreTest
 	{
@@ -18,15 +12,12 @@ namespace OrigoDB.Core.Test
 	    EngineConfiguration _config;
 	    static string _path = Guid.NewGuid().ToString();
 
-        //You can use the following additional attributes as you write your tests:
-        //
-        //Use ClassInitialize to run code before running the first test in the class
         [SetUp]
         public void SetUp()
         {
             Directory.CreateDirectory(_path);
-            _config = EngineConfiguration.Create();
-            _config.Location.OfJournal = _path;
+            _config = new EngineConfiguration();
+            _config.JournalPath = _path;
             _config.MaxEntriesPerJournalSegment = 10;
             _store = new FileCommandStore(_config);
             _store.Initialize();

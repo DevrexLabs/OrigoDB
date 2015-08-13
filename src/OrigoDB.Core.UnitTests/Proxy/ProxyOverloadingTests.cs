@@ -12,7 +12,7 @@ namespace OrigoDB.Core.Test
         [SetUp]
         public void Setup()
         {
-            var config = EngineConfiguration.Create().ForIsolatedTest();
+            var config = new EngineConfiguration().ForIsolatedTest();
             _db = Db.For<ModelWithOverloads>(config);
 
         }

@@ -9,14 +9,14 @@ namespace OrigoDB.Core.Test
         [Test]
         public void JournalingIsDefault()
         {
-            var config = EngineConfiguration.Create();
+            var config = new EngineConfiguration();
             Assert.AreEqual(config.PersistenceMode, PersistenceMode.Journaling);
         }
 
         [Test]
         public void SnapshotPerTransactionCreatesSnapshotsAndNoJournalEntries()
         {
-            var config = EngineConfiguration.Create().ForIsolatedTest().ForImmutability();
+            var config = new EngineConfiguration().ForIsolatedTest().ForImmutability();
             config.PersistenceMode = PersistenceMode.SnapshotPerTransaction;
             var engine = Engine.Create<ImmutableModel>(config);
             engine.Execute(new AppendNumberCommand(2));
@@ -34,7 +34,7 @@ namespace OrigoDB.Core.Test
         [Test]
         public void ManualSnaphots()
         {
-            var config = EngineConfiguration.Create().ForIsolatedTest().ForImmutability();
+            var config = new EngineConfiguration().ForIsolatedTest().ForImmutability();
             config.PersistenceMode = PersistenceMode.ManualSnapshots;
             var engine = Engine.Create<ImmutableModel>(config);
             engine.Execute(new AppendNumberCommand(2));

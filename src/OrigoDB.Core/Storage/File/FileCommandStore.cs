@@ -27,10 +27,11 @@ namespace OrigoDB.Core
         /// </summary>
         public override void Initialize()
         {
-            EnsureDirectoryExists(_config.Location.OfJournal);
+            var journalPath = _config.GetJournalPath();
+            EnsureDirectoryExists(journalPath);
             base.Initialize();
             _journalFiles = new List<JournalFile>();
-            foreach (var file in Directory.GetFiles(_config.Location.OfJournal, "*.journal"))
+            foreach (var file in Directory.GetFiles(journalPath, "*.journal"))
             {
                 string fileName = new FileInfo(file).Name;
                 _journalFiles.Add(JournalFile.Parse(fileName));
@@ -49,8 +50,8 @@ namespace OrigoDB.Core
 
             foreach (var journalFile in _journalFiles.Skip(offset))
             {
-                string path = Path.Combine(_config.Location.OfJournal, journalFile.Name);
-                using (Stream stream = GetReadStream(path))
+                string path = Path.Combine(_config.GetJournalPath(), journalFile.Name);
+                using (var stream = GetReadStream(path))
                 {
                     foreach (var entry in _formatter.ReadToEnd<JournalEntry>(stream).SkipWhile(e => e.Id < entryId))
                     {
@@ -72,7 +73,7 @@ namespace OrigoDB.Core
             var next = current.Successor(firstEntryId);
             _journalFiles.Add(next);
             string fileName = next.Name;
-            string path = Path.Combine(_config.Location.OfJournal, fileName);
+            string path = Path.Combine(_config.GetJournalPath(), fileName);
             return new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.None);
         }
 

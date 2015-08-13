@@ -4,8 +4,7 @@ namespace OrigoDB.Core.Test
     {
 
         public EngineConfiguration CreateConfig()        {
-            return EngineConfiguration
-                .Create().ForIsolatedTest();
+            return new EngineConfiguration().ForIsolatedTest();
         }
 
 

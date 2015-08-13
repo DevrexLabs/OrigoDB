@@ -8,7 +8,7 @@ namespace OrigoDB.Core.Test
         [Test]
         public void RevisionIsIncrementedWithEachCommand()
         {
-            var config = EngineConfiguration.Create().ForIsolatedTest();
+            var config = new EngineConfiguration().ForIsolatedTest();
             var target = Db.For<TestModel>(config);
             Assert.AreEqual(0, target.Revision);
             target.AddCustomer("Homer");

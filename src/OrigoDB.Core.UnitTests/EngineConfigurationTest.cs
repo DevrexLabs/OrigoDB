@@ -14,7 +14,7 @@ namespace OrigoDB.Core.Test
         [Test]
         public void CanLoadAndCreateRepeatedly()
         {
-            var config = EngineConfiguration.Create().WithRandomLocation();
+            var config = new EngineConfiguration().WithRandomLocation();
             try
             {
                 var engine = Engine.LoadOrCreate<TestModel>(config);
@@ -27,7 +27,7 @@ namespace OrigoDB.Core.Test
             {
                 Thread.Sleep(40);
                 if (config.CreateCommandStore() is FileCommandStore)
-                    Directory.Delete(config.Location.OfJournal, true);    
+                    Directory.Delete(config.JournalPath, true);    
             }
         }
     }
@@ -62,7 +62,7 @@ namespace OrigoDB.Core.Test
             var config = new EngineConfiguration().WithRandomLocation();
             var storage = config.CreateCommandStore();
             Assert.IsTrue(storage is FileCommandStore);
-            Directory.Delete(config.Location.OfJournal, true);
+            Directory.Delete(config.JournalPath, true);
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace OrigoDB.Core.Test
             config.SetCommandStoreFactory((c) => expected);
             var actual = config.CreateCommandStore();
             Assert.AreSame(expected, actual);
-            Directory.Delete(config.Location.OfJournal, true);
+            Directory.Delete(config.JournalPath, true);
         }
 
         [Test]

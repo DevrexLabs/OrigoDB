@@ -74,7 +74,7 @@ namespace Models.Redis.Tests
         [Test]
         public void PurgeTimer()
         {
-            var config = EngineConfiguration.Create().ForIsolatedTest();
+            var config = new EngineConfiguration().ForIsolatedTest();
             var engine = Engine.Create<RedisModel>(config);
             var redis = engine.GetProxy();
 

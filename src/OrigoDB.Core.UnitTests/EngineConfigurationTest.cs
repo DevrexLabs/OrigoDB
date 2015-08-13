@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using OrigoDB.Core.Security;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
 
 namespace OrigoDB.Core.Test
 {
@@ -24,6 +25,7 @@ namespace OrigoDB.Core.Test
             }
             finally
             {
+                Thread.Sleep(40);
                 if (config.CreateCommandStore() is FileCommandStore)
                     Directory.Delete(config.Location.OfJournal, true);    
             }

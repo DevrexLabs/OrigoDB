@@ -393,7 +393,9 @@ namespace OrigoDB.Core
             var commandStore = config.CreateCommandStore();
             if (!commandStore.IsEmpty) throw new InvalidOperationException("Cannot Create(): empty CommandStore required");
             if (!config.CreateSnapshotStore().IsEmpty) throw new InvalidOperationException("Can't Create(): empty SnapshotStore required");
-            JournalAppender.Create(0, commandStore).AppendModelCreated<TModel>();
+            var appender = JournalAppender.Create(0, commandStore);
+            appender.AppendModelCreated<TModel>();
+            appender.Dispose();
             return Load<TModel>(config);
         }
 
@@ -439,11 +441,12 @@ namespace OrigoDB.Core
             if (!config.Location.HasJournal) config.Location.SetLocationFromType<TModel>();
             Engine<TModel> result = null;
 
-            var store = config.CreateCommandStore();
+            var commandStore = config.CreateCommandStore();
+            var snapshotStore = config.CreateSnapshotStore();
 
-            if (store.IsEmpty)
+            if (commandStore.IsEmpty && snapshotStore.IsEmpty)
             {
-                result = Create(new TModel(), config);
+                result = Create<TModel>(config);
                 Logger.Debug("Engine Created");
             }
             else

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using OrigoDB.Core.Journaling;

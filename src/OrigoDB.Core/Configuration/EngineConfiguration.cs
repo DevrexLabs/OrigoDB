@@ -24,6 +24,13 @@ namespace OrigoDB.Core
 
         public SqlSettings SqlSettings { get; set; }
 
+        public IsolationSettings Isolation { get; set; }
+
+        /// <summary>
+        /// Immutable types will not be cloned when CloneStrategy is Auto.
+        /// </summary>
+        public ISet<Type> ImmutableTypes { get; set; }
+
         /// <summary>
         /// Append journal entries using a background thread
         /// sacrificing durability under certain circumstances
@@ -76,12 +83,8 @@ namespace OrigoDB.Core
         public SynchronizationMode Synchronization { get; set; }
 
         /// <summary>
-        /// The type of storage to use for the journal. File is default.
+        /// The type of storage to use for the command journal. File is default.
         /// </summary>
-        /// <remarks>
-        /// Location.OfJournal is interpreted as a relative path to directory of
-        /// journal files or connectionString name when type is Sql.
-        /// </remarks>
         public StorageType JournalStorage { get; set; }
 
         /// <summary>
@@ -127,6 +130,8 @@ namespace OrigoDB.Core
             PacketOptions = null;
             PersistenceMode = PersistenceMode.Journaling;
             SqlSettings = new SqlSettings();
+            Isolation = new IsolationSettings();
+            ImmutableTypes = new HashSet<Type>();
 
             Registry = new TeenyIoc();
             Register<IAuthorizer>(c => new Authorizer(Permission.Allowed));

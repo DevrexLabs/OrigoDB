@@ -1,12 +1,13 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 
 namespace OrigoDB.Core.Proxying
 {
 	[Serializable]
-    public class ProxyCommand<TModel> : Command<TModel, object> where TModel : Model
+    public class ProxyCommand<TModel> : Command<TModel, object>, IOperationWithResult where TModel : Model
 	{
+        private bool? _resultIsIsolated;
+
         /// <summary>
         /// Name that uniquely identifies the method to call, including overloads.
         /// Implementation: Obtained by calling MethodInfo.ToString()
@@ -17,6 +18,12 @@ namespace OrigoDB.Core.Proxying
 		public object[] Arguments { get; set; }
 
         public Type[] GenericTypeArguments { get; set; }
+
+        public bool? ResultIsIsolated
+        {
+            get { return _resultIsIsolated; }
+            set { _resultIsIsolated = value; }
+        }
 
 		public ProxyCommand(string methodName, object[] inArgs, Type[] genericTypeArguments)
 		{

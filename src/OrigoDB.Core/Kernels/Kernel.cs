@@ -51,7 +51,7 @@ namespace OrigoDB.Core
         /// <summary>
         /// Make sure we don't return references to mutable objects within the model
         /// </summary>
-        protected virtual void EnsureIsolation(ref object result, IOperationWithResult operation)
+        protected virtual void EnsureIsolation(ref object result, object operation)
         {
             if (result != null)
             {

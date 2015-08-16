@@ -4,7 +4,6 @@ using OrigoDB.Core.Journaling;
 
 namespace OrigoDB.Core
 {
-
     [Serializable]
     public abstract class JournalEntry : ISerializable
     {
@@ -91,6 +90,4 @@ namespace OrigoDB.Core
             info.AddValue("<Item>k__BackingField", Item, typeof(T));
         }
     }
-
-
 }

@@ -60,11 +60,15 @@
     <Compile Include="Benchmarking\BenchmarkModel.cs" />
     <Compile Include="Benchmarking\BenchmarkResult.cs" />
     <Compile Include="Benchmarking\BenchmarkCommand.cs" />
+    <Compile Include="Configuration\AlwaysCloneStrategy.cs" />
     <Compile Include="Configuration\CloneStrategy.cs" />
+    <Compile Include="Configuration\HeuristicCloneStrategy.cs" />
     <Compile Include="Configuration\IsolationSettings.cs" />
+    <Compile Include="Configuration\NeverCloneStrategy.cs" />
     <Compile Include="Configuration\SqlSettings.cs" />
     <Compile Include="Configuration\StorageType.cs" />
     <Compile Include="ExecutionContext.cs" />
+    <Compile Include="IsolationAttribute.cs" />
     <Compile Include="Modeling\Geo\ArcDistance.cs" />
     <Compile Include="Modeling\Geo\GeoSpatialIndex.cs" />
     <Compile Include="Modeling\Geo\GeoPoint.cs" />
@@ -114,6 +118,7 @@
     <Compile Include="Modeling\Redis\Range.cs" />
     <Compile Include="Modeling\Redis\RedisModel.cs" />
     <Compile Include="Modeling\Redis\ZSetEntry.cs" />
+    <Compile Include="Isolation.cs" />
     <Compile Include="Proxying\CommandInfo.cs" />
     <Compile Include="Proxying\NotAllowedAttribute.cs" />
     <Compile Include="Proxying\NotAllowedOperation.cs" />
@@ -226,7 +231,7 @@
     </Compile>
     <Compile Include="Utilities\ResourcePool.cs" />
     <Compile Include="Utilities\SocketExtensions.cs" />
-    <Compile Include="Utilities\IsolatedTypes.cs" />
+    <Compile Include="Utilities\IsolatedReturnTypes.cs" />
     <Compile Include="Security\User.cs" />
     <Compile Include="Configuration\SnapshotBehavior.cs" />
     <Compile Include="Synchronization\ISynchronizer.cs" />

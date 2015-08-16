@@ -4,18 +4,10 @@ namespace OrigoDB.Core
 {
 
     [Serializable]
-    public abstract class Command<TModel, TResult> : Command, IOperationWithResult where TModel : Model
+    public abstract class Command<TModel, TResult> : Command where TModel : Model
     {
-
-        protected Command(bool ensuresResultIsDisconnected = false)
-        {
-            ResultIsIsolated = ensuresResultIsDisconnected;
-        }
-        
         public virtual void Prepare(TModel model) { }
 
-
-        //TODO: Duplicate method! refactor
         internal override void PrepareStub(Model model)
         {
             try

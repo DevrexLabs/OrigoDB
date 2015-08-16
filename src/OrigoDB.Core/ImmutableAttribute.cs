@@ -3,7 +3,7 @@
 namespace OrigoDB.Core
 {
     /// <summary>
-    /// Immutable types don't need to be cloned to guarantee isolation.
+    /// Marks a type as immutable. Immuable types won't be cloned when Isolation is set to CloneStrategy.Auto
     /// </summary>
     [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class)]
     public class ImmutableAttribute : Attribute { }

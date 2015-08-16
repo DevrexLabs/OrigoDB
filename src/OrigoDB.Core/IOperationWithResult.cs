@@ -2,15 +2,15 @@ namespace OrigoDB.Core
 {
 
     /// <summary>
-    /// Shared by Query and Command of M,R (commands that return results)
+    /// Shared by Query and Commands that return values
     /// </summary>
     public interface IOperationWithResult
     {
         /// <summary>
-        /// True if results are safe to return to client, default is false.
+        /// True if results are safe to return to client.
         /// Set to true if your command/query implementation guarantees no references to
         /// mutable objects within the model are returned.
         /// </summary>
-        bool ResultIsIsolated { get;}
+        bool? ResultIsIsolated{ get; set; }
     }
 }

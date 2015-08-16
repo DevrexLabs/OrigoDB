@@ -9,22 +9,22 @@ namespace OrigoDB.Core
         public CloneStrategy Commands { get; set; }
 
         /// <summary>
-        /// Applies to results returned by commands and queries
+        /// Applies to results returned by commands and queries, default is Auto
         /// </summary>
         public CloneStrategy ReturnValues { get; set; }
 
         public IsolationSettings()
         {
-            Commands = CloneStrategy.Auto();
-            ReturnValues = CloneStrategy.Auto();
+            Commands = CloneStrategy.Heuristic;
+            ReturnValues = CloneStrategy.Heuristic;
         }
 
         public static IsolationSettings ForImmutability()
         {
             return new IsolationSettings()
             {
-                Commands = CloneStrategy.No(),
-                ReturnValues = CloneStrategy.No()
+                Commands = CloneStrategy.Never,
+                ReturnValues = CloneStrategy.Never
             };
         }
     }

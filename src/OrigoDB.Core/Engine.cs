@@ -59,7 +59,7 @@ namespace OrigoDB.Core
             _synchronizer = _config.CreateSynchronizer();
             _authorizer = _config.CreateAuthorizer();
 
-            IsolatedTypes.AddRange(_config.IsolatedTypes);
+            IsolatedReturnTypes.AddRange(_config.IsolatedTypes);
             _config.Isolation.Commands.SetFormatter(_config.CreateFormatter(FormatterUsage.Messages));
             _config.Isolation.ReturnValues.SetFormatter(_config.CreateFormatter(FormatterUsage.Results));
             

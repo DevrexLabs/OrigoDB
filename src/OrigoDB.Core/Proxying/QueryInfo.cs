@@ -11,12 +11,15 @@ namespace OrigoDB.Core.Proxying
 
         }
 
-        protected override object Execute(IEngine<T> engine, string signature, object operation, IMethodCallMessage methodCallMessage)
+        protected override object Execute(IEngine<T> engine, string signature, object query, IMethodCallMessage methodCallMessage)
         {
-            var query = (Query) operation;
-            query = query ?? new ProxyQuery<T>(signature, methodCallMessage.Args, methodCallMessage.MethodBase.GetGenericArguments());
-            query.ResultIsIsolated = OperationAttribute.ResultIsIsolated;
-            return engine.Execute(query);
+            if (query == null)
+            {
+                var proxyQuery = new ProxyQuery<T>(signature, methodCallMessage.Args, methodCallMessage.MethodBase.GetGenericArguments());
+                proxyQuery.ResultIsIsolated = ResultIsIsolated;
+                query = proxyQuery;
+            }
+            return engine.Execute((Query)query);
         }
     }
 }

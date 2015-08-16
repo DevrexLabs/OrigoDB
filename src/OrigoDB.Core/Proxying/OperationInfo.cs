@@ -24,6 +24,24 @@ namespace OrigoDB.Core.Proxying
             }
         }
 
+        public bool? InputIsIsolated
+        {
+            get
+            {
+                if (OperationAttribute.Isolation.HasFlag(Isolation.Input)) return true;
+                return null;
+            }
+        }
+
+        public bool? ResultIsIsolated
+        {
+            get
+            {
+                if (OperationAttribute.Isolation.HasFlag(Isolation.Output)) return true;
+                return null;
+            }
+        }
+
         protected bool IsMapped
         {
             get { return OperationAttribute.MapTo != null; }

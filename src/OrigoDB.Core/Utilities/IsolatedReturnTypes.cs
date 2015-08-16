@@ -9,9 +9,8 @@ namespace OrigoDB.Core
     /// Commands and transaction return values do not have to be cloned if they are known to be isolated.
     /// Immutable types, enums and primitive types are immutable, thus isolated.
     /// </summary>
-    public static class IsolatedTypes
+    internal static class IsolatedReturnTypes
     {
-
         private static readonly HashSet<Type> TheTypes = new HashSet<Type>()
         {
             typeof (string),
@@ -20,24 +19,21 @@ namespace OrigoDB.Core
 
         internal static void Add(Type type)
         {
-            lock (TheTypes)
-            {
-                TheTypes.Add(type);
-            }
+            TheTypes.Add(type);
         }
 
         internal static void AddRange(ISet<Type> isolatedTypes)
         {
-                TheTypes.UnionWith(isolatedTypes);    
+            TheTypes.UnionWith(isolatedTypes);    
         }
 
         internal static bool Contains(Type type)
         {
-                return TheTypes.Contains(type); 
+            return TheTypes.Contains(type); 
         }
 
         /// <summary>
-        /// Return true if a type is *known* to be isolated
+        /// Return true if a type is *known* to be isolated when returned from a query or command
         /// </summary>
         public static bool IsIsolated(this Type type)
         {
@@ -47,10 +43,15 @@ namespace OrigoDB.Core
                 || Contains(type);
         }
 
-        public static bool HasImmutableAttribute(this Type type)
+        internal static bool HasImmutableAttribute(this Type type)
+        {
+            return type.HasAttribute<ImmutableAttribute>();
+        }
+
+        private static bool HasAttribute<T>(this Type type)
         {
             return type
-                .GetCustomAttributes(typeof (ImmutableAttribute), inherit: false).
+                .GetCustomAttributes(typeof(T), inherit: false).
                 Any();
         }
     }

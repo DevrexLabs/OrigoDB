@@ -2,10 +2,8 @@
 
 namespace OrigoDB.Core
 {
-
     public sealed class ImmutabilityKernel : OptimisticKernel
     {
-
         public ImmutabilityKernel(EngineConfiguration config, Model model) :
             base(config, model)
         {
@@ -41,7 +39,7 @@ namespace OrigoDB.Core
         }
 
 
-        protected override void EnsureIsolation(ref object result, IOperationWithResult operation)
+        protected override void EnsureIsolation(ref object result, object operation)
         {
             //noop, result is immutable and so is model, no cloning necessary
             //Strategies 

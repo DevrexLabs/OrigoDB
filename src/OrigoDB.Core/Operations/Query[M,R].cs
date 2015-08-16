@@ -3,7 +3,7 @@
 namespace OrigoDB.Core
 {
     [Serializable]
-	public abstract class Query<TModel,TResult>:Query where TModel : Model
+	public abstract class Query<TModel,TResult> : Query where TModel : Model
 	{
         internal override object ExecuteStub(Model model)
         {
@@ -13,3 +13,4 @@ namespace OrigoDB.Core
         public abstract TResult Execute(TModel model);
 	}
 }
+

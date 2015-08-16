@@ -10,16 +10,10 @@ namespace OrigoDB.Core
     {
         internal OperationType Type { get; set; }
 
-
-        protected OperationAttribute()
-        {
-            ResultIsIsolated = false;
-        }
-
         /// <summary>
-        /// Result of this method call will be cloned unless marked isolated.
+        /// Isolation guarantees of this operation
         /// </summary>
-        public bool ResultIsIsolated { get; set; }
+        public Isolation Isolation{ get; set; }
 
         /// <summary>
         /// Map to an explict Command or Query type or the generic proxy types if null

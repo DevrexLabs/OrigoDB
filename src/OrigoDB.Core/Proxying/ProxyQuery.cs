@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 
 namespace OrigoDB.Core.Proxying
 {
@@ -9,7 +8,9 @@ namespace OrigoDB.Core.Proxying
 		public string MethodName { get; set; }
 		public object[] Arguments { get; set; }
         public Type[] GenericTypeArguments { get; set; }
-		public ProxyQuery(string methodName, object[] inArgs, Type[] genericTypeArguments)
+
+        
+        public ProxyQuery(string methodName, object[] inArgs, Type[] genericTypeArguments)
 		{
 			MethodName = methodName;
 			Arguments = inArgs;

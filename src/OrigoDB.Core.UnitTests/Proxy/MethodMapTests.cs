@@ -40,7 +40,7 @@ namespace OrigoDB.Core.Test
                 return item;
             }
 
-            [Command(ResultIsIsolated = false)]
+            [Command]
             public TestModel MvccOperation()
             {
                 return null;
@@ -92,21 +92,21 @@ namespace OrigoDB.Core.Test
         public void Default_ResultIsIsolated_is_false_implicit()
         {
             var target = _map.GetOperationInfo("ImplicitQuery");
-            Assert.IsFalse(target.OperationAttribute.ResultIsIsolated);
+            Assert.IsFalse(target.OperationAttribute.Isolation.HasFlag(Isolation.Output));
         }
 
         [Test]
         public void Default_ResultIsIsolated_is_false_for_explicit()
         {
             var target = _map.GetOperationInfo("ExplicitCommandWithResult");
-            Assert.IsFalse(target.OperationAttribute.ResultIsIsolated);
+            Assert.IsFalse(target.OperationAttribute.Isolation.HasFlag(Isolation.Output));
         }
 
         [Test]
         public void Explicit_ResultIsIsolated_is_reported()
         {
             var target = _map.GetOperationInfo("MvccOperation");
-            Assert.IsFalse(target.OperationAttribute.ResultIsIsolated);
+            Assert.IsFalse(target.OperationAttribute.Isolation.HasFlag(Isolation.Output));
         }
 
     }

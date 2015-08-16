@@ -18,6 +18,11 @@ namespace OrigoDB.Core
             Type = OperationType.Command;
         }
 
+        public CommandAttribute(Isolation isolation) : this()
+        {
+            Isolation = isolation;
+        }
+
         /// <summary>
         /// Before overloads were introduced, methods were identified by name only.
         /// If you have any of these in your journal set this to true for the

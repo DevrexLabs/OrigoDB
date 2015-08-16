@@ -13,13 +13,13 @@ namespace OrigoDB.Core
 
         protected OperationAttribute()
         {
-            CloneResult = true;
+            ResultIsIsolated = false;
         }
 
         /// <summary>
-        /// Result of this method call will be cloned unless immutable.
+        /// Result of this method call will be cloned unless marked isolated.
         /// </summary>
-        public bool CloneResult { get; set; }
+        public bool ResultIsIsolated { get; set; }
 
         /// <summary>
         /// Map to an explict Command or Query type or the generic proxy types if null

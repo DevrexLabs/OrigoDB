@@ -3,7 +3,7 @@
 namespace OrigoDB.Core
 {
 
-    public class ImmutabilityKernel : OptimisticKernel
+    public sealed class ImmutabilityKernel : OptimisticKernel
     {
 
         public ImmutabilityKernel(EngineConfiguration config, Model model) :
@@ -20,18 +20,18 @@ namespace OrigoDB.Core
                 if (command is IImmutabilityCommand)
                 {
                     var typedCommand = command as IImmutabilityCommand;
-                    modelOut = typedCommand.Execute(_model);
+                    modelOut = typedCommand.Execute(Model);
                 }
                 else if (command is IImmutabilityCommandWithResult)
                 {
                     var typedCommand = command as IImmutabilityCommandWithResult;
-                    var tuple = typedCommand.Execute(_model);
+                    var tuple = typedCommand.Execute(Model);
                     UnpackTuple(tuple, out modelOut, out result);
                 }
                 else throw new InvalidOperationException("Command type not supported by this kernel");
                 if (modelOut == null) throw new InvalidOperationException("Command returned null model");
-                modelOut.Revision = _model.Revision + 1;
-                _model = modelOut;
+                modelOut.Revision = Model.Revision + 1;
+                Model = modelOut;
                 return result;
             }
             catch (Exception ex)
@@ -41,9 +41,10 @@ namespace OrigoDB.Core
         }
 
 
-        protected override void EnsureNoMutableReferences(ref object result, IOperationWithResult operation)
+        protected override void EnsureIsolation(ref object result, IOperationWithResult operation)
         {
             //noop, result is immutable and so is model, no cloning necessary
+            //Strategies 
         }
 
         private void UnpackTuple(object tuple, out Model model, out object result)

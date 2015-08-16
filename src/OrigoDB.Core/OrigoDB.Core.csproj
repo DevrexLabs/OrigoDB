@@ -177,7 +177,7 @@
     <Compile Include="Engine.For.cs" />
     <Compile Include="Db.cs" />
     <Compile Include="Engines.cs" />
-    <Compile Include="IImmutable.cs" />
+    <Compile Include="ImmutableAttribute.cs" />
     <Compile Include="IOperationWithResult.cs" />
     <Compile Include="Configuration\CustomBinder.cs" />
     <Compile Include="Kernels\OptimisticKernel.cs" />
@@ -226,7 +226,7 @@
     </Compile>
     <Compile Include="Utilities\ResourcePool.cs" />
     <Compile Include="Utilities\SocketExtensions.cs" />
-    <Compile Include="Utilities\Immutable.cs" />
+    <Compile Include="Utilities\IsolatedTypes.cs" />
     <Compile Include="Security\User.cs" />
     <Compile Include="Configuration\SnapshotBehavior.cs" />
     <Compile Include="Synchronization\ISynchronizer.cs" />

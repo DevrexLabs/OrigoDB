@@ -40,7 +40,7 @@ namespace OrigoDB.Core.Test
                 return item;
             }
 
-            [Command(CloneResult = false)]
+            [Command(ResultIsIsolated = false)]
             public TestModel MvccOperation()
             {
                 return null;
@@ -89,24 +89,24 @@ namespace OrigoDB.Core.Test
         }
 
         [Test]
-        public void CloneResults_is_default_implicit()
+        public void Default_ResultIsIsolated_is_false_implicit()
         {
             var target = _map.GetOperationInfo("ImplicitQuery");
-            Assert.IsTrue(target.OperationAttribute.CloneResult);
+            Assert.IsFalse(target.OperationAttribute.ResultIsIsolated);
         }
 
         [Test]
-        public void CloneResult_is_default_for_explicit()
+        public void Default_ResultIsIsolated_is_false_for_explicit()
         {
             var target = _map.GetOperationInfo("ExplicitCommandWithResult");
-            Assert.IsTrue(target.OperationAttribute.CloneResult);
+            Assert.IsFalse(target.OperationAttribute.ResultIsIsolated);
         }
 
         [Test]
-        public void Explicit_CloneResult_is_reported()
+        public void Explicit_ResultIsIsolated_is_reported()
         {
             var target = _map.GetOperationInfo("MvccOperation");
-            Assert.IsFalse(target.OperationAttribute.CloneResult);
+            Assert.IsFalse(target.OperationAttribute.ResultIsIsolated);
         }
 
     }

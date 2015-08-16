@@ -15,7 +15,7 @@ namespace OrigoDB.Core.Proxying
         {
             var command = (Command) operation;
             command = command ?? new ProxyCommand<T>(signature, methodCallMessage.Args, methodCallMessage.MethodBase.GetGenericArguments());
-            command.ResultIsSafe = !OperationAttribute.CloneResult;
+            command.ResultIsIsolated = OperationAttribute.ResultIsIsolated;
             return engine.Execute(command);
         }
     }

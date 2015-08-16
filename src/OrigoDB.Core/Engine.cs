@@ -58,6 +58,10 @@ namespace OrigoDB.Core
 
             _synchronizer = _config.CreateSynchronizer();
             _authorizer = _config.CreateAuthorizer();
+
+            IsolatedTypes.AddRange(_config.IsolatedTypes);
+            _config.Isolation.Commands.SetFormatter(_config.CreateFormatter(FormatterUsage.Messages));
+            _config.Isolation.ReturnValues.SetFormatter(_config.CreateFormatter(FormatterUsage.Results));
             
             Configure(model);
 
@@ -122,7 +126,7 @@ namespace OrigoDB.Core
             EnsureNotDisposed();
             EnsureAuthorized(query);
             var wrapped = new DelegateQuery<Model, object>(query.ExecuteStub);
-            wrapped.ResultIsSafe = query.ResultIsSafe;
+            wrapped.ResultIsIsolated = query.ResultIsIsolated;
             return ExecuteQuery(wrapped);
         }
 
@@ -160,6 +164,7 @@ namespace OrigoDB.Core
                 var ctx = ExecutionContext.Begin();
                 bool exceptionThrown = false;
                 _executionTimer.Restart();
+                _config.Isolation.Commands.Apply(ref command);
                 
                 ulong lastEntryId = (_config.PersistenceMode == PersistenceMode.Journaling)
                     ? _journalAppender.Append(command)

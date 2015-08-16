@@ -76,12 +76,12 @@ namespace OrigoDB.Core.Test
         }
 
         [Test]
-        public void CloneResult_attribute_is_recognized()
+        public void ResultIsIsolated_attribute_is_recognized()
         {
             var map = MethodMap.MapFor<TestModel>();
             var signature = typeof (TestModel).GetMethod("GetCustomersCloned").ToString();
             var opInfo = map.GetOperationInfo(signature);
-            Assert.False(opInfo.OperationAttribute.CloneResult);
+            Assert.True(opInfo.OperationAttribute.ResultIsIsolated);
         }
 
         [Test]

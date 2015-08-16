@@ -23,13 +23,14 @@ namespace OrigoDB.Core
 
 
         public SqlSettings SqlSettings { get; set; }
-
+        
         public IsolationSettings Isolation { get; set; }
 
         /// <summary>
-        /// Immutable types will not be cloned when CloneStrategy is Auto.
+        /// Isolated types will not be cloned when CloneStrategy is Auto.
+        /// Add types known to guarantee isolation.
         /// </summary>
-        public ISet<Type> ImmutableTypes { get; set; }
+        public ISet<Type> IsolatedTypes { get; set; }
 
         /// <summary>
         /// Append journal entries using a background thread
@@ -53,18 +54,6 @@ namespace OrigoDB.Core
         /// Otherwise serialize object graphs directly to the underlying stream
         /// </summary>
         public PacketOptions? PacketOptions { get; set; }
-
-        /// <summary>
-        /// Engine takes responsibility for ensuring no mutable object references are returned
-        /// by commands or queries. Default is true.
-        /// <remarks>
-        /// Can safely be set to false if one of the following is true:
-        ///    1. You are running on a single thread and are certain that client code only reads results.
-        ///    2. You have designed every single query and command to not return any references to mutable objects
-        ///</remarks>
-        /// </summary>
-        public bool EnsureSafeResults { get; set; }
-
 
         /// <summary>
         /// Maximum time to wait for any read or write lock
@@ -126,12 +115,11 @@ namespace OrigoDB.Core
             AsynchronousJournaling = false;
             MaxBytesPerJournalSegment = DefaultMaxBytesPerJournalSegment;
             MaxEntriesPerJournalSegment = DefaultMaxCommandsPerJournalSegment;
-            EnsureSafeResults = true;
             PacketOptions = null;
             PersistenceMode = PersistenceMode.Journaling;
             SqlSettings = new SqlSettings();
             Isolation = new IsolationSettings();
-            ImmutableTypes = new HashSet<Type>();
+            IsolatedTypes = new HashSet<Type>();
 
             Registry = new TeenyIoc();
             Register<IAuthorizer>(c => new Authorizer(Permission.Allowed));
@@ -174,7 +162,7 @@ namespace OrigoDB.Core
         /// Creates an EngineConfiguration by calling the constructor
         /// </summary>
         /// <returns></returns>
-        [Obsolete("just call the constructor instead")]
+        [Obsolete("just call the constructor instead, the bootloading of subtypes feature has been removed")]
         public static EngineConfiguration Create()
         {
             return new EngineConfiguration();
@@ -394,7 +382,7 @@ namespace OrigoDB.Core
         {
             Kernel = Kernels.Immutability;
             Synchronization = SynchronizationMode.None;
-            EnsureSafeResults = false;
+            Isolation = IsolationSettings.ForImmutability();
             return this;
         }
     }

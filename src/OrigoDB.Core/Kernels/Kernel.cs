@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using OrigoDB.Core.Logging;
-using OrigoDB.Core.Utilities;
 
 namespace OrigoDB.Core
 {
@@ -14,11 +13,11 @@ namespace OrigoDB.Core
 
         private static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
 
-        private bool _ensureSafeResults = true;
+        protected readonly IsolationSettings Isolation;
 
-        protected Model _model;
-        protected ISynchronizer _synchronizer;
-        protected readonly IFormatter _resultFormatter;
+        private Model _model;
+        protected ISynchronizer Synchronizer;
+        protected readonly IFormatter ResultFormatter;
 
 
         public abstract object ExecuteCommand(Command command);
@@ -27,46 +26,41 @@ namespace OrigoDB.Core
         {
             try
             {
-                _synchronizer.EnterRead();
+                Synchronizer.EnterRead();
                 object result = query.ExecuteStub(_model as TModel);
-                EnsureNoMutableReferences(ref result, query);
+                EnsureIsolation(ref result, query);
                 return (TResult)result;
             }
             finally
             {
-                _synchronizer.Exit();
+                Synchronizer.Exit();
             }
         }
 
         internal void SetSynchronizer(ISynchronizer synchronizer)
         {
-            _synchronizer = synchronizer;
+            Synchronizer = synchronizer;
         }
 
         protected Kernel(EngineConfiguration config, Model model)
         {
-            _resultFormatter = config.CreateFormatter(FormatterUsage.Results);
-            _synchronizer = config.CreateSynchronizer();
+            ResultFormatter = config.CreateFormatter(FormatterUsage.Results);
+            Synchronizer = config.CreateSynchronizer();
             _model = model;
-            _ensureSafeResults = config.EnsureSafeResults;
+            Isolation = config.Isolation;
         }
 
         /// <summary>
-        /// Make sure we don't return direct references to mutable objects within the model
+        /// Make sure we don't return references to mutable objects within the model
         /// </summary>
-        protected virtual void EnsureNoMutableReferences(ref object result, IOperationWithResult operation)
+        protected virtual void EnsureIsolation(ref object result, IOperationWithResult operation)
         {
-            if (result != null && _ensureSafeResults)
+            if (result != null)
             {
-                bool operationIsResponsible = operation != null && operation.ResultIsSafe;
-
-                if (!operationIsResponsible && !result.IsImmutable())
-                {
-                    result = _resultFormatter.Clone(result);
-                }
+                var strategy = Isolation.ReturnValues;
+                strategy.Apply(ref result, operation);
             }
         }
-
 
         /// <summary>
         /// Provide synchronized read access to the model
@@ -78,12 +72,12 @@ namespace OrigoDB.Core
         {
             try
             {
-                _synchronizer.EnterRead();
+                Synchronizer.EnterRead();
                 return readAction.Invoke(_model);
             }
             finally
             {
-                _synchronizer.Exit();
+                Synchronizer.Exit();
             }
         }
 
@@ -106,6 +100,7 @@ namespace OrigoDB.Core
             {
                 return _model;
             }
+            protected set { _model = value; }
         }
     }
 }

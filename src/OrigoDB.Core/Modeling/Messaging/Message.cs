@@ -5,7 +5,7 @@ namespace OrigoDB.Core.Modeling.Messaging
     /// <summary>
     /// All messages handled by MessageBroker derive from Message
     /// </summary>
-    [Serializable]
+    [Serializable, Immutable]
     public abstract class Message
     {
         /// <summary>

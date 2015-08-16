@@ -51,7 +51,7 @@ namespace OrigoDB.Core.Test
         /// </summary>
         /// <param name="livedb"></param>
         /// <returns></returns>
-        [Command(CloneResult = false)]
+        [Command(ResultIsIsolated = true)]
         public string Uppercase(string livedb)
         {
             CommandsExecuted++;
@@ -63,7 +63,7 @@ namespace OrigoDB.Core.Test
             return _customers.ToArray();
         }
 
-        [Query(CloneResult = false)]
+        [Query(ResultIsIsolated = true)]
         public Customer[] GetCustomersCloned()
         {
             return _customers.ToArray();
@@ -134,7 +134,7 @@ namespace OrigoDB.Core.Test
     {
 	    public GetNumberOfCommandsExecutedQuery()
 	    {
-	        ResultIsSafe = true;
+	        ResultIsIsolated = true;
 	    }
 
         public override int Execute(TestModel model)
@@ -162,7 +162,7 @@ namespace OrigoDB.Core.Test
 
         public  override void Prepare(TestModel model)
         {
-            ResultIsSafe = true;
+            ResultIsIsolated = true;
             if (ThrowInPrepare)
             {
                 throw new Exception();

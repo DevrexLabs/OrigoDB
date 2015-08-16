@@ -1,6 +1,9 @@
 ﻿namespace OrigoDB.Core
 {
 
+    /// <summary>
+    /// Identifier for different usages of formatters.
+    /// </summary>
     public enum FormatterUsage
     {
         /// <summary>
@@ -14,7 +17,7 @@
         Snapshot,
 
         /// <summary>
-        /// Format journal entries
+        /// Format journal entries (commands written to the journal)
         /// </summary>
         Journal,
 
@@ -24,7 +27,7 @@
         Results,
 
         /// <summary>
-        /// Format messages between client and server and between servers
+        /// Format messages, (including commands and queries) between client and server and between servers
         /// </summary>
         Messages
     }

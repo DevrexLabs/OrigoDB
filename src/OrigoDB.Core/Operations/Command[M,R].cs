@@ -9,7 +9,7 @@ namespace OrigoDB.Core
 
         protected Command(bool ensuresResultIsDisconnected = false)
         {
-            ResultIsSafe = ensuresResultIsDisconnected;
+            ResultIsIsolated = ensuresResultIsDisconnected;
         }
         
         public virtual void Prepare(TModel model) { }

@@ -2,8 +2,8 @@ using System;
 
 namespace OrigoDB.Core.Modeling.Messaging
 {
-    [Serializable]
-    public class TextMessage : Message, IImmutable
+    [Serializable, Immutable]
+    public class TextMessage : Message
     {
         public readonly string Body;
 

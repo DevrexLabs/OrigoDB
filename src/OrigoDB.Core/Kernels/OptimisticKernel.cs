@@ -1,5 +1,3 @@
-using System;
-
 namespace OrigoDB.Core
 {
     /// <summary>
@@ -21,16 +19,16 @@ namespace OrigoDB.Core
         {
             try
             {
-                _synchronizer.EnterUpgrade();
-                command.PrepareStub(_model);
-                _synchronizer.EnterWrite();
-                var result = command.ExecuteStub(_model);
-                _model.Revision++;
+                Synchronizer.EnterUpgrade();
+                command.PrepareStub(Model);
+                Synchronizer.EnterWrite();
+                var result = command.ExecuteStub(Model);
+                Model.Revision++;
                 return result;
             }
             finally
             {
-                _synchronizer.Exit();
+                Synchronizer.Exit();
             }
         }
     }

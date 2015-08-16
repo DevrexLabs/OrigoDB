@@ -15,7 +15,7 @@ namespace OrigoDB.Core.Proxying
         {
             var query = (Query) operation;
             query = query ?? new ProxyQuery<T>(signature, methodCallMessage.Args, methodCallMessage.MethodBase.GetGenericArguments());
-            query.ResultIsSafe = !OperationAttribute.CloneResult;
+            query.ResultIsIsolated = OperationAttribute.ResultIsIsolated;
             return engine.Execute(query);
         }
     }

@@ -20,7 +20,7 @@ namespace OrigoDB.Core
             : base(config, model)
         {
             _formatter = config.CreateFormatter(FormatterUsage.Snapshot);
-            _foodTaster = _formatter.Clone(_model);
+            _foodTaster = _formatter.Clone(Model);
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace OrigoDB.Core
             }
             catch (Exception ex)
             {
-                _foodTaster = _formatter.Clone(_model); //reset
+                _foodTaster = _formatter.Clone(Model); //reset
                 throw new CommandAbortedException("Royal taster died of food poisoning, see inner exception for details", ex);
             }
 

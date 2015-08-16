@@ -15,14 +15,12 @@ namespace OrigoDB.Core.Test
         public void Setup()
         {
             _expected = new EngineConfiguration();
-            _expected.EnsureSafeResults = false;
             _expected.LockTimeout = TimeSpan.FromSeconds(30);
             _expected.Kernel = Kernels.RoyalFoodTaster;
             _expected.MaxBytesPerJournalSegment = 8192*1024;
 
             _configDictionary = new ConfigDictionary();
             _configDictionary.Set("kernel", _expected.Kernel);
-            _configDictionary.Set("engineconfiguration.ensuresaferesults", _expected.EnsureSafeResults);
             _configDictionary.Set("engineconfiguration.locktimeout", _expected.LockTimeout);
             _configDictionary.Set("EngineConfiguration.MaxbytesPerJournalSegment", _expected.MaxBytesPerJournalSegment);
         }
@@ -38,7 +36,6 @@ namespace OrigoDB.Core.Test
         private void CompareToExpected(EngineConfiguration config)
         {
             Assert.AreEqual(config.Kernel, _expected.Kernel);
-            Assert.AreEqual(config.EnsureSafeResults, _expected.EnsureSafeResults);
             Assert.AreEqual(config.MaxBytesPerJournalSegment, _expected.MaxBytesPerJournalSegment);
             Assert.AreEqual(config.LockTimeout, _expected.LockTimeout);
         }

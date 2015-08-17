@@ -17,7 +17,12 @@ namespace OrigoDB.Core
             typeof (object),
             typeof(DateTime),
             typeof(TimeSpan),
-            typeof(Guid)
+            typeof(Guid),
+            typeof(TimeZone),
+            typeof(TimeZoneInfo),
+            typeof(DateTimeOffset),
+            typeof(Uri),
+            typeof(Version)
         };
 
         internal static void Add(Type type)

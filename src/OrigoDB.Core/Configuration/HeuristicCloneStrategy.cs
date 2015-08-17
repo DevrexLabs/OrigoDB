@@ -2,10 +2,14 @@ using System.Linq;
 
 namespace OrigoDB.Core
 {
+
+    /// <summary>
+    /// Clone unless we know isolation is 
+    /// </summary>
     public sealed class HeuristicCloneStrategy : CloneStrategy {
         internal override void Apply(ref Command command)
         {
-            if (HasIsolationAttribute(command, Isolation.Input))
+            if (!HasIsolationAttribute(command, IsolationLevel.Input) && ! command.GetType().HasImmutableAttribute())
                 command = Formatter.Clone(command);
         }
 
@@ -18,13 +22,13 @@ namespace OrigoDB.Core
         private bool IsolatesResults(object producer)
         {
             return ByOperationWithResult(producer as IOperationWithResult) ||
-                   HasIsolationAttribute(producer, Isolation.Output);
+                   HasIsolationAttribute(producer, IsolationLevel.Output);
         }
 
-        private bool HasIsolationAttribute(object producer, Isolation isolation)
+        private bool HasIsolationAttribute(object producer, IsolationLevel isolation)
         {
             var attribute = (IsolationAttribute)producer.GetType().GetCustomAttributes(typeof(IsolationAttribute), false).FirstOrDefault();
-            return attribute != null && attribute.Isolation.HasFlag(isolation);
+            return attribute != null && attribute.Level.HasFlag(isolation);
         }
 
         private bool ByOperationWithResult(IOperationWithResult operation)

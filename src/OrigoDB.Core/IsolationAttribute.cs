@@ -5,11 +5,11 @@ namespace OrigoDB.Core
     [AttributeUsage(AttributeTargets.Class)]
     public class IsolationAttribute : Attribute
     {
-        public Isolation Isolation{ get; set; }
+        public IsolationLevel Level{ get; set; }
 
-        public IsolationAttribute(Isolation isolation)
+        public IsolationAttribute(IsolationLevel isolation)
         {
-            Isolation = isolation;
+            Level = isolation;
         }
     }
 }

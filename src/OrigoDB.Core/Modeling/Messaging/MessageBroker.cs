@@ -27,7 +27,6 @@ namespace OrigoDB.Core.Modeling.Messaging
         private readonly Dictionary<String, Bus> _buses
             = new Dictionary<string, Bus>(StringComparer.OrdinalIgnoreCase);
 
-
         public void Subscribe(Guid subscriber, String busName)
         {
             var bus = GetBus(busName);
@@ -38,6 +37,7 @@ namespace OrigoDB.Core.Modeling.Messaging
         /// <summary>
         /// Remove subscriber from bus and return any remaining messages
         /// </summary>
+        [Command]
         public Message[] Unsubscribe(Guid subscriber, String busName)
         {
             var bus = GetBus(busName);

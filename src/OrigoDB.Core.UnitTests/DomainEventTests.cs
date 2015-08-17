@@ -8,13 +8,13 @@ namespace OrigoDB.Core.Test
     [TestFixture]
     public class DomainEventTests
     {
-        [Serializable]
+        [Serializable, Immutable]
         class Event : IEvent
         {
             
         }
 
-        [Serializable]
+        [Serializable,Immutable]
         class EventEmittingCommand : Command<TestModel>
         {
             /// <summary>

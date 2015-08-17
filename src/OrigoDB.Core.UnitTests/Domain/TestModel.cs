@@ -51,7 +51,7 @@ namespace OrigoDB.Core.Test
         /// </summary>
         /// <param name="livedb"></param>
         /// <returns></returns>
-        [Command(Isolation.InputOutput)]
+        [Command(IsolationLevel.InputOutput)]
         public string Uppercase(string livedb)
         {
             CommandsExecuted++;
@@ -63,7 +63,7 @@ namespace OrigoDB.Core.Test
             return _customers.ToArray();
         }
 
-        [Query(Isolation = Isolation.Output)]
+        [Query(Isolation = IsolationLevel.Output)]
         public Customer[] GetCustomersCloned()
         {
             return _customers.ToArray();

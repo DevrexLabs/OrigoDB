@@ -28,7 +28,7 @@ namespace OrigoDB.Core.Proxying
         {
             get
             {
-                if (OperationAttribute.Isolation.HasFlag(Isolation.Input)) return true;
+                if (OperationAttribute.Isolation.HasFlag(IsolationLevel.Input)) return true;
                 return null;
             }
         }
@@ -37,7 +37,7 @@ namespace OrigoDB.Core.Proxying
         {
             get
             {
-                if (OperationAttribute.Isolation.HasFlag(Isolation.Output)) return true;
+                if (OperationAttribute.Isolation.HasFlag(IsolationLevel.Output)) return true;
                 return null;
             }
         }

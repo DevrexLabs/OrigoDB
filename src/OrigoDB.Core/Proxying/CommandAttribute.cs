@@ -18,7 +18,7 @@ namespace OrigoDB.Core
             Type = OperationType.Command;
         }
 
-        public CommandAttribute(Isolation isolation) : this()
+        public CommandAttribute(IsolationLevel isolation) : this()
         {
             Isolation = isolation;
         }

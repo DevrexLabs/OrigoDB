@@ -14,7 +14,10 @@ namespace OrigoDB.Core
         private static readonly HashSet<Type> TheTypes = new HashSet<Type>()
         {
             typeof (string),
-            typeof (object)
+            typeof (object),
+            typeof(DateTime),
+            typeof(TimeSpan),
+            typeof(Guid)
         };
 
         internal static void Add(Type type)

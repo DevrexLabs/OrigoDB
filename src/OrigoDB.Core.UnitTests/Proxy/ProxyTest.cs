@@ -81,7 +81,7 @@ namespace OrigoDB.Core.Test
             var map = MethodMap.MapFor<TestModel>();
             var signature = typeof (TestModel).GetMethod("GetCustomersCloned").ToString();
             var opInfo = map.GetOperationInfo(signature);
-            Assert.True(opInfo.OperationAttribute.Isolation.HasFlag(Isolation.Output));
+            Assert.True(opInfo.OperationAttribute.Isolation.HasFlag(IsolationLevel.Output));
         }
 
         [Test]

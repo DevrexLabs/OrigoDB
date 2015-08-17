@@ -74,6 +74,7 @@
     <Compile Include="EngineTestBase.cs" />
     <Compile Include="FileStoreTest.cs" />
     <Compile Include="GenericModelTest.cs" />
+    <Compile Include="IsolationTests.cs" />
     <Compile Include="Models\GeoPointTests.cs" />
     <Compile Include="Models\GraphModelTests.cs" />
     <Compile Include="GzipHelperTest.cs" />

@@ -13,7 +13,7 @@ namespace OrigoDB.Core
         /// <summary>
         /// Isolation guarantees of this operation
         /// </summary>
-        public Isolation Isolation{ get; set; }
+        public IsolationLevel Isolation{ get; set; }
 
         /// <summary>
         /// Map to an explict Command or Query type or the generic proxy types if null

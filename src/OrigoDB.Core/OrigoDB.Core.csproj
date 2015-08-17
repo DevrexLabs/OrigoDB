@@ -118,7 +118,7 @@
     <Compile Include="Modeling\Redis\Range.cs" />
     <Compile Include="Modeling\Redis\RedisModel.cs" />
     <Compile Include="Modeling\Redis\ZSetEntry.cs" />
-    <Compile Include="Isolation.cs" />
+    <Compile Include="IsolationLevel.cs" />
     <Compile Include="Proxying\CommandInfo.cs" />
     <Compile Include="Proxying\NotAllowedAttribute.cs" />
     <Compile Include="Proxying\NotAllowedOperation.cs" />

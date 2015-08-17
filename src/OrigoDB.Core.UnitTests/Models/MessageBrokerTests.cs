@@ -17,6 +17,8 @@ namespace OrigoDB.Core.Test
 
 
             var config = new EngineConfiguration().ForIsolatedTest();
+            config.Isolation.Commands = CloneStrategy.Never;
+            config.Isolation.ReturnValues = CloneStrategy.Never;
             var broker = Db.For<MessageBroker>(config);
             
             //create/write/read queue

@@ -3,7 +3,7 @@
 namespace OrigoDB.Core
 {
     [Flags]
-    public enum Isolation
+    public enum IsolationLevel
     {
         Unknown = 0,
         Input = 1,

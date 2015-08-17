@@ -4,9 +4,10 @@ namespace OrigoDB.Core
 {
 
     /// <summary>
-    /// Clone unless we know isolation is 
+    /// Clone unless we know isolation is guaranteed
     /// </summary>
-    public sealed class HeuristicCloneStrategy : CloneStrategy {
+    public sealed class HeuristicCloneStrategy : CloneStrategy
+    {
         internal override void Apply(ref Command command)
         {
             if (!HasIsolationAttribute(command, IsolationLevel.Input) && ! command.GetType().HasImmutableAttribute())

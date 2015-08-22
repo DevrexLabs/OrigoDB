@@ -3,26 +3,39 @@ title: Transactions
 layout: submenu
 ---
 # {{page.title}}
-By default, OrigoDB transactions are serialized providing perfect isolation and the strictest possible consistency. Command and query execution (writes and reads) are the implicit transactional units. The thread safe [Engine](https://github.com/DevrexLabs/OrigoDB/blob/master/src/OrigoDB.Core/Engine.cs) is responsible for proper transaction management. Explicit transactions are not supported, nor are they necessary.
+OrigoDB transactions are implicit. Commands and queries (writes and reads) are the implicit transactional units.  There are no explicit transactions based on BEGIN, COMMIT and ROLLBACK commands. Instead commands and queries are composed of multiple statements executed as a single isolated transaction. If you have an RDBMS background, you can think of commands and queries as stored procedures.
+
+OrigoDB is designed to achieve the strictest possible consistency by supporting fully ACID transactions. There is no such thing as isolation *level*, transactions are fully isolated. Commands are serialized (executed one at a time) and block queries. Queries run concurrently between commands. (Unless using an `ImmutabilityKernel` which uses snapshot isolation. See MVCC Transactions below)
+
+The [Engine](https://github.com/DevrexLabs/OrigoDB/blob/dev/src/OrigoDB.Core/Engine.cs) is thread safe and manages transactions with the help of `Kernel` and `ISynchronizer` objects.
 
 ### Atomicity
-If a command fails with an unexpected exception, the in-memory model will be restored to the state prior to the failing command.
+`Command` objects are the atomic unit of change. They transition the model from one valid state to the next.
+If a command throws an unexpected exception, the model is assumed to be corrupt and will be restored to the state prior to the failing command. A command can fail gracefully by throwing a `CommandAbortedException` which is taken as a guarantee that the model was not altered during execution.
 
 ### Consistency
-Serialized isolation guarantees the strongest possible consistency.
+Because commands are serialized and fully isolated from queries the usual anomalies like dirty reads, phantom-reads, non-repeatable reads are non-existent.
 
 ### Isolation
-Commands are executed sequentially, thus fully isolated. The default `ISynchronizer` uses a `ReaderWriterLockSlim` to allow either a single writer or multiple readers at any given time. This guarantees that reads always see the most recent state (and that the state is not modified) for the entire duration of the transaction. By default, query results are cloned to prevent accidentally returning references to mutable objects within the model.
+There are two types of isolation to consider when using OrigoDB:
+* Isolation between transactions
+* Isolation of the model from user code when running OrigoDB in-process
+
+Commands are executed sequentially, thus fully isolated. The default `ISynchronizer` uses a `ReaderWriterLockSlim` to allow either a single writer or multiple readers at any given time. This guarantees that reads always see the most recent state (and that the state is not modified) for the entire duration of the transaction.
+
+By default, commands, command results and query results are cloned to prevent leaking references to mutable objects within the model. Cloning uses serialization/deserialization and can have a significant impact on performance. By designing for isolation all or some of the cloning can be disabled. See [Configuration/Isolation](../../configuration/isolation) for details on how to configure what gets cloned and not.
 
 ### Durability
-Commands are written and flushed to the journal before execution, also known as write ahead logging.
+Commands are written and flushed to the journal before execution, also known as write ahead logging. A command can not succeed unless it has been persisted to storage. It can however be written to storage and then fail. In this case, if the failure is due to a `CommandAbortedException`, the same failure will occur during replay which is harmless because the model is unaltered. If the exception is of any other type a rollback marker will be appended to the journal causing the failed command to be skipped during replay.
 
 
 ## MVCC transactions
 OrigoDB supports the MVCC concurrency model. With this model, writes are serialized but will not block reads, which use snapshot isolation. Snapshots are based on the most recently committed write transaction. See the section on [Immutability](../../modeling/immutability) for details.
 
 ## Explicit transactions?
-There are no explicit transactions in OrigoDB. You cannot begin a transaction, make changes, then commit or rollback. Relational databases use the rollback mechanism to resolve conflicting changes caused by concurrent transactions. OrigoDB does not have concurrent transactions so there is no need for explicit transactions. If you need to perform multiple commands as a single atomic unit, consider using the composite command pattern which batches multiple commands in a single transaction:
+There are no explicit transactions in OrigoDB. You cannot begin a transaction, make changes, then commit or rollback. Relational databases use the rollback mechanism to resolve conflicting changes caused by concurrent transactions. OrigoDB does not have concurrent writes so there is no need for explicit transactions. If you need to perform multiple commands as a single atomic unit, consider using the composite command pattern which batches multiple commands in a single transaction.
+
+The only drawback is that a command
 
 {% highlight csharp %}
 [Serializable]
@@ -51,18 +64,4 @@ public class CompositeCommand<TModel> : Command<TModel>
 		}
 	}
 }
-{% endhighlight %}
-
-## Performance guidelines
-
-1. Return as little data as possible from queries because cloning is expensive.
-1. Return immutable data from queries to avoid result cloning
-1. Keep transactions as short as possible for optimal throughput and minimum latency
-1. Do expensive preparation or validation in `Command.Prepare()` because it will not block readers
-1. If you have  a single threaded process, or control concurrency at the client side, use a [NullSynchronizer](https://github.com/DevrexLabs/OrigoDB/blob/master/src/OrigoDB.Core/Synchronization/NullSynchronizer.cs) and turn off result cloning:
-{% highlight csharp %}
-var config = new EngineConfiguration();
-config.EnsureSafeResults = false;
-config.Synchronization = SychronizationMode.None;
-var engine = Engine.For<MyModel>(config);
 {% endhighlight %}

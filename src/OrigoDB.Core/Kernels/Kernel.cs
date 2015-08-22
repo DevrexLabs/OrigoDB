@@ -10,13 +10,9 @@ namespace OrigoDB.Core
     /// </summary>
     public abstract class Kernel
     {
-        private static ILogger _log = LogProvider.Factory.GetLoggerForCallingType();
-
         protected readonly IsolationSettings Isolation;
         private Model _model;
         protected ISynchronizer Synchronizer;
-        protected readonly IFormatter ResultFormatter;
-
 
         public abstract object ExecuteCommand(Command command);
 
@@ -42,7 +38,6 @@ namespace OrigoDB.Core
 
         protected Kernel(EngineConfiguration config, Model model)
         {
-            ResultFormatter = config.CreateFormatter(FormatterUsage.Results);
             Synchronizer = config.CreateSynchronizer();
             _model = model;
             Isolation = config.Isolation;

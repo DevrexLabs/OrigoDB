@@ -12,6 +12,9 @@ Command throughput is i/o bound and depends on the underlying storage. A few tho
 ## Custom serialization
 Reading commands from the journal during replay is i/o bound. Using custom serializer that optimizes for size will keep load time as short as possible. Also, the size of journal and snapshots on disk will be kept small. Smaller commands, however, will probably not improve command throughput because they are flushed to storage one at a time. Custom serialization has an additional, non-performance related benefit, easier schema evolution.
 
+## Network performance
+When using origodb server, clients pass serialized commands and queries over a tcp connection. Each transaction incurs a single roundtrip. Command and query objects are usually small and fit in a single tcp packet. Keep the size of the results at a minimum for optimal performance.
+
 ## Performance guidelines
 Guidelines in order of importance:
 1. Choose appropriate collection types and algorithms

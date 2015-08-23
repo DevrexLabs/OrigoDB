@@ -5,7 +5,7 @@ namespace OrigoDB.Core.Modeling.Geo
     /// <summary>
     /// A point on the surface of the earth
     /// </summary>
-    [Serializable]
+    [Serializable, Immutable]
     public class GeoPoint
     {
         public const double EarthRadiusKm = 6372.797560856;

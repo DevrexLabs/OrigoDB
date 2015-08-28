@@ -4,9 +4,28 @@ layout: submenu
 ---
 ## {{page.title}}
 
-The default storage provider uses the file system to store .journal and .snapshot files. Release 0.5.0 introduced support for alternative storage provider modules. The sql storage module is a available as a separate download.
 
-Using Sql Storage allows you to benefit from all the reliability and maintainability features of an RDBMS. Also, the journal can be examined/manipulated using regular SQL. The provider creates a single table named CommandJournal with the following columns:
+By default, journal files and snapshots are written to the file system. Storage is configurable and supports writing the journal to a relational database taking advantage of existing infrastructure and operations. Also, the journal can be queried/manipulated using regular SQL.
+
+The first step is to set the storage type:
+
+```csharp
+var config = new EngineConfiguration();
+config.JournalStorage = StorageType.Sql;
+```
+
+## The happy path
+
+1. Set the JournalStorage to StorageType.Sql
+2. S
+
+## Relevant types
+* SqlSettings
+* SqlProvider
+* MsSqlProvider
+* SqlStorage
+
+The provider creates a single table named CommandJournal with the following columns:
 
 Name | Description
 -----|------------

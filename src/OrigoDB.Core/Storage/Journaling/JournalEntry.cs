@@ -58,6 +58,11 @@ namespace OrigoDB.Core
             if (item is Command) return new JournalEntry<Command>(id, (Command) item, created);
             throw new ArgumentOutOfRangeException("unrecognized journal entry item :" + item);
         }
+
+        public override string ToString()
+        {
+            return String.Format("[{0} - {1} - {2}", Id, Created, GetItem().GetType());
+        }
     }
 
 

@@ -1,11 +1,12 @@
 ﻿using System.Configuration;
+using OrigoDB.Core.Storage.Sql;
 
 namespace OrigoDB.Core
 {
 
     /// <summary>
     /// Configuration settings when using a backing sql store.
-    /// Exposed via EngineConfiguration.SqlSettings property.
+    /// Exposed via EngineConfiguration.Sql property.
     /// </summary>
     public class SqlSettings
     {
@@ -30,6 +31,11 @@ namespace OrigoDB.Core
         /// connection strings in the application configuration file
         /// </summary>
         public string ConnectionString { get; set; }
+
+        /// <summary>
+        /// Custom SQL Statements, leave null to use the default, provider specific statements
+        /// </summary>
+        public SqlStatements Statements { get; set; }
 
         /// <summary>
         /// Lookup ConnectionStringSetting in application configuration file using ConnectionString as key.

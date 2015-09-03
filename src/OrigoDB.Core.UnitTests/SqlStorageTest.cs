@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Configuration;
+using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -13,23 +15,40 @@ namespace OrigoDB.Core.Test
     [TestFixture]
     public class SqlStorageTest
     {
-        [Test, Ignore]
-        public void MsSqlProviderSmokeTest()
+
+        [Test]
+        public void DisplayProviders()
         {
-            var settings = new SqlSettings();
+            var table = DbProviderFactories.GetFactoryClasses();
+            foreach (DataRow row in table.Rows)
+            {
+                foreach (DataColumn column in table.Columns)
+                {
+                    Console.WriteLine(column.ColumnName + ":" + row[column]);
+                }
+                Console.WriteLine("-------------------------------------------------");
+            }
+        }
+
+        [Test, Ignore]
+        public void MsSqlCommandStoreWriteReadEntries()
+        {
+            var config = new EngineConfiguration();
+            var settings = config.SqlSettings;
             settings.ConnectionString = "Data Source=.;Initial Catalog=fish;Integrated Security=True";
             settings.ProviderName = "System.Data.SqlClient";
-            var provider = SqlProvider.Create(settings);
-            provider.Initialize();
+            settings.TableName = "[test-" + Guid.NewGuid() + "]";
+            var commandStore = new SqlCommandStore(config);
+            commandStore.Initialize();
             var formatter = new BinaryFormatter();
-            var writer = new SqlJournalWriter(formatter, provider);
+            var writer = new SqlJournalWriter(formatter, commandStore);
             writer.Write(JournalEntry.Create(1UL, DateTime.Now, new ModelCreated(typeof (TestModel))));
             writer.Write(JournalEntry.Create(2UL, DateTime.Now.AddSeconds(1), new AppendNumberCommand(42)));
             writer.Write(JournalEntry.Create(3UL, DateTime.Now.AddSeconds(2), new AppendNumberCommand(64)));
 
-            foreach (var entry in provider.ReadJournalEntries(1, bytes => formatter.FromByteArray<object>(bytes)))
+            foreach (var entry in commandStore.GetJournalEntriesFrom(1))
             {
-                Trace.WriteLine(entry.GetItem());
+                Trace.WriteLine(entry);
             }
             writer.Dispose();
         }
@@ -39,7 +58,7 @@ namespace OrigoDB.Core.Test
             var config = new EngineConfiguration();
             config.JournalStorage = StorageType.Sql;
             config.SqlSettings.ConnectionString = "Data Source=.;Initial Catalog=fish;Integrated Security=True;";
-            config.SqlSettings.ProviderName = MsSqlProvider.Name;
+            config.SqlSettings.ProviderName = "System.Data.SqlClient";
             var engine = Engine.For<TestModel>(config);
             int initial = engine.Execute(new DelegateQuery<TestModel, int>(m => m.CommandsExecuted));
             engine.Execute(new TestCommandWithoutResult());

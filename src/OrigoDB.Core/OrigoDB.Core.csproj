@@ -127,10 +127,11 @@
     <Compile Include="Storage\Rollover\MaxBytesRolloverStrategy.cs" />
     <Compile Include="Storage\Rollover\MaxEntriesRolloverStrategy.cs" />
     <Compile Include="Storage\Rollover\ScheduledRolloverStrategy.cs" />
+    <Compile Include="Storage\Sql\OleDbStatements.cs" />
     <Compile Include="Storage\Sql\SqlCommandStore.cs" />
     <Compile Include="Storage\Sql\SqlJournalWriter.cs" />
-    <Compile Include="Storage\Sql\MsSqlProvider.cs" />
-    <Compile Include="Storage\Sql\SqlProvider.cs" />
+    <Compile Include="Storage\Sql\MsSqlStatements.cs" />
+    <Compile Include="Storage\Sql\SqlStatements.cs" />
     <Compile Include="Utilities\Utils.Converters.cs" />
     <Compile Include="Storage\Journaling\JournalAppender.cs" />
     <Compile Include="Storage\Journaling\ModelCreated.cs" />

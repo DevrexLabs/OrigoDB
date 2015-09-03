@@ -5,67 +5,57 @@ layout: submenu
 ## {{page.title}}
 
 
-By default, journal files and snapshots are written to the file system. Storage is configurable and supports writing the journal to a relational database taking advantage of existing infrastructure and operations. Also, the journal can be queried/manipulated using regular SQL.
+Storage is configurable. By default, journal files and snapshots are written to the file system. Using Sql Storage, The journal can be stored in a relational database, allowing you to take advantage of existing infrastructure and operations. Also, the journal can be queried/manipulated using regular SQL.
 
-The first step is to set the storage type:
+Sql Storage uses the DbProviderFactories of NET.
+The built-in providers are MsSqlProvider and OleDbProvider.
+
+Sql storage is flexible, you can supply custom statements for initializing, reading and writing entries.
+
+The default table has these columns:
+
+Name | Type | Description
+---- | ---- | -----
+Id | ulong | The unique sequential id of the journal entry
+Created | DateTime | When the command was executed
+Type | String | The type name of the command executed
+Data | Binary or string | The serialized command  
+
+To enable sql storage set the storage type for journaling to Sql:
 
 ```csharp
 var config = new EngineConfiguration();
 config.JournalStorage = StorageType.Sql;
+var engine = Engine.For<MyDb>(config);
 ```
 
-## The happy path
+The default settings assume a connection string entry in the application configuration file named 'origo':
 
-1. Set the JournalStorage to StorageType.Sql
-2. S
+```xml
+<connectionString name="origo"
+  connectionString="Data Source=.;Initial Catalog=freedb;Integrated Security=True"
+  providerName="System.Data.SqlClient"/>
+```
 
-## Relevant types
-* SqlSettings
-* SqlProvider
-* MsSqlProvider
-* SqlStorage
+The providerName must be one the following supported providers or a custom provider. See Custom Providers below.
 
-The provider creates a single table named CommandJournal with the following columns:
+* System.Data.SqlClient
+* System.Data.OleDbClient
+* System.Data.OdbcClient
 
-Name | Description
------|------------
-Id | The unique sequential id of the command
-CommandName | The type name of the command executed
-Created | The point in time when the command was executed
-Entry | The serialized `JournalEntry<Command>` object
+ Here are the default settings, which can be assigned new values. The `ConnectionString` property can be assigned either a connection string name in the application configuration file or an actual connection string.
 
-## Supported SQL databases
-Release 0.1.0 was tested on Sql Server 2008 R2 developer edition and should work with 2005, 2008, 2012 and SqlCE.
+```csharp
+config.SqlSettings.TableName = "OrigoJournal";
+config.ConnectionString = "origo";
+config.SqlSettings.ProviderName = "System.Data.SqlClient";
+var engine = Engine.For<MyDb>(config);
+```
 
-## Configuring SqlStorage
-1. Add OrigoDb.Modules.SqlStorage to your project. Grab it on the downloads page or using nuget.
-2. Add a connectionstring to your app config file pointing to an existing database
-{% highlight xml %}
-<connectionStrings>
-  <add name="connectionName"
-    connectionString="Data Source=.;Initial Catalog=freedb;Integrated Security=True"
-    providerName="System.Data.SqlClient" />
-</connectionStrings>
-{% endhighlight %}
+## Register a custom provider
+Providers derive from SqlProvider and supply the vendor specific sql statements for reading and writing the journal. Custom providers need to be registered using the name and a constructor function taking a SqlSettings as input:
+```csharp
+SqlProvider.Register("MyProviderName", settings => new MyProvider(settings));
+```
 
-3. Pass an instance of `SqlEngineConfiguration` when creating or loading your database
-
-{% highlight csharp %}
-var config = new SqlEngineConfiguration("connectionName");
-config.SnapshotLocation = @"c:\\temp";
-var engine = Engine.LoadOrCreate<MyModel>(config);
-{% endhighlight %}
-
-Alternatively, you can set `Location` to a connection string directly. If so, you must also set the `LocationType` and `ProviderName` properties:
-
-{% highlight csharp %}
-var config = new SqlEngineConfiguration();
-config.Location = "Data Source=.;Initial Catalog=freedb;Integrated Security=True";
-config.LocationType = LocationType.ConnectionString;
-config.ProviderName = "System.Data.SqlClient";
-config.SnapshotLocation = @"c:\\temp";
-var engine = Engine.LoadOrCreate<MyModel>(config);
-{% endhighlight %}
-
-## Converting existing journal
-Use the StorageUtility to copy an existing journal from file to sql or sql to file.
+Additionally, the provider name must be recognized by DbProviderFactories, see MSDN documentation.

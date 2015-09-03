@@ -69,7 +69,7 @@ Note the `{0}` placeholder. `String.Format` will be applied to the statements pa
 The ProviderName must be one the following supported providers. Otherwise a custom provider needs to be configured. See Custom Providers below.
 
 * `System.Data.SqlClient` - has been tested with Sql Server 2008 and above
-* `System.Data.OleDbClient` - tested with Sql Server
+* `System.Data.OleDb` - not yet tested so probably not operational.
 * `System.Data.SqlServerCe.4.0` - will use `MsSqlStatements` but has not been tested
 
 ##  Custom Providers

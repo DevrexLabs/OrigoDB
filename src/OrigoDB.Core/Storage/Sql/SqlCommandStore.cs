@@ -27,7 +27,7 @@ namespace OrigoDB.Core.Storage.Sql
         {
             ProviderStatements["System.Data.SqlClient"] = new MsSqlStatements();
             ProviderStatements["System.Data.SqlServerCe.4.0"] = new MsSqlStatements();
-            ProviderStatements["System.Data.OleDbClient"] = new OleDbStatements();
+            ProviderStatements["System.Data.OleDb"] = new OleDbStatements();
         }
 
 

@@ -2,6 +2,9 @@
 
 namespace OrigoDB.Core.Storage.Sql
 {
+    /// <summary>
+    /// Not yet tested! Please let us know if try it out
+    /// </summary>
     public class OleDbStatements : SqlStatements
     {
         public OleDbStatements()

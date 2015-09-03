@@ -50,7 +50,7 @@ namespace OrigoDB.Core.Storage.Sql
             _statements.ReadEntries = String.Format(_statements.ReadEntries, _settings.TableName);
 
             //execute the InitStore statement
-            if (!_statements.SkipInitStore)
+            if (!_settings.SkipInit)
             {
                 var connection = CreateConnection();
                 connection.Open();

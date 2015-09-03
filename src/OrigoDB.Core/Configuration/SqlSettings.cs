@@ -38,6 +38,11 @@ namespace OrigoDB.Core
         public SqlStatements Statements { get; set; }
 
         /// <summary>
+        /// Do not execute the InitStore statement during initialization.
+        /// </summary>
+        public bool SkipInit { get; set; }
+
+        /// <summary>
         /// Lookup ConnectionStringSetting in application configuration file using ConnectionString as key.
         /// If it exists, assign ConnectionString and ProviderName properties.
         /// </summary>

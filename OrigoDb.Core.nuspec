@@ -3,14 +3,14 @@
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>OrigoDB.Core</id>
     <title>OrigoDB Engine and Client</title>
-    <version>0.10.1</version>
+    <version>0.18.0-beta</version>
     <authors>Robert Friberg, Kristoffer Schroeder and contributors</authors>
     <copyright>Devrex Labs</copyright>
     <summary>
-		OrigoDB is an in-memory database engine for .NET. 		
+		OrigoDB is an in-memory database engine for .NET.
 	</summary>
     <description>
-		OrigoDB is an in-memory database engine for .NET. 
+		OrigoDB is an in-memory database engine for .NET.
     </description>
     <projectUrl>https://github.com/devrexlabs/origodb</projectUrl>
 	<iconUrl>http://devrexlabs.com/Content/icons/favicon.ico</iconUrl>

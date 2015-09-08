@@ -47,7 +47,7 @@ Task("Zip")
 	//copy stuff to build directory and create a release package
 	CleanDirectory(output);
 
-	var pattern = "src/OrigoDB.*/bin/" + config + "/OrigoDB.*";
+	var pattern = "src/OrigoDB.*/bin/" + config + "/OrigoDB.Core.???";
 	CopyFiles(pattern, output);
 
 	var root = "./build/";

@@ -27,13 +27,13 @@ OrigoDB is very similar to Redis. Both are in-memory databases that use logging 
 
 ## Example code
 
-{% highlight csharp %}
+```csharp
 var redis = Db.For<RedisModel>();
 redis.Set("key", "42");
 redis.Increment("key");
 redis.IncrementBy("key", 4);
 string number = redis.Get("key");
-{% endhighlight %}
+```
 
 ### Keys
 

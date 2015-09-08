@@ -23,7 +23,7 @@ A custom implementation of `IDictionary<T,GeoPoint>`. It uses three SortedSet st
 
 The [graph modeling example](../graph/) uses a GeoSpatialIndex.
 
-{% highlight csharp %}
+```csharp
 var cheops = new GeoPoint(29.9792345,31.1342019);
 var eiffel = new GeoPoint(48.8583701,2.2944813);
 ArcDistance d = cheops.DistanceTo(eiffel);
@@ -43,4 +43,4 @@ foreach(var pair in geoIndex.WithinRadius(eiffel, 5))
   ArcDistance d = pair.Value;
   Console.WriteLine("Distance to {0} is {1}", item, d.ToKilometers());
 }
-{% endhighlight %}
+```

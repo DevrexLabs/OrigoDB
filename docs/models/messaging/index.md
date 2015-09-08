@@ -17,7 +17,8 @@ A bus offers pub/sub messaging. A client can Subscribe to a Bus by passing the n
 Subscriptions are persistent until `Unsubscribe` is called or the Bus to which it is attached is removed.
 
 ## Example code
-{% highlight csharp %}
+
+```csharp
 var broker = Db.For<MessageBroker>();
 broker.CreateQueue("myqueue");
 broker.Enqueue("myqueue", new TextMessage("I hate wabbits"));
@@ -43,4 +44,4 @@ Message[] messages = broker.Poll(id, "mybus");
 broker.Unsubscribe(id, "mybus");
 broker.DeleteQueue("myqueue");
 broker.DeleteBus("mybus");
-{% endhighlight %}
+```

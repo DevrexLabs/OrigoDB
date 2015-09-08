@@ -17,6 +17,9 @@ Immutable type representing a range of ordered values using upper and lower boun
 * `Union(Range<T> other)` - combine overlapping ranges, throw if no overlap
 
 ### Example
+
+```csharp
 var reservations = new List<Range<DateTime>>();
 reservations.Add(new Range(DateTime.Now, DateTime.Now.AddHours(1)));
 var conflicts = reservations.Where(r => r.Overlaps(candidate));
+```

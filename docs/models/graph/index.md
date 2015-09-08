@@ -15,7 +15,7 @@ GraphModel is a minimal built-in generic graph model similar to Neo4j. The model
 ### Example
 The example demonstrates a twitter graph. Tweets and users are nodes, actions (tweeted, retweeted, followed, favorited) are edges. Querying uses LINQ on the sets of nodes and edges.
 
-{% highlight csharp %}
+```csharp
 [TestFixture]
 public class GraphModelTests
 {
@@ -64,8 +64,7 @@ public class GraphModelTests
         Assert.AreEqual(node.Id, _user1);
     }
 }
-
-{% endhighlight %}
+```
 
 ## Quickgraph
 QuickGraph is an open source graph library packed with features. There are multiple graph representations and plenty of algorithms. Visit [QuickGraph on Codeplex](http://http://quickgraph.codeplex.com/) for details.
@@ -73,7 +72,7 @@ QuickGraph is an open source graph library packed with features. There are multi
 ### Example code
 A complete example demonstrating both [GeoSpatial modeling](../geo/) and Quickgraph. [Download VS2013 project](ShortestPath.zip)
 
-{% highlight csharp %}
+```csharp
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -379,4 +378,4 @@ class Program
         flightModel.Connect("LAX", "SEA", 107);
     }
 }
-{% endhighlight %}
+```

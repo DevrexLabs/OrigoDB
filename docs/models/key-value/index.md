@@ -15,7 +15,8 @@ Each time a specific key is set the version is incremented, starting with 1. Pas
 `Get` will throw unless the key exists. The `Node` return type has two fields, `Version` and `Item`. The item is the stored value.
 
 ## Example
-{% highlight csharp %}
+
+```csharp
 var store = Db.For<KeyValueStore>();
 store.Set("mykey",  "myvalue", 0); //expect key doesn't exist
 var node = store.Get("mykey");
@@ -29,12 +30,12 @@ store.Set("mykey", "succeed", 2);
 store.Remove("mykey", 2); //FAIL wrong version
 store.Remove("mykey");
 store.Remove("mykey"); //FAIL, doesn't exist
-
+```
 ## KeyValueStoreClient
 This class wraps a `KeyValueStore` and serializes/deserializes objects to byte array eliminating the need to deploy assemblies with custom types on the remote server.
 
 ### Example
-{% highlight csharp %}
+```csharp
 var store = Db.For<KeyValueStore>("mode=remote");
 var client = new KeyValueStoreClient(store, new BinaryFormatter());
 
@@ -48,4 +49,4 @@ player.AddScore(42);
 
 //write back using optimistic concurrency
 client.Set(player.Id, player, node.Version);
-{% endhighlight %}
+```

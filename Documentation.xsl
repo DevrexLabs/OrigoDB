@@ -9,11 +9,18 @@
 <!-- DOCUMENT TEMPLATE -->
 <!-- Format the whole document as a valid HTML document -->
 <xsl:template match="/">
-<HTML>
-  <BODY>
+<html>
+  <head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css"/>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
+//just wow
+</script>
+  </head>
+  <body>
     <xsl:apply-templates select="//assembly"/>
-  </BODY>
-</HTML>
+  </body>
+</html>
 </xsl:template>
 
 <!-- ASSEMBLY TEMPLATE -->
@@ -38,8 +45,7 @@
 
   <!-- Display the type's name and information -->
   <H2><xsl:value-of select="$MemberName"/></H2>
-  <xsl:apply-templates/>
-
+  
   <!-- If this type has public fields, display them -->
   <xsl:if test="//member[contains(@name,concat('F:',$FullMemberName))]">
    <H3>Fields</H3>

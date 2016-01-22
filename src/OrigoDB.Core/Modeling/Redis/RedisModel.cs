@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -22,7 +24,16 @@ namespace OrigoDB.Core.Modeling.Redis
             Hash,
             Set,
             SortedSet,
-            GeoSet
+            GeoSet,
+            BitSet
+        }
+
+        public enum BitOperator
+        {
+            And,
+            Or,
+            Xor,
+            Not
         }
 
         public enum AggregateType
@@ -146,6 +157,7 @@ namespace OrigoDB.Core.Modeling.Redis
                 if (value is Dictionary<string, string>) return KeyType.Hash;
                 if (value is List<string>) return KeyType.List;
                 if (value is HashSet<string>) return KeyType.Set;
+                if (value is BitArray) return KeyType.BitSet;
             }
             return KeyType.None;
         }
@@ -242,25 +254,116 @@ namespace OrigoDB.Core.Modeling.Redis
         {
 
             int bits = 0;
-            var sb = GetStringBuilder(key);
+            var ba = GetBitArray(key);
 
-            if (sb != null)
+            if (ba != null)
             {
-                if (startByte < 0) startByte = sb.Length + startByte;
-                if (endByte == int.MaxValue) endByte = sb.Length - 1;
-                if (endByte < 0) endByte = sb.Length + endByte;
-                for (int i = startByte; i <= endByte; i++)
+                if (startByte < 0) startByte = ba.Length + startByte;
+                if (endByte == int.MaxValue) endByte = ba.Length - 1;
+                if (endByte < 0) endByte = ba.Length + endByte;
+                for (int i = startByte * 8; i <= endByte * 8; i++)
                 {
-                    if (i >= sb.Length) break;
-                    int n = sb[i];
-                    while (n != 0)
-                    {
-                        bits++;
-                        n &= n - 1;
-                    }
+                    if (i >= ba.Length) break;
+                    if (ba.Get(i)) bits++;
                 }
             }
             return bits;
+        }
+
+        /// <summary>
+        /// Returns the bit value at offset in the string value stored at key.
+        /// When offset is beyond the string length, the string is assumed to be
+        /// a contiguous space with 0 bits. When key does not exist it is assumed
+        /// to be an empty string, so offset is always out of range and the value
+        /// is also assumed to be a contiguous space with 0 bits.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        public bool GetBit(string key, int offset)
+        {
+            var ba = GetBitArray(key);
+            if (ba == null) return false;
+            return ba.Get(offset);
+        }
+
+        /// <summary>
+        /// Sets or clears the bit at offset in the BitArray stored at key.
+        /// The bit is either set or cleared depending on value, which can be either 0 or 1.
+        /// When key does not exist, a new BitArray is created. The BitArray is grown to make
+        /// sure it can hold a bit at offset. 
+        /// When the string at key is grown, added bits are set to 0.
+        /// </summary>
+        /// <returns>The original bit value stored at offset</returns>
+        [Command]
+        public bool SetBit(string key, int index, bool value)
+        {
+            var ba = GetBitArray(key, create: true);
+            if (index < 0) throw new CommandAbortedException("index must be > 0, was: " + index);
+            if (ba.Length <= index) ba.Length = index + 1;
+            bool originalValue = ba.Get(index);
+            ba.Set(index, value);
+            return originalValue;
+        }
+
+        /// <summary>
+        /// Perform a bitwise operation between multiple keys (containing BitSets) 
+        /// and store the result in the destination key.
+        /// </summary>
+        /// <param name="op"></param>
+        /// <param name="key"></param>
+        /// <param name="sourceKeys"></param>
+        /// <returns>The size of the string stored in the destination key, that is equal to the size of the longest input string.</returns>
+        [Command]
+        public int BitOp(BitOperator op, string key, params string[] sourceKeys)
+        {
+            var sources = sourceKeys.Select(k => GetBitArray(k)).Where(s => s != null).ToList();
+            var maxLength = sources.Max(s => s.Length);
+            sources.ForEach(s => s.Length = maxLength);
+
+            var result = new BitArray(sources[0]);
+
+            if (op == BitOperator.Not)
+            {
+                result = result.Not();
+            }
+            else foreach (var ba in sources.Skip(1))
+            {
+                switch (op)
+                {
+                    case BitOperator.And:
+                        result.And(ba);
+                        break;
+                    case BitOperator.Or:
+                        result.Or(ba);
+                        break;
+                    case BitOperator.Xor:
+                        result.Xor(ba);
+                        break;
+                }
+            }
+            _structures[key] = result;
+            return result.Length;
+        }
+
+        /// <summary>
+        /// Return the position of the first bit set to 1 or 0 in a BitArray.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="firstBit"></param>
+        /// <param name="lastBit"></param>
+        /// <returns></returns>
+        public int BitPos(string key, bool value, int firstBit = 0, int lastBit = Int32.MaxValue)
+        {
+            var ba = GetBitArray(key);
+            if (ba == null) return -1;
+            for (var i = firstBit; i < lastBit; i++)
+            {
+                if (i >= ba.Length) break;
+                if (ba.Get(i) == value) return i;
+            }
+            return -1;
         }
 
         /// <summary>
@@ -1511,40 +1614,45 @@ namespace OrigoDB.Core.Modeling.Redis
 
         private GeoSpatialIndex<String> GetGeoSpatialDictionary(string key, bool create = false)
         {
-            return As<GeoSpatialIndex<string>>(key, create);
+            return As<GeoSpatialIndex<string>>(key, create, () => new GeoSpatialIndex<string>());
         }
 
         private SortedSet<ZSetEntry> GetSortedSet(string key, bool create = false)
         {
-            return As<SortedSet<ZSetEntry>>(key, create);
+            return As<SortedSet<ZSetEntry>>(key, create, () => new SortedSet<ZSetEntry>());
         }
 
         private HashSet<string> GetSet(string key, bool create = false)
         {
-            return As<HashSet<string>>(key, create);
+            return As<HashSet<string>>(key, create, () => new HashSet<string>());
         }
 
         private List<String> GetList(string key, bool create = false)
         {
-            return As<List<String>>(key, create);
+            return As<List<String>>(key, create, () => new List<string>());
         }
 
         private Dictionary<string, string> GetHash(string key, bool create = false)
         {
-            return As<Dictionary<string, string>>(key, create);
+            return As<Dictionary<string, string>>(key, create, () => new Dictionary<string, string>());
         }
 
         private StringBuilder GetStringBuilder(string key, bool create = false)
         {
-            return As<StringBuilder>(key, create);
+            return As<StringBuilder>(key, create, () => new StringBuilder());
         }
 
-        private T As<T>(string key, bool create) where T : class, new()
+        private BitArray GetBitArray(string key, bool create = false)
+        {
+            return As(key, create, () => new BitArray(1024));
+        }
+
+        private T As<T>(string key, bool create, Func<T> constructor ) where T : class
         {
             var result = GetStructure<T>(key);
             if (result == null && create)
             {
-                _structures[key] = result = new T();
+                _structures[key] = result = constructor.Invoke();
             }
             return result;
         }

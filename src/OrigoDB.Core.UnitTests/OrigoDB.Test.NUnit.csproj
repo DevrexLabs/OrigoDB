@@ -82,6 +82,7 @@
     <Compile Include="MergersTest.cs" />
     <Compile Include="Models\MessageBrokerTests.cs" />
     <Compile Include="Models\RangeTests.cs" />
+    <Compile Include="Models\Redis\BitsetTests.cs" />
     <Compile Include="Models\Redis\ExpirationTests.cs" />
     <Compile Include="Models\Redis\KeyTests.cs" />
     <Compile Include="Models\Redis\RangeTests.cs" />

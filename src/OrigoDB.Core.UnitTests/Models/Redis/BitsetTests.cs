@@ -28,6 +28,28 @@ namespace Models.Redis.Tests
             Assert.AreEqual(true, current);
         }
 
+
+        [Test]
+        public void SetBitReturnsPreviousValue()
+        {
+            bool actual = _target.SetBit("a", 42, true);
+            Assert.AreEqual(false, actual, "should return false on initial call to set");
+
+            actual = _target.SetBit("a", 42, false);
+            Assert.AreEqual(true, actual, "expected true as set in the previous call");
+
+            actual = _target.SetBit("a", 42, true);
+            Assert.AreEqual(false, actual, "false returned when previously set ");
+        }
+
+        [Test]
+        public void GetWhenNotPreviouslySet()
+        {
+            var r = new Random(0);
+            var actual = _target.GetBit("a", r.Next());
+            Assert.AreEqual(false, actual);
+        }
+
         [Test]
         public void BitPos()
         {
@@ -61,7 +83,7 @@ namespace Models.Redis.Tests
                 if (r.NextDouble() > 0.5) sb.Append("1");
                 else sb.Append("0");
             }
-            return sb.ToString().TrimEnd('0');
+            return sb.ToString();
         }
 
         private void CreateBitString(string key, string bitString)
@@ -75,24 +97,25 @@ namespace Models.Redis.Tests
 
         private static readonly object[] ops =
         {
-            RedisModel.BitOperator.And, 
-            RedisModel.BitOperator.Or, 
-            RedisModel.BitOperator.Xor, 
-            RedisModel.BitOperator.Not
+            BitOperator.And, 
+            BitOperator.Or, 
+            BitOperator.Xor, 
+            BitOperator.Not
         };
 
         [Test, TestCaseSource("ops")]
-        public void BitwiseOperators(RedisModel.BitOperator op)
+        public void BitwiseOperators(BitOperator op)
         {
             var r = new Random(0);
-            var a = RandomBitString(r, 100);
-            var b = RandomBitString(r, 104);
+            var a = RandomBitString(r, 104); //BEWARE! length of a must be > length of b or NOT will incorrectly fail
+            var b = RandomBitString(r, 100);
             CreateBitString("a", a);
             Assert.True(Equals(a, "a"));
             CreateBitString("b", b);
             Assert.True(Equals(b,"b"));
             var result = DoBitOperation(op, a, b);
-            _target.BitOp(op, "c", "a", "b");
+            if (op != BitOperator.Not) _target.BitOp(op, "c", "a", "b");
+            else _target.BitOp(op, "c", "a");
 
             Console.WriteLine(op);
             Console.WriteLine(a);
@@ -100,6 +123,23 @@ namespace Models.Redis.Tests
             Console.WriteLine(result);
 
             Assert.True(Equals(result, "c"));
+
+        }
+
+
+        [Test]
+        public void BitCountRange()
+        {
+            const string key = "a";
+            String bs = "10101010101";
+            CreateBitString(key, bs);
+
+            Assert.AreEqual(6, _target.BitCount(key));
+            Assert.AreEqual(5, _target.BitCount(key,1));
+            Assert.AreEqual(4, _target.BitCount(key, 1, 9));
+
+            Assert.AreEqual(6, _target.BitCount(key, 0, -1));
+            Assert.AreEqual(5, _target.BitCount(key, 0, -3));
 
         }
 
@@ -135,7 +175,7 @@ namespace Models.Redis.Tests
             }
             return true;
         }
-        private string DoBitOperation(RedisModel.BitOperator op, string a, string b)
+        private string DoBitOperation(BitOperator op, string a, string b)
         {
             var regex = new Regex("^[01]+$");
             if (!regex.IsMatch(a) || !regex.IsMatch(b)) throw new ArgumentException("string must contain only zeros and ones");
@@ -144,21 +184,21 @@ namespace Models.Redis.Tests
             {
                 switch (op)
                 {
-                    case RedisModel.BitOperator.And:
+                    case BitOperator.And:
                         result.Append(BitAt(a, i) && BitAt(b, i) ? "1" : "0");
                         break;
-                    case RedisModel.BitOperator.Or:
+                    case BitOperator.Or:
                         result.Append(BitAt(a, i) || BitAt(b, i) ? "1" : "0");
                         break;
-                    case RedisModel.BitOperator.Xor:
+                    case BitOperator.Xor:
                         result.Append(BitAt(a, i) ^ BitAt(b, i) ? "1" : "0");
                         break;
-                    case RedisModel.BitOperator.Not:
+                    case BitOperator.Not:
                         result.Append(BitAt(a, i) ? "0" : "1");
                         break;
                 }
             }
-            return result.ToString().TrimEnd('0');
+            return result.ToString();
         }
 
         private bool BitAt(string bitString, int offset)

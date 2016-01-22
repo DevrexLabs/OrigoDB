@@ -28,14 +28,6 @@ namespace OrigoDB.Core.Modeling.Redis
             BitSet
         }
 
-        public enum BitOperator
-        {
-            And,
-            Or,
-            Xor,
-            Not
-        }
-
         public enum AggregateType
         {
             Sum,
@@ -240,28 +232,25 @@ namespace OrigoDB.Core.Modeling.Redis
 
 
         /// <summary>
-        /// Count the number of set bits (population counting) in a string. By default all the bytes contained
-        /// in the string are examined. It is possible to specify the counting operation only in an interval passing
-        /// the additional arguments start and end. Like for the GETRANGE command start and end can contain negative
+        /// Count the number of set bits (population counting) in a BitSet. Scans the entire BitSet or a given interval.
+        /// the additional arguments start and end. Like for the GETRANGE command firstBit and lastBit can contain negative
         /// values in order to index bytes starting from the end of the string, where -1 is the last byte, -2 is the
         /// penultimate, and so forth. Non-existent keys are treated as empty strings, so the command will return zero
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="startByte"></param>
-        /// <param name="endByte"></param>
+        /// <param name="firstBit"></param>
+        /// <param name="lastBit"></param>
         /// <returns>the number of bits set to 1</returns>
-        public int BitCount(string key, int startByte = 0, int endByte = Int32.MaxValue)
+        public int BitCount(string key, int firstBit = 0, int lastBit = Int32.MaxValue)
         {
-
+            
             int bits = 0;
             var ba = GetBitArray(key);
-
+            
             if (ba != null)
             {
-                if (startByte < 0) startByte = ba.Length + startByte;
-                if (endByte == int.MaxValue) endByte = ba.Length - 1;
-                if (endByte < 0) endByte = ba.Length + endByte;
-                for (int i = startByte * 8; i <= endByte * 8; i++)
+                var r = new Range(firstBit, lastBit, ba.Length);
+                for (int i = r.FirstIdx; i <= r.LastIdx; i++)
                 {
                     if (i >= ba.Length) break;
                     if (ba.Get(i)) bits++;
@@ -271,7 +260,7 @@ namespace OrigoDB.Core.Modeling.Redis
         }
 
         /// <summary>
-        /// Returns the bit value at offset in the string value stored at key.
+        /// Returns the bit value at offset in the BitArray stored at key.
         /// When offset is beyond the string length, the string is assumed to be
         /// a contiguous space with 0 bits. When key does not exist it is assumed
         /// to be an empty string, so offset is always out of range and the value
@@ -284,43 +273,64 @@ namespace OrigoDB.Core.Modeling.Redis
         {
             var ba = GetBitArray(key);
             if (ba == null) return false;
-            return ba.Get(offset);
+            return ba.Length > offset && ba.Get(offset);
         }
 
         /// <summary>
         /// Sets or clears the bit at offset in the BitArray stored at key.
-        /// The bit is either set or cleared depending on value, which can be either 0 or 1.
-        /// When key does not exist, a new BitArray is created. The BitArray is grown to make
-        /// sure it can hold a bit at offset. 
+        /// The bit is either set or cleared depending on value, default is 1.
+        /// When key does not exist, a new BitArray is created. If the value is 1 the BitArray
+        /// is grown to make sure it can hold a bit at index. 
         /// When the string at key is grown, added bits are set to 0.
         /// </summary>
         /// <returns>The original bit value stored at offset</returns>
         [Command]
-        public bool SetBit(string key, int index, bool value)
+        public bool SetBit(string key, int index, bool value = true)
         {
-            var ba = GetBitArray(key, create: true);
             if (index < 0) throw new CommandAbortedException("index must be > 0, was: " + index);
-            if (ba.Length <= index) ba.Length = index + 1;
-            bool originalValue = ba.Get(index);
+            bool current = GetBit(key, index);
+
+            
+            if (current == value) return current;
+            var ba = GetBitArray(key, create: true);
+
+            if (value && ba.Length <= index)
+            {
+                ba.Length = index + 1;
+            }
+            
             ba.Set(index, value);
-            return originalValue;
+            return current;
         }
 
         /// <summary>
         /// Perform a bitwise operation between multiple keys (containing BitSets) 
-        /// and store the result in the destination key.
+        /// and store the result in a new BitSet keyed by key.
+        /// The source sets will be resized to the size of the largest source set.
         /// </summary>
-        /// <param name="op"></param>
-        /// <param name="key"></param>
-        /// <param name="sourceKeys"></param>
-        /// <returns>The size of the string stored in the destination key, that is equal to the size of the longest input string.</returns>
+        /// <param name="op">The type of bitwise operation to perform</param>
+        /// <param name="key">Key of the resulting BitSet, an existing key will be replaced</param>
+        /// <param name="sourceKeys">All keys must be existing BitSets. At least 2 are required for OR,AND and XOR, exactly 1 for NOT</param>
+        /// <returns>The size of the resulting BitSet, equal to the size of the largest input BitSet.</returns>
         [Command]
         public int BitOp(BitOperator op, string key, params string[] sourceKeys)
         {
-            var sources = sourceKeys.Select(k => GetBitArray(k)).Where(s => s != null).ToList();
+            var sources = sourceKeys.Select(k => GetBitArray(k)).ToList();
+
+            if (sources.Any(s => s == null)) 
+                throw new CommandAbortedException("one or more source keys do not exist");
+            
+            if (op == BitOperator.Not && sources.Count != 1)
+                throw new CommandAbortedException("BitOperation.Not requires a single source");
+
+            if (op != BitOperator.Not && sources.Count < 2)
+                throw new CommandAbortedException("Bitoperation requires at least 2 source sets");
+
+            //assure all sources have same size
             var maxLength = sources.Max(s => s.Length);
             sources.ForEach(s => s.Length = maxLength);
 
+            //copy the first source
             var result = new BitArray(sources[0]);
 
             if (op == BitOperator.Not)
@@ -347,13 +357,15 @@ namespace OrigoDB.Core.Modeling.Redis
         }
 
         /// <summary>
-        /// Return the position of the first bit set to 1 or 0 in a BitArray.
+        /// Return the position of the first bit with a given value in a BitSet. 
+        /// Scans the entire BitSet or a given interval. 
+        /// NOTE the interval is based on bitindex and not byteindex as in the real REDIS.
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="key">A key referring to a BitSet</param>
         /// <param name="value"></param>
-        /// <param name="firstBit"></param>
-        /// <param name="lastBit"></param>
-        /// <returns></returns>
+        /// <param name="firstBit">Starting index</param>
+        /// <param name="lastBit">Last index</param>
+        /// <returns>The index of the value or -1 if no such value is present in the interval</returns>
         public int BitPos(string key, bool value, int firstBit = 0, int lastBit = Int32.MaxValue)
         {
             var ba = GetBitArray(key);
@@ -1644,7 +1656,7 @@ namespace OrigoDB.Core.Modeling.Redis
 
         private BitArray GetBitArray(string key, bool create = false)
         {
-            return As(key, create, () => new BitArray(1024));
+            return As(key, create, () => new BitArray(0));
         }
 
         private T As<T>(string key, bool create, Func<T> constructor ) where T : class

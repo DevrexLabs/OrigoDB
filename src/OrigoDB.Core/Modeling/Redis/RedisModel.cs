@@ -277,28 +277,22 @@ namespace OrigoDB.Core.Modeling.Redis
         }
 
         /// <summary>
-        /// Sets or clears the bit at offset in the BitArray stored at key.
+        /// Sets or clears a single bit in the BitArray stored at key.
         /// The bit is either set or cleared depending on value, default is 1.
-        /// When key does not exist, a new BitArray is created. If the value is 1 the BitArray
-        /// is grown to make sure it can hold a bit at index. 
-        /// When the string at key is grown, added bits are set to 0.
+        /// When key does not exist, a new BitArray is created. If necessary, the BitArray
+        /// is grown to make sure it can hold a bit at index. When the set grows, intermediate bits are set to 0
         /// </summary>
-        /// <returns>The original bit value stored at offset</returns>
+        /// <param name="key"></param>
+        /// <param name="index">zero-based index of the bit to set</param>
+        /// <param name="value">true=1, false=0</param>
+        /// <returns>The original bit value stored at index</returns>
         [Command]
         public bool SetBit(string key, int index, bool value = true)
         {
             if (index < 0) throw new CommandAbortedException("index must be > 0, was: " + index);
-            bool current = GetBit(key, index);
-
-            
-            if (current == value) return current;
             var ba = GetBitArray(key, create: true);
-
-            if (value && ba.Length <= index)
-            {
-                ba.Length = index + 1;
-            }
-            
+            if (ba.Length <= index) ba.Length = index + 1;
+            var current = ba.Get(index);
             ba.Set(index, value);
             return current;
         }
@@ -531,15 +525,18 @@ namespace OrigoDB.Core.Modeling.Redis
         }
 
         /// <summary>
-        /// Returns the length of the string value stored at key. An error is returned when key holds a non-string value
+        /// Returns the length of the string value or the length of the BitSet stored at key. 
+        /// An error is returned when key holds a non-string value
         /// </summary>
         /// <param name="key"></param>
         /// <returns>the length of the string at key, or 0 when key does not exist.</returns>
         public int StrLength(string key)
         {
-            var sb = GetStringBuilder(key);
-            if (sb == null) return 0;
-            return sb.Length;
+            var t = Type(key);
+            if (t == KeyType.String) return GetStringBuilder(key).Length;
+            if (t == KeyType.BitSet) return GetBitArray(key).Length;
+            if (t == KeyType.None) return 0;
+            throw new CommandAbortedException("Key is neither String or BitSet");
         }
 
         /// <summary>

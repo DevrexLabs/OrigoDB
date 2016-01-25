@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using OrigoDB.Core.Types;
 
 namespace Models.Redis.Tests
 {
@@ -38,6 +39,13 @@ namespace Models.Redis.Tests
             _target.Set("name", "ringnes");
             int actual = _target.Delete("number", "name");
             Assert.AreEqual(2, actual);
+        }
+
+        [Test]
+        public void Random_Key_Null_when_no_keys_exists()
+        {
+            var actual = _target.RandomKey();
+            Assert.Null(actual);
         }
     }
 }

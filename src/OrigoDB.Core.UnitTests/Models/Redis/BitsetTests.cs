@@ -1,4 +1,7 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
@@ -10,19 +13,20 @@ namespace Models.Redis.Tests
     public class BitsetTests : RedisTestBase
     {
 
-        private readonly object[] setAndGetData =
+        private IEnumerable<int> RandomInts(int seed, int n, int upperBound)
         {
-            0,
-            5,
-            7
+            var r = new Random(seed);
+            for (int i = 0; i < n; i++)
+            {
+                yield return r.Next(upperBound);
+            }
+        }
 
-        };
-
-        [Test, TestCaseSource("setAndGetData")]
-        public void SetAndGet(int offset)
+        [Test]
+        public void SetAndGet()
         {
             const string key = "a";
-            bool original = _target.SetBit(key, 0, true);
+            bool original = _target.SetBit(key, 0);
             Assert.AreEqual(false, original);
             bool current = _target.GetBit(key, 0);
             Assert.AreEqual(true, current);
@@ -53,26 +57,31 @@ namespace Models.Redis.Tests
         [Test]
         public void BitPos()
         {
-            const string key = "a";
-            int[] indices = {4,7,12,15,16,20,23,200};
-            foreach (var index in indices)
+            var seed = Environment.TickCount;
+            var r = new Random(seed);
+            for (int i = 0; i < 20; i++)
             {
-                _target.SetBit(key, index, true);
+                var randomBitString = RandomBitString(r, 50);
+                foreach (var pos in RandomInts(seed, 20, 45))
+                {
+                    var expected = BitPosImpl(randomBitString, true, pos);
+                    CreateBitString("a", randomBitString);
+                    var actual = _target.BitPos("a", true, pos);
+                    Assert.AreEqual(expected, actual, "failed for bitstring " + randomBitString + ", seed " + seed);
+                }
             }
 
+        }
 
-            foreach (var index in indices)
-            {
-                int actual = _target.BitPos(key, true, index);
-                Assert.AreEqual(index, actual);
-            }
-
-            foreach (var index in indices)
-            {
-                int actual = _target.BitPos(key, true);
-                Assert.AreEqual(index, actual);
-                _target.SetBit(key, index, false);
-            }
+        private int BitPosImpl(string bitString, bool value, int startIndex = 0)
+        {
+            return bitString
+                .ToCharArray()
+                .Skip(startIndex)
+                .Select((c, i) => Tuple.Create(c == '1', i + startIndex))
+                .Where(t => t.Item1 == value).DefaultIfEmpty(Tuple.Create(value, -1))
+                .Select(t => t.Item2)
+                .First();
         }
 
         private string RandomBitString(Random r, int length)
@@ -93,9 +102,13 @@ namespace Models.Redis.Tests
             {
                 if (BitAt(bitString, i)) _target.SetBit(key, i, true);
             }
+
+            //set last bit if 0, forcing correct length
+            var last = bitString.Length - 1;
+            if (!BitAt(bitString, last)) _target.SetBit(key, last, false);
         }
 
-        private static readonly object[] ops =
+        private static readonly object[] Ops =
         {
             BitOperator.And, 
             BitOperator.Or, 
@@ -103,11 +116,12 @@ namespace Models.Redis.Tests
             BitOperator.Not
         };
 
-        [Test, TestCaseSource("ops")]
+        [Test, TestCaseSource("Ops")]
         public void BitwiseOperators(BitOperator op)
         {
-            var r = new Random(0);
-            var a = RandomBitString(r, 104); //BEWARE! length of a must be > length of b or NOT will incorrectly fail
+            var seed = new Random().Next();
+            var r = new Random(seed);
+            var a = RandomBitString(r, 104);
             var b = RandomBitString(r, 100);
             CreateBitString("a", a);
             Assert.True(Equals(a, "a"));
@@ -122,7 +136,7 @@ namespace Models.Redis.Tests
             Console.WriteLine(b);
             Console.WriteLine(result);
 
-            Assert.True(Equals(result, "c"));
+            Assert.True(Equals(result, "c"), "failed with seed " + seed);
 
         }
 
@@ -159,6 +173,26 @@ namespace Models.Redis.Tests
             }
             int actual = _target.BitCount(key);
             Assert.AreEqual(numBitsSet, actual);
+        }
+
+        [Test]
+        public void Length()
+        {
+            const string key = "a";
+            const int limit = 100000;
+
+            //seed is random but included in output if test fails
+            var seed = new Random().Next();
+            var r = new Random(seed);
+            int max = 0;
+            for (int i = 0; i < 1000; i++)
+            {
+                int index = r.Next(limit);
+                max = Math.Max(index, max);
+                _target.SetBit(key, index);
+                var actual = _target.StrLength(key);
+                Assert.AreEqual(max + 1, actual, "failed at iteration " + i + "using seed " + seed);
+            }
         }
 
         /// <summary>

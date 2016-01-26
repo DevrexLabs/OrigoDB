@@ -17,33 +17,45 @@ Derive from one of the following abstract generic command classes:
 
 Override the abstract `Execute` method and optionally the virtual `Prepare` method. Use `Prepare` for validation or cpu intensive preparation without blocking readers.
 
-## Repeatable and side-effect free
+## Deterministic and side-effect free
 Commands are executed once when first submitted and once again for each time the model is restored from the journal.
-The commands must produce the exact same change on each invocation. The safest way to achieve this is to only take input
-from the current state of the model and the commands fields and properties. Using external input like `Random` objects,
-calling date or time functions, reading file system, queues, databases etc are all bad.
+A command must produce the exact same change to the model on each invocation. To guarantee consistent state during replay, only depend on the current state of the model and the command itself (fields). Input from external sources may yield different result during replay.  Using `new Random()`, calling `DateTime.Now`, reading file system, external queues, databases etc are examples of what not to do.
 
-For the same reason you should not perform any actions other than writing to the model. Sending messages, writing to queues, database, file or sending confirmation emails are all examples of what not to do. Put this type of behavior in an above layer or as a response to the `Engine.CommandExecuted` event, which is never fired during replay.
+Do not perform any external action within a command or the external action will be repeated during replay. Examples of external actions are sending messages, writing to queues, database, file or socket. Instead, perform the external action after the command has executed or as a response to the `Engine.CommandExecuted` event (or a specific Domain Event), of which neither fire during replay.
 
 Commands are written to the journal before execution. So don't modify the command itself during Prepare/Execute expecting the changes to be persisted, they will be lost.
 
-## Don't use DateTime.Now and friends
-Often you want to use the current time, for example setting an order date or invoice date.
-Calling DateTime.Now from the command will fail because it is not repeatable. The normal procedure is to set a field/property on the command during creation. The field will be recorded in the journal and reused during restore.
 
-For convenience, commands have a Timestamp property. The timestamp is set by the engine just before execution
-and the exact same value is used during replay. Read the timestamp during Prepare or Execute instead of DateTime.Now.
-This saves a bit of coding and a few bytes in the journal. Calling Timestamp multiple times during execution will yield
-the exact same value.
+## Dealing with DateTime.Now
+Calling `DateTime.Now` from the command will fail because it is not deterministic. It will return a different value during replay. One solution is to set a field/property on the command when it is created. The field will be recorded in the journal and reused during restore. Example:
 
+```csharp
+[Serializable]
+public class MarkOrderDelivered : Command<OrdersModel>
+{
+  public readonly int OrderId;
+  public readonly DateTime Delivered;
+
+  public MarkOrderDelivered(int orderId, DateTime delivered)
+  {
+    OrderId = orderId;
+    Delivered = delivered;
+  }
+
+  public override void Execute(OrdersModel model) {
+    var order = model.FindOrder(OrderId);
+    if (order == null) Abort("No such order");
+    order.SetDelivered(Delivered);
+  }
+}
+```
 
 ## Multi command transactions
 If you need to execute several commands as a single transaction, define a new command class,
 perhaps using the composite pattern, and add the multiple commands as children. Execute the child commands from the parent.
 
-
 ## Performance
-Keep execution time as short as possible. Do as much processing as possible before passing the command. Consider performing any lengthy setup that depends on data from the model in the `Prepare` method.
+Keep execution time as short as possible. Do as much processing as possible before passing the command. Consider performing any lengthy setup that depends on data from the model in the `Prepare` method as this uses a read lock thus doesn't block other readers.
 
 ## Exceptions and Aborting
 The engine will consider the model corrupt for any exception thrown during `Execute` except `CommandAbortedException`
@@ -53,7 +65,7 @@ Call `Command.Abort()` to abandon a command. The engine will assume the model un
 
 ## Example
 
-{% highlight csharp %}
+```csharp
 //Command with result
 [Serializable]
 public class AddTaskCommand : Command<TodoModel, int>
@@ -71,4 +83,4 @@ public class AddTaskCommand : Command<TodoModel, int>
     return taskId;
   }
 }
-{% endhighlight %}
+```

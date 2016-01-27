@@ -69,9 +69,13 @@
     <Compile Include="Configuration\StorageType.cs" />
     <Compile Include="ExecutionContext.cs" />
     <Compile Include="IsolationAttribute.cs" />
+    <Compile Include="Modeling\Relational\Batch.cs" />
+    <Compile Include="Modeling\Relational\Entity.cs" />
     <Compile Include="Modeling\Geo\ArcDistance.cs" />
     <Compile Include="Modeling\Geo\GeoSpatialIndex.cs" />
     <Compile Include="Modeling\Geo\GeoPoint.cs" />
+    <Compile Include="Modeling\Relational\EntityKey.cs" />
+    <Compile Include="Modeling\Relational\IEntity.cs" />
     <Compile Include="Modeling\Messaging\BinaryMessage.cs" />
     <Compile Include="Modeling\Messaging\BrokerStatus.cs" />
     <Compile Include="Modeling\Messaging\DequeueCommand.cs" />
@@ -120,6 +124,7 @@
     <Compile Include="Modeling\Redis\RedisModel.cs" />
     <Compile Include="Modeling\Redis\ZSetEntry.cs" />
     <Compile Include="IsolationLevel.cs" />
+    <Compile Include="Modeling\Relational\RelationalModel.cs" />
     <Compile Include="Proxying\CommandInfo.cs" />
     <Compile Include="Proxying\NotAllowedAttribute.cs" />
     <Compile Include="Proxying\NotAllowedOperation.cs" />

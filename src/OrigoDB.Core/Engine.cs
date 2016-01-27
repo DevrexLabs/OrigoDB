@@ -161,7 +161,7 @@ namespace OrigoDB.Core
 
             lock (_commandSequenceLock)
             {
-                var ctx = ExecutionContext.Begin();
+                var ctx = Execution.Begin();
                 bool exceptionThrown = false;
                 _executionTimer.Restart();
                 _config.Isolation.Commands.Apply(ref command);
@@ -191,10 +191,10 @@ namespace OrigoDB.Core
                     if (!exceptionThrown)
                     {
                         
-                        var args = new CommandExecutedEventArgs(lastEntryId, command, ctx.Timestamp, _executionTimer.Elapsed, ctx.Events);
+                        var args = new CommandExecutedEventArgs(lastEntryId, command, ctx.Now, _executionTimer.Elapsed, ctx.Events);
                         CommandExecuted.Invoke(this, args);
                     }
-                    ExecutionContext.Current = null;
+                    Execution.Current = null;
                 }
             }
         }

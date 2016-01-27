@@ -73,7 +73,7 @@ namespace OrigoDB.Core.Test
         public void RollbackMarkerIsWrittenOnRollback()
         {
             //Arrange
-            ExecutionContext.Begin();
+            Execution.Begin();
             var config = new EngineConfiguration().ForIsolatedTest();
             var store = new InMemoryCommandStore(config);
             store.Initialize();

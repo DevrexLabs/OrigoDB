@@ -1668,8 +1668,8 @@ namespace OrigoDB.Core.Modeling.Redis
 
         public string[] GetExpiredKeys()
         {
-            var ctx = ExecutionContext.Current;
-            var timeStamp = ctx != null ? ctx.Timestamp : DateTime.Now;
+            var ctx = Execution.Current;
+            var timeStamp = ctx != null ? ctx.Now : DateTime.Now;
             return _expirations.TakeWhile(ex => timeStamp > ex.Expires)
                 .Select(ex => ex.Key)
                 .ToArray();

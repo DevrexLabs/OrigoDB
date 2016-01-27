@@ -36,7 +36,7 @@ namespace OrigoDB.Core.Test
             {
                 for (int i = 0; i < _count; i++)
                 {
-                    ExecutionContext.Current.AddEvent(_event);
+                    Execution.Current.Events.Add(_event);
                 }
             }
         }

@@ -67,7 +67,7 @@
     <Compile Include="Configuration\NeverCloneStrategy.cs" />
     <Compile Include="Configuration\SqlSettings.cs" />
     <Compile Include="Configuration\StorageType.cs" />
-    <Compile Include="ExecutionContext.cs" />
+    <Compile Include="Execution.cs" />
     <Compile Include="IsolationAttribute.cs" />
     <Compile Include="Modeling\Relational\Batch.cs" />
     <Compile Include="Modeling\Relational\Entity.cs" />

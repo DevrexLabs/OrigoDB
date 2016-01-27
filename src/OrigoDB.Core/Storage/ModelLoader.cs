@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using OrigoDB.Core.Journaling;
 
@@ -45,17 +47,18 @@ namespace OrigoDB.Core.Storage
                 model = (Model)Activator.CreateInstance(modelType);
             }
 
-            ExecutionContext.Begin();
-            ExecutionContext.Current.IgnoreEvents = true;
+            
+            var ctx = Execution.Begin();
             //Replay commands
             foreach (var commandEntry in _commandStore.CommandEntriesFrom(model.Revision + 1))
             {
-                ExecutionContext.Current.Timestamp = commandEntry.Created;
+                ctx.Now = commandEntry.Created;
                 commandEntry.Item.Redo(ref model);
+                ctx.Events.Clear();
                 model.Revision++;
             }
             model.JournalRestored();
             return model;
-        }        
+        }
     }
 }

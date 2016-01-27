@@ -19,7 +19,7 @@ namespace OrigoDB.Core.Modeling.Messaging
         public readonly String Subject;
 
         /// <summary>
-        /// Timestamp when message was created
+        /// Now when message was created
         /// </summary>
         public readonly DateTime Created;
 

@@ -24,7 +24,7 @@ namespace OrigoDB.Core.Test
 
             public override void Execute(TestModel model)
             {
-                var ts = ExecutionContext.Current.Timestamp;
+                var ts = Execution.Current.Now;
                 model.SetTime(ts);
             }
         }
@@ -43,7 +43,7 @@ namespace OrigoDB.Core.Test
                 });
 
             var before = DateTime.Now;
-            ExecutionContext.Begin();
+            Execution.Begin();
             var command = new SetTimeCommand();
             var target = new JournalAppender(0, fake);
             var after = DateTime.Now;

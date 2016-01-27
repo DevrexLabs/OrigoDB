@@ -30,7 +30,7 @@ namespace OrigoDB.Core
         /// <returns>The id of the entry appended</returns>
         public ulong Append(Command item)
         {
-            var ts = ExecutionContext.Current.Timestamp;
+            var ts = Execution.Current.Now;
             var entry = new JournalEntry<Command>(_nextEntryId, item, ts);
             _writer.Write(entry);
             return _nextEntryId++;

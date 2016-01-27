@@ -6,9 +6,9 @@ title: Domain Events
 
 OrigoDB domain events are an effort to support event driven, reactive designs. Capture domain events to trigger additional external behavior like sending emails, updating read models, sending messages, relaying through web sockets, etc.
 
-Publish events by calling `ExecutionContext.Current.AddEvent(IEvent @event)`.
+Publish events by adding to the List `Execution.Current.Events`.
 
-Zero or more events are produced during command execution. The events are captured by the `Engine` and available as an `Engine.CommandExecuted EventArgs` property.
+Zero or more events are produced during command execution. The events are collected by the `Engine` and included in the `EventArgs` when the `Engine.CommandExecuted` event fires. If a command fails or is aborted, no events are published.
 
 
 ## Modeling domain events
@@ -36,7 +36,7 @@ public class CustomerAdded : IEvent
 ```
 
 ## Producing events
-Emit events by calling AddEvent on the current execution context. All events emitted will be accumulated and pu
+Emit events by adding them to the current execution context.
 
 ```csharp
 [Serializable]
@@ -49,8 +49,8 @@ public class CreateCustomerCommand : Command<MyModel>
    {
       var customer = new Customer(Id, Name);
       db.Customers.Add(customer);
-      var ctx = ExecutionContext.Current;
-      ctx.AddEvent(new CustomerCreated(Id));
+      var ctx = Execution.Current;
+      ctx.Events.Add(new CustomerCreated(Id));
    }
 }
 ```

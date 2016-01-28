@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace OrigoDB.Core.Test
 {
@@ -27,6 +28,11 @@ namespace OrigoDB.Core.Test
                 CommandsExecuted++;
                 _customers[customerId] = value;
             }
+        }
+
+        public int ThrowCommandAborted()
+        {
+            throw new CommandAbortedException();
         }
 
         public int CommandsExecuted { get; set; }

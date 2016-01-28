@@ -148,5 +148,11 @@ namespace OrigoDB.Core.Test
             Assert.IsInstanceOf<DateTime>(dt);
             Assert.AreEqual(default(DateTime), dt);
         }
+
+        [Test, ExpectedException(typeof(CommandAbortedException))]
+        public void Proxy_throws_InnerException()
+        {
+            _proxy.ThrowCommandAborted();
+        }
     }
 }

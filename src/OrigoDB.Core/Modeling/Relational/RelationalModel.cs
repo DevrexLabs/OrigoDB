@@ -8,15 +8,52 @@ namespace OrigoDB.Core.Modeling.Relational
     public class RelationalModel : Model
     {
         //This is where all the entities are stored
-        private readonly Dictionary<Type, Entities> _entitySets = new Dictionary<Type, Entities>();
+        private readonly Dictionary<Type, EntitySet> _entitySets = new Dictionary<Type, EntitySet>();
 
         [Serializable]
-        class Entities : SortedDictionary<Guid, IEntity> { }
+        class EntitySet : SortedDictionary<Guid, IEntity> { }
 
 
-        public void Create<T>() where T : IEntity
+        [NoProxy]
+        public IQueryable<T> From<T>() where T : IEntity
         {
-            _entitySets.Add(typeof(T), new Entities());
+            return Of(typeof(T)).Values.Cast<T>().AsQueryable();
+        }
+
+        /// <summary>
+        /// Lookup an entity by Type and Id, the type must exist or an exception will be thrown
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="id"></param>
+        /// <returns>true if the entity </returns>
+        public T TryGetById<T>(Guid id) where T : IEntity
+        {
+            IEntity untyped;
+            Of(typeof(T)).TryGetValue(id, out untyped);
+            return  (T) untyped;
+        }
+
+        /// <summary>
+        /// True if the EntitySet with type T exists
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public bool Exists<T>() where T : IEntity
+        {
+            return _entitySets.ContainsKey(typeof (T));
+        }
+
+        /// <summary>
+        /// Create EntitySet unless it already exists
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>true if entityset was created</returns>
+        [Command]
+        public bool Create<T>() where T : IEntity
+        {
+            bool shouldCreate = ! Exists<T>();
+            if (shouldCreate) _entitySets.Add(typeof(T), new EntitySet());
+            return shouldCreate;
         }
 
         /// <summary>
@@ -77,7 +114,7 @@ namespace OrigoDB.Core.Modeling.Relational
 
         private bool CanInsert(IEntity entity)
         {
-            var set = ByType(entity.GetType()); 
+            var set = Of(entity.GetType()); 
             return ! set.ContainsKey(entity.Id);
         }
 
@@ -91,7 +128,6 @@ namespace OrigoDB.Core.Modeling.Relational
             return CanInsert(entity) || CanUpdate(entity);
         }
 
-
         private bool CanUpdate(IEnumerable<IEntity> entities)
         {
             return entities.All(CanUpdate);
@@ -99,7 +135,7 @@ namespace OrigoDB.Core.Modeling.Relational
 
         private bool CanUpdate(IEntity entity)
         {
-            var set = ByType(entity.GetType());
+            var set = Of(entity.GetType());
             IEntity target;
             return set.TryGetValue(entity.Id, out target) && target.Version == entity.Version;
         }
@@ -108,7 +144,7 @@ namespace OrigoDB.Core.Modeling.Relational
         {
             foreach (var entity in entities)
             {
-                var set = ByType(entity.GetType());
+                var set = Of(entity.GetType());
                 set[entity.Id] = entity;
                 entity.Version++;
             }
@@ -121,7 +157,7 @@ namespace OrigoDB.Core.Modeling.Relational
         {
             foreach (var entity in entities)
             {
-                var set = ByType(entity.GetType());
+                var set = Of(entity.GetType());
                 if (!set.ContainsKey(entity.Id) || set[entity.Id].Version != entity.Version) return false;
             }
             return true;
@@ -131,7 +167,7 @@ namespace OrigoDB.Core.Modeling.Relational
         {
             foreach (var entity in entities)
             {
-                var set = ByType(entity.GetType());
+                var set = Of(entity.GetType());
                 set.Remove(entity.Id);
             }
         }
@@ -143,11 +179,12 @@ namespace OrigoDB.Core.Modeling.Relational
             CanUpdate(batch.Updates);
         }
 
-        private Entities ByType(Type entityType)
+        private EntitySet Of(Type type, EntitySet @default = null)
         {
-            Entities result;
-            _entitySets.TryGetValue(entityType, out result);
-            if (result == null) throw new CommandAbortedException("No such entity type: " + entityType.FullName);
+            EntitySet result;
+            _entitySets.TryGetValue(type, out result);
+            result = result ?? @default;
+            if (result == null) throw new CommandAbortedException("No such entity type: " + type.FullName);
             return result;
         }
     }

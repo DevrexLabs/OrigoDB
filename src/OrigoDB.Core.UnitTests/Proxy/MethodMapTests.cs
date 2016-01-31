@@ -11,6 +11,17 @@ namespace OrigoDB.Core.Test
         public class TestModel : Model
         {
 
+            internal void InternalMethod() { }
+
+            internal int InternalQuery()
+            {
+                return 12;
+            }
+
+            private void PrivateMethod()
+            {
+            }
+
             public void ImplicitCommand(){}
             
             [Command]
@@ -109,5 +120,17 @@ namespace OrigoDB.Core.Test
             Assert.IsFalse(target.OperationAttribute.Isolation.HasFlag(IsolationLevel.Output));
         }
 
+        [Test]
+        public void Implicit_internal_command_is_mapped()
+        {
+            //will throw unless exists
+            _map.GetOperationInfo("InternalMethod");
+        }
+
+        [Test]
+        public void Implicit_internal_query_is_mapped()
+        {
+            _map.GetOperationInfo("InternalQuery");
+        }
     }
 }

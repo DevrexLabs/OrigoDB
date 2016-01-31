@@ -39,7 +39,7 @@ var reminders = modelProxy.GetRemindersDue();
 ## What get's proxied?
 The proxy has the same type as the model, but not all members are supported. The following rules apply:
 
-* Public methods only
+* All non-private methods are proxied
 * ref/out args are not supported
 * Properties and indexers (because they are compiled to methods)
 * Generic methods

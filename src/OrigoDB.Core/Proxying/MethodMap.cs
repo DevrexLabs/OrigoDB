@@ -39,9 +39,9 @@ namespace OrigoDB.Core.Proxying
         internal static MethodMap<T> Create(Type modelType)
         {
             var methodMap = new Dictionary<string, OperationInfo<T>>();
-            foreach (var methodInfo in modelType.GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            foreach (var methodInfo in modelType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic))
             {
-                //Validate(methodInfo);
+                if (methodInfo.IsPrivate) continue;
 
                 var operationAttribute = GetOperationAttribute(methodInfo);
                 var methodName = methodInfo.Name;

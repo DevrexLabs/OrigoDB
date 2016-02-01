@@ -17,7 +17,7 @@ namespace OrigoDB.Core.Modeling.Relational
         [NoProxy]
         public IQueryable<T> From<T>() where T : IEntity
         {
-            return Of(typeof(T)).Values.Cast<T>().AsQueryable();
+            return For(typeof(T)).Values.Cast<T>().AsQueryable();
         }
 
         /// <summary>
@@ -25,11 +25,11 @@ namespace OrigoDB.Core.Modeling.Relational
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="id"></param>
-        /// <returns>true if the entity </returns>
+        /// <returns>the entity or null if not found</returns>
         public T TryGetById<T>(Guid id) where T : IEntity
         {
             IEntity untyped;
-            Of(typeof(T)).TryGetValue(id, out untyped);
+            For(typeof(T)).TryGetValue(id, out untyped);
             return  (T) untyped;
         }
 
@@ -60,28 +60,26 @@ namespace OrigoDB.Core.Modeling.Relational
         /// Insert one or more entities
         /// </summary>
         /// <param name="entities"></param>
-        public void Insert(params IEntity[] entities)
+        internal void _Insert(params IEntity[] entities)
         {
-            if (CanInsert(entities)) DoUpsert(entities);
+            Conflicts conflicts = new Conflicts();
+            if (!CanInsert(entities, conflicts)) 
+                throw new OptimisticConcurrencyException(conflicts);
+            DoUpsert(entities);
         }
 
         /// <summary>
         /// Update one or more existing entities by replacing if id, type and version match exactly.
         /// </summary>
         /// <param name="entities"></param>
-        public void Update(params IEntity[] entities)
+        internal void _Update(params IEntity[] entities)
         {
-            if (CanUpdate(entities)) DoUpsert(entities);
+            Conflicts conflicts = new Conflicts();
+            if (!CanUpdate(entities, conflicts))
+                throw new OptimisticConcurrencyException(conflicts);
+            DoUpsert(entities);
         }
 
-        /// <summary>
-        /// insert or update one or more entities as a single ACID transaction
-        /// </summary>
-        /// <param name="entities"></param>
-        public void Upsert(params IEntity[] entities)
-        {
-            if (CanUpsert(entities)) DoUpsert(entities);
-        }
 
         /// <summary>
         /// Delete one or more entities as a single ACID transaction
@@ -89,62 +87,65 @@ namespace OrigoDB.Core.Modeling.Relational
         /// <param name="entities"></param>
         public void Delete(params IEntity[] entities)
         {
-            if (CanDelete(entities)) DoDelete(entities);
+            Conflicts conflicts = new Conflicts();
+            if (!CanDelete(entities, conflicts))
+                throw new OptimisticConcurrencyException(conflicts);
+            DoDelete(entities);
         }
 
         /// <summary>
         /// Execute multiple inserts, updates, deletes as a single ACID transaction
         /// </summary>
         /// <param name="batch"></param>
-        public void Execute(Batch batch)
+        public void DoExecute(Batch batch)
         {
-            if (!CanExecute(batch)) throw new CommandAbortedException("Invalid batch");
+            var missingTypes = batch.Types().Except(_entitySets.Keys).ToArray();
+            if (missingTypes.Any()) throw new MissingTypesException(missingTypes);
+            Conflicts conflicts = new Conflicts();
+            if (!CanExecute(batch, conflicts))
+                throw new OptimisticConcurrencyException(conflicts);
             DoUpsert(batch.Updates);
             DoUpsert(batch.Inserts);
             DoDelete(batch.Deletes);
         }
 
         /// <summary>
-        /// true as long as none of the ids exists
+        /// Throw an exception if any of the keys exist
         /// </summary>
-        private bool CanInsert(IEnumerable<IEntity> entities)
+        private bool CanInsert(IEnumerable<IEntity> entities, Conflicts conflicts = null)
         {
-            return entities.All(CanInsert);
+            conflicts = conflicts ?? new Conflicts();
+            int numConflicts = conflicts.Inserts.Count;
+            foreach(var entity in entities)
+            {
+                var set = For(entity);
+                IEntity existing;
+                if (set.TryGetValue(entity.Id, out existing)) 
+                    conflicts.Inserts.Add(new EntityKey(existing));
+            }
+            return numConflicts == conflicts.Inserts.Count;
         }
 
-        private bool CanInsert(IEntity entity)
+ 
+        private bool CanUpdate(IEnumerable<IEntity> entities, Conflicts conflicts = null)
         {
-            var set = Of(entity.GetType()); 
-            return ! set.ContainsKey(entity.Id);
-        }
+            conflicts = conflicts ?? new Conflicts();
+            int numConflicts = conflicts.Updates.Count;
+            foreach (var entity in entities)
+            {
+                var set = For(entity);
+                if (!set.ContainsKey(entity.Id)) conflicts.Updates.Add(new EntityKey(entity){Version=0});
+                else if (set[entity.Id].Version != entity.Version) conflicts.Updates.Add(new EntityKey(set[entity.Id]));
+            }
+            return numConflicts == conflicts.Updates.Count;
 
-        private bool CanUpsert(IEntity[] entities)
-        {
-            return entities.All(CanUpsert);
-        }
-
-        private bool CanUpsert(IEntity entity)
-        {
-            return CanInsert(entity) || CanUpdate(entity);
-        }
-
-        private bool CanUpdate(IEnumerable<IEntity> entities)
-        {
-            return entities.All(CanUpdate);
-        }
-
-        private bool CanUpdate(IEntity entity)
-        {
-            var set = Of(entity.GetType());
-            IEntity target;
-            return set.TryGetValue(entity.Id, out target) && target.Version == entity.Version;
         }
 
         private void DoUpsert(IEnumerable<IEntity> entities)
         {
             foreach (var entity in entities)
             {
-                var set = Of(entity.GetType());
+                var set = For(entity);
                 set[entity.Id] = entity;
                 entity.Version++;
             }
@@ -153,39 +154,58 @@ namespace OrigoDB.Core.Modeling.Relational
         /// <summary>
         /// True if every entity exists and has a matching version
         /// </summary>
-        private bool CanDelete(IEnumerable<IEntity> entities)
+        private bool CanDelete(IEnumerable<IEntity> entities, Conflicts conflicts = null)
         {
+            conflicts = conflicts ?? new Conflicts();
+            int numConflicts = conflicts.Deletes.Count;
+
             foreach (var entity in entities)
             {
-                var set = Of(entity.GetType());
-                if (!set.ContainsKey(entity.Id) || set[entity.Id].Version != entity.Version) return false;
+                var set = For(entity);
+                IEntity existing;
+                if (!set.TryGetValue(entity.Id, out existing))
+                {
+                    conflicts.Deletes.Add(new EntityKey(entity) {Version = 0});
+                }
+                else if (existing.Version != entity.Version)
+                {
+                    conflicts.Deletes.Add(new EntityKey(existing));
+                }
             }
-            return true;
+            return numConflicts == conflicts.Deletes.Count;
         }
 
         private void DoDelete(IEnumerable<IEntity> entities)
         {
             foreach (var entity in entities)
             {
-                var set = Of(entity.GetType());
+                var set = For(entity);
                 set.Remove(entity.Id);
             }
         }
 
-        private bool CanExecute(Batch batch)
+        private bool CanExecute(Batch batch, Conflicts conflicts)
         {
-            return CanDelete(batch.Deletes) &&
-            CanInsert(batch.Inserts) &&
-            CanUpdate(batch.Updates);
+            return CanDelete(batch.Deletes, conflicts) &&
+            CanInsert(batch.Inserts, conflicts) &&
+            CanUpdate(batch.Updates, conflicts);
         }
 
-        private EntitySet Of(Type type, EntitySet @default = null)
+        private EntitySet For(Type type, EntitySet @default = null)
         {
             EntitySet result;
             _entitySets.TryGetValue(type, out result);
             result = result ?? @default;
             if (result == null) throw new CommandAbortedException("No such entity type: " + type.FullName);
-            return result;
+            return result;            
+        }
+
+        private EntitySet For(IEntity entity, EntitySet @default = null)
+        {
+            var type = entity is EntityKey
+                ? ((EntityKey)entity).Type
+                : entity.GetType();
+            return For(type, @default);
         }
     }
 }

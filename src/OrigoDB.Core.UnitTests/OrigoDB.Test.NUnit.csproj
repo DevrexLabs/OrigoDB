@@ -89,7 +89,12 @@
     <Compile Include="Models\Redis\RedisTestBase.cs" />
     <Compile Include="Models\Redis\SortedSetTests.cs" />
     <Compile Include="Models\Redis\StringTests.cs" />
-    <Compile Include="Models\RelationalTests.cs" />
+    <Compile Include="Models\Relational\Address.cs" />
+    <Compile Include="Models\Relational\Customer.cs" />
+    <Compile Include="Models\Relational\CustomersQuery.cs" />
+    <Compile Include="Models\Relational\RelationalBatchTests.cs" />
+    <Compile Include="Models\Relational\RelationalTestBase.cs" />
+    <Compile Include="Models\Relational\RelationalTests.cs" />
     <Compile Include="ModelTests.cs" />
     <Compile Include="PacketTest.cs" />
     <Compile Include="PersistenceModeTests.cs" />

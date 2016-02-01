@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OrigoDB.Core.Modeling.Relational
 {
@@ -17,18 +18,31 @@ namespace OrigoDB.Core.Modeling.Relational
         [NonSerialized]
         private readonly ISet<Guid> _unique = new HashSet<Guid>(); 
 
+        /// <summary>
+        /// Add an entity to be inserted.
+        /// </summary>
+        /// <param name="entity"></param>
         public void Insert(IEntity entity)
         {
             EnsureUnique(entity);
             Inserts.Add(entity);
         }
 
+        /// <summary>
+        /// Add an entity to replace the entity with the same type, key and version
+        /// </summary>
+        /// <param name="entity"></param>
         public void Update(IEntity entity)
         {
             EnsureUnique(entity);
             Updates.Add(entity);
         }
 
+        /// <summary>
+        /// Add an entity or (EntityKey) to be deleted when the batch is executed. 
+        /// Entity must exist and have a matching version
+        /// </summary>
+        /// <param name="entity"></param>
         public void Delete(IEntity entity)
         {
             EnsureUnique(entity);
@@ -39,8 +53,17 @@ namespace OrigoDB.Core.Modeling.Relational
         private void EnsureUnique(IEntity entity)
         {
             var id = entity.Id;
-            if (_unique.Contains(id)) throw new InvalidOperationException("Duplicate id in transaction");
+            if (_unique.Contains(id)) throw new ArgumentException("Duplicate id: " + id );
             _unique.Add(id);
+        }
+
+        internal IEnumerable<Type> Types()
+        {
+            return
+                Deletes.Cast<EntityKey>()
+                    .Select(d => d.Type)
+                    .Concat(Inserts.Concat(Updates).Select(ui => ui.GetType()))
+                    .Distinct();
         }
     }
 }

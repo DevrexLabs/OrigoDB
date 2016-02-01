@@ -8,6 +8,10 @@ namespace OrigoDB.Core.Modeling.Relational
     [Serializable]
     public class EntityKey : Entity
     {
+
+        public Type Type { get; set; }
+
+
         public EntityKey(IEntity entity)
         {
             Type = entity.GetType();
@@ -15,10 +19,19 @@ namespace OrigoDB.Core.Modeling.Relational
             Version = entity.Version;
         }
 
-        public EntityKey()
+        public EntityKey(){}
+
+        public override int GetHashCode()
         {
-            
+            return Id.GetHashCode();
         }
-        public Type Type { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is EntityKey)) return false;
+            EntityKey e = (EntityKey) obj;
+            return e.Id == Id && e.Type == Type && e.Version == Version;
+
+        }
     }
 }

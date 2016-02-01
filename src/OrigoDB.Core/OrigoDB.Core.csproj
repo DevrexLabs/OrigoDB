@@ -70,6 +70,7 @@
     <Compile Include="Execution.cs" />
     <Compile Include="IsolationAttribute.cs" />
     <Compile Include="Modeling\Relational\Batch.cs" />
+    <Compile Include="Modeling\Relational\Conflicts.cs" />
     <Compile Include="Modeling\Relational\Entity.cs" />
     <Compile Include="Modeling\Geo\ArcDistance.cs" />
     <Compile Include="Modeling\Geo\GeoSpatialIndex.cs" />
@@ -124,6 +125,9 @@
     <Compile Include="Modeling\Redis\RedisModel.cs" />
     <Compile Include="Modeling\Redis\ZSetEntry.cs" />
     <Compile Include="IsolationLevel.cs" />
+    <Compile Include="Modeling\Relational\MissingTypesException.cs" />
+    <Compile Include="Modeling\Relational\OptimisticConcurrencyException.cs" />
+    <Compile Include="Modeling\Relational\RelationalExtensions.cs" />
     <Compile Include="Modeling\Relational\RelationalModel.cs" />
     <Compile Include="Proxying\CommandInfo.cs" />
     <Compile Include="Proxying\NotAllowedAttribute.cs" />

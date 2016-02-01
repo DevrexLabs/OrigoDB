@@ -27,7 +27,9 @@ Commands are written to the journal before execution. So don't modify the comman
 
 
 ## Dealing with DateTime.Now
-Calling `DateTime.Now` from the command will fail because it is not deterministic. It will return a different value during replay. One solution is to set a field/property on the command when it is created. The field will be recorded in the journal and reused during restore. Example:
+Calling `DateTime.Now` from the command will fail because it is not deterministic. It will return a different value during replay. As an alternative you can use `Execution.Current.Now` which will yield the exact same value during replay. `Execution.Current.Now` is set by the engine just prior to recording the command in the journal.
+
+Another straight-forward solution is to provide the `DateTime` value as a command parameter. The field will be recorded in the journal and reused during restore. Example:
 
 ```csharp
 [Serializable]

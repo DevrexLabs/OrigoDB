@@ -9,15 +9,16 @@ namespace OrigoDB.Core.Storage.Sql
     {
         public OleDbStatements()
         {
-            ReadEntries = "SELECT Id, Created, Data FROM {0} WHERE Id >= ? ORDER BY ID";
+            ReadEntries = "SELECT Id, Created, Data FROM [{0}] WHERE Id >= ? ORDER BY ID";
             InitStore = BuildInitStatement();
-            AppendEntry = "INSERT INTO {0} VALUES (?,?,?,?);";
+            AppendEntry = "INSERT INTO [{0}] VALUES (?,?,?,?);";
+            TruncateEntries = "DELETE FROM [{0}] WHERE Id <= ?";
         }
         private string BuildInitStatement()
         {
             var sb = new StringBuilder();
-            sb.Append("IF NOT EXISTS ( SELECT * FROM INFORMATION.TABLES WHERE TABLE_NAME = '{0}')\n");
-            sb.Append("CREATE TABLE {0}\n");
+            sb.Append("IF NOT EXISTS ( SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{0}')\n");
+            sb.Append("CREATE TABLE [{0}]\n");
             sb.AppendLine("(");
             sb.AppendLine("   Id bigint not null primary key,");
             sb.AppendLine("   Created datetime not null,");

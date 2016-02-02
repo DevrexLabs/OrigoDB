@@ -65,5 +65,10 @@ namespace OrigoDB.Core
             ProviderName = DefaultProviderName;
             ConnectionString = DefaultConnectionString;
         }
+
+        public override string ToString()
+        {
+            return ProviderName;
+        }
     }
 }

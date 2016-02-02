@@ -84,6 +84,7 @@ to use a custom provider, a `SqlStatements` object with compatible statements ne
 //the NpgSqlStatements class does not exist!
 SqlCommandStore.ProviderStatements["NpgSql"] = new NpgSqlStatements();
 ```
+
 ## Customizing behavior
 Derive from `SqlCommandStore` or `CommandStore` and override one or more methods. Then register the custom store:
 

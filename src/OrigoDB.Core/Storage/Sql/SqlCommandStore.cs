@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.OleDb;
 using System.IO;
+using System.Text;
 
 namespace OrigoDB.Core.Storage.Sql
 {
@@ -150,9 +152,23 @@ namespace OrigoDB.Core.Storage.Sql
         /// </summary>
         public virtual DbConnection CreateConnection()
         {
-            var connection = _providerFactory.CreateConnection();
-            connection.ConnectionString = _settings.ConnectionString;
-            return connection;
+            try
+            {
+                var connection = _providerFactory.CreateConnection();
+                connection.ConnectionString = _settings.ConnectionString;
+                connection.Open();
+                connection.Close();
+                return connection;
+            }
+            catch (OleDbException ex)
+            {
+                var sb = new StringBuilder();
+                foreach (OleDbError error in ex.Errors)
+                {
+                    sb.AppendLine(error.Message + " - " + error.NativeError);
+                }
+                throw new Exception("Can't connect to database. Reason: " + sb);
+            }
         }
 
         /// <summary>

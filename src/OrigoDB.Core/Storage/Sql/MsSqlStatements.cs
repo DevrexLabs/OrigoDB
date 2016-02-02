@@ -6,17 +6,17 @@ namespace OrigoDB.Core.Storage.Sql
     {
         public MsSqlStatements()
         {
-            ReadEntries = "SELECT Id, Created, Data FROM {0} WHERE Id >= @id ORDER BY Id";
+            ReadEntries = "SELECT Id, Created, Data FROM [{0}] WHERE Id >= @id ORDER BY Id";
             InitStore = BuildInitStatement();
-            AppendEntry = "INSERT INTO {0} VALUES (@Id, @Created, @Type, @Data);";
-            TruncateEntries = "DELETE {0} WHERE Id <= @id";
+            AppendEntry = "INSERT INTO [{0}] VALUES (@Id, @Created, @Type, @Data);";
+            TruncateEntries = "DELETE [{0}] WHERE Id <= @id";
         }
 
         private string BuildInitStatement()
         {
             var sb = new StringBuilder();
             sb.Append("IF NOT EXISTS ( SELECT * FROM sys.tables WHERE name = '{0}')\n");
-            sb.Append("CREATE TABLE {0}\n");
+            sb.Append("CREATE TABLE [{0}]\n");
             sb.AppendLine("(");
             sb.AppendLine("   Id bigint not null primary key,");
             sb.AppendLine("   Created datetime not null,");

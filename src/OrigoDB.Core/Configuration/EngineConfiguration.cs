@@ -159,16 +159,6 @@ namespace OrigoDB.Core
         }
 
         /// <summary>
-        /// Creates an EngineConfiguration by calling the constructor
-        /// </summary>
-        /// <returns></returns>
-        [Obsolete("just call the constructor instead, the bootloading of subtypes feature has been removed")]
-        public static EngineConfiguration Create()
-        {
-            return new EngineConfiguration();
-        }
-
-        /// <summary>
         /// Return an IFormatter by invoking the factory function associated
         /// with the given FormatterUsage or FormatterUsage.Default if not registered.
         /// </summary>

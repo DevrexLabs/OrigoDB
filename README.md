@@ -49,7 +49,7 @@ var results = db.MyQuery(someValue);
 * Flexible and extensible data modeling using modern language and full access to the .NET Framework Class library
 * Full audit trail through complete history of commands
 * Mature, used in production all over the world
-* Command store
+* Modular storage backend
 
 ## Nuget
 `Install-package OrigoDB.Core`

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace OrigoDB.Core.Modeling.Relational
 {
+    /// <summary>
+    /// Concurrency conflicts that can arise while executing a batch of CRUD operations
+    /// </summary>
     [Serializable]
     public class Conflicts
     {

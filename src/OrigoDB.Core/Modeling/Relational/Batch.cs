@@ -57,6 +57,10 @@ namespace OrigoDB.Core.Modeling.Relational
             _unique.Add(id);
         }
 
+        /// <summary>
+        /// Return the set of entity types present in this batch
+        /// </summary>
+        /// <returns></returns>
         internal IEnumerable<Type> Types()
         {
             return

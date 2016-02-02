@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace OrigoDB.Core.Modeling.Relational
 {
+    /// <summary>
+    /// A data model based on the relational model supporting CRUD style operations
+    /// </summary>
     [Serializable]
     public class RelationalModel : Model
     {

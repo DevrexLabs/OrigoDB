@@ -84,7 +84,7 @@ namespace OrigoDB.Core.Test
         [Test]
         public void OnLoadIsCalledAfterRestore()
         {
-            var config = CreateConfig().ForIsolatedTest();
+            var config = CreateConfig();
             var engine = Engine.Create<TestModel>(config);
             engine.Close();
             engine = Engine.Load<TestModel>(config);

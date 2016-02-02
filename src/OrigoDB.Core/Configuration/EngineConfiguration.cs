@@ -100,6 +100,11 @@ namespace OrigoDB.Core
         public string SnapshotPath { get; set; }
 
         /// <summary>
+        /// Asynchronously delete journal files/entries after a successfully written snapshot
+        /// </summary>
+        public bool TruncateJournalOnSnapshot { get; set; }
+
+        /// <summary>
         /// Create an EngineConfiguration instance using default values
         /// </summary>
         /// <param name="targetLocation"></param>

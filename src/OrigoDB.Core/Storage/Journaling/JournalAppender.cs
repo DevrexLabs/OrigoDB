@@ -1,7 +1,7 @@
 ﻿using System;
 using OrigoDB.Core.Journaling;
 
-namespace OrigoDB.Core
+namespace OrigoDB.Core.Storage
 {
 
     /// <summary>
@@ -35,7 +35,6 @@ namespace OrigoDB.Core
             _writer.Write(entry);
             return _nextEntryId++;
         }
-
 
         /// <summary>
         /// Append an entry of type ModelCreated to the journal
@@ -94,5 +93,11 @@ namespace OrigoDB.Core
         {
             _writer.Dispose();
         }
+
+        internal void Handle(SnapshotCreated snapshotCreated)
+        {
+            _writer.Handle(snapshotCreated);
+        }
+
     }
 }

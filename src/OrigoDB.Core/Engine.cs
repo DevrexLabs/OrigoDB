@@ -241,12 +241,20 @@ namespace OrigoDB.Core
         }
 
         /// <summary>
-        /// Writes a snapshot reflecting the current state of the model to the associated <see cref="ICommandStore"/>
+        /// Writes a snapshot reflecting the current state of the model to the associated <see cref="ISnapshotStore"/>
         /// <remarks>The snapshot is a read operation blocking writes but not other reads (unless using an ImmutablilityKernel).</remarks>
         /// </summary>
         public void CreateSnapshot()
         {
-            _kernel.Read(model => _snapshotStore.WriteSnapshot(model));
+            ulong revision = 0;
+            _kernel.Read(model =>
+            {
+                revision = model.Revision;
+                _snapshotStore.WriteSnapshot(model);
+                _journalAppender.Handle(new SnapshotCreated(revision));
+            });
+            
+            if (_config.TruncateJournalOnSnapshot) _commandStore.Truncate(revision);
         }
 
         private void Rollback()

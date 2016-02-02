@@ -48,6 +48,7 @@ namespace OrigoDB.Core.Storage.Sql
             _statements.AppendEntry = String.Format(_statements.AppendEntry, _settings.TableName);
             _statements.InitStore = String.Format(_statements.InitStore, _settings.TableName);
             _statements.ReadEntries = String.Format(_statements.ReadEntries, _settings.TableName);
+            _statements.TruncateEntries = String.Format(_statements.TruncateEntries, _settings.TableName);
 
             //execute the InitStore statement
             if (!_settings.SkipInit)
@@ -170,5 +171,22 @@ namespace OrigoDB.Core.Storage.Sql
         }
 
 
+
+        public override void Truncate(ulong revision)
+        {
+            var connection = CreateConnection();
+            var dbCommand = connection.CreateCommand();
+            var parameter = dbCommand.CreateParameter();
+            parameter.ParameterName = "@id";
+            parameter.DbType = DbType.Int64;
+            parameter.Value = revision;
+            dbCommand.Parameters.Add(parameter);
+            dbCommand.CommandText = _statements.TruncateEntries;
+            connection.Open();
+            using (connection)
+            {
+                dbCommand.ExecuteNonQuery();
+            }
+        }
     }
 }

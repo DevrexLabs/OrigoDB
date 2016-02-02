@@ -19,9 +19,10 @@ namespace OrigoDB.Core.Test
         /// <summary>
         /// Memento pattern
         /// </summary>
-        private class InMemoryCommandStoreState
+        internal class InMemoryCommandStoreState
         {
             public readonly List<MemoryStream> Journal;
+            public ulong EntryAfterTruncation;
 
             public InMemoryCommandStoreState()
             {
@@ -29,9 +30,14 @@ namespace OrigoDB.Core.Test
             }
         }
 
+        internal int JournalSegments
+        {
+            get { return _state.Journal.Count; }
+        }
+
         //State mementos by Location.OfJournal.
         //this pattern enables persistence across consecutive instances based on the location
-        static readonly Dictionary<string, InMemoryCommandStoreState> _states
+        private static readonly Dictionary<string, InMemoryCommandStoreState> _states
             = new Dictionary<string, InMemoryCommandStoreState>();
 
         readonly InMemoryCommandStoreState _state;
@@ -49,6 +55,7 @@ namespace OrigoDB.Core.Test
 
         protected override IEnumerable<JournalEntry> GetJournalEntriesFromImpl(ulong entryId)
         {
+            entryId = Math.Max(entryId, _state.EntryAfterTruncation);
             return _state.Journal.SelectMany(
                 journalSegment => _formatter
                     .ReadToEnd<JournalEntry>(new MemoryStream(journalSegment.ToArray()))
@@ -65,6 +72,11 @@ namespace OrigoDB.Core.Test
             var stream = new MemoryStream();
             _state.Journal.Add(stream);
             return stream;
+        }
+
+        public override void Truncate(ulong revision)
+        {
+            _state.EntryAfterTruncation = revision + 1;
         }
     }
 }

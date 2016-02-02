@@ -133,6 +133,7 @@
     <Compile Include="Proxying\NotAllowedAttribute.cs" />
     <Compile Include="Proxying\NotAllowedOperation.cs" />
     <Compile Include="Proxying\QueryInfo.cs" />
+    <Compile Include="Storage\Journaling\SnapshotCreated.cs" />
     <Compile Include="Storage\Rollover\CompositeRolloverStrategy.cs" />
     <Compile Include="Storage\Rollover\MaxBytesRolloverStrategy.cs" />
     <Compile Include="Storage\Rollover\MaxEntriesRolloverStrategy.cs" />

@@ -41,6 +41,27 @@ namespace OrigoDB.Core
         }
 
 
+        /// <summary>
+        /// Find the segment 
+        /// </summary>
+        /// <param name="revision"></param>
+        public override void Truncate(ulong revision)
+        {
+            var filesEffected = _journalFiles.TakeWhile(f => f.StartingEntryId <= revision).ToList();
+            if (!filesEffected.Any()) return;
+
+            bool deleteLastFileEffected = _journalFiles.Count > filesEffected.Count &&
+                                          _journalFiles[filesEffected.Count].StartingEntryId == revision + 1;
+
+            if (!deleteLastFileEffected) filesEffected.RemoveAt(filesEffected.Count - 1);
+            if (!filesEffected.Any()) return;
+
+            var journalPath = _config.GetJournalPath();
+
+            _journalFiles.RemoveRange(0, filesEffected.Count);
+            filesEffected.ForEach(fe => File.Delete(Path.Combine(journalPath,fe.Name)));
+        }
+
         protected override IEnumerable<JournalEntry> GetJournalEntriesFromImpl(ulong entryId)
         {
             //Scroll to the correct file

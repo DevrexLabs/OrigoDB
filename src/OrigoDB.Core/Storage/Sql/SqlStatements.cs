@@ -13,5 +13,6 @@ namespace OrigoDB.Core.Storage.Sql
         public string ReadEntries { get; set; }
         public string AppendEntry { get; set; }
         public string InitStore { get; set; }
+        public string TruncateEntries { get; set; }
     }
 }

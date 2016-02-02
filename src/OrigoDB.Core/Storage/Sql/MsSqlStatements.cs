@@ -9,6 +9,7 @@ namespace OrigoDB.Core.Storage.Sql
             ReadEntries = "SELECT Id, Created, Data FROM {0} WHERE Id >= @id ORDER BY Id";
             InitStore = BuildInitStatement();
             AppendEntry = "INSERT INTO {0} VALUES (@Id, @Created, @Type, @Data);";
+            TruncateEntries = "DELETE {0} WHERE Id <= @id";
         }
 
         private string BuildInitStatement()

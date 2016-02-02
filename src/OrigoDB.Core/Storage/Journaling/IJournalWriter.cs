@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OrigoDB.Core.Storage;
+using System;
 
 namespace OrigoDB.Core
 {
@@ -10,5 +11,7 @@ namespace OrigoDB.Core
         void Write(JournalEntry item);
     	
         void Close();
+
+        void Handle(SnapshotCreated snapshotCreated);
     }
 }

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.Serialization;
 using OrigoDB.Core.Logging;
+using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core
 {
@@ -37,10 +38,7 @@ namespace OrigoDB.Core
 			if (_stream == null) _stream = _streamProvider.Invoke(entry.Id);
 			if (_rolloverStrategy.Rollover(_stream.Position, _entriesWrittenToCurrentStream))
 			{
-				_log.Debug("NewJournalSegment");
-				Close();
-				_stream = _streamProvider.Invoke(entry.Id);
-				_entriesWrittenToCurrentStream = 0;
+                Rollover(entry.Id);
 			}
 			
             _journalFormatter.WriteBuffered(_stream, entry);
@@ -57,5 +55,19 @@ namespace OrigoDB.Core
                 _stream = null;
             }
 		}
-	}
+
+
+        public void Handle(SnapshotCreated snapshotCreated)
+        {
+            Rollover(snapshotCreated.Revision + 1);
+        }
+
+        private void Rollover(ulong id)
+        {
+            _log.Debug("NewJournalSegment");
+            Close();
+            _stream = _streamProvider.Invoke(id);
+            _entriesWrittenToCurrentStream = 0;
+        }
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Collections.Concurrent;
+using OrigoDB.Core.Storage;
 
 namespace OrigoDB.Core
 {
@@ -12,19 +13,23 @@ namespace OrigoDB.Core
 	internal class AsynchronousJournalWriter : IJournalWriter
 	{
         //TODO: Add some fault tolerance, exception handling, and engine notification so it can choose to shutdown if the journal isn't working.
-		AutoResetEvent _closeWaitHandle = new AutoResetEvent(false);
+        readonly AutoResetEvent _closeWaitHandle = new AutoResetEvent(false);
 		BlockingCollection<JournalEntry> _queue;
-		IJournalWriter _decoratedWriter;
+        readonly IJournalWriter _decoratedWriter;
 		Thread _writerThread;
 
 		public AsynchronousJournalWriter(IJournalWriter writer)
 		{
 			_decoratedWriter = writer;
-			_writerThread = new Thread(WriteBackground) {IsBackground = false};
-			_queue = new BlockingCollection<JournalEntry>(new ConcurrentQueue<JournalEntry>());
-			_writerThread.Start();
+            Init();
 		}
 
+        private void Init()
+        {
+            _writerThread = new Thread(WriteBackground) { IsBackground = false };
+            _queue = new BlockingCollection<JournalEntry>(new ConcurrentQueue<JournalEntry>());
+            _writerThread.Start();
+        }
 
 		public void Write(JournalEntry item)
 		{
@@ -40,7 +45,7 @@ namespace OrigoDB.Core
 			_decoratedWriter.Close();
 		}
 
-    	void IDisposable.Dispose()
+    	    void IDisposable.Dispose()
 		{
 			Close();
 			_decoratedWriter.Dispose();
@@ -57,5 +62,20 @@ namespace OrigoDB.Core
 			}
 			_closeWaitHandle.Set();
 		}
+
+
+        public void Handle(SnapshotCreated snapshotCreated)
+        {
+            //flush the queue
+            _queue.CompleteAdding();
+            _writerThread.Join();
+
+            //notify actual writer
+            _decoratedWriter.Handle(snapshotCreated);
+
+            //restart 
+            Init();
+            
+        }
     }
 }

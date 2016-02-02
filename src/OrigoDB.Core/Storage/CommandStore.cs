@@ -22,7 +22,12 @@ namespace OrigoDB.Core.Storage
         /// Read the sequence of entries with id greater than or equal to a given entryId
         /// </summary>
         protected abstract IEnumerable<JournalEntry> GetJournalEntriesFromImpl(ulong entryId);
-        
+
+        /// <summary>
+        /// Delete entries up to and including a specific revision
+        /// </summary>
+        /// <param name="revision"></param>
+        public abstract void Truncate(ulong revision);
         
         /// <summary>
         /// Get an append-only stream for writing journal entries
@@ -138,7 +143,6 @@ namespace OrigoDB.Core.Storage
             {
                 if (current is JournalEntry<Command>)
                 {
-                    //todo:(current as JournalEntry<Command>).Item.Now = current.Created;
                     if (previous != null) yield return previous;
                     previous = (JournalEntry<Command>)current;
                 }

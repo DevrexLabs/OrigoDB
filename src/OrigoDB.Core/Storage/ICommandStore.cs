@@ -8,6 +8,10 @@ namespace OrigoDB.Core
     /// </summary>
     public interface ICommandStore
     {
+        /// <summary>
+        /// Delete all of the commands in the store less than or including a given revision
+        /// </summary>
+        void Truncate(ulong revision);
 
         /// <summary>
         /// Connect and read meta data

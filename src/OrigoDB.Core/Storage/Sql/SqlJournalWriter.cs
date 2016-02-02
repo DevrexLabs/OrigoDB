@@ -37,5 +37,11 @@ namespace OrigoDB.Core.Storage.Sql
         {
             _connection.Close();
         }
+
+
+        public void Handle(SnapshotCreated snapshotCreated)
+        {
+            //no op
+        }
     }
 }

@@ -55,9 +55,9 @@ var results = db.MyQuery(someValue);
 `Install-package OrigoDB.Core`
 
 ## Links
-* Project web site: http://dev.origodb.com
-* Documentation: http://dev.origodb.com/docs
-* Downloads: http://dev.origodb.com/download
+* Project web site: http://origodb.com
+* Documentation: http://origodb.com/docs
+* Downloads: http://origodb.com/download
 * Release notes: https://github.com/devrexlabs/origodb/releases
 * http://twitter.com/devrexlabs
 * http://twitter.com/robertfriberg

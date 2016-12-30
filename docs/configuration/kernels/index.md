@@ -6,12 +6,14 @@ layout: submenu
 The `Kernel` is the engine component responsible for transactional integrity. It has the only reference to the in-memory model and controls all access to it. The Kernel loads, restores, creates, executes commands and queries, reads and writes snapshots. Using the default configuration, all operations on the model are _atomic_, _consistent_ (for well-behaved commands), _isolated_ and _durable_.
 
 There are 3 kernels to choose from. Optimistic (default), Pessimistic (deprecated) and the Royal Food Taster.
-{% highlight csharp %}
+
+```csharp
 //Choosing a kernel
-var config = EngineConfiguration.Create();
+var config = new EngineConfiguration();
 config.Kernel = Kernels.RoyalFoodTaster;
 db = Db.For<MyModel>(config);
-{% endhighlight %}
+```
+
 One task performed by the kernel is rolling back after a failed command. There is (currently) no way to undo the effects of a failed command. The only way is to replace the model with the version just prior to the failure. The different kernel types do this replacement in slightly different ways.
 
 ## Optimistic Kernel

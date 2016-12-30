@@ -12,7 +12,8 @@ By default, the client dispatches each command and query to every node. Set a cu
 Results from commands and queries need to be aggregated. Register a merger function by calling `SetMergerFor<T>()` where T can be a command, query or result type. The function takes an array of the expected result type and must return an instance of the return type. For a query with the signature `Query<M,R>` a merger must have the signature `Func<R[],R>`. A merger with the wrong signature will throw a runtime exception.
 
 ## Example code
-{% highlight csharp %}
+
+```csharp
 var client = new PartitionClusterClient<TaskModel>();
 var node0 = Engine.For<TaskModel>("mode=embedded;host=node1");
 var node1 = Engine.For<TaskModel>("mode=embedded;host=node2");
@@ -41,10 +42,11 @@ client.SetMergerFor<TopTenTasksQuery>(
     list.Sort(t => t.DueBy);
     return list.Reverse().Take(10).ToArray();
   });
-{% endhighlight %}
+```
 
 ## Using the client
-{% highlight csharp %}
+
+```csharp
 //execute commands. They will be dispatched to the correct nodes
 client.Execute(new AddTaskCommand{
   Id = 1,
@@ -63,7 +65,7 @@ var taskView = client.Execute(new GetTaskByIdQuery{Id = 2});
 //using merger registered for the type TaskView[]
 var query = new GetTasksByCategoryQuery("Recreation");
 var tasksByCatetory = client.Execute<TaskModel, TaskView[]>(query);
-{% endhighlight %}
+```
 
 ## Partitioning schemes
 The example above partitions using a modulus function and changing the number of nodes will affect the partitioning. Design a scheme that will accommodate for growth without the need to move data between nodes. For an example, see the [GeekStream model](http://github.com/devrexlabs/geekstream), which is designed for partitioning.

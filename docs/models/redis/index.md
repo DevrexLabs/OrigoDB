@@ -4,7 +4,7 @@ layout: submenu
 ---
 # Redis Model
 
-OrigoDB is very similar to Redis. Both are in-memory databases that use logging and snapshots for persistence. The `RedisModel` class is a partial implementation of Redis data structures and commands. The api tries to stay close to the original with regards to command names, arguments and types unless there is a c# idiom which makes more sense. Commands are implemented as methods on `RedisModel`.
+The `RedisModel` class is an OrigoDB model that mimics the behavior of Redis data structures and commands. The api tries to stay close to the original with regards to command names, arguments and types unless there is a c# idiom which makes more sense. Commands are implemented as methods on `RedisModel`.
 
 ## Implemented features
 * Strings
@@ -15,7 +15,7 @@ OrigoDB is very similar to Redis. Both are in-memory databases that use logging 
 * SortedSets
 * Geo
 * Expiration
-* Bitset - using an underlying BitArray NET type
+* Bitset
 
 ## Unimplemented features
 * Cluster
@@ -161,12 +161,13 @@ ZREVRANK | ```ZReverseRank(string key, string member)``` | zero-based rank of so
 ZUNIONSTORE | ```ZUnionStore(string destination, string[] keys, double[] weights = null, AggregateType aggregateType = AggregateType.Sum)``` | create sorted set union
 
 ### Expiration
+
 *Redis command* | *Method* | *Notes*
 ----------------|----------|----------
 EXPIRE | ```Expire(string key, DateTime at)``` | Set an expiration for a given key
 EXPIRES | ```DateTime? Expires(string key)``` | when key expires or null if no expiration
 PERSIST | ```Persist(string key)``` | Cancel expiration
-N/A | ```PurgeExpired()``` | Removes keys that have expired,  called by timer
+N/A | ```PurgeExpired()``` | Removes keys that have expired, called by timer once per second if any keys have expires
 
 
 ## BitSet commands

@@ -19,7 +19,7 @@ The OrigoDB.Core library is a single assembly. Grab the latest OrigoDB.Core.dll 
 ## Define the in-memory model
 Create a class that derives from `Model` and add members to hold data, usually collections. Mark the class and any referenced types with the `Serializable` attribute. An instance of this class is your in-memory database.
 
-{% highlight csharp %}
+```csharp
 [Serializable]
 public class Task
 {
@@ -34,12 +34,12 @@ public class TaskModel : OrigoDB.Core.Model
   public List<Task> Tasks{get;set;}
   public TaskModel() { Tasks = new List<Task>(); }
 }
-{% endhighlight %}
+```
 
 ## Create commands
 Commands are used to update the model. Derive from `Command<M>` or `Command<M,R>` where `M` is the type of your model and `R` is the result type
 
-{% highlight csharp %}
+```csharp
 [Serializable]
 public class AddTaskCommand : OrigoDB.Core.Command<TaskModel>
 {
@@ -53,17 +53,19 @@ public class AddTaskCommand : OrigoDB.Core.Command<TaskModel>
     model.Tasks.Add(task);
   }
 }
-{% endhighlight %}
+```
+
 ## Hosting the engine
 `Engine.For<M>()` will create an initial model, write it as a snapshot to disk and then return an engine ready to execute commands and queries.
 
-{% highlight csharp %}
+```csharp
 IEngine<TaskModel> engine = Engine.For<TaskModel>();
-{% endhighlight %}
+```
 
 ## Executing commands
 Create a command object and pass it to the engine for execution:
-{% highlight csharp %}
+
+```csharp
 AddTaskCommand addTaskCommand = new AddTaskCommand {
   Title = "Start using OrigoDB",
   Description = "No more relational modeling, sql or object relational mapping for me!",
@@ -72,11 +74,12 @@ AddTaskCommand addTaskCommand = new AddTaskCommand {
 
 //The engine will execute the command against the model and persist to the command journal
 engine.Execute(addTaskCommand);
-{% endhighlight %}
+```
 
 ## Executing queries
 You can use either ad-hoc linq queries passed as lambdas to the engine or you can write strongly typed query classes.
-{% highlight csharp %}
+
+```csharp
 // can't serialize lambdas, need local engine
 var localEngine = (ILocalEngine<TaskModel>) engine;
 
@@ -98,7 +101,7 @@ public class TasksDueBefore : OrigoDB.Core.Query<TaskModel, IEnumerable<Task>>
 // executing the strongly typed query
 var query = new TasksDueBefore{DueDate = DateTime.Today.AddDays(1)};
 IEnumerable<Task> tasksDue = engine.Execute(query);
-{% endhighlight %}
+```
 
 ## Summary
 We've covered the absolute basics here, but essentially there's not much more to developing than defining the model, and writing commands and queries. We used explicit transactions, an anemic model and the transaction script pattern. Next, you might wan't to check out [implicit transactions](../../modeling/proxy), where commands and queries are derived from methods on the model eliminating the need to explicitly author commands and queries.

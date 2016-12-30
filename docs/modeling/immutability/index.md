@@ -23,7 +23,7 @@ Because everything is immutable, it's also safe to return direct references to a
 ## Modeling
 Here's an example immutable collection type. Notice how the `AddTask()` method returns a new instance of `TodoModel` and that the underlying array is never modified. Notice also how the `Tasks()` method creates a new array. Returning a direct reference to `_tasks` would allow the content to be modified. Finally, note that both `_tasks` and the returned array reference the same underlying string objects. But since strings are immutable, this is completely safe.
 
-{% highlight csharp %}
+```csharp
 [Serializable]
 public class TodoModel : Model
 {
@@ -43,14 +43,14 @@ public class TodoModel : Model
     return tasks.ToArray();
   }
 }
-{% endhighlight %}
+```
 
 ### Immutable entity classes
 
 Here's another example immutable type, this time an entity class. Note again that there is no way to change
 the state of a `Task` once it has been instantiated.
 
-{% highlight csharp %}
+```csharp
 [Serializable]
 public class Task
 {
@@ -68,7 +68,7 @@ public class Task
     return new Task(Title, completed);
   }
 }
-{% endhighlight %}
+```
 
 
 ## The Microsoft.Bcl.Immutable collections
@@ -83,7 +83,7 @@ Commands return a new model and must not change the current model. Derive comman
 * `public abstract void Execute(TModel model, out TModel result)`
 * `public abstract TResult Execute(TModel model, out TModel nextModel)`
 
-{% highlight csharp %}
+```csharp
 [Serializable]
 public class AddTaskCommand : ImmutableCommand<TodoModel>
 {
@@ -99,25 +99,25 @@ public class AddTaskCommand : ImmutableCommand<TodoModel>
     next = model.AddTask(task);
   }
 }
-{% endhighlight %}
+```
 
 ## Configuration
 The engine needs to be configured to use the `ImmutabilityKernel` and optionally with lock free concurrency.
 
-{% highlight csharp %}
-var config = EngineConfiguration.Create();
+```csharp
+var config = new EngineConfiguration();
 config.Kernel = Kernels.Immutability;
 config.Synchronization = SynchronizationMode.None;
 
 // or to get both settings
-var config = EngineConfiguration.Create().WithImmutability();
+var config = new EngineConfiguration().WithImmutability();
 
 //pass config when creating engine
 var engine = Engine.For<TodoModel>(config);
 
 //execute commands as usual
 engine.Execute(new AddTaskCommand("500 backhand volley drop shots"));
-{% endhighlight %}
+```
 
 ## Proxy not supported
 Immutability does not yet work with the proxy feature.

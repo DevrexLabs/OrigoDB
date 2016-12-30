@@ -13,7 +13,7 @@ The following classes implement `IEngine<T>`:
 ## Creating a client
 The recommended way to create a client is by calling `Engine.For<T>()` passing either a connection string, an `EngineConfiguration`, both or nothing at all.
 
-{% highlight csharp %}
+```csharp
 //uses the model name, "MyModel", as connection string
 IEngine engine = Engine.For<MyModel>();
 
@@ -25,13 +25,15 @@ IEngine engine = Engine.For<MyModel>(location);
 IEngine engine = Engine.For<MyModel>("c:\\mymodel");
 
 //if location matches a connection string name in the config file, use the
-{% endhighlight %}
+```
+
 Switching from embedded to remote without rebuilding:
-{% highlight xml %}
+
+```xml
 <connectionStrings>
   <add name="MyModel" connectionString="mode=remote;host=10.0.0.20"/>
 </connectionStrings>
-{% endhighlight %}
+```
 The identifier string passed to `Engine.For<T>(identifier)` for will be processed according to the following:
 1. Connection string name for connection string in app.config / web.config if it exists
 1. Connection string if it contains a "="
@@ -46,17 +48,20 @@ tcp connections are pre-opened and pooled. You don't have to manage the connecti
 
 A local client has similar behavior. The first call to `Engine.For<T>()` will load or create an `Engine<T>` instance in the current process
 while subsequent calls will return a reference to the same engine instance. The instance will be Disposed when the process exits. If you need to Dispose earlier you can call `Config.Engines.CloseAll()` or cast to `LocalEngineClient<MyModel>` and grab the engine instance from the Engine property.
-{% highlight csharp %}
+
+```csharp
 //Shutdown all local engines
 Config.Engines.CloseAll();
 
 //Shutdown specific engine
 IEngine client = Engine.For<MyModel>();
 (client as LocalEngineClient<MyModel>).Engine.Close();
-{% endhighlight %}
+```
+
 ## Transparent Proxy
 The client API supports proxying as well. For all of the examples above, `Engine.For<T>` can be replaced with `Db.For<T>` returning a transparent proxy. It's equivalent to the following:
-{% highlight csharp %}
+
+```csharp
 var engine = Engine.For<MyModel>();
 var db = engine.GetProxy();
-{% endhighlight %}
+```

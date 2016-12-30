@@ -4,7 +4,7 @@ layout: submenu
 ---
 
 # Basic Modeling
-Most databases are based on single data model. Relational, Key/Value, Column store, document, graph etc. OrigoDB is different. You can choose from a number of existing data models, extend an existing model or define your own using any NET language. The modeling section describes defining your own custom domain model.
+Most databases are based on single data model. Relational, Key/Value, Column store, document, graph etc. OrigoDB is different. You can choose from a number of existing data models, extend an existing model or define your own using any .NET language. The modeling section describes defining your own custom domain model.
 
 An OrigoDB in-memory model is an instance of a single class which derives from `OrigoDb.Core.Model`. Start by creating a class that inherits Model and add fields/properties to represent the state of your system, usually strongly typed collections containing custom entities. Define Entities, Value Types, Enums, Structs, built-in types. Write Command and Query classes to read and write the model.
 

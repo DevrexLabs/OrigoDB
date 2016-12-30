@@ -14,8 +14,8 @@ the current threads `IPrincipal`, normally the account which the process is runn
 
 Here's an example:
 
-{% highlight csharp %}
-   var config = EngineConfiguration.Create();
+```csharp
+   var config = new EngineConfiguration();
 
    // create an authorizer with a default of denied
    var myAuthorizer = new TypeBasedPermissionSet();
@@ -28,4 +28,4 @@ Here's an example:
 
    //Engine picks up and uses the injected authorizer
    Engine.For<MyModel>(config);
-{% endhighlight %}
+```

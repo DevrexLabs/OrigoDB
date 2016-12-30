@@ -18,22 +18,25 @@ If you need more sophisticated logging, OrigoDb can be extended to integrate wit
 3. Register your custom `ILoggerFactory` with the `LogProvider` class
 
 using code like this:
-{% highlight csharp %}
+
+```csharp
 LogProvider.SetFactory(new BlackboxLoggerFactory());
-{% endhighlight %}
+```
 
 ## Implementing a custom logging module
 Create a custom logging module by implementing `ILoggerFactory`. Consider deriving from `OrigoDb.Core.Logging.Logger` which can spare you a lot of grunt work, there is only one method that needs to be implemented:
 
-{% highlight csharp %}
+```csharp
 protected abstract void Write(LogLevel level, Func<string> messageGenerator);
-{% endhighlight %}
+```
 
 The `ILoggerFactory` has these members:
-{% highlight csharp %}
+
+```csharp
 ILogger GetLoggerForCallingType();
 ILogger GetLogger(Type type);
-{% endhighlight %}
+```
+
 Origo components call the `GetLoggerForCurrentType()` which should return the full name of the type including the namespace. Most log frameworks can filter and dispatch to different targets based on the name of the logger.
 
 Have a look at the existing modules to learn more.

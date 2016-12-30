@@ -9,9 +9,9 @@ layout: submenu
 Transactions (commands and queries) are coordinated using an `ISynchronizer` instance, the default implementation uses an underlying `ReaderWriterLockSlim` allowing a single writer or multiple readers at any given time.
 
 ## Isolation of the data model
-When running origodb in the same process as your application care must be taken not leak references to objects in the database. The following code demonstrates one kind of anomaly that could arise:
+When running origodb in the same process as your application care must be taken to not leak references to mutablef objects in the database. The following code demonstrates one kind of anomaly that could arise:
 
-{% highlight csharp %}
+```csharp
 [Serializable]
 public class AddCustomerCommand : Command<MyModel>
 {
@@ -31,7 +31,7 @@ public class AddCustomerCommand : Command<MyModel>
 var homer = new Customer("Homer");
 var command = new MyCommand(homer);
 engine.Execute(command);
-{% endhighlight %}
+```
 
 At this point in code, the Customer object is a node in the in-memory object graph and we have a direct reference to it via the homer variable! Unless the object is immutable, we can see changes made to it by other transactions or we could modify it directly rendering the model inconsistent. This would clearly break isolation. The same problem arises if a query/command returns a mutable reference to an existing object.
 
@@ -47,7 +47,7 @@ Here are different methods to achieve isolation:
 * Make copies without serialization by using mapping, see [Modeling/Views](../../modeling/views) for an example
 
 Here's an isolated equivalent to the `AddCustomerCommand` above:
-```
+```csharp
 [Immutable]
 public class AddCustomerCommand : Command<MyModel>
 {
@@ -70,7 +70,8 @@ The command has been marked with an ImmutableAttribute. Note that immutability g
 
 ## Configuring Isolation
 Here's how to turn off copying globally:
-```
+
+```csharp
 var config = new EngineConfiguration();
 config.Isolation.Commands = CloneStrategy.Never;
 config.Isolation.ReturnValues = CloneStrategy.Never;

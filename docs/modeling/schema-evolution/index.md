@@ -21,7 +21,8 @@ Remote queries and commands are serialized during transfer. This can become an i
 The guiding principle is *serialize as few types as possible*. Obviously, commands need to be serialized, but you can avoid embedding custom objects within commands. Here are two commands that achieve the same thing. The first example creates a `Task` during execution, the second example has a field of type `Task`.
 
 ### Commands
-{% highlight csharp %}
+
+```csharp
 //Good design, only Guid and string fields
 [Serializable]
 public class AddTaskCommand : Command<MyModel>
@@ -36,9 +37,11 @@ public class AddTaskCommand : Command<MyModel>
   }
   //constructor omitted for brevity...
 }
-{% endhighlight %}
+```
+
 Vulnerable design, `Task` object is serialized with the command.
-{% highlight csharp %}
+
+```csharp
 [Serializable]
 public class AddTaskCommand : Command<MyModel>
 {
@@ -49,7 +52,8 @@ public class AddTaskCommand : Command<MyModel>
   }
   //constructor omitted for brevity
 }
-{% endhighlight %}
+```
+
 If you need to make a breaking change to a command, consider creating a new similar command with a version suffix, eg `AddTaskCommand_v2`.
 
 ### Keep a complete journal history and delete snapshots during upgrade
@@ -60,7 +64,8 @@ Snapshots are sensitive to schema changes to the model and any custom types. If 
 
 Constructors are not called during deserialization. Initializing added fields has to be done somewhere else.
 You can override `Model.SnapshotRestored` or use lazy initialization in a property wrapping the field.
-{% highlight csharp %}
+
+```csharp
 //added field. WRONG, wont get initialized!
 Dictionary<string,Product> productsByCategory = new Dictionary<string,Product>();
 
@@ -87,7 +92,9 @@ protected override void SnapshotRestored()
     //code excluded in example for brevity...
   }
 }
-{% endhighlight %}
+```
+
+
 
 ## Custom serialization using ISerializable
 `BinaryFormatter` will write field names and values to the serialization stream. By implementing `ISerializable` you take full control over writing to and reading from the stream. When you change a type, ensure the deserialization works with older versions.

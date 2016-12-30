@@ -13,7 +13,7 @@ Transactions (commands and queries) are coordinated using an `ISynchronizer` ins
 ## Isolation of the data model
 When running origodb in the same process as your application care must be taken not leak references to objects in the database. The following code demonstrates one kind of anomaly that could arise:
 
-{% highlight csharp %}
+```csharp
 [Serializable]
 public class AddCustomerCommand : Command<MyModel>
 {
@@ -33,7 +33,7 @@ public class AddCustomerCommand : Command<MyModel>
 var homer = new Customer("Homer");
 var command = new MyCommand(homer);
 engine.Execute(command);
-{% endhighlight %}
+```
 
 At this point in code, the Customer object is a node in the in-memory object graph and we have a direct reference to it via the homer variable! Unless the object is immutable, we can see changes made to it by other transactions or we could modify it directly rendering the model inconsistent. This would clearly break isolation. The same problem arises if a query/command returns a mutable reference to an existing object.
 
@@ -49,7 +49,8 @@ Here are different methods to achieve isolation:
 * Make copies without serialization by using mapping, see [Modeling/Views](../../modeling/views) for an example
 
 Here's an isolated equivalent to the `AddCustomerCommand` above:
-{% highlight csharp %}
+
+```csharp
 [Immutable]
 public class AddCustomerCommand : Command<MyModel>
 {
@@ -66,11 +67,11 @@ public class AddCustomerCommand : Command<MyModel>
      model.Customers.Add(customer);
    }
 }
-{% endhighlight %}
+```
 
 The command is now an immutable graph and has been marked with an `ImmutableAttribute`. Note that immutability guarantees isolation even if we were to have shared references between the application and model. Here's the same command using a third technique for isolation:
 
-{% highlight csharp %}
+```csharp
 [Isolation(Level=IsolationLevel.Input)]
 public class AddCustomerCommand : Command<MyModel>
 {
@@ -87,16 +88,19 @@ public class AddCustomerCommand : Command<MyModel>
      model.Customers.Add(customer);
    }
 }
-{% endhighlight %}
+```
+
 The command is not immutable, instead we create a new Customer object during execution and copy values from the Customer input parameter. Note the IsolationAttribute and the IsolationLevel parameter. Besides Input there is also Output and InputOutput.
 
 ## Configuring Isolation
 Here's how to turn off copying globally:
-{% highlight csharp %}
+
+```csharp
 var config = new EngineConfiguration();
 config.Isolation.Commands = CloneStrategy.Never;
 config.Isolation.ReturnValues = CloneStrategy.Never;
-{% endhighlight %}
+```
+
 The two other predefined strategies are CloneStrategy.Always and CloneStrategy.Heuristic. The Always strategy is useful during development to ensure correct behavior when running remote in production. It will catch silly but annoying mistakes like forgetting to add the Serializable attribute to a return type which will throw exceptions in production. The heuristic strategy is described in the next section.
 
 ## CloneStrategy.Heuristic

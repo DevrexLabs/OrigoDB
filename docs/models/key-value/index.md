@@ -31,6 +31,7 @@ store.Remove("mykey", 2); //FAIL wrong version
 store.Remove("mykey");
 store.Remove("mykey"); //FAIL, doesn't exist
 ```
+
 ## KeyValueStoreClient
 This class wraps a `KeyValueStore` and serializes/deserializes objects to byte array eliminating the need to deploy assemblies with custom types on the remote server.
 

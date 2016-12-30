@@ -23,8 +23,8 @@ SnapshotBehavior is set to either AfterRestore or OnShutdown
 
 ## Example
 
-{% highlight csharp %}
-var config = EngineConfiguration.Create();
+```csharp
+var config = new EngineConfiguration();
 config.PersistenceMode = PersistenceMode.SnapshotPerTransaction;
 var db = Engine.For<MyModel>(config);
-{% endhighlight %}
+```

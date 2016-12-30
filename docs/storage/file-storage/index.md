@@ -16,9 +16,9 @@ If unassigned, Location will default to the class name of the Model.
 Snapshots are written to the same directory as the journal files unless `EngineConfiguration.Location.OfSnapshots` is set to point to somewhere else.
 
 ## Example code
-{% highlight csharp %}
-var config = EngineConfiguration.Create();
+```csharp
+var config = new EngineConfiguration();
 config.Location.OfJournal = "\\Storage\journal";
 config.Location.OfSnapshots = "\\Storage\snapshots";
 var engine = Engine.For<MyModel>(config);
-{% endhighlight %}
+```

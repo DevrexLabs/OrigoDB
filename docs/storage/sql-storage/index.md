@@ -43,6 +43,7 @@ config.SqlSettings.ProviderName = "System.Data.SqlClient";
 config.SqlSettings.SkipInit = false;
 var engine = Engine.For<MyDb>(config);
 ```
+
 ## Custom SQL statements
 Each supported provider has an associated `SqlStatements` object. The default is `MsSqlStatements` which works with Microsoft Sql Server 2008 and above. To customize, there are a few alternative paths:
 

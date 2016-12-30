@@ -22,7 +22,7 @@ The store utility is a standalone command line executable used to convert betwee
 
 ## Example convert file to SQL
 
-{% highlight bash %}
+```bash
 $ origodb.storeutility convert --source=c:\data\freedb --destination=origodbstorage
       --destination-type=sql --source-type=file-v0.5 --assembly=c:\freedb\freedb.core.dll
 ```

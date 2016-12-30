@@ -7,10 +7,10 @@
     <authors>Robert Friberg, Kristoffer Schroeder and contributors</authors>
     <copyright>Devrex Labs</copyright>
     <summary>
-		OrigoDB is an in-memory database engine for .NET.
+		OrigoDB is an in-memory event-sourced database engine for .NET.
 	</summary>
     <description>
-		OrigoDB is an in-memory database engine for .NET.
+		OrigoDB is an in-memory event-sourced database engine for .NET.
     </description>
     <projectUrl>https://github.com/devrexlabs/origodb</projectUrl>
 	<iconUrl>http://devrexlabs.com/Content/icons/favicon.ico</iconUrl>

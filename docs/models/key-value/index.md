@@ -36,6 +36,7 @@ store.Remove("mykey"); //FAIL, doesn't exist
 This class wraps a `KeyValueStore` and serializes/deserializes objects to byte array eliminating the need to deploy assemblies with custom types on the remote server.
 
 ### Example
+
 ```csharp
 var store = Db.For<KeyValueStore>("mode=remote");
 var client = new KeyValueStoreClient(store, new BinaryFormatter());

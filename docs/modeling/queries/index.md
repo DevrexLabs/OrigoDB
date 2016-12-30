@@ -14,11 +14,11 @@ There are a few different kinds of queries:
 
 The corresponding `Engine.Execute` overloads for executing queries are:
 
-{% highlight csharp %}
+```csharp
 TResult Engine.Execute<TModel, TResult>(Query<TModel, TResult> query)
 TResult Engine.Execute<TModel, TResult>(Func<TModel, TResult> query)
 TResult Engine.Execute<TModel, TResult>(string csharpCode, param object[] args)
-{% endhighlight %}
+```
 
 Implicit proxied queries (case #4 above) are translated to [ProxyQuery<TModel, TResult>](https://github.com/DevrexLabs/OrigoDB/blob/master/src/OrigoDB.Core/Proxy/ProxyQuery.cs) objects which derive from [Query<TModel, TResult>](https://github.com/DevrexLabs/OrigoDB/blob/master/src/OrigoDB.Core/Transactions/Query%5BM%2CR%5D.cs) thus fall under case #1.
 
@@ -27,7 +27,7 @@ This is the preferred way of defining queries. In the derived class, write your 
 
 Two example queries:
 
-{% highlight csharp %}
+```csharp
 // The in-memory model
 [Serializable]
 public class MyModel : Model
@@ -67,21 +67,21 @@ public class CustomerCountQuery : Query<MyModel, int>
 //example usage:
 CustomerView customerView = engine.Execute(new CustomerByIdQuery(42));
 int numCustomers = engine.Execute(new CustomerCountQuery());
-{% endhighlight %}
+```
 
 
 ## Lambda queries
 
 Lambda queries are simply generic functions that take the model as input and return some value. They're suitable for simple queries, ad-hoc querying with scriptcs, LinqPad or the OrigoDB server web ui. Example given the same model as above:
 
-{% highlight csharp %}
+```csharp
 var customerView = engine.Execute(db => db.Customers[42].ToView());
-{% endhighlight %}
+```
 
 ### Parameterized lambda queries
 The example above uses the constant 42 but of course you can use variables, parameters, objects and methods etc from the calling context. Here's an Asp.NET MVC action:
 
-{% highlight csharp %}
+```csharp
 private bool IsVip(Customer c)
 {
    return c.Orders.Sum(o => o.Value) > 1000000;
@@ -97,11 +97,11 @@ public ActionResult GetVipCustomers(int regionId)
    );
    return View(customers);
 }
-{% endhighlight %}
+```
 
 As you can see this can get messy fast, not to mention how difficult it is to test. A pattern which solves this problem is using query functions, functions that take parameters and return lambda queries:
 
-{% highlight csharp %}
+```csharp
 public static class Queries
 {
    public static Func<MyModel,CustomerView> CustomerById(int customerId)
@@ -118,14 +118,14 @@ public static class Queries
 		.ToArray();
    }
 }
-{% endhighlight %}
+```
 
 Example usage:
 
-{% highlight csharp %}
+```csharp
 var customerView = engine.Execute(Queries.CustomerById(customerId));
 var vipCustomers = engine.Execute(Queries.VipCustomers(regionId, orderThreshold));
-{% endhighlight %}
+```
 
 ## Serializability
 Mark your query classes with a `Serializable` attribute to ensure they can be passed to a remote origodb server.

@@ -5,12 +5,13 @@ layout: submenu
 ## {{page.title}}
 
 ### Example configuration file
-{% highlight xml %}
+
+```xml
 <connnectionStrings>
    <add name="MyModel" connectionString="mode=embedded;location=c:\db\mymodel"/>
    <add name="test" connectionString="mode=remote;host=10.0.0.20;port=3001"/>
  </connnectionStrings>
-{% endhighlight %}
+```
 
 * `Engine.For<MyModel>()` will  create a LocalEngineClient based on the connection string named "MyModel"
 * `Engine.For<MyModel>("test")` will create a RemoteEngineClient based on the connection string named "test"

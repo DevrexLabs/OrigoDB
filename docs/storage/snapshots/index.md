@@ -6,11 +6,11 @@ layout: submenu
 A snapshot is a point in time complete copy of the model written to disk. During restore, the most recent snapshot is read, followed by command replay. Snapshots can be used for backups, to speed up restore or to save disk space (by truncating the journal files).
 
 Snapshots can be taken manually, by calling `Engine.CreateSnapshot()`, or automatically on start or shutdown. Set the property `EngineConfiguration.SnapshotBehavior` before starting the engine:
-{% highlight csharp %}
+```csharp
 var config = new EngineConfiguration(location);
 config.SnapshotBehavior = SnapshotBehavior.OnShutdown;
 var engine = Engine.Load<MyModel>(config);
-{% endhighlight %}
+```
 
 ## Load Performance
 Loading a snapshot is not necessarily faster than replaying all the commands. This is specific to each domain.  Measure before you decide on a snapshot strategy.

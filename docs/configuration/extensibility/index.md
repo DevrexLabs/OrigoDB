@@ -12,18 +12,18 @@ OrigoDb can be extended with custom behavior by choosing between existing or wri
 
 ###  Example
 
-{% highlight csharp %}
+```csharp
 var config = new EngineConfiguration();
 var provider = new MyStorageProvider(); //your customer provider
 config.SetCommandStoreFactory(cfg => provider.CreateCommandStore(cfg));
 db = Db.For<MyModel>(config);
-{% endhighlight %}
+```
 When the engine requests an instance of `ICommandStore`, the injected custom constructor function is invoked, overriding the default `FileCommandStore` implementation. Similar injection methods for the other interfaces are available.
 
 ### Formatters
 Formatters are used to serialize snapshots, commands, queries, results. Different formatters can be used for the different usages. For reference, here is the FormatterUsage enum and an example showing how to use it.
 
-{% highlight csharp %}
+```csharp
 public enum FormatterUsage
 {
     Default,
@@ -38,6 +38,6 @@ var config = new EngineConfiguration();
 config.SetFormatterFactory(
   (cfg,formatterUsage) => new MyBsonFormatter(cfg, formatterUsage),
   FormatterUsage.Journal);
-{% endhighlight %}
+```
 
 The default is FormatterUsage.Default meaning the injected constructor will applied to all usages that haven't been explicitly set.

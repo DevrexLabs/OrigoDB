@@ -6,7 +6,7 @@ Write your custom data model, commands and queries using any .NET language, or c
 
 OrigoDB is developed and maintained by Devrex Labs. We offer commercial support, consulting, training and enterprise features.
 
-To learn more, visit the [project web site](http://dev.origodb.com) and read the [online documentation](http://dev.origodb.com/docs).
+To learn more, visit the [project web site](http://origodb.com) and read the [online documentation](http://origodb.com/docs).
 
 [![Join the chat at https://gitter.im/DevrexLabs/OrigoDB](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/DevrexLabs/OrigoDB?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -55,9 +55,9 @@ var results = db.MyQuery(someValue);
 `Install-package OrigoDB.Core`
 
 ## Links
-* Project web site: http://dev.origodb.com
-* Documentation: http://dev.origodb.com/docs
-* Downloads: http://dev.origodb.com/download
+* Project web site: http://origodb.com
+* Documentation: http://origodb.com/docs
+* Downloads: http://origodb.com/download
 * Release notes: https://github.com/devrexlabs/origodb/releases
 * http://twitter.com/devrexlabs
 * http://twitter.com/robertfriberg

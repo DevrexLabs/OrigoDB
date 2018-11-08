@@ -1,11 +1,8 @@
 ## Important notice!
 
-OrigoDB is no longer under active development. Please check out https://github.com/devrexlabs/memstate which is a complete rewrite of OrigoDB with major improvements in the areas performance, availability, licensing, cross-platform, docker and cloud support. Memstate targets .NET Standard 2.0 so will run on .NET Framework >= 4.6.1, .NET Core >= 2.0, Xamarin and Mono.
+OrigoDB is no longer under active development. Please check out [Memstate](https://github.com/devrexlabs/memstate) which is a complete rewrite of OrigoDB featuring major improvements in the areas performance, availability, licensing, cross-platform, docker and cloud support. Memstate targets .NET Standard 2.0 so will run on .NET Framework >= 4.6.1, .NET Core >= 2.0, Xamarin and Mono.
 
 ## In-memory database for NET/Mono
-
-Looking for .NET Core
-
 
 An Origo database is a command-sourced in-memory object graph.
 
